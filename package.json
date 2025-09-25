@@ -1,0 +1,50 @@
+{
+  "name": "heroui-mcp",
+  "version": "0.0.0-alpha.1",
+  "type": "module",
+  "description": "MCP server deployed to Cloudflare Workers",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts --env development --port 8787",
+    "deploy": "wrangler deploy --minify",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
+    "mcp:stdio": "tsx src/stdio.ts",
+    "extract:heroui": "tsx scripts/extract-heroui.ts",
+    "extract:native": "tsx scripts/extract-native.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@modelcontextprotocol/sdk": "^1.18.1",
+    "hono": "^4.9.8",
+    "zod": "^4.1.9"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250920.0",
+    "@types/node": "^22.18.6",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-sort-destructure-keys": "^2.0.0",
+    "eslint-plugin-sort-keys-fix": "^1.1.2",
+    "eslint-plugin-unused-imports": "^4.2.0",
+    "glob": "^11.0.3",
+    "globals": "^16.4.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.1",
+    "wrangler": "^4.38.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.17.0"
+}

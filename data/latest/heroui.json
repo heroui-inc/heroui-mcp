@@ -1,0 +1,1502 @@
+{
+  "Accordion": {
+    "name": "Accordion",
+    "description": "A collapsible content panel for organizing information in a compact space",
+    "importStatement": "import { Accordion } from '@heroui/react';",
+    "props": {
+      "allowsMultipleExpanded": {
+        "name": "allowsMultipleExpanded",
+        "type": "boolean",
+        "description": "Whether multiple items can be expanded at once",
+        "default": false
+      },
+      "defaultExpandedKeys": {
+        "name": "defaultExpandedKeys",
+        "type": "Iterable<Key>",
+        "description": "The initial expanded keys"
+      },
+      "expandedKeys": {
+        "name": "expandedKeys",
+        "type": "Iterable<Key>",
+        "description": "The controlled expanded keys"
+      },
+      "onExpandedChange": {
+        "name": "onExpandedChange",
+        "type": "(keys: Set<Key>) => void",
+        "description": "Handler called when expanded keys change"
+      },
+      "isDisabled": {
+        "name": "isDisabled",
+        "type": "boolean",
+        "description": "Whether the entire accordion is disabled",
+        "default": false
+      },
+      "variant": {
+        "name": "variant",
+        "type": "\"default\" | \"outline\"",
+        "description": "The visual variant of the accordion",
+        "default": "default"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      },
+      "children": {
+        "name": "children",
+        "type": "ReactNode",
+        "description": "The accordion items"
+      }
+    },
+    "subComponents": {
+      "Item": {
+        "name": "Accordion.Item",
+        "props": {
+          "id": {
+            "name": "id",
+            "type": "Key",
+            "description": "Unique identifier for the item"
+          },
+          "isDisabled": {
+            "name": "isDisabled",
+            "type": "boolean",
+            "description": "Whether this item is disabled",
+            "default": false
+          },
+          "defaultExpanded": {
+            "name": "defaultExpanded",
+            "type": "boolean",
+            "description": "Whether item is initially expanded",
+            "default": false
+          },
+          "isExpanded": {
+            "name": "isExpanded",
+            "type": "boolean",
+            "description": "Controlled expanded state"
+          },
+          "onExpandedChange": {
+            "name": "onExpandedChange",
+            "type": "(isExpanded: boolean) => void",
+            "description": "Handler for expanded state changes"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "ReactNode",
+            "description": "The item content"
+          }
+        }
+      },
+      "Trigger": {
+        "name": "Accordion.Trigger",
+        "props": {
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "ReactNode | RenderFunction",
+            "description": "Trigger content or render function"
+          },
+          "onPress": {
+            "name": "onPress",
+            "type": "() => void",
+            "description": "Additional press handler"
+          },
+          "isDisabled": {
+            "name": "isDisabled",
+            "type": "boolean",
+            "description": "Whether trigger is disabled"
+          }
+        }
+      },
+      "Panel": {
+        "name": "Accordion.Panel",
+        "props": {
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "ReactNode",
+            "description": "Panel content"
+          }
+        }
+      },
+      "Indicator": {
+        "name": "Accordion.Indicator",
+        "props": {
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "ReactNode",
+            "description": "Custom indicator icon"
+          }
+        }
+      },
+      "Body": {
+        "name": "Accordion.Body",
+        "props": {
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "ReactNode",
+            "description": "Body content"
+          }
+        }
+      }
+    },
+    "examples": [
+      "import { Accordion } from '@heroui/react';",
+      "import { Accordion } from '@heroui/react';\n\nexport default () => (\n  <Accordion>\n    <Accordion.Item>\n      <Accordion.Heading>\n        <Accordion.Trigger>\n          <Accordion.Indicator />\n        </Accordion.Trigger>\n      </Accordion.Heading>\n      <Accordion.Panel>\n        <Accordion.Body/>\n      </Accordion.Panel>\n    </Accordion.Item>\n  </Accordion>\n)"
+    ]
+  },
+  "Avatar": {
+    "name": "Avatar",
+    "description": "Display user profile images with customizable fallback content",
+    "importStatement": "import { Avatar } from '@heroui/react';",
+    "props": {
+      "size": {
+        "name": "size",
+        "type": "'sm' | 'md' | 'lg'",
+        "description": "Avatar size",
+        "default": "md"
+      },
+      "color": {
+        "name": "color",
+        "type": "'default' | 'accent' | 'success' | 'warning' | 'danger'",
+        "description": "Fallback color theme",
+        "default": "default"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      },
+      "asChild": {
+        "name": "asChild",
+        "type": "boolean",
+        "description": "Render as child element",
+        "default": false
+      }
+    },
+    "subComponents": {
+      "Image": {
+        "name": "Avatar.Image",
+        "props": {
+          "src": {
+            "name": "src",
+            "type": "string",
+            "description": "Image source URL"
+          },
+          "srcSet": {
+            "name": "srcSet",
+            "type": "string",
+            "description": "The image `srcset` attribute for responsive images"
+          },
+          "sizes": {
+            "name": "sizes",
+            "type": "string",
+            "description": "The image `sizes` attribute for responsive images"
+          },
+          "alt": {
+            "name": "alt",
+            "type": "string",
+            "description": "Alternative text for the image"
+          },
+          "onLoad": {
+            "name": "onLoad",
+            "type": "(event: SyntheticEvent<HTMLImageElement>) => void",
+            "description": "Callback when the image loads successfully"
+          },
+          "onError": {
+            "name": "onError",
+            "type": "(event: SyntheticEvent<HTMLImageElement>) => void",
+            "description": "Callback when there's an error loading the image"
+          },
+          "onLoadingStatusChange": {
+            "name": "onLoadingStatusChange",
+            "type": "(status: 'loading' | 'loaded' | 'pending' | 'failed') => void",
+            "description": "Callback for loading status changes"
+          },
+          "ignoreFallback": {
+            "name": "ignoreFallback",
+            "type": "boolean",
+            "description": "If `true`, opt out of the fallback logic and use as regular `img`",
+            "default": false
+          },
+          "shouldBypassImageLoad": {
+            "name": "shouldBypassImageLoad",
+            "type": "boolean",
+            "description": "If `true`, image load will be bypassed and handled by `asChild` component",
+            "default": false
+          },
+          "crossOrigin": {
+            "name": "crossOrigin",
+            "type": "'anonymous' | 'use-credentials'",
+            "description": "CORS setting for the image request"
+          },
+          "loading": {
+            "name": "loading",
+            "type": "'eager' | 'lazy'",
+            "description": "Native lazy loading attribute"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Render as child element",
+            "default": false
+          }
+        }
+      },
+      "Fallback": {
+        "name": "Avatar.Fallback",
+        "props": {
+          "delayMs": {
+            "name": "delayMs",
+            "type": "number",
+            "description": "Delay before showing fallback (prevents flash)"
+          },
+          "color": {
+            "name": "color",
+            "type": "'default' | 'accent' | 'success' | 'warning' | 'danger'",
+            "description": "Override color from parent"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Render as child element",
+            "default": false
+          }
+        }
+      }
+    },
+    "examples": [
+      "import { Avatar } from '@heroui/react';",
+      "import { Avatar } from '@heroui/react';\n\nexport default () => (\n  <Avatar>\n    <Avatar.Image/>\n    <Avatar.Fallback/>\n  </Avatar>\n)",
+      "import { Avatar } from '@heroui/react';\n\nfunction CustomAvatar() {\n  return (\n    <Avatar className=\"size-20\">\n      <Avatar.Image src=\"...\" alt=\"...\" />\n      <Avatar.Fallback>XL</Avatar.Fallback>\n    </Avatar>\n  );\n}"
+    ]
+  },
+  "Button": {
+    "name": "Button",
+    "description": "A clickable button component with multiple variants and states",
+    "importStatement": "import { Button } from '@heroui/react';",
+    "props": {
+      "variant": {
+        "name": "variant",
+        "type": "'primary' | 'secondary' | 'tertiary' | 'ghost' | 'danger'",
+        "description": "Visual style variant",
+        "default": "primary"
+      },
+      "size": {
+        "name": "size",
+        "type": "'sm' | 'md' | 'lg'",
+        "description": "Size of the button",
+        "default": "md"
+      },
+      "isDisabled": {
+        "name": "isDisabled",
+        "type": "boolean",
+        "description": "Whether the button is disabled",
+        "default": false
+      },
+      "isPending": {
+        "name": "isPending",
+        "type": "boolean",
+        "description": "Whether the button is in a loading state",
+        "default": false
+      },
+      "isIconOnly": {
+        "name": "isIconOnly",
+        "type": "boolean",
+        "description": "Whether the button contains only an icon",
+        "default": false
+      },
+      "onPress": {
+        "name": "onPress",
+        "type": "(e: PressEvent) => void",
+        "description": "Handler called when the button is pressed"
+      },
+      "children": {
+        "name": "children",
+        "type": "React.ReactNode | (values: ButtonRenderProps) => React.ReactNode",
+        "description": "Button content or render prop"
+      }
+    },
+    "subComponents": {},
+    "examples": [
+      "import { Button } from '@heroui/react';",
+      "import { Button } from '@heroui/react';\n\nfunction CustomButton() {\n  return (\n    <Button className=\"bg-purple-500 text-white hover:bg-purple-600\">\n      Purple Button\n    </Button>\n  );\n}"
+    ]
+  },
+  "Card": {
+    "name": "Card",
+    "description": "A flexible container component for displaying content with multiple layout variants and surface levels",
+    "importStatement": "import { Card } from '@heroui/react';",
+    "props": {
+      "variant": {
+        "name": "variant",
+        "type": "'side' | 'item' | 'full'",
+        "description": "Layout variant for different card styles"
+      },
+      "surface": {
+        "name": "surface",
+        "type": "'none' | '1' | '2' | '3'",
+        "description": "Surface elevation level for visual hierarchy",
+        "default": "1"
+      },
+      "asChild": {
+        "name": "asChild",
+        "type": "boolean",
+        "description": "Render as a child element",
+        "default": false
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      },
+      "children": {
+        "name": "children",
+        "type": "React.ReactNode",
+        "description": "Card content"
+      }
+    },
+    "subComponents": {
+      "Header": {
+        "name": "Card.Header",
+        "props": {
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Render as a child element",
+            "default": false
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Header content"
+          }
+        }
+      },
+      "Title": {
+        "name": "Card.Title",
+        "props": {
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Render as a child element (default: h3)",
+            "default": false
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Title content"
+          }
+        }
+      },
+      "Description": {
+        "name": "Card.Description",
+        "props": {
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Render as a child element (default: p)",
+            "default": false
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Description content"
+          }
+        }
+      },
+      "Content": {
+        "name": "Card.Content",
+        "props": {
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Render as a child element",
+            "default": false
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Main content"
+          }
+        }
+      },
+      "Details": {
+        "name": "Card.Details",
+        "props": {
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Render as a child element",
+            "default": false
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Details content (used with variants)"
+          }
+        }
+      },
+      "Footer": {
+        "name": "Card.Footer",
+        "props": {
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Render as a child element",
+            "default": false
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Footer content"
+          }
+        }
+      },
+      "Image": {
+        "name": "Card.Image",
+        "props": {
+          "src": {
+            "name": "src",
+            "type": "string",
+            "description": "Image source URL"
+          },
+          "alt": {
+            "name": "alt",
+            "type": "string",
+            "description": "Alternative text for accessibility"
+          },
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Render as a child element (default: img)",
+            "default": false
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "CloseButton": {
+        "name": "Card.CloseButton",
+        "props": {
+          "onPress": {
+            "name": "onPress",
+            "type": "(e: PressEvent) => void",
+            "description": "Handler called when button is pressed"
+          },
+          "isDisabled": {
+            "name": "isDisabled",
+            "type": "boolean",
+            "description": "Whether the button is disabled",
+            "default": false
+          },
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Render as a child element",
+            "default": false
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode | (values: ButtonRenderProps) => React.ReactNode",
+            "description": "Button content or render prop",
+            "default": "<CloseIcon />"
+          }
+        }
+      }
+    },
+    "examples": [
+      "import { Card } from '@heroui/react';",
+      "<Card>\n  <Card.Header>\n    <Card.Title>Card Title</Card.Title>\n    <Card.Description>Card description</Card.Description>\n  </Card.Header>\n  <Card.Content/>\n  <Card.Footer/>\n</Card>",
+      "import { Card } from '@heroui/react';\n\nfunction CustomCard() {\n  return (\n    <Card className=\"border-2 border-blue-500 bg-gradient-to-r from-blue-50 to-purple-50\">\n      <Card.Header>\n        <Card.Title>Custom Styled Card</Card.Title>\n      </Card.Header>\n    </Card>\n  );\n}"
+    ]
+  },
+  "Chip": {
+    "name": "Chip",
+    "description": "Small informational badges for displaying labels, statuses, and categories",
+    "importStatement": "import { Chip } from '@heroui/react';",
+    "props": {
+      "children": {
+        "name": "children",
+        "type": "React.ReactNode",
+        "description": "Content to display inside the chip"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      },
+      "type": {
+        "name": "type",
+        "type": "\"default\" | \"accent\" | \"success\" | \"warning\" | \"danger\"",
+        "description": "Type variant of the chip",
+        "default": "default"
+      },
+      "variant": {
+        "name": "variant",
+        "type": "\"primary\" | \"secondary\" | \"tertiary\"",
+        "description": "Visual style variant",
+        "default": "secondary"
+      }
+    },
+    "subComponents": {},
+    "examples": [
+      "import { Chip } from '@heroui/react';",
+      "import {Chip} from '@heroui/react';\n\nfunction CustomChip() {\n  return (\n    <Chip className=\"rounded-full px-4 py-2 font-bold\">\n      Custom Styled\n    </Chip>\n  );\n}"
+    ]
+  },
+  "DisclosureGroup": {
+    "name": "DisclosureGroup",
+    "description": "Container that manages multiple Disclosure items with coordinated expanded states",
+    "importStatement": "import {DisclosureGroup} from '@heroui/react';",
+    "props": {
+      "expandedKeys": {
+        "name": "expandedKeys",
+        "type": "Set<Key>",
+        "description": "The currently expanded items (controlled)"
+      },
+      "defaultExpandedKeys": {
+        "name": "defaultExpandedKeys",
+        "type": "Iterable<Key>",
+        "description": "The initially expanded items (uncontrolled)"
+      },
+      "onExpandedChange": {
+        "name": "onExpandedChange",
+        "type": "(keys: Set<Key>) => void",
+        "description": "Handler called when expanded items change"
+      },
+      "allowsMultipleExpanded": {
+        "name": "allowsMultipleExpanded",
+        "type": "boolean",
+        "description": "Whether multiple items can be expanded simultaneously",
+        "default": false
+      },
+      "isDisabled": {
+        "name": "isDisabled",
+        "type": "boolean",
+        "description": "Whether all disclosures in the group are disabled",
+        "default": false
+      },
+      "children": {
+        "name": "children",
+        "type": "ReactNode | RenderFunction",
+        "description": "Disclosure items to render"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      }
+    },
+    "subComponents": {},
+    "examples": [
+      "import {DisclosureGroup} from '@heroui/react';",
+      "import {DisclosureGroup, Disclosure} from '@heroui/react';\n\nexport default () => (\n  <DisclosureGroup>\n    <Disclosure id=\"item1\">\n      <Disclosure.Heading>\n        <Disclosure.Trigger>\n          <Disclosure.Indicator />\n        </Disclosure.Trigger>\n      </Disclosure.Heading>\n      <Disclosure.Content />\n    </Disclosure>\n  </DisclosureGroup>\n)",
+      "import {DisclosureGroup, Disclosure} from '@heroui/react';\n\nfunction CustomDisclosureGroup() {\n  return (\n    <DisclosureGroup className=\"border rounded-lg p-4 space-y-2\">\n      <Disclosure id=\"first\" className=\"border-b pb-2\">\n        <Disclosure.Trigger>Item 1</Disclosure.Trigger>\n        <Disclosure.Content>Content 1</Disclosure.Content>\n      </Disclosure>\n      <Disclosure id=\"second\">\n        <Disclosure.Trigger>Item 2</Disclosure.Trigger>\n        <Disclosure.Content>Content 2</Disclosure.Content>\n      </Disclosure>\n    </DisclosureGroup>\n  );\n}"
+    ]
+  },
+  "Disclosure": {
+    "name": "Disclosure",
+    "description": "A disclosure is a collapsible section with a header containing a heading and a trigger button, and a panel that wraps the content.",
+    "importStatement": "import {Disclosure} from '@heroui/react';",
+    "props": {
+      "isExpanded": {
+        "name": "isExpanded",
+        "type": "boolean",
+        "description": "Controls the expanded state",
+        "default": false
+      },
+      "onExpandedChange": {
+        "name": "onExpandedChange",
+        "type": "(isExpanded: boolean) => void",
+        "description": "Callback when expanded state changes"
+      },
+      "isDisabled": {
+        "name": "isDisabled",
+        "type": "boolean",
+        "description": "Whether the disclosure is disabled",
+        "default": false
+      },
+      "children": {
+        "name": "children",
+        "type": "ReactNode | RenderFunction",
+        "description": "Content to render"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      }
+    },
+    "subComponents": {
+      "Trigger": {
+        "name": "Disclosure.Trigger",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "ReactNode | RenderFunction",
+            "description": "Trigger content"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          },
+          "slot": {
+            "name": "slot",
+            "type": "string",
+            "description": "Slot name for React Aria",
+            "default": "trigger"
+          }
+        }
+      },
+      "Content": {
+        "name": "Disclosure.Content",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "ReactNode",
+            "description": "Content to show/hide"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Indicator": {
+        "name": "Disclosure.Indicator",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "ReactElement",
+            "description": "Custom indicator element",
+            "default": "<IconChevronDown />"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      }
+    },
+    "examples": [
+      "import {Disclosure} from '@heroui/react';",
+      "import { Disclosure } from '@heroui/react';\n\nexport default () => (\n  <Disclosure>\n    <Disclosure.Heading>\n      <Disclosure.Trigger>\n        <Disclosure.Indicator />\n      </Disclosure.Trigger>\n    </Disclosure.Heading>\n    <Disclosure.Content/>\n  </Disclosure>\n)",
+      "import { Disclosure } from '@heroui/react';\n\nfunction CustomDisclosure() {\n  return (\n    <Disclosure className=\"border rounded-lg p-4\">\n      <Disclosure.Trigger className=\"text-lg font-semibold\">\n        Click to expand\n        <Disclosure.Indicator className=\"ml-2\" />\n      </Disclosure.Trigger>\n      <Disclosure.Content className=\"mt-4 text-gray-600\">\n        Hidden content\n      </Disclosure.Content>\n    </Disclosure>\n  );\n}"
+    ]
+  },
+  "Kbd": {
+    "name": "Kbd",
+    "description": "Display keyboard shortcuts and key combinations",
+    "importStatement": "import {Kbd} from \"@heroui/react\";",
+    "props": {
+      "children": {
+        "name": "children",
+        "type": "React.ReactNode",
+        "description": "Content of the key"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Custom CSS classes"
+      }
+    },
+    "subComponents": {
+      "Abbr": {
+        "name": "Kbd.Abbr",
+        "props": {
+          "keyValue": {
+            "name": "keyValue",
+            "type": "KbdKey",
+            "description": "The keyboard key to display. Available values include modifier keys and special keys"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Custom CSS classes"
+          }
+        }
+      },
+      "Content": {
+        "name": "Kbd.Content",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Text content of the key"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Custom CSS classes"
+          }
+        }
+      }
+    },
+    "examples": [
+      "import {Kbd} from \"@heroui/react\";",
+      "import {Kbd} from \"@heroui/react\";\n\nexport default () => (\n  <Kbd>\n    <Kbd.Abbr keyValue=\"command\" />\n    <Kbd.Content>K</Kbd.Content>\n  </Kbd>\n);",
+      "import {Kbd} from \"@heroui/react\";\n\nfunction CustomKbd() {\n  return (\n    <Kbd className=\"bg-gray-100 dark:bg-gray-800\">\n      <Kbd.Content>K</Kbd.Content>\n    </Kbd>\n  );\n}"
+    ]
+  },
+  "Link": {
+    "name": "Link",
+    "description": "A styled anchor component for navigation with built-in icon support",
+    "importStatement": "import { Link } from '@heroui/react';",
+    "props": {
+      "href": {
+        "name": "href",
+        "type": "string",
+        "description": "URL for navigation"
+      },
+      "target": {
+        "name": "target",
+        "type": "string",
+        "description": "Specifies where to open the linked document"
+      },
+      "rel": {
+        "name": "rel",
+        "type": "string",
+        "description": "Specifies the relationship between documents"
+      },
+      "isDisabled": {
+        "name": "isDisabled",
+        "type": "boolean",
+        "description": "Disables link interaction",
+        "default": false
+      },
+      "showIcon": {
+        "name": "showIcon",
+        "type": "boolean",
+        "description": "Shows the link icon",
+        "default": false
+      },
+      "iconPlacement": {
+        "name": "iconPlacement",
+        "type": "\"start\" | \"end\"",
+        "description": "Position of the icon",
+        "default": "end"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      },
+      "children": {
+        "name": "children",
+        "type": "React.ReactNode",
+        "description": "Link content"
+      },
+      "onPress": {
+        "name": "onPress",
+        "type": "(e: PressEvent) => void",
+        "description": "Handler called when the link is pressed"
+      },
+      "autoFocus": {
+        "name": "autoFocus",
+        "type": "boolean",
+        "description": "Whether the element should receive focus on render"
+      }
+    },
+    "subComponents": {
+      "Icon": {
+        "name": "Link.Icon",
+        "props": {
+          "asChild": {
+            "name": "asChild",
+            "type": "boolean",
+            "description": "Merge props with child element",
+            "default": false
+          },
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Custom icon element"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      }
+    },
+    "examples": [
+      "import { Link } from '@heroui/react';",
+      "import {Link} from '@heroui/react';\n\nfunction CustomLink() {\n  return (\n    <Link\n      href=\"#\"\n      className=\"text-lg font-bold text-accent hover:text-accent/80\"\n    >\n      Custom styled link\n    </Link>\n  );\n}"
+    ]
+  },
+  "Popover": {
+    "name": "Popover",
+    "description": "Displays rich content in a portal triggered by a button or any custom element",
+    "importStatement": "import { Popover } from '@heroui/react';",
+    "props": {
+      "children": {
+        "name": "children",
+        "type": "React.ReactNode",
+        "description": "Trigger and content elements"
+      },
+      "isOpen": {
+        "name": "isOpen",
+        "type": "boolean",
+        "description": "Controls popover visibility (controlled)"
+      },
+      "defaultOpen": {
+        "name": "defaultOpen",
+        "type": "boolean",
+        "description": "Initial open state (uncontrolled)",
+        "default": false
+      },
+      "onOpenChange": {
+        "name": "onOpenChange",
+        "type": "(isOpen: boolean) => void",
+        "description": "Called when open state changes"
+      }
+    },
+    "subComponents": {
+      "Content": {
+        "name": "Popover.Content",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Content to display in the popover"
+          },
+          "placement": {
+            "name": "placement",
+            "type": "\"top\" | \"bottom\" | \"left\" | \"right\" (and variants)",
+            "description": "Placement of the popover",
+            "default": "bottom"
+          },
+          "offset": {
+            "name": "offset",
+            "type": "number",
+            "description": "Distance from the trigger element",
+            "default": 8
+          },
+          "shouldFlip": {
+            "name": "shouldFlip",
+            "type": "boolean",
+            "description": "Whether popover can change orientation to fit",
+            "default": true
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Dialog": {
+        "name": "Popover.Dialog",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Dialog content"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Trigger": {
+        "name": "Popover.Trigger",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Element that triggers the popover"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Heading": {
+        "name": "Popover.Heading",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Heading text content"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Arrow": {
+        "name": "Popover.Arrow",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Custom arrow element"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      }
+    },
+    "examples": [
+      "import { Popover } from '@heroui/react';",
+      "import { Popover } from '@heroui/react';\n\nexport default () => (\n  <Popover>\n    <Popover.Trigger/>\n    <Popover.Content>\n      <Popover.Arrow />\n      <Popover.Dialog>\n        <Popover.Heading/>\n        {/* content goes here */}\n      </Popover.Dialog>\n    </Popover.Content>\n  </Popover>\n)",
+      "import {Popover, Button} from '@heroui/react';\n\nfunction CustomPopover() {\n  return (\n    <Popover>\n      <Button>Open</Button>\n      <Popover.Content className=\"bg-accent text-accent-foreground\">\n        <Popover.Dialog>\n          <Popover.Heading>Custom Styled</Popover.Heading>\n          <p>This popover has custom styling</p>\n        </Popover.Dialog>\n      </Popover.Content>\n    </Popover>\n  );\n}"
+    ]
+  },
+  "Separator": {
+    "name": "Separator",
+    "description": "Visually divide content sections",
+    "importStatement": "import { Separator } from '@heroui/react';",
+    "props": {
+      "orientation": {
+        "name": "orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "The orientation of the separator",
+        "default": "horizontal"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      }
+    },
+    "subComponents": {},
+    "examples": [
+      "import { Separator } from '@heroui/react';",
+      "import {Separator} from '@heroui/react';\n\nfunction CustomSeparator() {\n  return (\n    <Separator className=\"my-8 bg-gradient-to-r from-transparent via-default-500 to-transparent\" />\n  );\n}"
+    ]
+  },
+  "Skeleton": {
+    "name": "Skeleton",
+    "description": "Skeleton is a placeholder to show a loading state and the expected shape of a component.",
+    "importStatement": "import { Skeleton } from '@heroui/react';",
+    "props": {
+      "animationType": {
+        "name": "animationType",
+        "type": "\"shimmer\" | \"pulse\" | \"none\"",
+        "description": "The animation type for the skeleton. Can be globally configured via `--skeleton-default-animation-type` CSS variable",
+        "default": "\"shimmer\" or CSS variable"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      }
+    },
+    "subComponents": {},
+    "examples": [
+      "import { Skeleton } from '@heroui/react';",
+      "import { Skeleton } from '@heroui/react';\n\nfunction CustomSkeleton() {\n  return (\n    <Skeleton className=\"h-20 w-32 rounded-full\" />\n  );\n}"
+    ]
+  },
+  "Spinner": {
+    "name": "Spinner",
+    "description": "A loading indicator component to show pending states",
+    "importStatement": "import { Spinner } from '@heroui/react';",
+    "props": {
+      "size": {
+        "name": "size",
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
+        "description": "Size of the spinner",
+        "default": "md"
+      },
+      "color": {
+        "name": "color",
+        "type": "\"current\" | \"accent\" | \"success\" | \"warning\" | \"danger\"",
+        "description": "Color variant of the spinner",
+        "default": "current"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      }
+    },
+    "subComponents": {},
+    "examples": [
+      "import { Spinner } from '@heroui/react';",
+      "import {Spinner} from '@heroui/react';\n\nfunction CustomSpinner() {\n  return (\n    <Spinner className=\"text-blue-500\" />\n  );\n}"
+    ]
+  },
+  "Switch": {
+    "name": "Switch",
+    "description": "A toggle switch component for boolean states",
+    "importStatement": "import { Switch, SwitchGroup } from '@heroui/react';",
+    "props": {
+      "isSelected": {
+        "name": "isSelected",
+        "type": "boolean",
+        "description": "Whether the switch is on",
+        "default": false
+      },
+      "defaultSelected": {
+        "name": "defaultSelected",
+        "type": "boolean",
+        "description": "Whether the switch is on by default (uncontrolled)",
+        "default": false
+      },
+      "isDisabled": {
+        "name": "isDisabled",
+        "type": "boolean",
+        "description": "Whether the switch is disabled",
+        "default": false
+      },
+      "name": {
+        "name": "name",
+        "type": "string",
+        "description": "The name of the input element, used when submitting an HTML form"
+      },
+      "value": {
+        "name": "value",
+        "type": "string",
+        "description": "The value of the input element, used when submitting an HTML form"
+      },
+      "onChange": {
+        "name": "onChange",
+        "type": "(isSelected: boolean) => void",
+        "description": "Handler called when the switch value changes"
+      },
+      "onPress": {
+        "name": "onPress",
+        "type": "(e: PressEvent) => void",
+        "description": "Handler called when the switch is pressed"
+      },
+      "children": {
+        "name": "children",
+        "type": "React.ReactNode | (values: SwitchRenderProps) => React.ReactNode",
+        "description": "Switch content or render prop"
+      }
+    },
+    "subComponents": {
+      "SwitchGroup": {
+        "name": "SwitchGroup",
+        "props": {
+          "orientation": {
+            "name": "orientation",
+            "type": "'horizontal' | 'vertical'",
+            "description": "The orientation of the switch group",
+            "default": "vertical"
+          },
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "The switch items to render"
+          }
+        }
+      }
+    },
+    "examples": [
+      "import { Switch, SwitchGroup } from '@heroui/react';",
+      "import { Switch, Label } from '@heroui/react';\n\nfunction CustomSwitch() {\n  return (\n    <Switch>\n      {({isSelected}) => (\n        <>\n          <Switch.Control\n            className=\"h-6 w-9 bg-gray-300 data-[selected=true]:bg-green-500\"\n            data-selected={isSelected}\n          >\n            <Switch.Thumb className=\"bg-white\" />\n          </Switch.Control>\n          <Label>Custom styled switch</Label>\n        </>\n      )}\n    </Switch>\n  );\n}"
+    ]
+  },
+  "Tabs": {
+    "name": "Tabs",
+    "description": "Tabs organize content into multiple sections and allow users to navigate between them.",
+    "importStatement": "import { Tabs } from '@heroui/react';",
+    "props": {
+      "orientation": {
+        "name": "orientation",
+        "type": "\"horizontal\" | \"vertical\"",
+        "description": "Tab layout orientation",
+        "default": "horizontal"
+      },
+      "selectedKey": {
+        "name": "selectedKey",
+        "type": "string",
+        "description": "Controlled selected tab key"
+      },
+      "defaultSelectedKey": {
+        "name": "defaultSelectedKey",
+        "type": "string",
+        "description": "Default selected tab key"
+      },
+      "onSelectionChange": {
+        "name": "onSelectionChange",
+        "type": "(key: Key) => void",
+        "description": "Selection change handler"
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      }
+    },
+    "subComponents": {
+      "List": {
+        "name": "Tabs.List",
+        "props": {
+          "aria-label": {
+            "name": "aria-label",
+            "type": "string",
+            "description": "Accessibility label for tab list"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Tab": {
+        "name": "Tabs.Tab",
+        "props": {
+          "id": {
+            "name": "id",
+            "type": "string",
+            "description": "Unique tab identifier"
+          },
+          "isDisabled": {
+            "name": "isDisabled",
+            "type": "boolean",
+            "description": "Whether tab is disabled",
+            "default": false
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Panel": {
+        "name": "Tabs.Panel",
+        "props": {
+          "id": {
+            "name": "id",
+            "type": "string",
+            "description": "Panel identifier matching tab id"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      }
+    },
+    "examples": [
+      "import { Tabs } from '@heroui/react';",
+      "import { Tabs } from '@heroui/react';\n\nexport default () => (\n  <Tabs>\n    <Tabs.ListWrapper>\n      <Tabs.List aria-label=\"Options\">\n        <Tabs.Tab/>\n      </Tabs.List>\n      <Tabs.Indicator />\n    </Tabs.ListWrapper>\n    <Tabs.Panel/>\n  </Tabs>\n)"
+    ]
+  },
+  "TextField": {
+    "name": "TextField",
+    "description": "Text input fields for forms with labels, descriptions, and error messages",
+    "importStatement": "import { TextField } from '@heroui/react';",
+    "props": {
+      "isRequired": {
+        "name": "isRequired",
+        "type": "boolean",
+        "description": "Whether the field is required",
+        "default": false
+      },
+      "isInvalid": {
+        "name": "isInvalid",
+        "type": "boolean",
+        "description": "Whether the field is invalid",
+        "default": false
+      },
+      "isDisabled": {
+        "name": "isDisabled",
+        "type": "boolean",
+        "description": "Whether the field is disabled",
+        "default": false
+      },
+      "className": {
+        "name": "className",
+        "type": "string",
+        "description": "Additional CSS classes"
+      }
+    },
+    "subComponents": {
+      "Label": {
+        "name": "TextField.Label",
+        "props": {
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Input": {
+        "name": "TextField.Input",
+        "props": {
+          "type": {
+            "name": "type",
+            "type": "string",
+            "description": "Input type (text, email, password, etc.)",
+            "default": "text"
+          },
+          "placeholder": {
+            "name": "placeholder",
+            "type": "string",
+            "description": "Placeholder text"
+          },
+          "value": {
+            "name": "value",
+            "type": "string",
+            "description": "Input value"
+          },
+          "onChange": {
+            "name": "onChange",
+            "type": "(value: string) => void",
+            "description": "Change handler"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "TextArea": {
+        "name": "TextField.TextArea",
+        "props": {
+          "rows": {
+            "name": "rows",
+            "type": "number",
+            "description": "Number of visible text lines",
+            "default": 3
+          },
+          "placeholder": {
+            "name": "placeholder",
+            "type": "string",
+            "description": "Placeholder text"
+          },
+          "value": {
+            "name": "value",
+            "type": "string",
+            "description": "TextArea value"
+          },
+          "onChange": {
+            "name": "onChange",
+            "type": "(value: string) => void",
+            "description": "Change handler"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Description": {
+        "name": "TextField.Description",
+        "props": {
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Error": {
+        "name": "TextField.Error",
+        "props": {
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      }
+    },
+    "examples": [
+      "import { TextField } from '@heroui/react';",
+      "import { TextField } from '@heroui/react';\n\nexport default () => (\n  <TextField>\n    <TextField.Label>Field label</TextField.Label>\n    <TextField.Input placeholder=\"Enter value\" />\n    <TextField.Description>\n      Helper text for the field\n    </TextField.Description>\n    <TextField.Error>\n      Error message when invalid\n    </TextField.Error>\n  </TextField>\n)",
+      "import { TextField } from '@heroui/react';\n\nfunction CustomTextField() {\n  return (\n    <TextField className=\"space-y-3\">\n      <TextField.Label className=\"text-lg font-bold\">\n        Custom styled field\n      </TextField.Label>\n      <TextField.Input\n        className=\"border-2 border-blue-500 focus:border-blue-600\"\n        placeholder=\"Custom input\"\n      />\n      <TextField.Description className=\"text-xs italic\">\n        With custom styles\n      </TextField.Description>\n    </TextField>\n  );\n}"
+    ]
+  },
+  "Tooltip": {
+    "name": "Tooltip",
+    "description": "Displays informative text when users hover over or focus on an element",
+    "importStatement": "import { Tooltip } from '@heroui/react';",
+    "props": {
+      "children": {
+        "name": "children",
+        "type": "React.ReactNode",
+        "description": "Trigger element and content"
+      },
+      "delay": {
+        "name": "delay",
+        "type": "number",
+        "description": "Delay in milliseconds before showing tooltip",
+        "default": 700
+      },
+      "closeDelay": {
+        "name": "closeDelay",
+        "type": "number",
+        "description": "Delay in milliseconds before hiding tooltip",
+        "default": 0
+      },
+      "trigger": {
+        "name": "trigger",
+        "type": "\"hover\" | \"focus\"",
+        "description": "How the tooltip is triggered",
+        "default": "hover"
+      },
+      "isDisabled": {
+        "name": "isDisabled",
+        "type": "boolean",
+        "description": "Whether the tooltip is disabled",
+        "default": false
+      }
+    },
+    "subComponents": {
+      "Content": {
+        "name": "Tooltip.Content",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Content to display in the tooltip"
+          },
+          "showArrow": {
+            "name": "showArrow",
+            "type": "boolean",
+            "description": "Whether to show the arrow indicator",
+            "default": false
+          },
+          "offset": {
+            "name": "offset",
+            "type": "number",
+            "description": "Distance from the trigger element",
+            "default": "3 (7 with arrow)"
+          },
+          "placement": {
+            "name": "placement",
+            "type": "\"top\" | \"bottom\" | \"left\" | \"right\" (and variants)",
+            "description": "Placement of the tooltip",
+            "default": "top"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Trigger": {
+        "name": "Tooltip.Trigger",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Element that triggers the tooltip"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      },
+      "Arrow": {
+        "name": "Tooltip.Arrow",
+        "props": {
+          "children": {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Custom arrow element"
+          },
+          "className": {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        }
+      }
+    },
+    "examples": [
+      "import { Tooltip } from '@heroui/react';",
+      "import { Tooltip } from '@heroui/react';\n\nexport default () => (\n  <Tooltip>\n    <Tooltip.Trigger>\n      <button>Hover for tooltip</button>\n    </Tooltip.Trigger>\n    <Tooltip.Content>\n      <Tooltip.Arrow />\n      Helpful information about this element\n    </Tooltip.Content>\n  </Tooltip>\n)",
+      "import {Tooltip, Button} from '@heroui/react';\n\nfunction CustomTooltip() {\n  return (\n    <Tooltip>\n      <Button>Hover me</Button>\n      <Tooltip.Content className=\"bg-accent text-accent-foreground\">\n        <p>Custom styled tooltip</p>\n      </Tooltip.Content>\n    </Tooltip>\n  );\n}"
+    ]
+  }
+}

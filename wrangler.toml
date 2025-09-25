@@ -1,0 +1,61 @@
+name = "heroui-mcp"
+
+# ------------------------------------------------------------
+# -- General
+# ------------------------------------------------------------
+main = "src/index.ts"
+compatibility_date = "2025-01-18"
+compatibility_flags = ["nodejs_compat"]
+
+# ------------------------------------------------------------
+# -- Development Environment
+# ------------------------------------------------------------
+[env.development]
+# Local development configuration
+
+[env.development.vars]
+APP_ENV = "development"
+LOG_LEVEL = "debug"
+# Add your development environment variables here
+
+# ------------------------------------------------------------
+# -- Staging Environment
+# ------------------------------------------------------------
+[env.staging]
+# Routes will be configured when we have a domain
+# routes = [
+#   { pattern = "staging-mcp.heroui.chat", custom_domain = true }
+# ]
+
+[env.staging.vars]
+APP_ENV = "staging"
+LOG_LEVEL = "info"
+# Add your staging environment variables here
+
+# ------------------------------------------------------------
+# -- Production Environment
+# ------------------------------------------------------------
+[env.production]
+# Routes will be configured when we have a domain
+# routes = [
+#   { pattern = "mcp.heroui.chat", custom_domain = true }
+# ]
+
+[env.production.vars]
+APP_ENV = "production"
+LOG_LEVEL = "warn"
+# Add your production environment variables here
+
+# ------------------------------------------------------------
+# -- Worker Settings
+# ------------------------------------------------------------
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[placement]
+mode = "smart"
+
+[limits]
+# 60 second timeout for MCP operations
+cpu_ms = 60000
