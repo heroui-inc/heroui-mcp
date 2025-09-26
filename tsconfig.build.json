@@ -18,7 +18,8 @@
     "src/stdio-npm.ts",
     "src/services/mcp-server-core-npm.ts",
     "src/services/component-data-service-npm.ts",
-    "src/services/data-store-file.ts"
+    "src/services/data-store-file.ts",
+    "src/services/version-check-service.ts"
   ],
   "exclude": [
     "node_modules",
