@@ -1,3 +1,7 @@
+# [0.0.0-alpha.2](https://github.com/your-org/heroui-mcp/compare/v0.0.0-alpha.1...v0.0.0-alpha.2) (2025-09-26)
+
+
+
 # 0.0.0-alpha.1 (2025-09-26)
 
 
