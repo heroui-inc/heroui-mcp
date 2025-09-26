@@ -24,7 +24,6 @@ export interface VersionInfo {
   extractDuration: number;
 }
 
-
 // Simplified static imports for latest data (Workers-compatible)
 const LATEST_IMPORTS = {
   heroui: () => import("../../data/latest/heroui.json"),

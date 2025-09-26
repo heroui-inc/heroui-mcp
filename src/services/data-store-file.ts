@@ -28,7 +28,10 @@ export interface ComponentData {
 }
 
 export interface DataStore {
-  getComponentData(library: string, version?: string): Promise<Record<string, ComponentData> | null>;
+  getComponentData(
+    library: string,
+    version?: string,
+  ): Promise<Record<string, ComponentData> | null>;
   getComponentExample(library: string, component: string, version?: string): Promise<string | null>;
   getVersions(): Promise<Record<string, string[]> | null>;
 }
@@ -41,29 +44,41 @@ class FileDataStore implements DataStore {
     this.dataDir = path.resolve(__dirname, "../../../data");
   }
 
-  async getComponentData(library: string, version?: string): Promise<Record<string, ComponentData> | null> {
+  async getComponentData(
+    library: string,
+    version?: string,
+  ): Promise<Record<string, ComponentData> | null> {
     try {
-      const dataPath = version && version !== "latest"
-        ? path.join(this.dataDir, version, library, "components.json")
-        : path.join(this.dataDir, "latest", library, "components.json");
+      const dataPath =
+        version && version !== "latest"
+          ? path.join(this.dataDir, version, library, "components.json")
+          : path.join(this.dataDir, "latest", library, "components.json");
 
       const data = await fs.readFile(dataPath, "utf-8");
+
       return JSON.parse(data) as Record<string, ComponentData>;
     } catch (error) {
       console.error(`Error loading component data for ${library}:`, error);
+
       return null;
     }
   }
 
-  async getComponentExample(library: string, component: string, version?: string): Promise<string | null> {
+  async getComponentExample(
+    library: string,
+    component: string,
+    version?: string,
+  ): Promise<string | null> {
     try {
       const componentData = await this.getComponentData(library, version);
+
       if (!componentData || !componentData[component]) {
         return null;
       }
 
       const comp = componentData[component];
-      const importStatement = comp.importStatement || `import {${component}} from "@heroui/${library}";`;
+      const importStatement =
+        comp.importStatement || `import {${component}} from "@heroui/${library}";`;
 
       // Generate a basic example
       const propsList = Object.entries(comp.props)
@@ -75,6 +90,7 @@ class FileDataStore implements DataStore {
       return example;
     } catch (error) {
       console.error(`Error loading example for ${library}/${component}:`, error);
+
       return null;
     }
   }
@@ -83,9 +99,11 @@ class FileDataStore implements DataStore {
     try {
       const versionsPath = path.join(this.dataDir, "versions.json");
       const data = await fs.readFile(versionsPath, "utf-8");
+
       return JSON.parse(data) as Record<string, string[]>;
     } catch (error) {
       console.error("Error loading versions:", error);
+
       return null;
     }
   }

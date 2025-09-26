@@ -10,6 +10,7 @@ import {ErrorCode, McpError} from "@modelcontextprotocol/sdk/types.js";
 import {z} from "zod";
 
 import {componentDataService} from "./component-data-service-npm.js";
+import {versionCheckService} from "./version-check-service.js";
 
 // Tool schemas
 const getComponentPropsSchema = z.object({
@@ -42,6 +43,16 @@ const getComponentExampleSchema = z.object({
     .describe(
       'Specific version to use (e.g., "v3.0.0-alpha.3"). Defaults to latest if not specified',
     ),
+});
+
+const checkVersionSchema = z.object({
+  currentVersion: z
+    .string()
+    .optional()
+    .describe("The current version installed (optional, will check if update is needed)"),
+  package: z
+    .enum(["heroui", "native", "mcp"])
+    .describe("The package to check version for (heroui, native, or mcp)"),
 });
 
 /**
@@ -112,11 +123,7 @@ export class McpServerCore {
     tools: {
       description: string;
       inputSchema: {
-        properties: {
-          component?: {description: string; type: string};
-          library: {description: string; enum: string[]; type: string};
-          version: {description: string; type: string};
-        };
+        properties: Record<string, any>;
         required: string[];
         type: string;
       };
@@ -190,6 +197,25 @@ export class McpServerCore {
           },
           name: "get_component_example",
         },
+        {
+          description: "Check if you're using the latest version of HeroUI packages or MCP server",
+          inputSchema: {
+            properties: {
+              currentVersion: {
+                description: "The current version installed (optional)",
+                type: "string",
+              },
+              package: {
+                description: "The package to check version for",
+                enum: ["heroui", "native", "mcp"],
+                type: "string",
+              },
+            },
+            required: ["package"],
+            type: "object",
+          },
+          name: "check_version",
+        },
       ],
     };
   }
@@ -216,6 +242,10 @@ export class McpServerCore {
     } else if (name === "get_component_example") {
       return this.handleGetComponentExample(
         args as {component: string; library: string; version: string},
+      );
+    } else if (name === "check_version") {
+      return this.handleCheckVersion(
+        args as {package: "heroui" | "native" | "mcp"; currentVersion?: string},
       );
     } else {
       throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
@@ -338,6 +368,73 @@ export class McpServerCore {
         content: [
           {
             text: `Error loading component example for ${library}/${component}: ${error}`,
+            type: "text",
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+
+  /**
+   * Handle check version tool
+   */
+  private async handleCheckVersion(args: {
+    package: "heroui" | "native" | "mcp";
+    currentVersion?: string;
+  }): Promise<{
+    content: {text: string; type: string}[];
+    isError?: boolean;
+  }> {
+    const parsed = checkVersionSchema.parse(args);
+
+    try {
+      let versionInfo;
+      let packageName;
+
+      switch (parsed.package) {
+        case "heroui":
+          packageName = "HeroUI";
+          versionInfo = await versionCheckService.checkHeroUIVersion(parsed.currentVersion);
+          break;
+        case "native":
+          packageName = "HeroUI Native";
+          versionInfo = await versionCheckService.checkHeroUINativeVersion(parsed.currentVersion);
+          break;
+        case "mcp":
+          packageName = "HeroUI MCP";
+          versionInfo = await versionCheckService.checkMCPVersion(parsed.currentVersion);
+          break;
+      }
+
+      let message = `# ${packageName} Version Check\n\n`;
+
+      message += `**Current Version:** ${versionInfo.currentVersion}\n`;
+      message += `**Latest Version:** ${versionInfo.latestVersion}\n`;
+      message += `**Status:** ${versionInfo.isLatest ? "✅ Up to date" : "⚠️ Update available"}\n\n`;
+      message += `${versionInfo.recommendation}\n`;
+
+      if (versionInfo.allVersions && versionInfo.allVersions.length > 0) {
+        message += `\n## Recent Versions\n`;
+        message += versionInfo.allVersions
+          .slice(0, 5)
+          .map((v) => `- ${v}`)
+          .join("\n");
+      }
+
+      return {
+        content: [
+          {
+            text: message,
+            type: "text",
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            text: `Error checking version for ${args.package}: ${error}`,
             type: "text",
           },
         ],

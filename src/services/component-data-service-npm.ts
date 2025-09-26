@@ -81,6 +81,7 @@ class ComponentDataService {
       if (!example) {
         // Fallback: generate basic example from component data
         const componentData = await this.getComponent(library, component, version);
+
         return this.generateBasicExample(componentData, library);
       }
 
@@ -95,15 +96,17 @@ class ComponentDataService {
    * Generate a basic example from component data
    */
   private generateBasicExample(component: ComponentData, library: string): string {
-    const importStatement = component.importStatement ||
-      `import {${component.name}} from "@heroui/${library === 'native' ? 'native' : 'react'}";`;
+    const importStatement =
+      component.importStatement ||
+      `import {${component.name}} from "@heroui/${library === "native" ? "native" : "react"}";`;
 
     const requiredProps = Object.entries(component.props)
       .filter(([, prop]) => prop.required)
       .map(([name, prop]) => {
-        if (prop.type === 'string') return `${name}="example"`;
-        if (prop.type === 'number') return `${name}={42}`;
-        if (prop.type === 'boolean') return `${name}`;
+        if (prop.type === "string") return `${name}="example"`;
+        if (prop.type === "number") return `${name}={42}`;
+        if (prop.type === "boolean") return `${name}`;
+
         return `${name}={/* ${prop.type} */}`;
       });
 
@@ -112,7 +115,7 @@ ${importStatement}
 
 export default function Example() {
   return (
-    <${component.name}${requiredProps.length ? `\n      ${requiredProps.join('\n      ')}` : ''}>
+    <${component.name}${requiredProps.length ? `\n      ${requiredProps.join("\n      ")}` : ""}>
       {/* Content */}
     </${component.name}>
   );
@@ -126,9 +129,11 @@ export default function Example() {
   async getVersions(): Promise<Record<string, string[]>> {
     try {
       const versions = await dataStore.getVersions();
+
       return versions || {};
     } catch (error) {
       console.error("Error getting versions:", error);
+
       return {};
     }
   }
