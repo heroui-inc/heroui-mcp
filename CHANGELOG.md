@@ -1,3 +1,12 @@
+# [0.0.0-alpha.5](https://github.com/heroui-inc/heroui-mcp/compare/v0.0.0-alpha.4...v0.0.0-alpha.5) (2025-09-26)
+
+
+### Features
+
+* implement Version Check Service for npm package version comparison ([4728a67](https://github.com/heroui-inc/heroui-mcp/commit/4728a671a0a6360553c46a85289a3db373e7a243))
+
+
+
 # [0.0.0-alpha.4](https://github.com/heroui-inc/heroui-mcp/compare/v0.0.0-alpha.3...v0.0.0-alpha.4) (2025-09-26)
 
 
