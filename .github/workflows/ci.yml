@@ -15,7 +15,7 @@ jobs:
         script: [lint, typecheck, build]
     steps:
       - name: Checkout Codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install dependencies
         uses: ./.github/actions/install
