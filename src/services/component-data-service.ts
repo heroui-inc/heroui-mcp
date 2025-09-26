@@ -24,19 +24,6 @@ export interface VersionInfo {
   extractDuration: number;
 }
 
-// Conditional import based on environment
-let dataStore: any;
-
-// Check if running in Cloudflare Workers environment
-if (typeof globalThis !== 'undefined' && 'R2Bucket' in globalThis) {
-  // Dynamic import for Cloudflare environment
-  const module = await import("./data-store.js");
-  dataStore = module.dataStore;
-} else {
-  // Use file-based store for Node.js environment
-  const module = await import("./data-store-file.js");
-  dataStore = module.dataStore;
-}
 
 // Simplified static imports for latest data (Workers-compatible)
 const LATEST_IMPORTS = {
@@ -50,10 +37,9 @@ const LATEST_IMPORTS = {
  */
 export class ComponentDataService {
   private versionCache: Record<string, VersionInfo> | null = null;
-  private dataStore: DataStore;
 
-  constructor(dataStoreInstance?: DataStore) {
-    this.dataStore = dataStoreInstance || dataStore;
+  constructor() {
+    // No dataStore needed for static imports
   }
 
   /**
@@ -114,12 +100,8 @@ export class ComponentDataService {
       }
     }
 
-    // For specific versions, delegate to database
-    try {
-      return await this.dataStore.getVersion(library, version);
-    } catch (error) {
-      throw new Error(`Data not available for ${library}@${version}. ${error}`);
-    }
+    // For specific versions, we only support latest for now
+    throw new Error(`Specific versions not yet supported. Use 'latest' or omit version.`);
   }
 
   /**
@@ -185,7 +167,9 @@ function Example() {
    * Save component data to external storage (placeholder for future database integration)
    */
   async saveComponentData(library: string, version: string, data: ComponentDataset): Promise<void> {
-    await this.dataStore.saveVersion(library, version, data);
+    // Placeholder for future implementation
+    // In the current implementation, data is loaded from static files
+    console.log(`Would save data for ${library}@${version}`, data);
   }
 }
 
