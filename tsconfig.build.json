@@ -1,0 +1,34 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": false,
+    "emitDeclarationOnly": false,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
+  },
+  "include": [
+    "src/stdio-npm.ts",
+    "src/services/mcp-server-core-npm.ts",
+    "src/services/component-data-service-npm.ts",
+    "src/services/data-store-file.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "scripts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/index.ts",
+    "src/http-server.ts",
+    "src/services/data-store.ts",
+    "src/types.ts"
+  ]
+}

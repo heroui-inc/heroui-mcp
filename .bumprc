@@ -1,0 +1,7 @@
+{
+  "commit": "chore(release): v%s",
+  "tag": "v%s",
+  "push": true,
+  "all": true,
+  "confirm": true
+}
