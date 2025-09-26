@@ -118,6 +118,61 @@ For any MCP-compatible client:
 
 ## Available Tools
 
+### check_version
+
+Checks if you're using the latest version of HeroUI packages or the MCP server itself.
+
+**Parameters:**
+- `package` (required): `"heroui"`, `"native"`, or `"mcp"`
+- `currentVersion` (optional): Your current version (e.g., `"3.0.0-alpha.31"`). If not provided, suggests installation.
+
+**Example:**
+```json
+{
+  "name": "check_version",
+  "arguments": {
+    "package": "heroui",
+    "currentVersion": "3.0.0-alpha.31"
+  }
+}
+```
+
+**Response (up to date):**
+```markdown
+# HeroUI Version Check
+
+**Current Version:** 3.0.0-alpha.31
+**Latest Version:** 3.0.0-alpha.31
+**Status:** ✅ Up to date
+
+You are using the latest v3 version of HeroUI (prerelease).
+
+## Recent Versions
+- 3.0.0-alpha.31
+- 3.0.0-alpha.30
+- 3.0.0-alpha.29
+```
+
+**Response (v2 user - error):**
+```markdown
+# ❌ Error: Incompatible HeroUI Version
+
+**This MCP server is only compatible with @heroui/react v3+**
+
+You are currently using v2.x, which is not supported.
+
+## Required Action:
+
+1. Upgrade to HeroUI v3 (currently in alpha status):
+   ```bash
+   npm install @heroui/react@3.0.0-alpha.31
+   ```
+
+2. Update your imports and components to v3 syntax
+
+⚠️ **Note:** v3 is currently in alpha and may have breaking changes
+```
+
 ### list_components
 
 Lists all available components in the specified library.
@@ -243,27 +298,36 @@ export default function Example() {
 
 Once configured, you can ask your AI assistant questions like:
 
+- "Am I using the latest version of HeroUI?"
+- "Check if my HeroUI version is up to date"
 - "Show me all HeroUI components"
 - "What props does the Button component have?"
 - "Give me an example of using the Card component"
 - "List all components in HeroUI Native"
 - "Show me the Modal component props from version v3.0.0-alpha.3"
 
-The AI assistant will use the MCP server to fetch accurate, up-to-date information about HeroUI components.
+The AI assistant will use the MCP server to fetch accurate, up-to-date information about HeroUI components and version compatibility.
+
+> **Important:** This MCP server is only compatible with HeroUI v3+. If you're using v2, the version check will guide you through upgrading.
 
 ### Example Workflow
 
-1. **Ask about available components:**
+1. **Check your HeroUI version:**
+   > "Am I using the latest version of HeroUI?"
+
+   The assistant will use `check_version` to verify your version and suggest updates if needed.
+
+2. **Ask about available components:**
    > "What components are available in HeroUI?"
 
    The assistant will use `list_components` to show all available components.
 
-2. **Get component details:**
+3. **Get component details:**
    > "Show me the props for the Select component"
 
    The assistant will use `get_component_props` to provide detailed prop information.
 
-3. **Get usage examples:**
+4. **Get usage examples:**
    > "How do I use the DatePicker component?"
 
    The assistant will use `get_component_example` to show implementation examples.

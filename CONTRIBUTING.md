@@ -118,6 +118,7 @@ pnpm format
 │       ├── component-data-service-npm.ts # NPM version
 │       ├── data-store.ts             # Data storage (Cloudflare R2)
 │       ├── data-store-file.ts        # File-based data store (NPM)
+│       ├── version-check-service.ts  # Version checking functionality
 │       ├── base-extractor.ts         # Base extraction functionality
 │       └── github-client.ts          # GitHub API client
 ├── scripts/
@@ -253,6 +254,20 @@ if (name === "my_tool") {
   inputSchema: { /* ... */ }
 }
 ```
+
+5. If creating a service (like version checking), add it to `services/`:
+```typescript
+// services/my-service.ts
+export class MyService {
+  // Service implementation
+}
+
+export const myService = new MyService();
+```
+
+6. Update both MCP server core files:
+   - `mcp-server-core.ts` (Cloudflare version)
+   - `mcp-server-core-npm.ts` (NPM distribution version)
 
 ### Architecture Notes
 

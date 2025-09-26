@@ -407,6 +407,19 @@ export class McpServerCore {
           break;
       }
 
+      // Check if it's an incompatible version error for HeroUI
+      if (parsed.package === "heroui" && versionInfo.isVersionError) {
+        return {
+          content: [
+            {
+              text: `# ❌ Error: Incompatible HeroUI Version\n\n${versionInfo.recommendation}`,
+              type: "text",
+            },
+          ],
+          isError: true,
+        };
+      }
+
       let message = `# ${packageName} Version Check\n\n`;
 
       message += `**Current Version:** ${versionInfo.currentVersion}\n`;
