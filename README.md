@@ -1,156 +1,125 @@
 # HeroUI MCP Server
 
-A comprehensive Model Context Protocol (MCP) server providing access to HeroUI component documentation, props, and examples. This server can be deployed to Cloudflare Workers or run locally via stdio transport.
+A Model Context Protocol (MCP) server that provides AI assistants with access to HeroUI v3 and HeroUI Native component documentation, props, and usage examples.
 
 ## 🌟 Features
 
 - **Component Documentation**: Access detailed component props and descriptions
 - **Multiple Libraries**: Support for both HeroUI and HeroUI Native
 - **Version Support**: Query specific versions or latest components
-- **Dual Deployment**: Run as Cloudflare Worker (HTTP) or local stdio server
-- **Auto-extraction**: Automated component data extraction from GitHub repositories
-- **TypeScript**: Full TypeScript support with strict typing
+- **TypeScript Support**: Full TypeScript support with strict typing
+- **Easy Integration**: Works with popular AI-powered IDEs and editors
 
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js v22+ (see `.nvmrc`)
-- pnpm package manager
-
-### Installation
+## 🚀 Installation
 
 ```bash
-# Install dependencies
-pnpm install
+# Install globally from npm
+npm install -g @heroui/mcp
 
-# Extract component data (recommended)
-pnpm extract:heroui
-pnpm extract:native
-
-# Start MCP server (stdio transport)
-pnpm mcp:stdio
+# Or use directly with npx (no installation needed)
+npx @heroui/mcp
 ```
 
-## 📋 Available Scripts
+## 🔧 IDE Setup
 
-### MCP Server Commands
+The MCP server supports [stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio) and is published at `@heroui/mcp`.
 
-- `pnpm mcp:stdio` - Run MCP server with stdio transport
-- `pnpm mcp:inspector` - Run MCP server with Inspector UI for testing
-- `pnpm extract:heroui` - Extract component data from HeroUI repository
-- `pnpm extract:native` - Extract component data from HeroUI Native repository
+### Cursor
 
-### Cloudflare Workers Commands
+Add to `.cursor/mcp.json` in your project root:
 
-- `pnpm dev` - Start local development server (http://localhost:8787)
-- `pnpm deploy` - Deploy to production environment
-- `pnpm deploy:staging` - Deploy to staging environment
-- `pnpm deploy:production` - Deploy to production environment
-
-### Development Commands
-
-- `pnpm typecheck` - Run TypeScript type checking
-- `pnpm lint` - Run ESLint code linting
-- `pnpm format` - Format code with Prettier
-
-## 🏗️ Project Structure
-
-```
-.
-├── src/
-│   ├── index.ts              # Hono server entry point
-│   ├── stdio.ts              # MCP stdio server entry point
-│   ├── http-server.ts        # HTTP server implementation
-│   ├── types.ts              # TypeScript type definitions
-│   └── services/
-│       ├── mcp-server-core.ts        # Core MCP server logic
-│       ├── component-data-service.ts # Component data management
-│       ├── data-store.ts             # Data storage and caching
-│       ├── base-extractor.ts         # Base extraction functionality
-│       └── github-client.ts          # GitHub API client
-├── scripts/
-│   ├── extract-heroui.ts     # HeroUI data extraction script
-│   └── extract-native.ts     # HeroUI Native extraction script
-├── data/
-│   ├── latest/               # Latest component data cache
-│   └── versions.json         # Version tracking
-├── wrangler.toml             # Cloudflare Workers configuration
-├── tsconfig.json             # TypeScript configuration
-└── package.json              # Dependencies and scripts
+```json
+{
+  "mcpServers": {
+    "heroui": {
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"]
+    }
+  }
+}
 ```
 
-## 🧪 Testing with MCP Inspector
+> Restart Cursor if it doesn't automatically detect the changes.
 
-The MCP Inspector provides a web UI to test and debug the MCP server functionality.
+### Claude Code
 
-### Running the Inspector
+Run this command in your terminal:
 
 ```bash
-# Start the MCP Inspector
-pnpm mcp:inspector
+claude mcp add heroui -- npx -y @heroui/mcp
 ```
 
-This will:
-1. Start the MCP server with stdio transport
-2. Launch the Inspector UI in your browser (usually at http://localhost:6274)
-3. Provide a session token for authentication
+Then start a Claude Code session with `claude`.
 
-### Using the Inspector
+### Windsurf
 
-1. The Inspector UI will open automatically in your browser
-2. You'll see all available tools in the left panel:
-   - `list_components` - List all components in a library
-   - `get_component_props` - Get detailed props for a component
-   - `get_component_example` - Get usage examples for a component
+1. Go to Settings > Windsurf Settings > Cascade
+2. Click "Manage MCPs" > "View raw config"
+3. Add the configuration:
 
-3. Click on any tool to test it with different parameters
-4. View the request/response in real-time
-5. Debug any issues with the MCP server implementation
-
-### Example Test Cases
-
-**Test listing HeroUI components:**
-- Tool: `list_components`
-- Parameters: `{ "library": "heroui" }`
-
-**Test getting Button props:**
-- Tool: `get_component_props`
-- Parameters: `{ "library": "heroui", "component": "Button" }`
-
-**Test getting Card example:**
-- Tool: `get_component_example`
-- Parameters: `{ "library": "heroui", "component": "Card" }`
-
-## 🔧 Environment Configuration
-
-The project supports multiple environments with different configurations:
-
-### Development
-```bash
-APP_ENV=development
-LOG_LEVEL=debug
+```json
+{
+  "mcpServers": {
+    "heroui": {
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"]
+    }
+  }
+}
 ```
 
-### Staging
-```bash
-APP_ENV=staging
-LOG_LEVEL=info
+### Visual Studio Code
+
+> Requires [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) and [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extensions.
+
+Add to `.vscode/mcp.json` in your project root:
+
+```json
+{
+  "servers": {
+    "heroui": {
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"]
+    }
+  }
+}
 ```
 
-### Production
-```bash
-APP_ENV=production
-LOG_LEVEL=warn
+### Zed
+
+Add to your Zed settings.json:
+
+```json
+{
+  "context_servers": {
+    "heroui": {
+      "source": "custom",
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"]
+    }
+  }
+}
 ```
 
-Environment variables are configured in `wrangler.toml`.
+### Custom MCP Client
 
-## 🛠️ MCP Server Usage
+For any MCP-compatible client:
 
-### Available Tools
+```json
+{
+  "mcpServers": {
+    "heroui": {
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"]
+    }
+  }
+}
+```
 
-#### 1. `list_components`
+## 🛠️ Available Tools
+
+### `list_components`
+
 Lists all available components in the specified library.
 
 **Parameters:**
@@ -162,14 +131,31 @@ Lists all available components in the specified library.
 {
   "name": "list_components",
   "arguments": {
-    "library": "heroui",
-    "version": "latest"
+    "library": "heroui"
   }
 }
 ```
 
-#### 2. `get_component_props`
-Retrieves detailed props information for a specific component.
+**Response:**
+```
+# Available Components in HeroUI (latest)
+
+- Accordion
+- Avatar
+- Badge
+- Button
+- Card
+- Checkbox
+- Chip
+- CircularProgress
+- ...
+
+Total: 50+ components
+```
+
+### `get_component_props`
+
+Gets detailed props information for a specific component.
 
 **Parameters:**
 - `library` (required): `"heroui"` or `"native"`
@@ -182,14 +168,39 @@ Retrieves detailed props information for a specific component.
   "name": "get_component_props",
   "arguments": {
     "library": "heroui",
-    "component": "Button",
-    "version": "latest"
+    "component": "Button"
   }
 }
 ```
 
-#### 3. `get_component_example`
-Gets usage examples and import statements for a component.
+**Response:**
+```markdown
+# Button Component Props - HeroUI (latest)
+
+A button component for user interactions.
+
+## Props
+
+- **children**: `ReactNode` - Button content
+- **variant**: `"solid" | "bordered" | "ghost" | "flat"` - Button style variant
+- **color**: `"default" | "primary" | "secondary" | "success" | "warning" | "danger"` - Button color
+- **size**: `"sm" | "md" | "lg"` - Button size
+- **isDisabled**: `boolean` - Whether the button is disabled
+- **isLoading**: `boolean` - Shows loading state
+- **startContent**: `ReactNode` - Content before children
+- **endContent**: `ReactNode` - Content after children
+- **onPress**: `(e: PressEvent) => void` - Click handler
+...
+
+## Import
+
+```tsx
+import {Button} from "@heroui/react";
+```
+
+### `get_component_example`
+
+Gets usage examples for a component.
 
 **Parameters:**
 - `library` (required): `"heroui"` or `"native"`
@@ -207,111 +218,89 @@ Gets usage examples and import statements for a component.
 }
 ```
 
-## 🌐 API Endpoints (Cloudflare Workers)
+**Response:**
+````markdown
+# Button Component Example - HeroUI (latest)
 
-When deployed as a Cloudflare Worker, the following HTTP endpoints are available:
+```tsx
+import {Button} from "@heroui/react";
 
-- `GET /` - Service information and capabilities
-- `GET /health` - Health check endpoint
-- `POST /mcp` - MCP protocol endpoint for HTTP transport
-- `OPTIONS /mcp` - CORS preflight support
+export default function Example() {
+  return (
+    <Button
+      color="primary"
+      variant="solid"
+      size="md"
+      onPress={() => console.log("Button clicked")}
+    >
+      Click me
+    </Button>
+  );
+}
+```
+````
 
-### Example HTTP Request
+## 💡 Usage Examples
+
+### With AI Assistants
+
+Once configured, you can ask your AI assistant questions like:
+
+- "Show me all HeroUI components"
+- "What props does the Button component have?"
+- "Give me an example of using the Card component"
+- "List all components in HeroUI Native"
+- "Show me the Modal component props from version v3.0.0-alpha.3"
+
+The AI assistant will use the MCP server to fetch accurate, up-to-date information about HeroUI components.
+
+### Example Workflow
+
+1. **Ask about available components:**
+   > "What components are available in HeroUI?"
+
+   The assistant will use `list_components` to show all available components.
+
+2. **Get component details:**
+   > "Show me the props for the Select component"
+
+   The assistant will use `get_component_props` to provide detailed prop information.
+
+3. **Get usage examples:**
+   > "How do I use the DatePicker component?"
+
+   The assistant will use `get_component_example` to show implementation examples.
+
+## 🧪 Testing the Server
+
+To test the MCP server directly, you can use the MCP Inspector:
 
 ```bash
-curl -X POST https://your-worker.workers.dev/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "tools/call",
-    "params": {
-      "name": "list_components",
-      "arguments": {
-        "library": "heroui"
-      }
-    },
-    "id": 1
-  }'
+# Clone the repository
+git clone https://github.com/your-org/heroui-mcp.git
+cd heroui-mcp
+
+# Install and run the inspector
+pnpm install
+pnpm mcp:inspector
 ```
 
-## 🚀 Deployment
+This opens a web UI where you can test all available tools interactively.
 
-### Cloudflare Workers Deployment
+## 🤝 Contributing
 
-1. **Configure Wrangler** (if not already done):
-   ```bash
-   wrangler login
-   ```
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for development setup and guidelines.
 
-2. **Deploy to staging**:
-   ```bash
-   pnpm deploy:staging
-   ```
+## 🐛 Issues & Support
 
-3. **Deploy to production**:
-   ```bash
-   pnpm deploy:production
-   ```
-
-### Local Development
-
-1. **Start the development server**:
-   ```bash
-   pnpm dev
-   ```
-
-2. **Test MCP functionality**:
-   ```bash
-   pnpm mcp:stdio
-   ```
-
-## 📊 Data Management
-
-### Component Data Extraction
-
-The server automatically extracts component data from GitHub repositories:
-
-- **HeroUI**: Main component library
-- **HeroUI Native**: React Native components
-
-Data is cached locally in the `data/` directory and versioned for consistency.
-
-### Cache Structure
-
-```
-data/
-├── latest/
-│   ├── heroui/
-│   │   └── components.json
-│   └── native/
-│       └── components.json
-└── versions.json
-```
-
-## 🔍 Development
-
-### Adding New Tools
-
-1. Define tool schema in `mcp-server-core.ts`
-2. Implement handler method
-3. Register in `handleToolCall` method
-4. Add to tool list in `handleListTools`
-
-### Testing
-
-```bash
-# Type checking
-pnpm typecheck
-
-# Linting
-pnpm lint
-
-# Format code
-pnpm format
-```
+- **Report bugs**: [GitHub Issues](https://github.com/your-org/heroui-mcp/issues)
+- **HeroUI Documentation**: [heroui.com](https://heroui.com)
+- **MCP Specification**: [modelcontextprotocol.io](https://modelcontextprotocol.io)
 
 ## 📜 License
 
-MIT
+MIT © HeroUI
 
-See [LICENSE](LICENSE) file for details.
+---
+
+Made with ❤️ for the HeroUI community

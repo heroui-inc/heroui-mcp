@@ -24,9 +24,19 @@ export interface VersionInfo {
   extractDuration: number;
 }
 
-import type {DataStore} from "./data-store.js";
+// Conditional import based on environment
+let dataStore: any;
 
-import {dataStore} from "./data-store.js";
+// Check if running in Cloudflare Workers environment
+if (typeof globalThis !== 'undefined' && 'R2Bucket' in globalThis) {
+  // Dynamic import for Cloudflare environment
+  const module = await import("./data-store.js");
+  dataStore = module.dataStore;
+} else {
+  // Use file-based store for Node.js environment
+  const module = await import("./data-store-file.js");
+  dataStore = module.dataStore;
+}
 
 // Simplified static imports for latest data (Workers-compatible)
 const LATEST_IMPORTS = {
