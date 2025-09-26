@@ -37,6 +37,7 @@ pnpm mcp:stdio
 ### MCP Server Commands
 
 - `pnpm mcp:stdio` - Run MCP server with stdio transport
+- `pnpm mcp:inspector` - Run MCP server with Inspector UI for testing
 - `pnpm extract:heroui` - Extract component data from HeroUI repository
 - `pnpm extract:native` - Extract component data from HeroUI Native repository
 
@@ -78,6 +79,48 @@ pnpm mcp:stdio
 ├── tsconfig.json             # TypeScript configuration
 └── package.json              # Dependencies and scripts
 ```
+
+## 🧪 Testing with MCP Inspector
+
+The MCP Inspector provides a web UI to test and debug the MCP server functionality.
+
+### Running the Inspector
+
+```bash
+# Start the MCP Inspector
+pnpm mcp:inspector
+```
+
+This will:
+1. Start the MCP server with stdio transport
+2. Launch the Inspector UI in your browser (usually at http://localhost:6274)
+3. Provide a session token for authentication
+
+### Using the Inspector
+
+1. The Inspector UI will open automatically in your browser
+2. You'll see all available tools in the left panel:
+   - `list_components` - List all components in a library
+   - `get_component_props` - Get detailed props for a component
+   - `get_component_example` - Get usage examples for a component
+
+3. Click on any tool to test it with different parameters
+4. View the request/response in real-time
+5. Debug any issues with the MCP server implementation
+
+### Example Test Cases
+
+**Test listing HeroUI components:**
+- Tool: `list_components`
+- Parameters: `{ "library": "heroui" }`
+
+**Test getting Button props:**
+- Tool: `get_component_props`
+- Parameters: `{ "library": "heroui", "component": "Button" }`
+
+**Test getting Card example:**
+- Tool: `get_component_example`
+- Parameters: `{ "library": "heroui", "component": "Card" }`
 
 ## 🔧 Environment Configuration
 

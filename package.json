@@ -12,6 +12,7 @@
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
     "mcp:stdio": "tsx src/stdio.ts",
+    "mcp:inspector": "npx @modelcontextprotocol/inspector tsx src/stdio.ts",
     "extract:heroui": "tsx scripts/extract-heroui.ts",
     "extract:native": "tsx scripts/extract-native.ts"
   },
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250920.0",
+    "@modelcontextprotocol/inspector": "^0.16.8",
     "@types/node": "^22.18.6",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
