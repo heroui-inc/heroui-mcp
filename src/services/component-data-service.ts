@@ -147,7 +147,7 @@ export class ComponentDataService {
    */
   async getComponentExample(library: string, name: string, version?: string): Promise<string> {
     const component = await this.getComponent(library, name, version);
-    const packageName = library === "heroui" ? "@heroui/react" : "@heroui/native";
+    const packageName = library === "heroui" ? "@heroui/react" : "heroui-native";
 
     return `\`\`\`tsx
 import { ${component.name} } from '${packageName}';

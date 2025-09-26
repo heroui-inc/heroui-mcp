@@ -163,7 +163,7 @@ export class VersionCheckService {
    * Check version status for HeroUI Native packages
    */
   async checkHeroUINativeVersion(currentVersion?: string): Promise<VersionComparison> {
-    const packageInfo = await this.fetchPackageInfo("@heroui/native");
+    const packageInfo = await this.fetchPackageInfo("heroui-native");
 
     if (!currentVersion) {
       return {
@@ -174,7 +174,7 @@ export class VersionCheckService {
         isLatest: false,
         isPrerelease: false,
         latestVersion: packageInfo["dist-tags"].latest,
-        recommendation: "Install HeroUI Native using: npm install @heroui/native",
+        recommendation: "Install HeroUI Native using: npm install heroui-native",
         updateAvailable: true,
       };
     }
@@ -191,7 +191,7 @@ export class VersionCheckService {
     } else if (isLatest && isPrerelease) {
       recommendation = `You are using a prerelease version (${currentVersion}). Consider switching to the stable version ${latest} for production use.`;
     } else {
-      recommendation = `Update available! You can update from ${currentVersion} to ${latest} using: npm update @heroui/native`;
+      recommendation = `Update available! You can update from ${currentVersion} to ${latest} using: npm update heroui-native`;
     }
 
     return {
