@@ -2,15 +2,15 @@
 
 A Model Context Protocol (MCP) server that provides AI assistants with access to HeroUI v3 and HeroUI Native component documentation, props, and usage examples.
 
-## 🌟 Features
+## Features
 
-- **Component Documentation**: Access detailed component props and descriptions
-- **Multiple Libraries**: Support for both HeroUI and HeroUI Native
-- **Version Support**: Query specific versions or latest components
-- **TypeScript Support**: Full TypeScript support with strict typing
-- **Easy Integration**: Works with popular AI-powered IDEs and editors
+- Component documentation with detailed props and descriptions
+- Support for both HeroUI and HeroUI Native libraries
+- Version-specific component queries
+- Full TypeScript support with type definitions
+- Integration with popular AI-powered IDEs and editors
 
-## 🚀 Installation
+## Installation
 
 ```bash
 # Install globally from npm
@@ -20,7 +20,7 @@ npm install -g @heroui/mcp
 npx @heroui/mcp
 ```
 
-## 🔧 IDE Setup
+## IDE Setup
 
 The MCP server supports [stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio) and is published at `@heroui/mcp`.
 
@@ -116,9 +116,9 @@ For any MCP-compatible client:
 }
 ```
 
-## 🛠️ Available Tools
+## Available Tools
 
-### `list_components`
+### list_components
 
 Lists all available components in the specified library.
 
@@ -138,7 +138,7 @@ Lists all available components in the specified library.
 
 **Response:**
 ```
-# Available Components in HeroUI (latest)
+Available Components in HeroUI (latest)
 
 - Accordion
 - Avatar
@@ -153,7 +153,7 @@ Lists all available components in the specified library.
 Total: 50+ components
 ```
 
-### `get_component_props`
+### get_component_props
 
 Gets detailed props information for a specific component.
 
@@ -175,11 +175,11 @@ Gets detailed props information for a specific component.
 
 **Response:**
 ```markdown
-# Button Component Props - HeroUI (latest)
+Button Component Props - HeroUI (latest)
 
 A button component for user interactions.
 
-## Props
+Props
 
 - **children**: `ReactNode` - Button content
 - **variant**: `"solid" | "bordered" | "ghost" | "flat"` - Button style variant
@@ -192,13 +192,12 @@ A button component for user interactions.
 - **onPress**: `(e: PressEvent) => void` - Click handler
 ...
 
-## Import
+Import
 
-```tsx
 import {Button} from "@heroui/react";
 ```
 
-### `get_component_example`
+### get_component_example
 
 Gets usage examples for a component.
 
@@ -219,10 +218,9 @@ Gets usage examples for a component.
 ```
 
 **Response:**
-````markdown
-# Button Component Example - HeroUI (latest)
-
 ```tsx
+// Button Component Example - HeroUI (latest)
+
 import {Button} from "@heroui/react";
 
 export default function Example() {
@@ -238,9 +236,8 @@ export default function Example() {
   );
 }
 ```
-````
 
-## 💡 Usage Examples
+## Usage Examples
 
 ### With AI Assistants
 
@@ -271,13 +268,13 @@ The AI assistant will use the MCP server to fetch accurate, up-to-date informati
 
    The assistant will use `get_component_example` to show implementation examples.
 
-## 🧪 Testing the Server
+## Testing
 
 To test the MCP server directly, you can use the MCP Inspector:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/heroui-mcp.git
+git clone https://github.com/heroui-inc/heroui-mcp.git
 cd heroui-mcp
 
 # Install and run the inspector
@@ -287,20 +284,16 @@ pnpm mcp:inspector
 
 This opens a web UI where you can test all available tools interactively.
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for development setup and guidelines.
 
-## 🐛 Issues & Support
+## Support
 
-- **Report bugs**: [GitHub Issues](https://github.com/your-org/heroui-mcp/issues)
-- **HeroUI Documentation**: [heroui.com](https://heroui.com)
-- **MCP Specification**: [modelcontextprotocol.io](https://modelcontextprotocol.io)
+- [Report Issues](https://github.com/heroui-inc/heroui-mcp/issues)
+- [HeroUI Documentation](https://heroui.com)
+- [MCP Specification](https://modelcontextprotocol.io)
 
-## 📜 License
+## License
 
-MIT © HeroUI
-
----
-
-Made with ❤️ for the HeroUI community
+MIT

@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: General Questions
+    url: https://github.com/heroui-inc/heroui-mcp/discussions/new?category=q-a
+    about: Please ask and answer questions as a discussion thread
+  - name: Ideas & Feature Requests
+    url: https://github.com/heroui-inc/heroui-mcp/discussions/new?category=ideas
+    about: Suggest ideas for new features or improvements
+  - name: HeroUI Documentation
+    url: https://heroui.com
+    about: Check the main HeroUI documentation
+  - name: MCP Specification
+    url: https://modelcontextprotocol.io
+    about: Learn more about the Model Context Protocol
