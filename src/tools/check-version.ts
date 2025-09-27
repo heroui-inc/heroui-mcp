@@ -2,6 +2,8 @@ import type {Tool} from "./types.js";
 
 import {z} from "zod";
 
+import {wrapWithAnalytics} from "../lib/tool-analytics-wrapper.js";
+
 const inputSchema = z.object({
   package: z.enum(["heroui", "native", "mcp"]).describe("The package to check version for"),
   currentVersion: z
@@ -16,7 +18,7 @@ export const checkVersionTool: Tool = {
     "Check if you're using the latest version of HeroUI, HeroUI Native, or the MCP server itself",
 
   exec(server, {config, name, description}) {
-    server.tool(name, description, inputSchema, async ({package: pkg, currentVersion}) => {
+    const handler = async ({package: pkg, currentVersion}: z.infer<typeof inputSchema>) => {
       try {
         let result: string;
 
@@ -49,6 +51,9 @@ export const checkVersionTool: Tool = {
           ],
         };
       }
-    });
+    };
+
+    // Register tool with analytics wrapper
+    server.tool(name, description, inputSchema, wrapWithAnalytics(server, name, handler));
   },
 };

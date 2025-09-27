@@ -23,6 +23,9 @@ importers:
       hono:
         specifier: ^4.9.8
         version: 4.9.8
+      posthog-node:
+        specifier: ^5.9.1
+        version: 5.9.1
       zod:
         specifier: ^3.24.4
         version: 3.25.76
@@ -915,6 +918,9 @@ packages:
 
   '@poppinss/exception@1.2.2':
     resolution: {integrity: sha512-m7bpKCD4QMlFCjA/nKTs23fuvoVFoA83brRKmObCUNmi/9tVu8Ve3w4YQAnJu4q3Tjf5fr685HYIC/IA2zHRSg==}
+
+  '@posthog/core@1.2.1':
+    resolution: {integrity: sha512-zNw96BipqM5/Tf161Q8/K5zpwGY3ezfb2wz+Yc3fIT5OQHW8eEzkQldPgtFKMUkqImc73ukEa2IdUpS6vEGH7w==}
 
   '@radix-ui/number@1.1.1':
     resolution: {integrity: sha512-MkKCwxlXTgz6CFoJx3pCwn07GKp36+aZyu/u2Ln2VrA5DcdyCZkASEDBTd8x5whTQQL5CiYf4prXKLcgQdv29g==}
@@ -3497,6 +3503,10 @@ packages:
       yaml:
         optional: true
 
+  posthog-node@5.9.1:
+    resolution: {integrity: sha512-Tydweh2Q3s2dy1b77NOYOaBfphSUNd6zmEPbU7yCuWnz8vU0nk2jObDRUQClTMGJZnr+HSj6ZVWvosrAN1d1dQ==}
+    engines: {node: '>=20'}
+
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
@@ -5219,6 +5229,8 @@ snapshots:
       supports-color: 10.2.2
 
   '@poppinss/exception@1.2.2': {}
+
+  '@posthog/core@1.2.1': {}
 
   '@radix-ui/number@1.1.1': {}
 
@@ -7997,6 +8009,10 @@ snapshots:
       jiti: 2.6.0
       tsx: 4.20.5
       yaml: 2.8.1
+
+  posthog-node@5.9.1:
+    dependencies:
+      '@posthog/core': 1.2.1
 
   prelude-ls@1.2.1: {}
 

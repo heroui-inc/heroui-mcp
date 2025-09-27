@@ -7,6 +7,8 @@ import type {ComponentData, ComponentDataset, VersionInfo} from "../types.js";
 
 import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
+import {ErrorCode, ErrorMessages, MCPError} from "../lib/error-handler.js";
+
 export interface R2Config {
   accountId: string;
   accessKeyId: string;
@@ -65,16 +67,74 @@ export class ComponentDataServiceR2 {
       }
 
       const text = await response.Body.transformToString();
-      const data = JSON.parse(text) as T;
+
+      // Check if we got valid JSON
+      if (!text || text.trim() === "") {
+        throw new MCPError(
+          ErrorMessages[ErrorCode.DATA_NOT_AVAILABLE]({
+            details: `Empty data for key: ${key}`,
+            key,
+          }),
+        );
+      }
+
+      let data: T;
+      try {
+        data = JSON.parse(text) as T;
+      } catch (parseError) {
+        throw new MCPError(
+          ErrorMessages[ErrorCode.MALFORMED_JSON]({
+            error: `Invalid JSON in R2 object: ${key}`,
+            key,
+          }),
+        );
+      }
 
       // Update cache
       this.cache.set(key, {data, timestamp: Date.now()});
 
       return data;
     } catch (error) {
-      console.error(`Error fetching from R2: ${key}`, error);
+      // If it's already an MCPError, throw it
+      if (error instanceof MCPError) {
+        throw error;
+      }
 
-      return null;
+      // Check for specific AWS SDK errors
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+      if (errorMessage.includes("NoSuchKey") || errorMessage.includes("404")) {
+        console.warn(`Key not found in R2: ${key}`);
+
+        return null;
+      }
+
+      if (errorMessage.includes("AccessDenied") || errorMessage.includes("403")) {
+        throw new MCPError(
+          ErrorMessages[ErrorCode.R2_CONNECTION_ERROR]({
+            error: "Access denied to R2 bucket. Please check credentials.",
+            key,
+          }),
+        );
+      }
+
+      if (errorMessage.includes("NoSuchBucket")) {
+        throw new MCPError(
+          ErrorMessages[ErrorCode.R2_CONNECTION_ERROR]({
+            error: `R2 bucket '${this.bucketName}' does not exist`,
+            bucket: this.bucketName,
+          }),
+        );
+      }
+
+      // Generic R2 error
+      console.error(`Error fetching from R2: ${key}`, error);
+      throw new MCPError(
+        ErrorMessages[ErrorCode.R2_CONNECTION_ERROR]({
+          error: errorMessage,
+          key,
+        }),
+      );
     }
   }
 

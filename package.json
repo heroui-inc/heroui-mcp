@@ -1,6 +1,6 @@
 {
   "name": "@heroui/mcp",
-  "version": "0.0.0-alpha.8",
+  "version": "1.0.0-alpha.1",
   "type": "module",
   "description": "MCP server for HeroUI component documentation via Model Context Protocol",
   "main": "dist/stdio.js",
@@ -37,6 +37,7 @@
     "deploy:production": "wrangler deploy --env production",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
     "mcp:stdio": "tsx src/stdio.ts",
     "mcp:inspector": "npx @modelcontextprotocol/inspector tsx src/stdio.ts",
@@ -54,6 +55,7 @@
     "@modelcontextprotocol/sdk": "^1.18.1",
     "@xmldom/xmldom": "^0.8.11",
     "hono": "^4.9.8",
+    "posthog-node": "^5.9.1",
     "zod": "^3.24.4"
   },
   "devDependencies": {

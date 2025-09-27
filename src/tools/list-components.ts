@@ -2,6 +2,8 @@ import type {Tool} from "./types.js";
 
 import {z} from "zod";
 
+import {wrapWithAnalytics} from "../lib/tool-analytics-wrapper.js";
+
 const inputSchema = z.object({
   library: z.enum(["heroui", "native"]).describe("The library to list components from"),
   version: z
@@ -17,7 +19,7 @@ export const listComponentsTool: Tool = {
   description: "List all available components in HeroUI or HeroUI Native",
 
   exec(server, {config, name, description}) {
-    server.tool(name, description, inputSchema, async ({library, version}) => {
+    const handler = async ({library, version}: z.infer<typeof inputSchema>) => {
       try {
         let components: string[];
 
@@ -51,6 +53,9 @@ export const listComponentsTool: Tool = {
           ],
         };
       }
-    });
+    };
+
+    // Register tool with analytics wrapper
+    server.tool(name, description, inputSchema, wrapWithAnalytics(server, name, handler));
   },
 };
