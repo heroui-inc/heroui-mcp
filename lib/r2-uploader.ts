@@ -31,14 +31,15 @@ export class R2Uploader {
   }
 
   /**
-   * Upload component data to R2
+   * Upload versioned component data to R2
+   * Stores in: {library}/{version}.json (e.g., heroui/v3.0.0-alpha.31.json)
    */
   async uploadComponentData(
     library: string,
     version: string,
     data: unknown,
   ): Promise<void> {
-    const key = `components/${library}/${version}.json`;
+    const key = `${library}/${version}.json`;
     const body = JSON.stringify(data, null, 2);
 
     try {
@@ -58,10 +59,11 @@ export class R2Uploader {
   }
 
   /**
-   * Upload latest version pointer
+   * Upload latest version data
+   * Stores in: latest/{library}.json (e.g., latest/heroui.json)
    */
   async uploadLatestVersion(library: string, data: unknown): Promise<void> {
-    const key = `components/${library}/latest.json`;
+    const key = `latest/${library}.json`;
     const body = JSON.stringify(data, null, 2);
 
     try {
@@ -82,9 +84,10 @@ export class R2Uploader {
 
   /**
    * Update version metadata
+   * Stores in: versions.json (at root level)
    */
   async updateVersionMetadata(metadata: unknown): Promise<void> {
-    const key = "metadata/versions.json";
+    const key = "versions.json";
     const body = JSON.stringify(metadata, null, 2);
 
     try {
@@ -105,9 +108,10 @@ export class R2Uploader {
 
   /**
    * Get current version metadata
+   * Reads from: versions.json (at root level)
    */
   async getVersionMetadata(): Promise<unknown> {
-    const key = "metadata/versions.json";
+    const key = "versions.json";
 
     try {
       const response = await this.client.send(
@@ -135,7 +139,7 @@ export class R2Uploader {
    * List all versions for a library
    */
   async listVersions(library: string): Promise<string[]> {
-    const prefix = `components/${library}/`;
+    const prefix = `${library}/`;
 
     try {
       const response = await this.client.send(
@@ -151,7 +155,7 @@ export class R2Uploader {
 
       return response.Contents
         .map((obj) => obj.Key || "")
-        .filter((key) => key.endsWith(".json") && !key.endsWith("latest.json"))
+        .filter((key) => key.endsWith(".json"))
         .map((key) => key.replace(prefix, "").replace(".json", ""))
         .sort();
     } catch (error) {
@@ -164,7 +168,7 @@ export class R2Uploader {
    * Check if a version exists
    */
   async versionExists(library: string, version: string): Promise<boolean> {
-    const key = `components/${library}/${version}.json`;
+    const key = `${library}/${version}.json`;
 
     try {
       await this.client.send(

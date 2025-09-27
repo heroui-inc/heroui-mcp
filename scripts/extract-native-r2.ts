@@ -90,35 +90,35 @@ class HeroUINativeParser implements ComponentParser {
 
   private extractProps(lines: string[]): Record<string, PropDefinition> {
     const props: Record<string, PropDefinition> = {};
-    let inPropsSection = false;
+    let inApiSection = false;
     let inTable = false;
     let tableLines: string[] = [];
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Check for Props section
-      if (line === "## Props" || line === "## Properties") {
-        inPropsSection = true;
+      // Check for API Reference section
+      if (line === "## API Reference" || line === "## Props" || line === "## Properties") {
+        inApiSection = true;
         continue;
       }
 
-      // End props section if we hit another major section
-      if (inPropsSection && line.startsWith("## ") && !line.includes("Props")) {
-        inPropsSection = false;
+      // End API section if we hit another major section (## )
+      if (inApiSection && line.startsWith("## ") && !line.includes("API") && !line.includes("Props")) {
+        inApiSection = false;
         inTable = false;
       }
 
-      if (inPropsSection) {
-        // Start of table
-        if (line.startsWith("| Prop") || line.startsWith("| Name")) {
+      if (inApiSection) {
+        // Start of table - check for various formats (prop, Prop, Name)
+        if (line.startsWith("| prop") || line.startsWith("| Prop") || line.startsWith("| Name")) {
           inTable = true;
           tableLines = [];
           continue;
         }
 
         // Skip separator line
-        if (inTable && line.includes("|---")) {
+        if (inTable && line.includes("|---") || line.includes("| ---")) {
           continue;
         }
 
@@ -127,8 +127,8 @@ class HeroUINativeParser implements ComponentParser {
           tableLines.push(line);
         }
 
-        // End of table
-        if (inTable && !line.startsWith("|")) {
+        // End of table - when we hit a non-table line or a header
+        if (inTable && (!line.startsWith("|") || line.startsWith("###") || line.startsWith("####"))) {
           this.parseTableLines(tableLines, props);
           inTable = false;
           tableLines = [];
@@ -152,19 +152,47 @@ class HeroUINativeParser implements ComponentParser {
         .filter(Boolean);
 
       if (parts.length >= 3) {
-        const name = parts[0].replace(/`/g, "");
-        const type = parts[1].replace(/`/g, "");
-        const description = parts[3] || parts[2] || "";
-        const defaultValue = parts[2]?.includes("`") ? parts[2].replace(/`/g, "") : undefined;
+        // Clean prop name - remove backticks
+        const name = parts[0].replace(/[`'"]/g, "").trim();
 
-        if (name && !name.includes("---")) {
-          props[name] = {
-            name,
-            type,
-            description,
-            ...(defaultValue && defaultValue !== "-" && {default: defaultValue}),
-          };
+        // Skip if name is empty or looks like a header
+        if (!name || name.toLowerCase() === 'prop' || name.includes("---") || name.includes("...")) {
+          continue;
         }
+
+        // Clean type - remove backticks and quotes
+        const type = parts[1]?.replace(/[`'"]/g, "").trim() || "any";
+
+        // Format: prop | type | default | description
+        let defaultValue = "";
+        let description = "";
+
+        if (parts.length === 4) {
+          // Standard format: prop | type | default | description
+          defaultValue = parts[2]?.replace(/[`'"]/g, "").trim() || "";
+          description = parts[3]?.trim() || "";
+        } else if (parts.length === 3) {
+          // Might be: prop | type | description (no default)
+          // Check if third column looks like a default value (short, code-like)
+          const thirdCol = parts[2]?.trim() || "";
+          if (thirdCol.length < 20 && (thirdCol === "-" || thirdCol.includes("`"))) {
+            defaultValue = thirdCol.replace(/[`'"]/g, "").trim();
+          } else {
+            description = thirdCol;
+          }
+        }
+
+        // Clean up default value
+        if (defaultValue === "-" || defaultValue === "undefined") {
+          defaultValue = "";
+        }
+
+        props[name] = {
+          name,
+          type,
+          description,
+          ...(defaultValue && defaultValue !== "" && {default: defaultValue}),
+        };
       }
     }
   }

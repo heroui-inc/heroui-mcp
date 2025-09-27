@@ -1,6 +1,10 @@
 name: Component Data Extraction Pipeline
 
 on:
+  push:
+    branches:
+      - main
+      - develop
   schedule:
     # Run daily at 2 AM UTC
     - cron: "0 2 * * *"
@@ -25,9 +29,34 @@ on:
         required: false
 
 jobs:
+  # Determine environment based on branch
+  set-environment:
+    name: Set Environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      bucket-name: ${{ steps.set-env.outputs.bucket-name }}
+    steps:
+      - name: Determine environment
+        id: set-env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "bucket-name=heroui-mcp-data" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "bucket-name=heroui-mcp-data-staging" >> $GITHUB_OUTPUT
+          else
+            echo "environment=development" >> $GITHUB_OUTPUT
+            echo "bucket-name=heroui-mcp-data-dev" >> $GITHUB_OUTPUT
+          fi
+          echo "🎯 Environment: $(cat $GITHUB_OUTPUT | grep environment | cut -d'=' -f2)"
+          echo "🪣 Bucket: $(cat $GITHUB_OUTPUT | grep bucket-name | cut -d'=' -f2)"
+
   check-versions:
     name: Check for New Versions
     runs-on: ubuntu-latest
+    needs: set-environment
     outputs:
       heroui-needs-update: ${{ steps.check.outputs.heroui-needs-update }}
       native-needs-update: ${{ steps.check.outputs.native-needs-update }}
@@ -51,7 +80,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_BUCKET_NAME: ${{ needs.set-environment.outputs.bucket-name }}
         run: |
           node scripts/check-versions-ci.mjs \
             --force=${{ inputs.force }} \
@@ -61,7 +90,7 @@ jobs:
   extract-heroui:
     name: Extract HeroUI Components
     runs-on: ubuntu-latest
-    needs: check-versions
+    needs: [set-environment, check-versions]
     if: needs.check-versions.outputs.heroui-needs-update == 'true'
     steps:
       - name: Checkout repository
@@ -83,7 +112,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_BUCKET_NAME: ${{ needs.set-environment.outputs.bucket-name }}
         run: |
           FLAGS=""
           if [ "${{ inputs.force }}" == "true" ]; then
@@ -108,7 +137,7 @@ jobs:
   extract-native:
     name: Extract HeroUI Native Components
     runs-on: ubuntu-latest
-    needs: check-versions
+    needs: [set-environment, check-versions]
     if: needs.check-versions.outputs.native-needs-update == 'true'
     steps:
       - name: Checkout repository
@@ -130,7 +159,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_BUCKET_NAME: ${{ needs.set-environment.outputs.bucket-name }}
         run: |
           FLAGS=""
           if [ "${{ inputs.force }}" == "true" ]; then
@@ -155,12 +184,15 @@ jobs:
   summary:
     name: Extraction Summary
     runs-on: ubuntu-latest
-    needs: [check-versions, extract-heroui, extract-native]
+    needs: [set-environment, check-versions, extract-heroui, extract-native]
     if: always()
     steps:
       - name: Create summary
         run: |
           echo "## Component Extraction Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment**: ${{ needs.set-environment.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**R2 Bucket**: ${{ needs.set-environment.outputs.bucket-name }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ needs.check-versions.outputs.heroui-needs-update }}" == "true" ]; then

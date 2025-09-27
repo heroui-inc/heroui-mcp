@@ -79,7 +79,7 @@ export abstract class BaseGitHubExtractor {
 
       // 2. Log extraction details (no local output directory needed)
       console.log(
-        `📁 Will upload to R2: components/${this.config.outputLibraryName}/v${version}.json`,
+        `📁 Will upload to R2: ${this.config.outputLibraryName}/v${version}.json`,
       );
 
       // 3. Get documentation files

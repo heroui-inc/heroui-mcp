@@ -256,6 +256,36 @@ class HeroUIExtractor extends BaseGitHubExtractor {
       token,
     );
   }
+
+  // Override to get version from the correct package.json location in monorepo
+  async extract(): Promise<{data: ComponentDataset; version: string}> {
+    // Get the version from packages/react/package.json instead of root
+    try {
+      const packageJson = await this.github.fetchFile(
+        this.config.owner,
+        this.config.repo,
+        "packages/react/package.json",
+        this.config.branch,
+      );
+      const parsed = JSON.parse(packageJson);
+      const correctVersion = parsed.version;
+
+      // Temporarily override getPackageVersion
+      const originalGetVersion = this.github.getPackageVersion.bind(this.github);
+      this.github.getPackageVersion = async () => correctVersion;
+
+      // Run the extraction with the correct version
+      const result = await super.extract();
+
+      // Restore original method
+      this.github.getPackageVersion = originalGetVersion;
+
+      return result;
+    } catch (error) {
+      console.warn("Could not fetch version from packages/react/package.json, falling back to root");
+      return super.extract();
+    }
+  }
 }
 
 // Main execution
