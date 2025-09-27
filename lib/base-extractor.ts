@@ -2,8 +2,8 @@
  * Base GitHub extractor with version-based data organization
  */
 
-import type {ComponentDataset} from "../src/types.js";
 import type {GitHubClient} from "./github-client.js";
+import type {ComponentDataset} from "../src/types.js";
 
 import {dataStore} from "./data-store.js";
 import {SimpleGitHubClient} from "./github-client.js";
@@ -61,7 +61,7 @@ export abstract class BaseGitHubExtractor {
     this.github = new SimpleGitHubClient(token);
   }
 
-  async extract(): Promise<void> {
+  async extract(): Promise<{data: ComponentDataset; version: string}> {
     const startTime = Date.now();
 
     console.log(`🔍 Extracting ${this.config.outputLibraryName} from GitHub...`);
@@ -78,7 +78,9 @@ export abstract class BaseGitHubExtractor {
       console.log(`📦 Found version: ${version}`);
 
       // 2. Log extraction details (no local output directory needed)
-      console.log(`📁 Will upload to R2: components/${this.config.outputLibraryName}/v${version}.json`);
+      console.log(
+        `📁 Will upload to R2: components/${this.config.outputLibraryName}/v${version}.json`,
+      );
 
       // 3. Get documentation files
       const docFiles = await this.github.getDocsFiles(
@@ -169,6 +171,11 @@ export abstract class BaseGitHubExtractor {
       console.log(`   - Total props: ${totalProps}`);
       console.log(`   - Processing time: ${(duration / 1000).toFixed(2)}s`);
       console.log(`   - Output: R2 bucket (${this.config.outputLibraryName}/v${version})`);
+
+      return {
+        data: components as ComponentDataset,
+        version,
+      };
     } catch (error) {
       console.error(
         `❌ Extraction failed: ${error instanceof Error ? error.message : "Unknown error"}`,

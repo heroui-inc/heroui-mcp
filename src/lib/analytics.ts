@@ -34,7 +34,15 @@ interface AnalyticsConfig {
 }
 
 interface EventProperties {
-  [key: string]: string | number | boolean | undefined | null | EventProperties | EventProperties[];
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | undefined
+    | null
+    | EventProperties
+    | EventProperties[]
+    | unknown;
 }
 
 class Analytics {

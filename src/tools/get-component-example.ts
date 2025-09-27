@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {Tool} from "./types.js";
 
 import {z} from "zod";
@@ -113,6 +114,12 @@ export const getComponentExampleTool: Tool = {
     };
 
     // Register tool with analytics wrapper
-    server.tool(name, description, inputSchema, wrapWithAnalytics(server, name, handler));
+
+    server.tool(
+      name,
+      description,
+      inputSchema.shape,
+      wrapWithAnalytics(server, name, handler) as any,
+    );
   },
 };

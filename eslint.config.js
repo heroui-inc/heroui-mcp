@@ -98,10 +98,7 @@ export default defineConfig([
       "no-process-exit": "off", // Allow process.exit in server contexts
       "no-unused-vars": "off",
       "object-curly-spacing": ["error", "never"],
-      "padding-line-between-statements": [
-        "warn",
-        {blankLine: "always", next: "return", prev: "*"},
-      ],
+      "padding-line-between-statements": ["warn", {blankLine: "always", next: "return", prev: "*"}],
       "prettier/prettier": "error",
       "sort-destructure-keys/sort-destructure-keys": "off",
       "sort-imports": [
@@ -138,6 +135,21 @@ export default defineConfig([
   {
     files: [".*.js", ".*.cjs", ".*.mjs"],
     ...tseslint.configs.disableTypeChecked,
+  },
+  {
+    files: ["scripts/**/*.mjs"],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      ecmaVersion: "latest",
+      globals: {
+        ...globals.node,
+        ...globals.es2025,
+      },
+      sourceType: "module",
+    },
+    rules: {
+      "no-console": "off",
+    },
   },
   {
     files: ["scripts/**/*.ts"],
@@ -180,6 +192,7 @@ export default defineConfig([
       "**/data/**/*.json", // Ignore extracted component data
       "!.vscode/**",
       "!scripts/**",
+      "scripts/check-versions-ci.mjs", // Ignore .mjs file that has parser issues
       "eslint.config.js",
     ],
   },

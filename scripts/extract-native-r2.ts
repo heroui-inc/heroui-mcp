@@ -5,12 +5,7 @@
  * Fetches latest component documentation from GitHub and uploads to R2
  */
 
-import type {
-  ComponentDefinition,
-  ComponentParser,
-  ExtractionConfig,
-  PropDefinition,
-} from "../lib/base-extractor.js";
+import type {ComponentDefinition, ComponentParser, PropDefinition} from "../lib/base-extractor.js";
 
 import {BaseGitHubExtractor} from "../lib/base-extractor.js";
 import {R2Uploader} from "../lib/r2-uploader.js";
@@ -54,6 +49,7 @@ class HeroUINativeParser implements ComponentParser {
         return line.replace("# ", "").trim();
       }
     }
+
     return null;
   }
 
@@ -88,6 +84,7 @@ class HeroUINativeParser implements ComponentParser {
         return line.trim();
       }
     }
+
     return `import {${componentName}} from 'heroui-native';`;
   }
 
@@ -206,7 +203,7 @@ class HeroUINativeExtractor extends BaseGitHubExtractor {
       {
         owner: "heroui-inc",
         repo: "heroui-native",
-        branch: "main",
+        branch: "alpha",
         docsPath: "apps/docs/content/components",
         outputLibraryName: "native",
       },
@@ -264,6 +261,7 @@ async function main() {
         console.log(
           `ℹ️  Version ${versionWithPrefix} already exists in R2. Use --force to overwrite.`,
         );
+
         return;
       }
     }

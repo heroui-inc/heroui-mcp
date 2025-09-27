@@ -165,7 +165,7 @@ export class VersionCheckService {
 
     if (v3Versions.length === 0) {
       // Fallback to alpha if no v3 stable found
-      return packageInfo["dist-tags"].alpha || packageInfo["dist-tags"].latest;
+      return packageInfo["dist-tags"]?.alpha || packageInfo["dist-tags"]?.latest || "unknown";
     }
 
     // Sort v3 versions and get the latest
@@ -281,13 +281,13 @@ export class VersionCheckService {
         currentVersion: "unknown",
         isLatest: false,
         isPrerelease: false,
-        latestVersion: packageInfo["dist-tags"].latest,
+        latestVersion: packageInfo["dist-tags"]?.latest || "unknown",
         recommendation: "Install HeroUI Native using: npm install heroui-native",
         updateAvailable: true,
       };
     }
 
-    const latest = packageInfo["dist-tags"].latest;
+    const latest = packageInfo["dist-tags"]?.latest || "unknown";
     const comparison = this.compareVersions(currentVersion, latest);
     const isLatest = comparison >= 0;
     const isPrerelease = this.isPrerelease(currentVersion);
@@ -329,13 +329,13 @@ export class VersionCheckService {
         currentVersion: "unknown",
         isLatest: false,
         isPrerelease: false,
-        latestVersion: packageInfo["dist-tags"].latest,
+        latestVersion: packageInfo["dist-tags"]?.latest || "unknown",
         recommendation: "Install HeroUI MCP using: npm install -g @heroui/mcp",
         updateAvailable: true,
       };
     }
 
-    const latest = packageInfo["dist-tags"].latest;
+    const latest = packageInfo["dist-tags"]?.latest || "unknown";
     const comparison = this.compareVersions(currentVersion, latest);
     const isLatest = comparison >= 0;
     const isPrerelease = this.isPrerelease(currentVersion);

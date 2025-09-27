@@ -5,12 +5,7 @@
  * Fetches latest component documentation from GitHub and uploads to R2
  */
 
-import type {
-  ComponentDefinition,
-  ComponentParser,
-  ExtractionConfig,
-  PropDefinition,
-} from "../lib/base-extractor.js";
+import type {ComponentDefinition, ComponentParser, PropDefinition} from "../lib/base-extractor.js";
 
 import * as path from "path";
 
@@ -80,6 +75,7 @@ class HeroUIParser implements ComponentParser {
         return line.trim();
       }
     }
+
     return `import {Component} from "@heroui/react";`;
   }
 
@@ -201,7 +197,7 @@ class HeroUIExtractor extends BaseGitHubExtractor {
       {
         owner: "heroui-inc",
         repo: "heroui",
-        branch: "main",
+        branch: "v3",
         docsPath: "apps/docs/content/docs/components",
         outputLibraryName: "heroui",
       },
@@ -259,6 +255,7 @@ async function main() {
         console.log(
           `ℹ️  Version ${versionWithPrefix} already exists in R2. Use --force to overwrite.`,
         );
+
         return;
       }
     }

@@ -105,16 +105,6 @@ Four main tools are exposed via MCP:
 - Configurable API base URL
 ```
 
-### Tools System
-
-```typescript
-// src/tools/simplified-tools.ts
-- Unified tool implementations
-- Support for both local and API data sources
-- Schema validation with Zod
-- Error handling and fallbacks
-```
-
 ### Data Service
 
 ```typescript

@@ -43,7 +43,7 @@ export function wrapWithAnalytics<T>(
     const analytics = getAnalytics();
 
     // Extract session ID from transport if available
-    const transport = (server as Record<string, unknown>).transport as
+    const transport = (server as unknown as Record<string, unknown>).transport as
       | {sessionId?: string}
       | undefined;
     const sessionId = transport?.sessionId || "unknown";
