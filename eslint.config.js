@@ -133,7 +133,7 @@ export default defineConfig([
     },
   },
   {
-    files: [".*.js", ".*.cjs", ".*.mjs", "test-mcp-local.js"],
+    files: [".*.js", ".*.cjs", ".*.mjs", "test-mcp-local.js", "test-api.mjs"],
     ...tseslint.configs.disableTypeChecked,
   },
   {
