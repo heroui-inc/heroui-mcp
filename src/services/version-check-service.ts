@@ -31,15 +31,31 @@ export const versionComparisonSchema = z.object({
 
 export type VersionComparison = z.infer<typeof versionComparisonSchema>;
 
+interface PackageInfo {
+  versions?: Record<string, unknown>;
+  "dist-tags"?: {
+    latest?: string;
+    next?: string;
+    alpha?: string;
+    [key: string]: string | undefined;
+  };
+  [key: string]: unknown;
+}
+
+interface CacheData {
+  data: PackageInfo;
+  timestamp: number;
+}
+
 export class VersionCheckService {
   private readonly npmRegistryUrl = "https://registry.npmjs.org";
-  private cache: Map<string, {data: any; timestamp: number}> = new Map();
+  private cache: Map<string, CacheData> = new Map();
   private readonly cacheTimeout = 5 * 60 * 1000; // 5 minutes
 
   /**
    * Get package information from npm registry
    */
-  private async fetchPackageInfo(packageName: string): Promise<any> {
+  private async fetchPackageInfo(packageName: string): Promise<PackageInfo> {
     const cacheKey = `pkg:${packageName}`;
     const cached = this.cache.get(cacheKey);
 
@@ -119,7 +135,7 @@ export class VersionCheckService {
     const [, preType2, preNum2] = preMatch2;
 
     // Compare prerelease types (alpha < beta < rc)
-    const preOrder: Record<string, number> = { alpha: 1, beta: 2, rc: 3 };
+    const preOrder: Record<string, number> = {alpha: 1, beta: 2, rc: 3};
     const order1 = preOrder[preType1.toLowerCase()] || 0;
     const order2 = preOrder[preType2.toLowerCase()] || 0;
 
@@ -137,7 +153,7 @@ export class VersionCheckService {
   /**
    * Get the latest v3 version (stable or alpha)
    */
-  private getLatestV3Version(packageInfo: any): string {
+  private getLatestV3Version(packageInfo: PackageInfo): string {
     const versions = Object.keys(packageInfo.versions || {});
 
     // Filter for v3 versions (both stable and alpha)
@@ -191,6 +207,7 @@ export class VersionCheckService {
 
     if (currentMajor < 3) {
       const isAlpha = latestV3.includes("alpha");
+
       return {
         allVersions: v3Versions,
         currentVersion,
@@ -214,6 +231,7 @@ export class VersionCheckService {
     // If current version is higher than latest AND doesn't exist in registry, it's invalid
     if (comparison > 0 && !versionExists) {
       const isAlpha = latestV3.includes("alpha");
+
       return {
         allVersions: v3Versions,
         currentVersion,
@@ -221,7 +239,10 @@ export class VersionCheckService {
         isPrerelease,
         isVersionError: true,
         latestVersion: latestV3,
-        recommendation: `**Invalid version detected: ${currentVersion}**\n\nThis version does not exist in the npm registry.\n\n## Available latest version:\n- **${latestV3}** (${isAlpha ? "alpha" : "stable"})\n\n## Required Action:\n\nUpdate your package.json to use the correct version:\n\`\`\`bash\nnpm install @heroui/react@${latestV3}\n\`\`\`\n\n## Recent v3 versions:\n${v3Versions.slice(0, 5).map(v => `- ${v}`).join("\n")}`,
+        recommendation: `**Invalid version detected: ${currentVersion}**\n\nThis version does not exist in the npm registry.\n\n## Available latest version:\n- **${latestV3}** (${isAlpha ? "alpha" : "stable"})\n\n## Required Action:\n\nUpdate your package.json to use the correct version:\n\`\`\`bash\nnpm install @heroui/react@${latestV3}\n\`\`\`\n\n## Recent v3 versions:\n${v3Versions
+          .slice(0, 5)
+          .map((v) => `- ${v}`)
+          .join("\n")}`,
         updateAvailable: true,
       };
     }
@@ -340,6 +361,74 @@ export class VersionCheckService {
       recommendation,
       updateAvailable: !isLatest,
     };
+  }
+
+  /**
+   * Unified check version method
+   */
+  async checkVersion(pkg: "heroui" | "native" | "mcp", currentVersion?: string): Promise<string> {
+    let versionInfo;
+    let packageName: string;
+
+    switch (pkg) {
+      case "heroui":
+        packageName = "HeroUI";
+        versionInfo = await this.checkHeroUIVersion(currentVersion);
+        break;
+      case "native":
+        packageName = "HeroUI Native";
+        versionInfo = await this.checkHeroUINativeVersion(currentVersion);
+        break;
+      case "mcp":
+        packageName = "HeroUI MCP";
+        versionInfo = await this.checkMCPVersion(currentVersion);
+        break;
+    }
+
+    // const isVersionValid = currentVersion && !versionInfo.isVersionError;
+    const recommendation = versionInfo.recommendation || "";
+
+    let result = `# ${packageName} Version Check\n\n`;
+
+    if (currentVersion) {
+      result += `**Current Version:** ${currentVersion}\n`;
+    }
+    result += `**Latest Version:** ${versionInfo.latestVersion}\n`;
+
+    if (versionInfo.isVersionError) {
+      result += `**Status:** ❌ Error\n\n${recommendation}`;
+    } else if (!currentVersion) {
+      result += `**Status:** ℹ️ Not installed\n\n`;
+      result += `## Installation\n\n`;
+      result += `\`\`\`bash\n`;
+
+      switch (pkg) {
+        case "heroui":
+          result += `npm install @heroui/react@${versionInfo.latestVersion}\n`;
+          break;
+        case "native":
+          result += `npm install heroui-native@${versionInfo.latestVersion}\n`;
+          break;
+        case "mcp":
+          result += `npm install -g @heroui/mcp\n`;
+          break;
+      }
+
+      result += `\`\`\``;
+    } else if (versionInfo.isLatest) {
+      result += `**Status:** ✅ Up to date\n\n${recommendation}`;
+    } else {
+      result += `**Status:** ⚠️ Update available\n\n${recommendation}`;
+    }
+
+    if (versionInfo.allVersions && versionInfo.allVersions.length > 0) {
+      result += `\n\n## Recent Versions\n${versionInfo.allVersions
+        .slice(0, 5)
+        .map((v) => `- ${v}`)
+        .join("\n")}`;
+    }
+
+    return result;
   }
 
   /**

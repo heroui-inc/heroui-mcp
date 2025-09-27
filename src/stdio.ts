@@ -1,55 +1,34 @@
 #!/usr/bin/env node
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
+import { server } from "./server.js"
+import { initializeTools } from "./tools/index.js"
 
-/**
- * HeroUI MCP Server
- * Provides component documentation and props via Model Context Protocol
- */
-
-import {Server} from "@modelcontextprotocol/sdk/server/index.js";
-import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
-import {CallToolRequestSchema, ListToolsRequestSchema} from "@modelcontextprotocol/sdk/types.js";
-
-import {McpServerCore} from "./services/mcp-server-core.js";
-
-// Initialize MCP server core
-const mcpServerCore = new McpServerCore();
-
-// Create the MCP server
-const server = new Server(
-  {
-    name: "heroui-mcp",
-    version: "0.0.0-alpha.1",
-  },
-  {
-    capabilities: {
-      tools: {},
-    },
-  },
-);
-
-// Delegate to MCP server core
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return await mcpServerCore.handleListTools();
-});
-
-// Delegate tool calls to MCP server core
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  return await mcpServerCore.handleToolCall(request.params);
-});
-
-// Start the server
 async function main() {
-  // Initialize MCP server core
-  await mcpServerCore.initialize();
+  // Use local server for development, staging for test, production otherwise
+  const nodeEnv = process.env.NODE_ENV
+  let apiBaseUrl: string
 
-  const transport = new StdioServerTransport();
+  if (nodeEnv === "development") {
+    // Local development server (run with: npm run dev)
+    apiBaseUrl = process.env.HEROUI_API_URL || "http://localhost:8787"
+  } else if (nodeEnv === "staging") {
+    // Staging environment
+    apiBaseUrl = "https://staging-mcp.heroui.com"
+  } else {
+    // Production environment (default)
+    apiBaseUrl = "https://mcp.heroui.com"
+  }
 
-  await server.connect(transport);
+  await initializeTools(server, {
+    apiBaseUrl,
+  })
 
-  console.error("HeroUI MCP Server running on stdio");
+  const transport = new StdioServerTransport()
+  await server.connect(transport)
+  console.info("HeroUI MCP Server running on stdio")
 }
 
 main().catch((error) => {
-  console.error("Fatal error:", error);
-  process.exit(1);
-});
+  console.error("Fatal error in main():", error)
+  process.exit(1)
+})

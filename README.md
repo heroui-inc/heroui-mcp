@@ -9,8 +9,25 @@ A Model Context Protocol (MCP) server that provides AI assistants with access to
 - Version-specific component queries
 - Full TypeScript support with type definitions
 - Integration with popular AI-powered IDEs and editors
+- **Dual transport support:** HTTP Streamable and STDIO
 
-## Installation
+## Transport Options
+
+The HeroUI MCP server supports two transport methods:
+
+### 1. HTTP Streamable Transport
+
+**Direct HTTP endpoint:** `https://mcp.heroui.com`
+
+- No installation required
+- Stateless JSON-RPC over HTTP POST
+- Perfect for cloud-based AI assistants
+- CORS support for web clients
+- Cloudflare Workers optimized
+
+### 2. STDIO Transport
+
+**NPM package:** `@heroui/mcp`
 
 ```bash
 # Install globally from npm
@@ -20,9 +37,12 @@ npm install -g @heroui/mcp
 npx @heroui/mcp
 ```
 
-## IDE Setup
+- Local execution
+- Bidirectional stdio communication
+- Perfect for local IDE integrations
+- Lower latency for local development
 
-The MCP server supports [stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio) and is published at `@heroui/mcp`.
+## IDE Setup
 
 ### Cursor
 
@@ -43,7 +63,13 @@ Add to `.cursor/mcp.json` in your project root:
 
 ### Claude Code
 
-Run this command in your terminal:
+**Option 1: HTTP Transport (Recommended)**
+
+```bash
+claude mcp add heroui --url https://mcp.heroui.com
+```
+
+**Option 2: STDIO Transport**
 
 ```bash
 claude mcp add heroui -- npx -y @heroui/mcp
@@ -103,14 +129,28 @@ Add to your Zed settings.json:
 
 ### Custom MCP Client
 
-For any MCP-compatible client:
+**HTTP Transport:**
+
+```json
+{
+  "mcpServers": {
+    "heroui": {
+      "url": "https://mcp.heroui.com",
+      "transport": "http"
+    }
+  }
+}
+```
+
+**STDIO Transport:**
 
 ```json
 {
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/mcp"],
+      "transport": "stdio"
     }
   }
 }

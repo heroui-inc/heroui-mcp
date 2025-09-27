@@ -3,13 +3,12 @@
   "version": "0.0.0-alpha.8",
   "type": "module",
   "description": "MCP server for HeroUI component documentation via Model Context Protocol",
-  "main": "dist/stdio-npm.js",
+  "main": "dist/stdio.js",
   "bin": {
-    "heroui-mcp": "dist/stdio-npm.js"
+    "heroui-mcp": "dist/stdio.js"
   },
   "files": [
-    "dist",
-    "data"
+    "dist"
   ],
   "keywords": [
     "mcp",
@@ -29,7 +28,10 @@
   },
   "homepage": "https://github.com/heroui-inc/heroui-mcp",
   "scripts": {
-    "dev": "wrangler dev src/index.ts --env development --port 8787",
+    "build": "tsup && chmod 755 dist/stdio.js",
+    "dev": "wrangler dev src/http.ts --env development --port 8787",
+    "dev:stdio": "tsx --watch src/stdio.ts",
+    "serve": "tsx --watch src/http-local.ts",
     "deploy": "wrangler deploy --minify",
     "deploy:staging": "wrangler deploy --env staging",
     "deploy:production": "wrangler deploy --env production",
@@ -38,10 +40,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
     "mcp:stdio": "tsx src/stdio.ts",
     "mcp:inspector": "npx @modelcontextprotocol/inspector tsx src/stdio.ts",
-    "extract:heroui": "tsx scripts/extract-heroui.ts",
-    "extract:native": "tsx scripts/extract-native.ts",
-    "build": "pnpm clean && tsc -p tsconfig.build.json && pnpm postbuild",
-    "postbuild": "chmod +x dist/stdio-npm.js",
+    "extract:heroui-r2": "tsx scripts/extract-heroui-r2.ts",
+    "extract:native-r2": "tsx scripts/extract-native-r2.ts",
     "clean": "rm -rf dist",
     "prepublishOnly": "pnpm build",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
@@ -49,10 +49,12 @@
     "release:check": "pnpm run lint && pnpm run typecheck && pnpm run build"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.696.0",
     "@hono/node-server": "^1.13.7",
     "@modelcontextprotocol/sdk": "^1.18.1",
+    "@xmldom/xmldom": "^0.8.11",
     "hono": "^4.9.8",
-    "zod": "^4.1.9"
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250920.0",
@@ -77,6 +79,7 @@
     "glob": "^11.0.3",
     "globals": "^16.4.0",
     "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.44.1",

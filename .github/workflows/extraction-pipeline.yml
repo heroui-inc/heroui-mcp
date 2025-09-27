@@ -1,0 +1,194 @@
+name: Component Data Extraction Pipeline
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      library:
+        description: "Library to extract (heroui, native, or both)"
+        required: false
+        default: "both"
+        type: choice
+        options:
+          - both
+          - heroui
+          - native
+      force:
+        description: "Force re-extraction even if version exists"
+        required: false
+        default: false
+        type: boolean
+      version:
+        description: "Specific version to extract (optional)"
+        required: false
+
+jobs:
+  check-versions:
+    name: Check for New Versions
+    runs-on: ubuntu-latest
+    outputs:
+      heroui-needs-update: ${{ steps.check.outputs.heroui-needs-update }}
+      native-needs-update: ${{ steps.check.outputs.native-needs-update }}
+      heroui-version: ${{ steps.check.outputs.heroui-version }}
+      native-version: ${{ steps.check.outputs.native-version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies for version check
+        run: npm install @aws-sdk/client-s3
+
+      - name: Check for new versions
+        id: check
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+        run: |
+          node scripts/check-versions-ci.mjs \
+            --force=${{ inputs.force }} \
+            --library=${{ inputs.library || 'both' }} \
+            --version=${{ inputs.version }}
+
+  extract-heroui:
+    name: Extract HeroUI Components
+    runs-on: ubuntu-latest
+    needs: check-versions
+    if: needs.check-versions.outputs.heroui-needs-update == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          npm install @aws-sdk/client-s3
+          npm install tsx
+
+      - name: Extract HeroUI components
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.force }}" == "true" ]; then
+            FLAGS="--force"
+          fi
+          if [ -n "${{ needs.check-versions.outputs.heroui-version }}" ]; then
+            FLAGS="$FLAGS --version=${{ needs.check-versions.outputs.heroui-version }}"
+          fi
+
+          npx tsx scripts/extract-heroui-r2.ts $FLAGS
+
+      - name: Notify success
+        if: success()
+        run: |
+          echo "✅ Successfully extracted HeroUI components version ${{ needs.check-versions.outputs.heroui-version }}"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Failed to extract HeroUI components"
+
+  extract-native:
+    name: Extract HeroUI Native Components
+    runs-on: ubuntu-latest
+    needs: check-versions
+    if: needs.check-versions.outputs.native-needs-update == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          npm install @aws-sdk/client-s3
+          npm install tsx
+
+      - name: Extract Native components
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.force }}" == "true" ]; then
+            FLAGS="--force"
+          fi
+          if [ -n "${{ needs.check-versions.outputs.native-version }}" ]; then
+            FLAGS="$FLAGS --version=${{ needs.check-versions.outputs.native-version }}"
+          fi
+
+          npx tsx scripts/extract-native-r2.ts $FLAGS
+
+      - name: Notify success
+        if: success()
+        run: |
+          echo "✅ Successfully extracted HeroUI Native components version ${{ needs.check-versions.outputs.native-version }}"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Failed to extract HeroUI Native components"
+
+  summary:
+    name: Extraction Summary
+    runs-on: ubuntu-latest
+    needs: [check-versions, extract-heroui, extract-native]
+    if: always()
+    steps:
+      - name: Create summary
+        run: |
+          echo "## Component Extraction Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.check-versions.outputs.heroui-needs-update }}" == "true" ]; then
+            if [ "${{ needs.extract-heroui.result }}" == "success" ]; then
+              echo "✅ **HeroUI**: Successfully extracted version ${{ needs.check-versions.outputs.heroui-version }}" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ **HeroUI**: Failed to extract version ${{ needs.check-versions.outputs.heroui-version }}" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "ℹ️ **HeroUI**: No update needed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.check-versions.outputs.native-needs-update }}" == "true" ]; then
+            if [ "${{ needs.extract-native.result }}" == "success" ]; then
+              echo "✅ **HeroUI Native**: Successfully extracted version ${{ needs.check-versions.outputs.native-version }}" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ **HeroUI Native**: Failed to extract version ${{ needs.check-versions.outputs.native-version }}" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "ℹ️ **HeroUI Native**: No update needed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "**Force extraction**: ${{ inputs.force }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Target library**: ${{ inputs.library }}" >> $GITHUB_STEP_SUMMARY
+            if [ -n "${{ inputs.version }}" ]; then
+              echo "**Specific version**: ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi

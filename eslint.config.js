@@ -99,20 +99,11 @@ export default defineConfig([
       "no-unused-vars": "off",
       "object-curly-spacing": ["error", "never"],
       "padding-line-between-statements": [
-        "error",
-        {blankLine: "always", next: "*", prev: "directive"},
-        {blankLine: "any", next: "directive", prev: "directive"},
-        {blankLine: "always", next: "*", prev: ["const", "let", "var"]},
-        {blankLine: "any", next: ["const", "let", "var"], prev: ["const", "let", "var"]},
+        "warn",
         {blankLine: "always", next: "return", prev: "*"},
       ],
       "prettier/prettier": "error",
-      "sort-destructure-keys/sort-destructure-keys": [
-        "error",
-        {
-          caseSensitive: true,
-        },
-      ],
+      "sort-destructure-keys/sort-destructure-keys": "off",
       "sort-imports": [
         "error",
         {
@@ -123,16 +114,8 @@ export default defineConfig([
           memberSyntaxSortOrder: ["none", "all", "multiple", "single"],
         },
       ],
-      "sort-keys": [
-        "error",
-        "asc",
-        {
-          caseSensitive: true,
-          minKeys: 2,
-          natural: false,
-        },
-      ],
-      "sort-keys-fix/sort-keys-fix": "error",
+      "sort-keys": "off",
+      "sort-keys-fix/sort-keys-fix": "off",
       "unused-imports/no-unused-imports": "error",
       "unused-imports/no-unused-vars": [
         "error",

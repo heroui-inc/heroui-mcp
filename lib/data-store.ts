@@ -1,4 +1,4 @@
-import type {ComponentDataset, VersionInfo} from "./component-data-service.js";
+import type {ComponentDataset, VersionInfo} from "../src/types.js";
 
 /**
  * Data Store Interface
@@ -24,6 +24,11 @@ export interface DataStore {
    * Get version metadata for all libraries
    */
   getVersionInfo(): Promise<Record<string, VersionInfo>>;
+
+  /**
+   * Save version metadata
+   */
+  saveVersionInfo?(metadata: Record<string, VersionInfo>): Promise<void>;
 }
 
 /**
@@ -122,19 +127,57 @@ export class R2DataStore implements DataStore {
   }
 
   async getVersionInfo(): Promise<Record<string, VersionInfo>> {
-    // Version info is still stored locally in versions.json
-    // This method delegates to file system for metadata
+    if (!this.r2) {
+      console.log(`[R2DataStore] R2 not available, returning empty version info`);
+      return {};
+    }
+
     try {
-      const versions = await import("../../data/versions.json");
+      const key = `metadata/versions.json`;
+      const object = await this.r2.get(key);
 
-      return versions.default;
+      if (!object) {
+        console.log(`[R2DataStore] Version info not found in R2, returning defaults`);
+        return {
+          heroui: {current: "v3.0.0-alpha.3", extractDuration: 0, lastExtracted: ""},
+          native: {current: "v1.0.0-alpha.13", extractDuration: 0, lastExtracted: ""},
+        };
+      }
+
+      const jsonText = await object.text();
+      const data = JSON.parse(jsonText) as Record<string, VersionInfo>;
+
+      console.log(`[R2DataStore] Retrieved version info from R2`);
+      return data;
     } catch (error) {
-      console.warn("[R2DataStore] Could not load version info, using defaults");
-
+      console.error(`[R2DataStore] Failed to retrieve version info:`, error);
       return {
         heroui: {current: "v3.0.0-alpha.3", extractDuration: 0, lastExtracted: ""},
         native: {current: "v1.0.0-alpha.13", extractDuration: 0, lastExtracted: ""},
       };
+    }
+  }
+
+  async saveVersionInfo(metadata: Record<string, VersionInfo>): Promise<void> {
+    if (!this.r2) {
+      console.log(`[R2DataStore] R2 not available, skipping version info save`);
+      return;
+    }
+
+    try {
+      const key = `metadata/versions.json`;
+      const jsonData = JSON.stringify(metadata, null, 2);
+
+      await this.r2.put(key, jsonData, {
+        httpMetadata: {
+          contentType: "application/json",
+        },
+      });
+
+      console.log(`[R2DataStore] Saved version info to R2`);
+    } catch (error) {
+      console.error(`[R2DataStore] Failed to save version info:`, error);
+      throw error;
     }
   }
 }

@@ -8,7 +8,7 @@ export interface Env {
   LOG_LEVEL: "debug" | "info" | "warn" | "error";
 
   // Cloudflare R2 bucket for component data storage
-  COMPONENTS_BUCKET?: R2Bucket;
+  COMPONENT_DATA?: R2Bucket;
 }
 
 export type HonoContext = {
@@ -19,3 +19,29 @@ export type HonoContext = {
     // Add any request-scoped variables
   };
 };
+
+// Component Data Types (shared across services and lib)
+export interface ComponentProp {
+  name: string;
+  type: string;
+  description?: string;
+  default?: unknown;
+  required?: boolean;
+}
+
+export interface ComponentData {
+  name: string;
+  description?: string;
+  importStatement?: string;
+  props: Record<string, ComponentProp>;
+}
+
+export interface ComponentDataset {
+  [componentName: string]: ComponentData;
+}
+
+export interface VersionInfo {
+  current: string;
+  lastExtracted: string;
+  extractDuration: number;
+}

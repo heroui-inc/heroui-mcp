@@ -1,0 +1,38 @@
+# Environment Configuration
+# Copy this file to .dev.vars and fill in your values
+
+# Environment: development | staging | production
+APP_ENV=development
+
+# Log level: debug | info | warn | error
+LOG_LEVEL=debug
+
+# Cloudflare R2 Configuration (required for Worker and extraction scripts)
+# Get these from your Cloudflare dashboard
+CLOUDFLARE_ACCOUNT_ID=your-cloudflare-account-id
+R2_ACCESS_KEY_ID=your-r2-access-key-id
+R2_SECRET_ACCESS_KEY=your-r2-secret-access-key
+R2_BUCKET_NAME=heroui-mcp-data-dev
+
+# GitHub Token (optional, for extraction scripts)
+# Only needed if running extraction scripts locally or accessing private repos
+# GITHUB_TOKEN=github_pat_xxxxx
+
+# Cloudflare API Token (for deployments only)
+# Used by GitHub Actions for Worker deployments
+# CLOUDFLARE_API_TOKEN=your-cloudflare-api-token
+
+# Local Development Options:
+#
+# Option 1: Use local dev server (recommended for development)
+# 1. Start the local worker: npm run dev (runs on http://localhost:8787)
+# 2. In another terminal, run the stdio client: NODE_ENV=development npm run mcp:stdio
+#
+# Option 2: Use staging API
+# NODE_ENV=staging npm run mcp:stdio
+#
+# Option 3: Use production API (default)
+# npm run mcp:stdio
+#
+# You can also override the API URL directly:
+# HEROUI_API_URL=http://localhost:3000 npm run mcp:stdio

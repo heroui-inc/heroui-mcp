@@ -2,11 +2,8 @@
  * Base GitHub extractor with version-based data organization
  */
 
-import type {ComponentDataset} from "./component-data-service.js";
+import type {ComponentDataset} from "../src/types.js";
 import type {GitHubClient} from "./github-client.js";
-
-import * as fs from "fs/promises";
-import * as path from "path";
 
 import {dataStore} from "./data-store.js";
 import {SimpleGitHubClient} from "./github-client.js";
@@ -80,11 +77,8 @@ export abstract class BaseGitHubExtractor {
 
       console.log(`📦 Found version: ${version}`);
 
-      // 2. Setup output directory (simplified structure)
-      const latestDir = path.join(process.cwd(), "data", "latest");
-
-      await fs.mkdir(latestDir, {recursive: true});
-      console.log(`📁 Output to: data/latest/${this.config.outputLibraryName}.json`);
+      // 2. Log extraction details (no local output directory needed)
+      console.log(`📁 Will upload to R2: components/${this.config.outputLibraryName}/v${version}.json`);
 
       // 3. Get documentation files
       const docFiles = await this.github.getDocsFiles(
@@ -134,17 +128,9 @@ export abstract class BaseGitHubExtractor {
         }
       }
 
-      // 5. Save extracted data to new simplified structure
-      const latestPath = path.join(
-        process.cwd(),
-        "data",
-        "latest",
-        `${this.config.outputLibraryName}.json`,
-      );
+      // 5. Skip local file saving - data will be saved to R2 only
 
-      await fs.writeFile(latestPath, JSON.stringify(components, null, 2), "utf-8");
-
-      // 6. Save to external database (DataStore)
+      // 6. Save to R2 database (DataStore)
       const versionString = `v${version}`;
 
       await dataStore.saveVersion(
@@ -153,10 +139,17 @@ export abstract class BaseGitHubExtractor {
         components as ComponentDataset,
       );
 
-      // 7. Update version metadata
+      // Also save as 'latest'
+      await dataStore.saveVersion(
+        this.config.outputLibraryName,
+        "latest",
+        components as ComponentDataset,
+      );
+
+      // 7. Update version metadata in R2
       const duration = Date.now() - startTime;
 
-      await this.updateVersionMetadata(version, duration);
+      await this.updateVersionMetadataInR2(version, duration);
 
       const totalProps = Object.values(components).reduce((sum, comp) => {
         const mainProps = Object.keys(comp.props).length;
@@ -175,7 +168,7 @@ export abstract class BaseGitHubExtractor {
       console.log(`   - Components: ${Object.keys(components).length}`);
       console.log(`   - Total props: ${totalProps}`);
       console.log(`   - Processing time: ${(duration / 1000).toFixed(2)}s`);
-      console.log(`   - Output: ${latestPath}`);
+      console.log(`   - Output: R2 bucket (${this.config.outputLibraryName}/v${version})`);
     } catch (error) {
       console.error(
         `❌ Extraction failed: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -184,24 +177,28 @@ export abstract class BaseGitHubExtractor {
     }
   }
 
-  private async updateVersionMetadata(version: string, duration: number): Promise<void> {
-    const metadataPath = path.join(process.cwd(), "data", "versions.json");
+  private async updateVersionMetadataInR2(version: string, duration: number): Promise<void> {
+    // Get existing metadata from R2
     let metadata: VersionMetadata = {};
 
     try {
-      const existing = await fs.readFile(metadataPath, "utf-8");
-
-      metadata = JSON.parse(existing);
+      const existingMetadata = await dataStore.getVersionInfo();
+      metadata = existingMetadata;
     } catch {
-      // File doesn't exist, start fresh
+      // No existing metadata, start fresh
     }
 
+    // Update metadata for this library
     metadata[this.config.outputLibraryName] = {
       current: `v${version}`,
       extractDuration: duration,
       lastExtracted: new Date().toISOString(),
     };
 
-    await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2), "utf-8");
+    // Save updated metadata back to R2
+    if (dataStore.saveVersionInfo) {
+      await dataStore.saveVersionInfo(metadata);
+    }
+    console.log(`📝 Updated version metadata for ${this.config.outputLibraryName}: v${version}`);
   }
 }

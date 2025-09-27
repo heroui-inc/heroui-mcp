@@ -29,7 +29,6 @@
     "src/**/*.spec.ts",
     "src/index.ts",
     "src/http-server.ts",
-    "src/services/data-store.ts",
     "src/types.ts"
   ]
 }
