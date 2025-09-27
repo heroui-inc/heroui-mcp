@@ -24,6 +24,8 @@ interface DemoItem {
 }
 
 export class HeroUIParser implements ComponentParser {
+  private static readonly GITHUB_RAW_BASE_URL =
+    "https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3";
   private demoRegistry: Record<string, DemoItem> | null = null;
 
   async fetchDemoRegistry(): Promise<Record<string, DemoItem>> {
@@ -31,7 +33,7 @@ export class HeroUIParser implements ComponentParser {
 
     try {
       const response = await fetch(
-        "https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/src/demos/index.ts",
+        `${HeroUIParser.GITHUB_RAW_BASE_URL}/apps/docs/src/demos/index.ts`,
       );
       const content = await response.text();
 
@@ -66,7 +68,7 @@ export class HeroUIParser implements ComponentParser {
 
   async fetchDemoContent(filePath: string): Promise<string | null> {
     try {
-      const url = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/src/demos/${filePath}`;
+      const url = `${HeroUIParser.GITHUB_RAW_BASE_URL}/apps/docs/src/demos/${filePath}`;
       const response = await fetch(url);
       if (!response.ok) return null;
 
@@ -423,7 +425,10 @@ async function main() {
   }
 
   const forceExtract = process.argv.includes("--force");
-  const specificVersion = process.argv.find((arg) => arg.startsWith("--version="))?.split("=")[1];
+  const versionArg = process.argv.find((arg) => arg.startsWith("--version="))?.split("=")[1];
+  // Filter out invalid version values like "true" or "false"
+  const specificVersion =
+    versionArg && versionArg !== "true" && versionArg !== "false" ? versionArg : undefined;
 
   try {
     const extractor = new HeroUIExtractor(process.env.GITHUB_TOKEN);

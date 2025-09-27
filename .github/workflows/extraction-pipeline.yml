@@ -118,7 +118,9 @@ jobs:
           if [ "${{ inputs.force }}" == "true" ]; then
             FLAGS="--force"
           fi
-          if [ -n "${{ needs.check-versions.outputs.heroui-version }}" ]; then
+          if [ -n "${{ inputs.version }}" ]; then
+            FLAGS="$FLAGS --version=${{ inputs.version }}"
+          elif [ -n "${{ needs.check-versions.outputs.heroui-version }}" ]; then
             FLAGS="$FLAGS --version=${{ needs.check-versions.outputs.heroui-version }}"
           fi
 
@@ -165,7 +167,9 @@ jobs:
           if [ "${{ inputs.force }}" == "true" ]; then
             FLAGS="--force"
           fi
-          if [ -n "${{ needs.check-versions.outputs.native-version }}" ]; then
+          if [ -n "${{ inputs.version }}" ]; then
+            FLAGS="$FLAGS --version=${{ inputs.version }}"
+          elif [ -n "${{ needs.check-versions.outputs.native-version }}" ]; then
             FLAGS="$FLAGS --version=${{ needs.check-versions.outputs.native-version }}"
           fi
 

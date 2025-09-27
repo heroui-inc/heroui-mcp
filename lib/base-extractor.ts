@@ -44,7 +44,10 @@ export interface ComponentDefinition {
 }
 
 export interface ComponentParser {
-  parseContent(content: string, filePath: string): ComponentDefinition | null | Promise<ComponentDefinition | null>;
+  parseContent(
+    content: string,
+    filePath: string,
+  ): ComponentDefinition | null | Promise<ComponentDefinition | null>;
 }
 
 interface VersionMetadata {

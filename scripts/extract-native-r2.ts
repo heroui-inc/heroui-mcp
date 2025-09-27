@@ -5,7 +5,12 @@
  * Fetches latest component documentation from GitHub and uploads to R2
  */
 
-import type {ComponentDefinition, ComponentParser, PropDefinition} from "../lib/base-extractor";
+import type {
+  ComponentDefinition,
+  ComponentExample,
+  ComponentParser,
+  PropDefinition,
+} from "../lib/base-extractor";
 
 import {BaseGitHubExtractor} from "../lib/base-extractor";
 import {R2Uploader} from "../lib/r2-uploader";
@@ -36,7 +41,7 @@ class HeroUINativeParser implements ComponentParser {
 
     return {
       description,
-      examples: this.extractExamples(lines),
+      examples: this.extractExamples(lines) as unknown as ComponentExample[],
       importStatement,
       name: componentName,
       props,
@@ -273,7 +278,10 @@ async function main() {
   }
 
   const forceExtract = process.argv.includes("--force");
-  const specificVersion = process.argv.find((arg) => arg.startsWith("--version="))?.split("=")[1];
+  const versionArg = process.argv.find((arg) => arg.startsWith("--version="))?.split("=")[1];
+  // Filter out invalid version values like "true" or "false"
+  const specificVersion =
+    versionArg && versionArg !== "true" && versionArg !== "false" ? versionArg : undefined;
 
   try {
     const extractor = new HeroUINativeExtractor(process.env.GITHUB_TOKEN);
