@@ -1,3 +1,12 @@
+# [1.0.0-alpha.7](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.6...v1.0.0-alpha.7) (2025-09-27)
+
+
+### Features
+
+* enhance component parsing with examples and async content fetching ([b849c8b](https://github.com/heroui-inc/heroui-mcp/commit/b849c8bd43ecc494c19f434bf72c1f710cafa83e))
+
+
+
 # [1.0.0-alpha.6](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.5...v1.0.0-alpha.6) (2025-09-27)
 
 
