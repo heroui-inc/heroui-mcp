@@ -4,14 +4,18 @@
  * This wrapper allows running the Hono app locally with Node.js
  */
 
-import { serve } from "@hono/node-server"
-import app from "./http.js"
+import {serve} from "@hono/node-server";
 
-const port = process.env.PORT ? Number(process.env.PORT) : 3000
+import app from "./http.js";
 
-serve({
-  fetch: app.fetch,
-  port,
-}, (info) => {
-  console.info(`HeroUI MCP Server running on http://localhost:${info.port}`)
-})
+const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+
+serve(
+  {
+    fetch: app.fetch,
+    port,
+  },
+  (info) => {
+    console.info(`HeroUI MCP Server running on http://localhost:${info.port}`);
+  },
+);

@@ -1,5 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
-import packageJson from "../package.json" assert { type: "json" }
+import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
+
+import packageJson from "../package.json" assert {type: "json"};
 
 export const server = new McpServer({
   name: "@heroui/mcp",
@@ -9,4 +10,4 @@ export const server = new McpServer({
     resources: {},
     tools: {},
   },
-})
+});

@@ -12,7 +12,7 @@ import * as path from "path";
 import {BaseGitHubExtractor} from "../lib/base-extractor.js";
 import {R2Uploader} from "../lib/r2-uploader.js";
 
-class HeroUIParser implements ComponentParser {
+export class HeroUIParser implements ComponentParser {
   parseContent(content: string, filePath: string): ComponentDefinition | null {
     const lines = content.split("\n");
 
@@ -94,48 +94,79 @@ class HeroUIParser implements ComponentParser {
     let currentComponent = componentName;
     let inPropsTable = false;
     let tableLines: string[] = [];
+    let inApiSection = false;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Check for component props sections
-      if (line.startsWith("### ") && line.toLowerCase().includes("props")) {
-        const match = line.match(/### ([\w]+) Props/i);
+      // Check for API Reference section
+      if (line === "## API Reference" || line === "## API") {
+        inApiSection = true;
+        continue;
+      }
+
+      // Check for component props sections within API section
+      if (inApiSection && line.startsWith("### ")) {
+        const match = line.match(/### ([\w.]+)\s*Props/i);
         if (match) {
-          currentComponent = match[1];
-          if (currentComponent !== componentName) {
+          const fullComponentName = match[1];
+
+          if (fullComponentName.includes(".")) {
+            // Handle sub-components like Accordion.Item
+            const parts = fullComponentName.split(".");
+            const subComponentName = parts[1];
             if (!result.subComponents) result.subComponents = {};
-            result.subComponents[currentComponent] = {
-              name: currentComponent,
+            result.subComponents[subComponentName] = {
+              name: subComponentName,
               props: {},
             };
+            currentComponent = subComponentName;
+          } else if (fullComponentName.toLowerCase() === componentName.toLowerCase()) {
+            // Main component props
+            currentComponent = componentName;
+          } else {
+            // Might be a related component, treat as main component
+            currentComponent = componentName;
           }
         }
       }
 
-      // Start of table
-      if (line.startsWith("| Attribute") || line.startsWith("| Property")) {
+      // Start of table - check for various header formats
+      if (line.startsWith("| Prop") || line.startsWith("| Attribute") || line.startsWith("| Property") || line.startsWith("| Name")) {
         inPropsTable = true;
         tableLines = [];
         continue;
       }
 
+      // Skip separator line
+      if (inPropsTable && line.includes("|---")) {
+        continue;
+      }
+
       // End of table
       if (inPropsTable && (!line.startsWith("|") || line.trim() === "")) {
-        this.parsePropsTable(
-          tableLines,
-          currentComponent === componentName
-            ? result.props
-            : result.subComponents?.[currentComponent]?.props || {},
-        );
+        const targetProps = currentComponent === componentName
+          ? result.props
+          : result.subComponents?.[currentComponent]?.props || result.props;
+
+        this.parsePropsTable(tableLines, targetProps);
         inPropsTable = false;
         tableLines = [];
       }
 
       // Collect table lines
-      if (inPropsTable && line.startsWith("|") && !line.includes("---")) {
+      if (inPropsTable && line.startsWith("|")) {
         tableLines.push(line);
       }
+    }
+
+    // Parse any remaining table lines
+    if (tableLines.length > 0) {
+      const targetProps = currentComponent === componentName
+        ? result.props
+        : result.subComponents?.[currentComponent]?.props || result.props;
+
+      this.parsePropsTable(tableLines, targetProps);
     }
 
     return result;
@@ -147,17 +178,37 @@ class HeroUIParser implements ComponentParser {
         .split("|")
         .map((p) => p.trim())
         .filter(Boolean);
+
       if (parts.length >= 3) {
-        const name = parts[0].replace(/`/g, "");
-        const type = parts[1].replace(/`/g, "");
-        const description = parts[2] || "";
-        const defaultValue = parts[3]?.replace(/`/g, "").replace("-", "").trim();
+        // Clean prop name - remove backticks and quotes
+        const name = parts[0].replace(/[`'"]/g, "").trim();
+
+        // Skip if name is empty or looks like a header
+        if (!name || name.toLowerCase() === 'prop' || name.toLowerCase() === 'attribute') {
+          continue;
+        }
+
+        // Clean type - remove backticks
+        const type = parts[1]?.replace(/[`'"]/g, "").trim() || "any";
+
+        // v3 format: Prop | Type | Default | Description
+        let defaultValue = "";
+        let description = "";
+
+        if (parts.length === 4) {
+          // Format: Prop | Type | Default | Description
+          defaultValue = parts[2]?.replace(/[`'"]/g, "").replace("-", "").trim() || "";
+          description = parts[3]?.trim() || "";
+        } else if (parts.length === 3) {
+          // Format might be: Prop | Type | Description (no default)
+          description = parts[2]?.trim() || "";
+        }
 
         targetProps[name] = {
           name,
           type,
           description,
-          ...(defaultValue && {default: defaultValue}),
+          ...(defaultValue && defaultValue !== "" && defaultValue !== "-" && {default: defaultValue}),
         };
       }
     }

@@ -204,7 +204,7 @@ class HeroUINativeExtractor extends BaseGitHubExtractor {
         owner: "heroui-inc",
         repo: "heroui-native",
         branch: "alpha",
-        docsPath: "apps/docs/content/components",
+        docsPath: "src/components",
         outputLibraryName: "native",
       },
       new HeroUINativeParser(),
