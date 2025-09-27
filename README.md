@@ -2,6 +2,8 @@
 
 Access HeroUI component documentation directly in your AI assistant via Model Context Protocol (MCP).
 
+📚 [Documentation](https://github.com/heroui-inc/heroui-mcp#readme) • 🐛 [Troubleshooting](https://github.com/heroui-inc/heroui-mcp/blob/main/TROUBLESHOOTING.md) • 💬 [Discord](https://discord.gg/heroui)
+
 ## Features
 
 - Complete component documentation for HeroUI and HeroUI Native
@@ -168,7 +170,7 @@ If you're behind a corporate firewall, you may need to configure proxy settings 
 
 ### Need help?
 
-Check our [troubleshooting guide](https://github.com/heroui-inc/heroui-mcp/wiki/Troubleshooting) or ask in our [Discord community](https://discord.gg/heroui).
+Check our [troubleshooting guide](https://github.com/heroui-inc/heroui-mcp/blob/main/TROUBLESHOOTING.md) or ask in our [Discord community](https://discord.gg/heroui).
 
 ## Contributing
 
