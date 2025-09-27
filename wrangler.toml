@@ -23,6 +23,7 @@ LOG_LEVEL = "debug"
 # Analytics configuration - disabled in development
 POSTHOG_KEY = ""
 POSTHOG_HOST = ""
+R2_BUCKET_NAME = "heroui-mcp-data-dev"
 
 # ------------------------------------------------------------
 # -- Staging Environment
@@ -42,7 +43,7 @@ LOG_LEVEL = "info"
 # Analytics configuration - disabled in staging for now
 POSTHOG_KEY = ""
 POSTHOG_HOST = ""
-BUCKET_NAME = "heroui-mcp-data-staging"
+R2_BUCKET_NAME = "heroui-mcp-data-staging"
 
 # ------------------------------------------------------------
 # -- Production Environment
@@ -62,7 +63,7 @@ LOG_LEVEL = "warn"
 # Analytics configuration - enabled in production
 POSTHOG_KEY = "phc_VrhZEcKbs1xMxKoRtnvB8vxY8FwBApG8Pk87aOqvfLt"
 POSTHOG_HOST = "https://us.i.posthog.com"
-BUCKET_NAME = "heroui-mcp-data"
+R2_BUCKET_NAME = "heroui-mcp-data"
 
 # ------------------------------------------------------------
 # -- Worker Settings
