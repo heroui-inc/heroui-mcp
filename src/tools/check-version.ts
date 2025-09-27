@@ -1,16 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Tool} from "./types.js";
+import type {Tool} from "./types";
 
 import {z} from "zod";
 
-import {wrapWithAnalytics} from "../lib/tool-analytics-wrapper.js";
+import {fetchApi} from "../lib/fetch";
 
 const inputSchema = z.object({
   package: z.enum(["heroui", "native", "mcp"]).describe("The package to check version for"),
-  currentVersion: z
-    .string()
-    .optional()
-    .describe("The current version being used (e.g., '3.0.0-alpha.31')"),
 });
 
 export const checkVersionTool: Tool = {
@@ -19,20 +15,19 @@ export const checkVersionTool: Tool = {
     "Check if you're using the latest version of HeroUI, HeroUI Native, or the MCP server itself",
 
   exec(server, {config, name, description}) {
-    const handler = async ({package: pkg, currentVersion}: z.infer<typeof inputSchema>) => {
+    const handler = async ({package: pkg}: z.infer<typeof inputSchema>) => {
       try {
-        let result: string;
+        // Direct API call for version check
+        const endpoint = `/api/versions/${pkg}`;
+        const data = await fetchApi<{
+          isLatest: boolean;
+          currentVersion: string;
+          latestVersion: string;
+        }>(endpoint, config.apiBaseUrl);
 
-        if (config.dataService) {
-          // Use R2 data service for version check
-          const versionData = await config.dataService.checkVersion(pkg, currentVersion);
-          result = versionData.message;
-        } else {
-          // Use API endpoint
-          const {checkVersion: fetchVersionCheck} = await import("../lib/fetch.js");
-          const versionResult = await fetchVersionCheck(pkg, currentVersion, config.apiBaseUrl);
-          result = versionResult.message;
-        }
+        const result = data.isLatest
+          ? `✅ You're using the latest version of ${pkg}: ${data.currentVersion}`
+          : `🔄 Update available for ${pkg}!\nCurrent: ${data.currentVersion}\nLatest: ${data.latestVersion}`;
 
         return {
           content: [
@@ -54,13 +49,7 @@ export const checkVersionTool: Tool = {
       }
     };
 
-    // Register tool with analytics wrapper
-
-    server.tool(
-      name,
-      description,
-      inputSchema.shape,
-      wrapWithAnalytics(server, name, handler) as any,
-    );
+    // Register tool
+    server.tool(name, description, inputSchema.shape, handler as any);
   },
 };

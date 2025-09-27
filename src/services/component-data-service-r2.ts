@@ -1,13 +1,17 @@
+/* eslint-disable import/order */
 /**
  * Component Data Service - R2 Storage Implementation
  * Provides access to component data stored in Cloudflare R2
  */
 
-import type {ComponentData, ComponentDataset, VersionInfo} from "../types.js";
+// Import polyfills first - must be before AWS SDK imports
+import "../lib/domparser-polyfill";
 
-import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
+import type {ComponentData, ComponentDataset, VersionInfo} from "../types";
 
-import {ErrorCode, ErrorMessages, MCPError} from "../lib/error-handler.js";
+import {GetObjectCommand, ListObjectsV2Command, S3Client} from "@aws-sdk/client-s3";
+
+import {ErrorCode, ErrorMessages, MCPError} from "../lib/error-handler";
 
 export interface R2Config {
   accountId: string;
@@ -144,7 +148,8 @@ export class ComponentDataServiceR2 {
   async listComponents(library: string, version?: string): Promise<string[]> {
     try {
       const versionToUse = version || "latest";
-      const key = `components/${library}/${versionToUse}.json`;
+      const key =
+        versionToUse === "latest" ? `latest/${library}.json` : `${library}/${versionToUse}.json`;
       const data = await this.getFromR2<ComponentDataset>(key);
 
       if (!data) {
@@ -168,7 +173,8 @@ export class ComponentDataServiceR2 {
   ): Promise<ComponentData | null> {
     try {
       const versionToUse = version || "latest";
-      const key = `components/${library}/${versionToUse}.json`;
+      const key =
+        versionToUse === "latest" ? `latest/${library}.json` : `${library}/${versionToUse}.json`;
       const data = await this.getFromR2<ComponentDataset>(key);
 
       if (!data) {
@@ -194,7 +200,8 @@ export class ComponentDataServiceR2 {
   async getAllComponents(library: string, version?: string): Promise<ComponentDataset | null> {
     try {
       const versionToUse = version || "latest";
-      const key = `components/${library}/${versionToUse}.json`;
+      const key =
+        versionToUse === "latest" ? `latest/${library}.json` : `${library}/${versionToUse}.json`;
       const data = await this.getFromR2<ComponentDataset>(key);
 
       return data;
@@ -210,7 +217,7 @@ export class ComponentDataServiceR2 {
    */
   async getVersionInfo(): Promise<Record<string, VersionInfo>> {
     try {
-      const data = await this.getFromR2<Record<string, VersionInfo>>("metadata/versions.json");
+      const data = await this.getFromR2<Record<string, VersionInfo>>("versions.json");
 
       return data || {};
     } catch (error) {
@@ -225,11 +232,46 @@ export class ComponentDataServiceR2 {
    */
   async listVersions(library: string): Promise<string[]> {
     try {
-      const versionInfo = await this.getVersionInfo();
-      const libraryInfo = versionInfo[library];
+      // List all objects in the library directory to get actual versions
+      const command = new ListObjectsV2Command({
+        Bucket: this.bucketName,
+        Prefix: `${library}/`,
+        Delimiter: "/",
+      });
 
-      if (libraryInfo) {
-        return [libraryInfo.current, "latest"];
+      const response = await this.s3Client.send(command);
+
+      if (!response.Contents || response.Contents.length === 0) {
+        // Fallback to metadata if no version files found
+        const versionInfo = await this.getVersionInfo();
+        const libraryInfo = versionInfo[library];
+
+        if (libraryInfo && libraryInfo.current) {
+          return [libraryInfo.current, "latest"];
+        }
+
+        return ["latest"];
+      }
+
+      // Extract version numbers from file keys
+      const versions = response.Contents.map((obj) => obj.Key || "")
+        .filter((key) => key.endsWith(".json"))
+        .map((key) => {
+          // Extract version from path like "heroui/v3.0.0-alpha.31.json"
+          const match = key.match(new RegExp(`^${library}/(.+)\\.json$`));
+
+          return match ? match[1] : null;
+        })
+        .filter((v): v is string => v !== null)
+        .sort((a, b) => {
+          // Sort versions properly (newest first)
+          // Handle semantic versioning with alpha/beta tags
+          return this.compareVersions(b, a);
+        });
+
+      // Return the latest version first
+      if (versions.length > 0) {
+        return [versions[0], "latest"];
       }
 
       return ["latest"];
@@ -238,6 +280,55 @@ export class ComponentDataServiceR2 {
 
       return ["latest"];
     }
+  }
+
+  /**
+   * Compare semantic versions including pre-release tags
+   */
+  private compareVersions(a: string, b: string): number {
+    // Remove 'v' prefix if present
+    const cleanA = a.replace(/^v/, "");
+    const cleanB = b.replace(/^v/, "");
+
+    // Parse semantic version parts
+    const parseVersion = (v: string) => {
+      const match = v.match(/^(\d+)\.(\d+)\.(\d+)(?:-(alpha|beta|rc)\.(\d+))?/);
+      if (!match) return {major: 0, minor: 0, patch: 0, prerelease: "", prereleaseNum: 0};
+
+      return {
+        major: parseInt(match[1], 10),
+        minor: parseInt(match[2], 10),
+        patch: parseInt(match[3], 10),
+        prerelease: match[4] || "",
+        prereleaseNum: parseInt(match[5] || "0", 10),
+      };
+    };
+
+    const vA = parseVersion(cleanA);
+    const vB = parseVersion(cleanB);
+
+    // Compare major.minor.patch
+    if (vA.major !== vB.major) return vA.major - vB.major;
+    if (vA.minor !== vB.minor) return vA.minor - vB.minor;
+    if (vA.patch !== vB.patch) return vA.patch - vB.patch;
+
+    // If one is stable and other is prerelease, stable wins
+    if (!vA.prerelease && vB.prerelease) return 1;
+    if (vA.prerelease && !vB.prerelease) return -1;
+
+    // Both are prerelease, compare type (alpha < beta < rc)
+    if (vA.prerelease && vB.prerelease) {
+      const order = {alpha: 0, beta: 1, rc: 2};
+      const orderA = order[vA.prerelease as keyof typeof order] ?? 0;
+      const orderB = order[vB.prerelease as keyof typeof order] ?? 0;
+
+      if (orderA !== orderB) return orderA - orderB;
+
+      // Same prerelease type, compare numbers
+      return vA.prereleaseNum - vB.prereleaseNum;
+    }
+
+    return 0;
   }
 
   /**

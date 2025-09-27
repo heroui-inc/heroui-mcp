@@ -1,9 +1,9 @@
-name = "heroui-mcp"
+name = "heroui-mcp-api"
 
 # ------------------------------------------------------------
 # -- General
 # ------------------------------------------------------------
-main = "src/http.ts"
+main = "src/api.ts"
 compatibility_date = "2025-01-18"
 compatibility_flags = ["nodejs_compat"]
 
@@ -28,10 +28,9 @@ POSTHOG_HOST = ""
 # -- Staging Environment
 # ------------------------------------------------------------
 [env.staging]
-# Routes will be configured when we have a domain
-# routes = [
-#   { pattern = "staging-mcp.heroui.com", custom_domain = true }
-# ]
+routes = [
+  { pattern = "staging-mcp-api.heroui.com", custom_domain = true }
+]
 
 [[env.staging.r2_buckets]]
 binding = 'COMPONENT_DATA'
@@ -48,10 +47,9 @@ POSTHOG_HOST = ""
 # -- Production Environment
 # ------------------------------------------------------------
 [env.production]
-# Routes will be configured when we have a domain
-# routes = [
-#   { pattern = "mcp.heroui.com", custom_domain = true }
-# ]
+routes = [
+  { pattern = "mcp-api.heroui.com", custom_domain = true }
+]
 
 [[env.production.r2_buckets]]
 binding = 'COMPONENT_DATA'

@@ -2,220 +2,203 @@
 
 ## Overview
 
-The HeroUI MCP server provides component documentation via Model Context Protocol (MCP) with two transport methods and a unified data source.
+The HeroUI MCP server provides component documentation via Model Context Protocol (MCP) using a simple STDIO transport with a REST API backend.
 
 ```mermaid
-graph TD
-    CLIENTS[Clients<br/>Claude Code, Cursor, Windsurf, VS Code, etc.]
-    HTTP[HTTP Stream<br/>Transport]
-    STDIO[STDIO<br/>Transport]
-    CORE[MCP Server Core<br/>Cloudflare Worker/Node]
-    R2[Cloudflare R2 Storage<br/>Component Data Store]
+graph LR
+    CLIENTS[AI Assistants<br/>Claude, Cursor, VS Code, etc.]
+    STDIO[STDIO Client<br/>@heroui/mcp npm package]
+    API[REST API<br/>Cloudflare Worker]
+    R2[Cloudflare R2<br/>Component Data]
 
-    CLIENTS --> HTTP
     CLIENTS --> STDIO
-    HTTP --> CORE
-    STDIO --> CORE
-    CORE --> R2
+    STDIO --> API
+    API --> R2
 
     style CLIENTS fill:#e3f2fd
-    style HTTP fill:#f3e5f5
     style STDIO fill:#f3e5f5
-    style CORE fill:#e8f5e9
+    style API fill:#e8f5e9
     style R2 fill:#fff3e0
 ```
 
-## Transport Methods
+## Components
 
-### 1. HTTP Streamable Transport
+### 1. STDIO Client (`@heroui/mcp`)
+- **Location**: NPM package
+- **Entry**: `src/stdio.ts`
+- **Installation**: `npm install -g @heroui/mcp`
+- **Purpose**: Local MCP server that AI assistants connect to
+- **Features**:
+  - Lightweight and simple
+  - No local data storage
+  - Calls REST API for all data
+  - Cross-platform compatible
 
-- **URL**: `https://mcp.heroui.com`
-- **Deployment**: Cloudflare Workers
-- **Direct R2 Access**: Yes
-- **Use Case**: Cloud-based AI assistants
+### 2. REST API (Cloudflare Worker)
+- **Production**: `https://mcp-api.heroui.com`
+- **Staging**: `https://staging-mcp-api.heroui.com`
+- **Entry**: `src/api.ts`
+- **Purpose**: Serves component data from R2
+- **Endpoints**:
+  ```
+  GET /                                    # API info
+  GET /health                              # Health check
+  GET /api/components/:library             # List components
+  GET /api/components/:library/:component  # Component details
+  GET /api/components/:library/:component/props    # Props info
+  GET /api/components/:library/:component/example  # Usage examples
+  GET /api/versions                        # Version info
+  GET /api/versions/:package               # Package version
+  ```
 
-### 2. STDIO Transport
+### 3. R2 Storage
+- **Bucket**: `heroui-mcp-data`
+- **Access**: Private (Worker only)
+- **Structure**:
+  ```
+  components/
+  ├── heroui/
+  │   ├── latest.json
+  │   └── v3.0.0-alpha.31.json
+  └── native/
+      ├── latest.json
+      └── v1.0.0-alpha.13.json
+  ```
 
-- **Package**: `@heroui/mcp` (npm)
-- **Deployment**: Local Node.js process
-- **R2 Access**: Via HTTP API calls
-- **Use Case**: Local IDE integrations
+## MCP Tools
 
-## Data Flow
+The STDIO client exposes four tools:
 
-### Component Data Extraction
-
-1. **GitHub Actions** (Daily/Manual)
-   - Checks npm for new versions
-   - Extracts documentation from GitHub
-   - Uploads to R2 bucket
-
-2. **R2 Storage Structure**
+1. **list_components** - List all components
+   ```javascript
+   { library: "heroui", version?: "v3.0.0" }
    ```
-   heroui-mcp-data/
-   ├── components/
-   │   ├── heroui/
-   │   │   ├── latest.json
-   │   │   └── v3.0.0-alpha.31.json
-   │   └── native/
-   │       ├── latest.json
-   │       └── v1.0.0-alpha.13.json
-   └── metadata/
-       └── versions.json
+
+2. **get_component_props** - Get component props
+   ```javascript
+   { library: "heroui", component: "Button", version?: "latest" }
    ```
 
-### API Endpoints
+3. **get_component_example** - Get usage examples
+   ```javascript
+   { library: "heroui", component: "Button", version?: "latest" }
+   ```
 
-The server exposes REST API endpoints for component data:
-
-- `GET /api/components/:library` - List components
-- `GET /api/components/:library/:component` - Get component props
-- `GET /api/components/:library/:component/example` - Get example code
-- `GET /api/versions` - Get version information
-- `GET /api/versions/:library` - List library versions
-
-### MCP Tools
-
-Four main tools are exposed via MCP:
-
-1. **list_components** - List all components in a library
-2. **get_component_props** - Get detailed props for a component
-3. **get_component_example** - Get usage example
 4. **check_version** - Check for updates
+   ```javascript
+   { package: "mcp" | "heroui" | "native" }
+   ```
 
-## Implementation Details
+## Installation & Usage
 
-### HTTP Server (Cloudflare Worker)
+### For End Users
 
-```typescript
-// src/index.ts
-- Handles MCP JSON-RPC requests at POST /
-- Provides REST API endpoints at /api/*
-- Direct R2 bucket access via bindings
-- Automatic caching for performance
+1. Install the MCP client:
+   ```bash
+   npm install -g @heroui/mcp
+   ```
+
+2. Configure your AI assistant (e.g., Claude Desktop):
+   ```json
+   {
+     "mcpServers": {
+       "heroui": {
+         "command": "heroui-mcp"
+       }
+     }
+   }
+   ```
+
+### For Development
+
+1. Start the API server:
+   ```bash
+   pnpm dev:api
+   ```
+
+2. Test the STDIO client:
+   ```bash
+   pnpm dev:stdio
+   ```
+
+3. Run tests:
+   ```bash
+   pnpm test:api    # Test API endpoints
+   pnpm test:stdio   # Test STDIO client
+   ```
+
+## Deployment
+
+### STDIO Client (NPM)
+```bash
+# Build
+pnpm build
+
+# Publish to NPM
+npm publish
 ```
 
-### STDIO Server (NPM Package)
+### API Server (Cloudflare)
+```bash
+# Deploy to staging
+pnpm deploy:api:staging
 
-```typescript
-// src/stdio-api.ts
-- MCP server over STDIO transport
-- Makes HTTP calls to API endpoints
-- No local data storage required
-- Configurable API base URL
-```
-
-### Data Service
-
-```typescript
-// src/services/component-data-service-r2.ts
-- R2 bucket integration
-- Caching layer (5-minute TTL)
-- Fallback to bundled data
-- Version management
+# Deploy to production
+pnpm deploy:api:production
 ```
 
 ## Environment Variables
 
-### Production (Cloudflare Worker)
-
-- `APP_ENV`: Environment (production/staging/development)
-- `LOG_LEVEL`: Logging level
-- R2 binding: `COMPONENT_DATA` (automatic)
-
 ### STDIO Client
+- `HEROUI_API_URL` - API base URL (default: `https://mcp-api.heroui.com`)
 
-- `HEROUI_API_URL`: API base URL (default: https://mcp.heroui.com)
+### API Server (Cloudflare)
+- `CLOUDFLARE_ACCOUNT_ID` - Cloudflare account
+- `R2_ACCESS_KEY_ID` - R2 access key
+- `R2_SECRET_ACCESS_KEY` - R2 secret
+- `R2_BUCKET_NAME` - Bucket name
+- `APP_ENV` - Environment (development/staging/production)
 
-### GitHub Actions
+## Data Flow
 
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account ID
-- `R2_ACCESS_KEY_ID`: R2 access key
-- `R2_SECRET_ACCESS_KEY`: R2 secret key
-- `R2_BUCKET_NAME`: Bucket name (heroui-mcp-data)
-- `GITHUB_TOKEN`: GitHub API token (optional)
+1. **User Query** → AI Assistant
+2. **AI Assistant** → STDIO Client (via MCP protocol)
+3. **STDIO Client** → REST API (HTTP request)
+4. **REST API** → R2 Storage (fetch data)
+5. **R2 Storage** → REST API (component data)
+6. **REST API** → STDIO Client (JSON response)
+7. **STDIO Client** → AI Assistant (MCP response)
+8. **AI Assistant** → User (formatted answer)
 
-## Deployment
+## Benefits
 
-### HTTP Server (Cloudflare Workers)
-
-```bash
-# Deploy to production
-pnpm deploy:production
-
-# Deploy to staging
-pnpm deploy:staging
-```
-
-### STDIO Package (NPM)
-
-```bash
-# Build package
-pnpm build
-
-# Publish to npm
-npm publish
-```
-
-### Data Extraction
-
-```bash
-# Manual extraction to R2
-pnpm extract:heroui-r2
-pnpm extract:native-r2
-
-# Automatic via GitHub Actions
-# Runs daily or manual trigger
-```
-
-## Development
-
-### Local Development
-
-```bash
-# Start HTTP server locally
-pnpm dev
-
-# Test STDIO with API
-pnpm mcp:stdio-api
-
-# Test with inspector
-pnpm mcp:inspector-api
-```
-
-### Testing Tools
-
-```bash
-# Test via curl (HTTP)
-curl https://mcp.heroui.com -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
-
-# Test via API endpoints
-curl https://mcp.heroui.com/api/components/heroui
-```
-
-## Advantages
-
-1. **Scalability**: R2 storage handles unlimited data
-2. **Performance**: CDN-backed, cached responses
-3. **Versioning**: All historical versions preserved
-4. **Automation**: Daily updates via GitHub Actions
-5. **Flexibility**: Works both online and offline
-6. **Unified Source**: Single data source for all transports
+1. **Simplicity**: Single transport method, clear separation
+2. **Maintainability**: Less code, easier debugging
+3. **Scalability**: API can serve thousands of STDIO clients
+4. **Reliability**: Cloudflare's global network
+5. **Performance**: CDN caching, edge computing
+6. **Cost-effective**: Pay only for what you use
+7. **Developer-friendly**: Standard REST API
 
 ## Security
 
-- R2 bucket is private (no public access)
-- API tokens have minimal permissions
-- CORS configured for allowed origins
-- Read-only access from Workers
-- Rate limiting on API endpoints
+- **R2**: Private bucket, no public access
+- **API**: Read-only operations
+- **CORS**: Open (public API)
+- **Rate limiting**: Cloudflare's built-in protection
+- **No authentication**: Public documentation API
+
+## Monitoring
+
+- **API Health**: `/health` endpoint
+- **Cloudflare Analytics**: Request metrics
+- **Error tracking**: Worker logs
+- **Performance**: Response times
 
 ## Future Enhancements
 
-- [ ] WebSocket transport support
-- [ ] Incremental data updates
+- [ ] API authentication for premium features
+- [ ] Webhook notifications for updates
+- [ ] Component playground API
+- [ ] Search functionality
 - [ ] Usage analytics
-- [ ] Component playground
-- [ ] Multi-language documentation

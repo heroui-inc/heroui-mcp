@@ -5,7 +5,7 @@
   "description": "MCP server for HeroUI component documentation via Model Context Protocol",
   "main": "dist/stdio.js",
   "bin": {
-    "heroui-mcp": "dist/stdio.js"
+    "heroui-mcp": "./dist/stdio.js"
   },
   "files": [
     "dist"
@@ -28,19 +28,23 @@
   },
   "homepage": "https://github.com/heroui-inc/heroui-mcp",
   "scripts": {
-    "build": "tsup && chmod 755 dist/stdio.js",
-    "dev": "wrangler dev src/http.ts --env development --port 8787",
-    "dev:stdio": "tsx --watch src/stdio.ts",
-    "serve": "tsx --watch src/http-local.ts",
-    "deploy": "wrangler deploy --minify",
-    "deploy:staging": "wrangler deploy --env staging",
-    "deploy:production": "wrangler deploy --env production",
+    "build": "tsup && chmod +x dist/stdio.js",
+    "build:api": "wrangler deploy --dry-run --outdir dist-api",
+    "dev:api": "wrangler dev src/api.ts --env development --port 8787",
+    "dev:stdio": "NODE_ENV=development tsx --watch src/stdio.ts",
+    "dev": "npm run dev:api",
+    "test:api": "node test-api.mjs",
+    "test:api:staging": "node test-api.mjs --url https://staging-mcp-api.heroui.com",
+    "test:api:production": "node test-api.mjs --url https://mcp-api.heroui.com",
+    "deploy:api": "wrangler deploy src/api.ts --minify",
+    "deploy:api:staging": "wrangler deploy src/api.ts --env staging",
+    "deploy:api:production": "wrangler deploy src/api.ts --env production",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
-    "mcp:stdio": "tsx src/stdio.ts",
-    "mcp:inspector": "npx @modelcontextprotocol/inspector tsx src/stdio.ts",
+    "mcp:stdio": "NODE_ENV=development tsx src/stdio.ts",
+    "mcp:inspector": "NODE_ENV=development npx @modelcontextprotocol/inspector tsx src/stdio.ts",
     "extract:heroui-r2": "tsx scripts/extract-heroui-r2.ts",
     "extract:native-r2": "tsx scripts/extract-native-r2.ts",
     "extract:dev": "./scripts/extract-dev.sh",

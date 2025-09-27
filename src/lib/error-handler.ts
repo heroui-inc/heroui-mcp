@@ -1,4 +1,4 @@
-import {getAnalytics} from "./analytics.js";
+import {getAnalytics} from "./analytics";
 
 export enum ErrorCode {
   // Data errors

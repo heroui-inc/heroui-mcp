@@ -1,4 +1,4 @@
-import type {ComponentDataset, VersionInfo} from "../src/types.js";
+import type {ComponentDataset, VersionInfo} from "../src/types";
 
 /**
  * Data Store Interface
@@ -129,6 +129,7 @@ export class R2DataStore implements DataStore {
   async getVersionInfo(): Promise<Record<string, VersionInfo>> {
     if (!this.r2) {
       console.log(`[R2DataStore] R2 not available, returning empty version info`);
+
       return {};
     }
 
@@ -138,6 +139,7 @@ export class R2DataStore implements DataStore {
 
       if (!object) {
         console.log(`[R2DataStore] Version info not found in R2, returning defaults`);
+
         return {
           heroui: {current: "v3.0.0-alpha.3", extractDuration: 0, lastExtracted: ""},
           native: {current: "v1.0.0-alpha.13", extractDuration: 0, lastExtracted: ""},
@@ -148,9 +150,11 @@ export class R2DataStore implements DataStore {
       const data = JSON.parse(jsonText) as Record<string, VersionInfo>;
 
       console.log(`[R2DataStore] Retrieved version info from R2`);
+
       return data;
     } catch (error) {
       console.error(`[R2DataStore] Failed to retrieve version info:`, error);
+
       return {
         heroui: {current: "v3.0.0-alpha.3", extractDuration: 0, lastExtracted: ""},
         native: {current: "v1.0.0-alpha.13", extractDuration: 0, lastExtracted: ""},
@@ -161,6 +165,7 @@ export class R2DataStore implements DataStore {
   async saveVersionInfo(metadata: Record<string, VersionInfo>): Promise<void> {
     if (!this.r2) {
       console.log(`[R2DataStore] R2 not available, skipping version info save`);
+
       return;
     }
 

@@ -3,7 +3,7 @@ import type {Tool} from "./types";
 
 import {z} from "zod";
 
-import {wrapWithAnalytics} from "../lib/tool-analytics-wrapper.js";
+import {fetchApi} from "../lib/fetch";
 
 const inputSchema = z.object({
   library: z.enum(["heroui", "native"]).describe("The library to get component props from"),
@@ -23,63 +23,33 @@ export const getComponentPropsTool: Tool = {
   exec(server, {config, name, description}) {
     const handler = async ({library, component, version}: z.infer<typeof inputSchema>) => {
       try {
-        let componentData;
+        const endpoint = `/api/components/${library}/${component}/props${version ? `?version=${version}` : ""}`;
 
-        if (config.dataService) {
-          // Use R2 data service
-          componentData = await config.dataService.getComponent(library, component, version);
-        } else {
-          // Fallback to local fetch
-          const {fetchComponentProps} = await import("../lib/fetch.js");
-          componentData = await fetchComponentProps(library, component, version, config.apiBaseUrl);
-        }
+        try {
+          const data = await fetchApi<{props: string}>(endpoint, config.apiBaseUrl);
+          const propsText = data.props || `No props information available for ${component}`;
 
-        if (!componentData) {
           return {
             content: [
               {
                 type: "text",
-                text: `Component "${component}" not found in ${library}${version ? ` version ${version}` : ""}`,
+                text: propsText,
               },
             ],
           };
-        }
-
-        // Format props as markdown
-        const libraryName = library === "heroui" ? "HeroUI" : "HeroUI Native";
-        const versionText = version ? ` (${version})` : " (latest)";
-
-        let propsText = `# ${componentData.name} Component Props - ${libraryName}${versionText}\n\n`;
-
-        if (componentData.description) {
-          propsText += `${componentData.description}\n\n`;
-        }
-
-        propsText += "## Props\n\n";
-
-        for (const [propName, prop] of Object.entries(componentData.props)) {
-          propsText += `- **${propName}**: \`${prop.type}\``;
-          if (prop.description) {
-            propsText += ` - ${prop.description}`;
+        } catch (error: any) {
+          if (error.status === 404) {
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Component "${component}" not found in ${library}${version ? ` version ${version}` : ""}`,
+                },
+              ],
+            };
           }
-          if (prop.default !== undefined) {
-            propsText += ` (default: \`${prop.default}\`)`;
-          }
-          propsText += "\n";
+          throw error;
         }
-
-        if (componentData.importStatement) {
-          propsText += `\n## Import\n\n\`\`\`javascript\n${componentData.importStatement}\n\`\`\``;
-        }
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: propsText,
-            },
-          ],
-        };
       } catch (error) {
         return {
           content: [
@@ -92,12 +62,7 @@ export const getComponentPropsTool: Tool = {
       }
     };
 
-    // Register tool with analytics wrapper
-    server.tool(
-      name,
-      description,
-      inputSchema.shape,
-      wrapWithAnalytics(server, name, handler) as any,
-    );
+    // Register tool
+    server.tool(name, description, inputSchema.shape, handler as any);
   },
 };

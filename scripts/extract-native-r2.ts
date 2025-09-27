@@ -5,10 +5,10 @@
  * Fetches latest component documentation from GitHub and uploads to R2
  */
 
-import type {ComponentDefinition, ComponentParser, PropDefinition} from "../lib/base-extractor.js";
+import type {ComponentDefinition, ComponentParser, PropDefinition} from "../lib/base-extractor";
 
-import {BaseGitHubExtractor} from "../lib/base-extractor.js";
-import {R2Uploader} from "../lib/r2-uploader.js";
+import {BaseGitHubExtractor} from "../lib/base-extractor";
+import {R2Uploader} from "../lib/r2-uploader";
 
 class HeroUINativeParser implements ComponentParser {
   parseContent(content: string): ComponentDefinition | null {
@@ -104,7 +104,12 @@ class HeroUINativeParser implements ComponentParser {
       }
 
       // End API section if we hit another major section (## )
-      if (inApiSection && line.startsWith("## ") && !line.includes("API") && !line.includes("Props")) {
+      if (
+        inApiSection &&
+        line.startsWith("## ") &&
+        !line.includes("API") &&
+        !line.includes("Props")
+      ) {
         inApiSection = false;
         inTable = false;
       }
@@ -118,7 +123,7 @@ class HeroUINativeParser implements ComponentParser {
         }
 
         // Skip separator line
-        if (inTable && line.includes("|---") || line.includes("| ---")) {
+        if ((inTable && line.includes("|---")) || line.includes("| ---")) {
           continue;
         }
 
@@ -128,7 +133,10 @@ class HeroUINativeParser implements ComponentParser {
         }
 
         // End of table - when we hit a non-table line or a header
-        if (inTable && (!line.startsWith("|") || line.startsWith("###") || line.startsWith("####"))) {
+        if (
+          inTable &&
+          (!line.startsWith("|") || line.startsWith("###") || line.startsWith("####"))
+        ) {
           this.parseTableLines(tableLines, props);
           inTable = false;
           tableLines = [];
@@ -156,7 +164,12 @@ class HeroUINativeParser implements ComponentParser {
         const name = parts[0].replace(/[`'"]/g, "").trim();
 
         // Skip if name is empty or looks like a header
-        if (!name || name.toLowerCase() === 'prop' || name.includes("---") || name.includes("...")) {
+        if (
+          !name ||
+          name.toLowerCase() === "prop" ||
+          name.includes("---") ||
+          name.includes("...")
+        ) {
           continue;
         }
 

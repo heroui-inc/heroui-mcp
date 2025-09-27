@@ -1,52 +1,22 @@
 # HeroUI MCP Server
 
-A Model Context Protocol (MCP) server that provides AI assistants with access to HeroUI v3 and HeroUI Native component documentation, props, and usage examples.
+Access HeroUI component documentation directly in your AI assistant via Model Context Protocol (MCP).
 
 ## Features
 
-- Component documentation with detailed props and descriptions
-- Support for both HeroUI and HeroUI Native libraries
-- Version-specific component queries
-- Full TypeScript support with type definitions
-- Integration with popular AI-powered IDEs and editors
-- **Dual transport support:** HTTP Streamable and STDIO
+- Complete component documentation for HeroUI and HeroUI Native
+- Search and browse components
+- Get props, types, and usage examples
+- Always up-to-date with latest versions
 
-## Transport Options
+## Configuration
 
-The HeroUI MCP server supports two transport methods:
+### Claude Desktop
 
-### 1. HTTP Streamable Transport
+Add to your Claude Desktop configuration:
 
-**Direct HTTP endpoint:** `https://mcp.heroui.com`
-
-- No installation required
-- Stateless JSON-RPC over HTTP POST
-- Perfect for cloud-based AI assistants
-- CORS support for web clients
-- Cloudflare Workers optimized
-
-### 2. STDIO Transport
-
-**NPM package:** `@heroui/mcp`
-
-```bash
-# Install globally from npm
-npm install -g @heroui/mcp
-
-# Or use directly with npx (no installation needed)
-npx @heroui/mcp
-```
-
-- Local execution
-- Bidirectional stdio communication
-- Perfect for local IDE integrations
-- Lower latency for local development
-
-## IDE Setup
-
-### Cursor
-
-Add to `.cursor/mcp.json` in your project root:
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
@@ -58,30 +28,43 @@ Add to `.cursor/mcp.json` in your project root:
   }
 }
 ```
-
-> Restart Cursor if it doesn't automatically detect the changes.
 
 ### Claude Code
 
-**Option 1: HTTP Transport (Recommended)**
+Add to your Claude Code configuration:
 
-```bash
-claude mcp add heroui --url https://mcp.heroui.com
+**macOS**: `~/Library/Application Support/Claude/claude_mcp_settings.json`
+**Windows**: `%APPDATA%\Claude\claude_mcp_settings.json`
+
+```json
+{
+  "mcpServers": {
+    "heroui": {
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"]
+    }
+  }
+}
 ```
 
-**Option 2: STDIO Transport**
+### Cursor
 
-```bash
-claude mcp add heroui -- npx -y @heroui/mcp
+Add to Cursor Settings → Features → MCP Servers:
+
+```json
+{
+  "mcpServers": {
+    "heroui": {
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"]
+    }
+  }
+}
 ```
-
-Then start a Claude Code session with `claude`.
 
 ### Windsurf
 
-1. Go to Settings > Windsurf Settings > Cascade
-2. Click "Manage MCPs" > "View raw config"
-3. Add the configuration:
+Add to Windsurf configuration → MCP Servers:
 
 ```json
 {
@@ -94,15 +77,13 @@ Then start a Claude Code session with `claude`.
 }
 ```
 
-### Visual Studio Code
+### VS Code (with MCP extension)
 
-> Requires [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) and [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extensions.
-
-Add to `.vscode/mcp.json` in your project root:
+Add to your VS Code settings:
 
 ```json
 {
-  "servers": {
+  "mcp.servers": {
     "heroui": {
       "command": "npx",
       "args": ["-y", "@heroui/mcp"]
@@ -111,38 +92,151 @@ Add to `.vscode/mcp.json` in your project root:
 }
 ```
 
-### Zed
+## Usage
 
-Add to your Zed settings.json:
+Once configured, you can ask your AI assistant questions like:
 
-```json
+- "Show me all HeroUI components"
+- "What props does the Button component have?"
+- "Give me an example of using the Card component"
+- "List all components in HeroUI Native"
+- "Check if I'm using the latest version of HeroUI"
+
+## Available Tools
+
+The MCP server provides these tools to AI assistants:
+
+### `list_components`
+
+List all available components in a library.
+
+```javascript
+// Parameters
 {
-  "context_servers": {
-    "heroui": {
-      "source": "custom",
-      "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
-    }
-  }
+  library: "heroui" | "native",  // Required
+  version?: "v3.0.0"             // Optional, defaults to latest
 }
 ```
 
-### Custom MCP Client
+### `get_component_props`
 
-**HTTP Transport:**
+Get detailed props information for a specific component.
 
-```json
+```javascript
+// Parameters
 {
-  "mcpServers": {
-    "heroui": {
-      "url": "https://mcp.heroui.com",
-      "transport": "http"
-    }
-  }
+  library: "heroui" | "native",  // Required
+  component: "Button",           // Required
+  version?: "v3.0.0"            // Optional
 }
 ```
 
-**STDIO Transport:**
+### `get_component_example`
+
+Get usage examples for a specific component.
+
+```javascript
+// Parameters
+{
+  library: "heroui" | "native",  // Required
+  component: "Button",           // Required
+  version?: "v3.0.0"            // Optional
+}
+```
+
+### `check_version`
+
+Check if you're using the latest version.
+
+```javascript
+// Parameters
+{
+  package: "heroui" | "native" | "mcp"; // Required
+}
+```
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm
+
+### Setup
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/heroui-inc/heroui-mcp
+   cd heroui-mcp
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Start development:
+
+   ```bash
+   # Start API server
+   pnpm dev:api
+
+   # In another terminal, test STDIO client
+   pnpm dev:stdio
+   ```
+
+### Testing
+
+```bash
+# Test API endpoints
+pnpm test:api
+
+# Test with MCP Inspector
+pnpm mcp:inspector
+```
+
+### Building
+
+```bash
+# Build STDIO client for NPM
+pnpm build
+
+# Deploy API to Cloudflare
+pnpm deploy:api:production
+```
+
+## Architecture
+
+The HeroUI MCP uses a simple architecture:
+
+1. **STDIO Client** (`@heroui/mcp`) - Runs locally, handles MCP protocol
+2. **REST API** (Cloudflare Worker) - Serves component data
+3. **R2 Storage** - Stores component documentation
+
+```
+AI Assistant → STDIO Client → REST API → R2 Storage
+```
+
+## API Endpoints
+
+The REST API is publicly available at `https://mcp-api.heroui.com`:
+
+- `GET /api/components/heroui` - List HeroUI components
+- `GET /api/components/native` - List HeroUI Native components
+- `GET /api/components/heroui/Button` - Get Button component details
+- `GET /api/components/heroui/Button/props` - Get Button props
+- `GET /api/components/heroui/Button/example` - Get Button examples
+- `GET /api/versions` - Get version information
+
+## Environment Variables
+
+### Optional Configuration
+
+- `HEROUI_API_URL` - Custom API URL (default: `https://mcp-api.heroui.com`)
+
+Example:
 
 ```json
 {
@@ -150,254 +244,50 @@ Add to your Zed settings.json:
     "heroui": {
       "command": "npx",
       "args": ["-y", "@heroui/mcp"],
-      "transport": "stdio"
+      "env": {
+        "HEROUI_API_URL": "http://localhost:8787"
+      }
     }
   }
 }
 ```
 
-## Available Tools
+## Troubleshooting
 
-### check_version
+### MCP server not found
 
-Checks if you're using the latest version of HeroUI packages or the MCP server itself.
-
-**Parameters:**
-- `package` (required): `"heroui"`, `"native"`, or `"mcp"`
-- `currentVersion` (optional): Your current version (e.g., `"3.0.0-alpha.31"`). If not provided, suggests installation.
-
-**Example:**
-```json
-{
-  "name": "check_version",
-  "arguments": {
-    "package": "heroui",
-    "currentVersion": "3.0.0-alpha.31"
-  }
-}
-```
-
-**Response (up to date):**
-```markdown
-# HeroUI Version Check
-
-**Current Version:** 3.0.0-alpha.31
-**Latest Version:** 3.0.0-alpha.31
-**Status:** ✅ Up to date
-
-You are using the latest v3 version of HeroUI (prerelease).
-
-## Recent Versions
-- 3.0.0-alpha.31
-- 3.0.0-alpha.30
-- 3.0.0-alpha.29
-```
-
-**Response (v2 user - error):**
-```markdown
-# ❌ Error: Incompatible HeroUI Version
-
-**This MCP server is only compatible with @heroui/react v3+**
-
-You are currently using v2.x, which is not supported.
-
-## Required Action:
-
-1. Upgrade to HeroUI v3 (currently in alpha status):
-   ```bash
-   npm install @heroui/react@3.0.0-alpha.31
-   ```
-
-2. Update your imports and components to v3 syntax
-
-⚠️ **Note:** v3 is currently in alpha and may have breaking changes
-```
-
-### list_components
-
-Lists all available components in the specified library.
-
-**Parameters:**
-- `library` (required): `"heroui"` or `"native"`
-- `version` (optional): Specific version (e.g., `"v3.0.0-alpha.3"`)
-
-**Example:**
-```json
-{
-  "name": "list_components",
-  "arguments": {
-    "library": "heroui"
-  }
-}
-```
-
-**Response:**
-```
-Available Components in HeroUI (latest)
-
-- Accordion
-- Avatar
-- Badge
-- Button
-- Card
-- Checkbox
-- Chip
-- CircularProgress
-- ...
-
-Total: 50+ components
-```
-
-### get_component_props
-
-Gets detailed props information for a specific component.
-
-**Parameters:**
-- `library` (required): `"heroui"` or `"native"`
-- `component` (required): Component name (e.g., `"Button"`, `"Card"`)
-- `version` (optional): Specific version
-
-**Example:**
-```json
-{
-  "name": "get_component_props",
-  "arguments": {
-    "library": "heroui",
-    "component": "Button"
-  }
-}
-```
-
-**Response:**
-```markdown
-Button Component Props - HeroUI (latest)
-
-A button component for user interactions.
-
-Props
-
-- **children**: `ReactNode` - Button content
-- **variant**: `"solid" | "bordered" | "ghost" | "flat"` - Button style variant
-- **color**: `"default" | "primary" | "secondary" | "success" | "warning" | "danger"` - Button color
-- **size**: `"sm" | "md" | "lg"` - Button size
-- **isDisabled**: `boolean` - Whether the button is disabled
-- **isLoading**: `boolean` - Shows loading state
-- **startContent**: `ReactNode` - Content before children
-- **endContent**: `ReactNode` - Content after children
-- **onPress**: `(e: PressEvent) => void` - Click handler
-...
-
-Import
-
-import {Button} from "@heroui/react";
-```
-
-### get_component_example
-
-Gets usage examples for a component.
-
-**Parameters:**
-- `library` (required): `"heroui"` or `"native"`
-- `component` (required): Component name
-- `version` (optional): Specific version
-
-**Example:**
-```json
-{
-  "name": "get_component_example",
-  "arguments": {
-    "library": "heroui",
-    "component": "Button"
-  }
-}
-```
-
-**Response:**
-```tsx
-// Button Component Example - HeroUI (latest)
-
-import {Button} from "@heroui/react";
-
-export default function Example() {
-  return (
-    <Button
-      color="primary"
-      variant="solid"
-      size="md"
-      onPress={() => console.log("Button clicked")}
-    >
-      Click me
-    </Button>
-  );
-}
-```
-
-## Usage Examples
-
-### With AI Assistants
-
-Once configured, you can ask your AI assistant questions like:
-
-- "Am I using the latest version of HeroUI?"
-- "Check if my HeroUI version is up to date"
-- "Show me all HeroUI components"
-- "What props does the Button component have?"
-- "Give me an example of using the Card component"
-- "List all components in HeroUI Native"
-- "Show me the Modal component props from version v3.0.0-alpha.3"
-
-The AI assistant will use the MCP server to fetch accurate, up-to-date information about HeroUI components and version compatibility.
-
-> **Important:** This MCP server is only compatible with HeroUI v3+. If you're using v2, the version check will guide you through upgrading.
-
-### Example Workflow
-
-1. **Check your HeroUI version:**
-   > "Am I using the latest version of HeroUI?"
-
-   The assistant will use `check_version` to verify your version and suggest updates if needed.
-
-2. **Ask about available components:**
-   > "What components are available in HeroUI?"
-
-   The assistant will use `list_components` to show all available components.
-
-3. **Get component details:**
-   > "Show me the props for the Select component"
-
-   The assistant will use `get_component_props` to provide detailed prop information.
-
-4. **Get usage examples:**
-   > "How do I use the DatePicker component?"
-
-   The assistant will use `get_component_example` to show implementation examples.
-
-## Testing
-
-To test the MCP server directly, you can use the MCP Inspector:
+The package will be automatically downloaded when using `npx`. To verify it's available:
 
 ```bash
-# Clone the repository
-git clone https://github.com/heroui-inc/heroui-mcp.git
-cd heroui-mcp
-
-# Install and run the inspector
-pnpm install
-pnpm mcp:inspector
+npx @heroui/mcp --version
 ```
 
-This opens a web UI where you can test all available tools interactively.
+### Connection issues
+
+Test the API is accessible:
+
+```bash
+curl https://mcp-api.heroui.com/health
+```
+
+### Debug mode
+
+Run with debug output:
+
+```bash
+DEBUG=* npx @heroui/mcp
+```
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for development setup and guidelines.
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Support
 
-- [Report Issues](https://github.com/heroui-inc/heroui-mcp/issues)
-- [HeroUI Documentation](https://heroui.com)
-- [MCP Specification](https://modelcontextprotocol.io)
+- [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
+- [Discord Community](https://discord.gg/heroui)
+- Email: support@heroui.com
 
 ## License
 
-MIT
+MIT © HeroUI Inc.

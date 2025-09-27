@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Tool} from "./types.js";
+import type {Tool} from "./types";
 
 import {z} from "zod";
 
-import {wrapWithAnalytics} from "../lib/tool-analytics-wrapper.js";
+import {fetchApi} from "../lib/fetch";
 
 const inputSchema = z.object({
   library: z.enum(["heroui", "native"]).describe("The library to get the component from"),
@@ -23,13 +23,22 @@ export const getComponentExampleTool: Tool = {
   exec(server, {config, name, description}) {
     const handler = async ({library, component, version}: z.infer<typeof inputSchema>) => {
       try {
-        let exampleText: string;
+        const endpoint = `/api/components/${library}/${component}/example${version ? `?version=${version}` : ""}`;
 
-        if (config.dataService) {
-          // Use R2 data service to generate example
-          const componentData = await config.dataService.getComponent(library, component, version);
+        try {
+          const data = await fetchApi<{example: string}>(endpoint, config.apiBaseUrl);
+          const exampleText = data.example || `No example available for ${component}`;
 
-          if (!componentData) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: exampleText,
+              },
+            ],
+          };
+        } catch (error: any) {
+          if (error.status === 404) {
             return {
               content: [
                 {
@@ -39,68 +48,8 @@ export const getComponentExampleTool: Tool = {
               ],
             };
           }
-
-          // Generate example from component data
-          const libraryName = library === "heroui" ? "HeroUI" : "HeroUI Native";
-          const versionText = version ? ` (${version})` : " (latest)";
-
-          exampleText = `// ${componentData.name} Component Example - ${libraryName}${versionText}\n\n`;
-
-          if (componentData.importStatement) {
-            exampleText += `${componentData.importStatement}\n\n`;
-          }
-
-          exampleText += `export default function Example() {\n`;
-          exampleText += `  return (\n`;
-          exampleText += `    <${componentData.name}`;
-
-          // Add some common props if available
-          const commonProps = ["color", "variant", "size"];
-          const propsToShow = Object.entries(componentData.props)
-            .filter(([name]) => commonProps.includes(name))
-            .slice(0, 3);
-
-          if (propsToShow.length > 0) {
-            exampleText += "\n";
-            propsToShow.forEach(([propName, prop]) => {
-              let value = '""';
-
-              if (prop.type.includes("|")) {
-                // Enum type, use first option
-                const options = prop.type.split("|").map((t) => t.trim().replace(/['"]/g, ""));
-                value = `"${options[0]}"`;
-              } else if (prop.type === "boolean") {
-                value = "";
-              }
-
-              if (value) {
-                exampleText += `      ${propName}=${value}\n`;
-              } else {
-                exampleText += `      ${propName}\n`;
-              }
-            });
-            exampleText += `    `;
-          }
-
-          exampleText += `>\n`;
-          exampleText += `      Content\n`;
-          exampleText += `    </${componentData.name}>\n`;
-          exampleText += `  );\n`;
-          exampleText += `}`;
-        } else {
-          // Use API endpoint
-          const {fetchComponentExample} = await import("../lib/fetch.js");
-          exampleText = await fetchComponentExample(library, component, version, config.apiBaseUrl);
+          throw error;
         }
-
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: exampleText,
-            },
-          ],
-        };
       } catch (error) {
         return {
           content: [
@@ -113,13 +62,7 @@ export const getComponentExampleTool: Tool = {
       }
     };
 
-    // Register tool with analytics wrapper
-
-    server.tool(
-      name,
-      description,
-      inputSchema.shape,
-      wrapWithAnalytics(server, name, handler) as any,
-    );
+    // Register tool
+    server.tool(name, description, inputSchema.shape, handler as any);
   },
 };

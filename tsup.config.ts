@@ -1,22 +1,28 @@
-import { defineConfig } from "tsup"
+import { defineConfig } from "tsup";
+import packageJson from "./package.json";
 
-export default defineConfig([
-  // STDIO build for NPM
-  {
-    entry: { stdio: "src/stdio.ts" },
-    format: "esm",
-    outDir: "dist",
-    treeshake: "safest",
-    splitting: false,
+export default defineConfig({
+  // STDIO build for NPM package
+  entry: ["src/stdio.ts"],
+  outDir: "dist",
+  format: ["esm"],
+  target: "node18",
+  platform: "node",
+  shims: false,
+  dts: false,
+  clean: true,
+  minify: false,
+  sourcemap: false,
+  external: ["@modelcontextprotocol/sdk"],
+  banner: {
+    js: "#!/usr/bin/env node",
   },
-  // HTTP build for Cloudflare Workers
-  {
-    entry: { index: "src/http.ts" },
-    format: "esm",
-    outDir: "dist",
-    platform: "neutral",
-    treeshake: "safest",
-    splitting: false,
-    target: "es2022",
+  define: {
+    __PACKAGE_NAME__: JSON.stringify(packageJson.name),
+    __PACKAGE_VERSION__: JSON.stringify(packageJson.version),
   },
-])
+  esbuildOptions(options) {
+    options.pure = ["console.log", "console.info"];
+    options.treeShaking = true;
+  },
+});

@@ -2,11 +2,11 @@
  * Base GitHub extractor with version-based data organization
  */
 
-import type {GitHubClient} from "./github-client.js";
-import type {ComponentDataset} from "../src/types.js";
+import type {GitHubClient} from "./github-client";
+import type {ComponentDataset} from "../src/types";
 
-import {dataStore} from "./data-store.js";
-import {SimpleGitHubClient} from "./github-client.js";
+import {dataStore} from "./data-store";
+import {SimpleGitHubClient} from "./github-client";
 
 export interface ExtractionConfig {
   owner: string;
@@ -78,9 +78,7 @@ export abstract class BaseGitHubExtractor {
       console.log(`📦 Found version: ${version}`);
 
       // 2. Log extraction details (no local output directory needed)
-      console.log(
-        `📁 Will upload to R2: ${this.config.outputLibraryName}/v${version}.json`,
-      );
+      console.log(`📁 Will upload to R2: ${this.config.outputLibraryName}/v${version}.json`);
 
       // 3. Get documentation files
       const docFiles = await this.github.getDocsFiles(
@@ -96,7 +94,7 @@ export abstract class BaseGitHubExtractor {
       const components: Record<string, ComponentDefinition> = {};
 
       // Add delay between requests to avoid rate limiting
-      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+      const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
       const DELAY_MS = process.env.GITHUB_TOKEN ? 100 : 500; // Less delay with token
 
       for (const filePath of docFiles) {

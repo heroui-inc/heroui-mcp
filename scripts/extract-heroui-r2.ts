@@ -5,12 +5,13 @@
  * Fetches latest component documentation from GitHub and uploads to R2
  */
 
-import type {ComponentDefinition, ComponentParser, PropDefinition} from "../lib/base-extractor.js";
+import type {ComponentDefinition, ComponentParser, PropDefinition} from "../lib/base-extractor";
+import type {ComponentDataset} from "../src/types";
 
 import * as path from "path";
 
-import {BaseGitHubExtractor} from "../lib/base-extractor.js";
-import {R2Uploader} from "../lib/r2-uploader.js";
+import {BaseGitHubExtractor} from "../lib/base-extractor";
+import {R2Uploader} from "../lib/r2-uploader";
 
 export class HeroUIParser implements ComponentParser {
   parseContent(content: string, filePath: string): ComponentDefinition | null {
@@ -132,7 +133,12 @@ export class HeroUIParser implements ComponentParser {
       }
 
       // Start of table - check for various header formats
-      if (line.startsWith("| Prop") || line.startsWith("| Attribute") || line.startsWith("| Property") || line.startsWith("| Name")) {
+      if (
+        line.startsWith("| Prop") ||
+        line.startsWith("| Attribute") ||
+        line.startsWith("| Property") ||
+        line.startsWith("| Name")
+      ) {
         inPropsTable = true;
         tableLines = [];
         continue;
@@ -145,9 +151,10 @@ export class HeroUIParser implements ComponentParser {
 
       // End of table
       if (inPropsTable && (!line.startsWith("|") || line.trim() === "")) {
-        const targetProps = currentComponent === componentName
-          ? result.props
-          : result.subComponents?.[currentComponent]?.props || result.props;
+        const targetProps =
+          currentComponent === componentName
+            ? result.props
+            : result.subComponents?.[currentComponent]?.props || result.props;
 
         this.parsePropsTable(tableLines, targetProps);
         inPropsTable = false;
@@ -162,9 +169,10 @@ export class HeroUIParser implements ComponentParser {
 
     // Parse any remaining table lines
     if (tableLines.length > 0) {
-      const targetProps = currentComponent === componentName
-        ? result.props
-        : result.subComponents?.[currentComponent]?.props || result.props;
+      const targetProps =
+        currentComponent === componentName
+          ? result.props
+          : result.subComponents?.[currentComponent]?.props || result.props;
 
       this.parsePropsTable(tableLines, targetProps);
     }
@@ -184,7 +192,7 @@ export class HeroUIParser implements ComponentParser {
         const name = parts[0].replace(/[`'"]/g, "").trim();
 
         // Skip if name is empty or looks like a header
-        if (!name || name.toLowerCase() === 'prop' || name.toLowerCase() === 'attribute') {
+        if (!name || name.toLowerCase() === "prop" || name.toLowerCase() === "attribute") {
           continue;
         }
 
@@ -208,7 +216,9 @@ export class HeroUIParser implements ComponentParser {
           name,
           type,
           description,
-          ...(defaultValue && defaultValue !== "" && defaultValue !== "-" && {default: defaultValue}),
+          ...(defaultValue &&
+            defaultValue !== "" &&
+            defaultValue !== "-" && {default: defaultValue}),
         };
       }
     }
@@ -282,7 +292,10 @@ class HeroUIExtractor extends BaseGitHubExtractor {
 
       return result;
     } catch (error) {
-      console.warn("Could not fetch version from packages/react/package.json, falling back to root");
+      console.warn(
+        "Could not fetch version from packages/react/package.json, falling back to root",
+      );
+
       return super.extract();
     }
   }

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Tool} from "./types.js";
+import type {Tool} from "./types";
 
 import {z} from "zod";
 
-import {wrapWithAnalytics} from "../lib/tool-analytics-wrapper.js";
+import {fetchApi} from "../lib/fetch";
 
 const inputSchema = z.object({
   library: z.enum(["heroui", "native"]).describe("The library to list components from"),
@@ -11,7 +11,7 @@ const inputSchema = z.object({
     .string()
     .optional()
     .describe(
-      "Specific version to use (e.g., 'v3.0.0-alpha.3'). Defaults to latest if not specified",
+      "Specific version to use (e.g., 'v3.0.0-alpha.31'). Defaults to latest if not specified",
     ),
 });
 
@@ -22,16 +22,10 @@ export const listComponentsTool: Tool = {
   exec(server, {config, name, description}) {
     const handler = async ({library, version}: z.infer<typeof inputSchema>) => {
       try {
-        let components: string[];
-
-        if (config.dataService) {
-          // Use R2 data service
-          components = await config.dataService.listComponents(library, version);
-        } else {
-          // Fallback to local fetch
-          const {fetchComponentList} = await import("../lib/fetch.js");
-          components = await fetchComponentList(library, version, config.apiBaseUrl);
-        }
+        // Direct API call
+        const endpoint = `/api/components/${library}${version ? `?version=${version}` : ""}`;
+        const data = await fetchApi<{components: string[]}>(endpoint, config.apiBaseUrl);
+        const components = data.components || [];
 
         const libraryName = library === "heroui" ? "HeroUI" : "HeroUI Native";
         const versionText = version ? ` (${version})` : " (latest)";
@@ -56,13 +50,7 @@ export const listComponentsTool: Tool = {
       }
     };
 
-    // Register tool with analytics wrapper
-
-    server.tool(
-      name,
-      description,
-      inputSchema.shape,
-      wrapWithAnalytics(server, name, handler) as any,
-    );
+    // Register tool
+    server.tool(name, description, inputSchema.shape, handler as any);
   },
 };

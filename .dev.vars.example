@@ -1,14 +1,22 @@
-# R2 Configuration for Development
-CLOUDFLARE_ACCOUNT_ID=your_account_id_here
-R2_ACCESS_KEY_ID=your_r2_access_key_here
-R2_SECRET_ACCESS_KEY=your_r2_secret_access_key_here
-R2_BUCKET_NAME=heroui-mcp-data-dev
+# Environment Configuration for HeroUI MCP Server
 
-# GitHub Configuration (Optional but recommended to avoid rate limits)
-# Create a personal access token at: https://github.com/settings/tokens
-# No special permissions needed for public repos
-GITHUB_TOKEN=your_github_token_here
+# Environment: development, staging, production
+APP_ENV=development
+NODE_ENV=development
 
-# PostHog Analytics (Optional for local development)
+# R2 Storage Configuration (Optional - will fallback to API if not set)
+# Get these from Cloudflare R2 dashboard
+CLOUDFLARE_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=heroui-mcp
+
+# API Configuration
+HEROUI_API_URL=https://mcp.heroui.com
+
+# Analytics (Optional)
 POSTHOG_KEY=
-POSTHOG_HOST=
+POSTHOG_HOST=https://us.i.posthog.com
+
+# Server Port (for local development)
+PORT=8787

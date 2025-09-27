@@ -1,13 +1,16 @@
 import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
-import packageJson from "../package.json" assert {type: "json"};
+import {packageInfo} from "./lib/package-info.js";
 
 export const server = new McpServer({
   name: "@heroui/mcp",
-  version: packageJson.version,
+  version: packageInfo.version,
   capabilities: {
     prompts: {},
     resources: {},
-    tools: {},
+    tools: {
+      // Indicate that tools are supported
+      listChanged: true,
+    },
   },
 });

@@ -1,3 +1,12 @@
+# [1.0.0-alpha.1](https://github.com/heroui-inc/heroui-mcp/compare/v0.0.0-alpha.8...v1.0.0-alpha.1) (2025-09-27)
+
+
+### Features
+
+* add GitHub workflows for automatic deployment and synchronization between branches ([7a21a2f](https://github.com/heroui-inc/heroui-mcp/commit/7a21a2f1455e6f0b20085fdcbee20abc49fe9c06))
+
+
+
 # [0.0.0-alpha.8](https://github.com/heroui-inc/heroui-mcp/compare/v0.0.0-alpha.7...v0.0.0-alpha.8) (2025-09-26)
 
 
