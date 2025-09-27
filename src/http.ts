@@ -148,7 +148,7 @@ const handleMcpRequest = async (c: Context) => {
     try {
       // Initialize R2 data service
       const env = c.env as Record<string, string | undefined>;
-      const r2AccountId = env.R2_ACCOUNT_ID || process.env.R2_ACCOUNT_ID;
+      const r2AccountId = env.CLOUDFLARE_ACCOUNT_ID || process.env.CLOUDFLARE_ACCOUNT_ID;
       const r2AccessKeyId = env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID;
       const r2SecretAccessKey = env.R2_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY;
       const r2Bucket = env.R2_BUCKET_NAME || process.env.R2_BUCKET_NAME || "heroui-mcp";
