@@ -1,0 +1,41 @@
+name: Worker Deploy - Staging
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  edge-functions:
+    name: deploy
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
+      - name: Setup node and pnpm
+        uses: ./.github/actions/install
+
+      - name: Install wrangler
+        run: pnpm add -g wrangler@latest
+
+      - name: Deploy
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        timeout-minutes: 5
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
+          environment: staging
+          workingDirectory: "."
+      - name: Show outputs
+        env:
+          CMD_OUTPUT: ${{ steps.deploy.outputs.command-output }}
+        run: echo $CMD_OUTPUT
+
+      - name: Show deployment url
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: echo $DEPLOYMENT_URL
