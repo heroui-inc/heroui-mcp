@@ -14,6 +14,14 @@ fi
 # Override bucket name for development
 export R2_BUCKET_NAME="heroui-mcp-data-dev"
 
+# Check if GitHub token is set to avoid rate limiting
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo "⚠️  Warning: GITHUB_TOKEN not set. You may hit GitHub API rate limits."
+    echo "   Consider adding GITHUB_TOKEN to your .dev.vars file."
+    echo "   Create a token at: https://github.com/settings/tokens"
+    echo ""
+fi
+
 echo "🚀 Extracting to development bucket: $R2_BUCKET_NAME"
 
 # Run extraction based on argument

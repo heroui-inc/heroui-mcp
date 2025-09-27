@@ -30,25 +30,38 @@ graph TB
 
 ```
 heroui-mcp-data/
-├── components/
-│   ├── heroui/
-│   │   ├── latest.json          # Always points to newest version
-│   │   ├── v3.0.0-alpha.31.json # Specific version data
-│   │   ├── v3.0.0-alpha.30.json
-│   │   └── ...
-│   └── native/
-│       ├── latest.json
-│       ├── v1.0.0-alpha.13.json
-│       └── ...
-└── metadata/
-    └── versions.json            # Version tracking metadata
+├── latest/
+│   ├── heroui.json              # Latest HeroUI version data
+│   └── native.json              # Latest Native version data
+├── heroui/
+│   ├── v3.0.0-alpha.31.json     # Specific HeroUI version
+│   ├── v3.0.0-alpha.30.json
+│   └── ...
+├── native/
+│   ├── v1.0.0-alpha.13.json     # Specific Native version
+│   ├── v1.0.0-alpha.12.json
+│   └── ...
+└── versions.json                # Version metadata at root
 ```
+
+### Multiple Environments
+
+The project uses three R2 buckets for different environments:
+
+- **Development**: `heroui-mcp-data-dev` - For local development
+- **Staging**: `heroui-mcp-data-staging` - Deployed from develop branch
+- **Production**: `heroui-mcp-data` - Deployed from main branch
 
 ## Setup Instructions
 
-### 1. Create R2 Bucket
+### 1. Create R2 Buckets
 
-✅ **Completed**: Bucket `heroui-mcp-data` has been created in Cloudflare dashboard.
+✅ **Required buckets**:
+- `heroui-mcp-data` - Production environment
+- `heroui-mcp-data-staging` - Staging environment
+- `heroui-mcp-data-dev` - Development environment
+
+Create these in your Cloudflare dashboard under R2.
 
 ### 2. Configure GitHub Secrets
 
@@ -57,35 +70,61 @@ Add these secrets to your GitHub repository settings:
 - `CLOUDFLARE_ACCOUNT_ID` - Your Cloudflare account ID
 - `R2_ACCESS_KEY_ID` - R2 API access key ID
 - `R2_SECRET_ACCESS_KEY` - R2 API secret access key
-- `R2_BUCKET_NAME` - Set to: `heroui-mcp-data`
-- `GITHUB_TOKEN` - (Optional) For higher GitHub API rate limits
+- `GITHUB_TOKEN` - (Optional but recommended) For higher GitHub API rate limits
+
+**Note**: The `R2_BUCKET_NAME` is automatically determined based on the branch:
+- `main` branch → `heroui-mcp-data`
+- `develop` branch → `heroui-mcp-data-staging`
 
 To create R2 API tokens:
 1. Go to Cloudflare Dashboard → R2 → Manage R2 API tokens
 2. Create a token with permissions: **Object Read & Write**
 3. Save the credentials securely
 
-### 3. Initial Data Population
+### 3. Local Development Setup
 
-Run the extraction scripts manually to populate initial data:
+For local development, create a `.dev.vars` file:
 
 ```bash
-# Set environment variables
-export CLOUDFLARE_ACCOUNT_ID="your-account-id"
-export R2_ACCESS_KEY_ID="your-access-key"
-export R2_SECRET_ACCESS_KEY="your-secret-key"
-export R2_BUCKET_NAME="heroui-mcp-data"
+# Copy the example file
+cp .dev.vars.example .dev.vars
 
-# Extract and upload HeroUI data
-pnpm extract:heroui-r2
-
-# Extract and upload Native data
-pnpm extract:native-r2
+# Edit with your credentials
+vim .dev.vars
 ```
 
-### 4. Verify GitHub Actions
+Add your credentials:
+```env
+# R2 Configuration
+CLOUDFLARE_ACCOUNT_ID=your_account_id
+R2_ACCESS_KEY_ID=your_r2_access_key
+R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+R2_BUCKET_NAME=heroui-mcp-data-dev
 
-The extraction pipeline will run automatically:
+# GitHub Token (recommended to avoid rate limits)
+GITHUB_TOKEN=your_github_token
+```
+
+### 4. Initial Data Population
+
+#### For Development Environment
+```bash
+# Extract to development bucket
+pnpm extract:all:dev
+
+# Or extract individually
+pnpm extract:dev:heroui
+pnpm extract:dev:native
+```
+
+#### For Production/Staging
+Data is automatically populated when code is pushed to the respective branches.
+
+### 5. Verify GitHub Actions
+
+The extraction pipeline runs automatically:
+- **On push to `main`** - Deploys to production R2 bucket
+- **On push to `develop`** - Deploys to staging R2 bucket
 - **Daily at 2 AM UTC** - Checks for new versions
 - **Manual trigger** - Via GitHub Actions UI
 
@@ -101,18 +140,27 @@ To manually trigger:
 
 ### Manual Extraction
 
+#### Development Environment
 ```bash
-# Extract latest version
+# Extract to dev bucket (uses .dev.vars)
+pnpm extract:all:dev
+pnpm extract:dev:heroui
+pnpm extract:dev:native
+
+# Force re-extraction
+pnpm extract:dev:heroui -- --force
+```
+
+#### Direct R2 Upload
+```bash
+# Requires environment variables
+export R2_BUCKET_NAME="heroui-mcp-data"
 pnpm extract:heroui-r2
 pnpm extract:native-r2
 
-# Force re-extraction
+# With options
 pnpm extract:heroui-r2 -- --force
-pnpm extract:native-r2 -- --force
-
-# Extract specific version
 pnpm extract:heroui-r2 -- --version=v3.0.0-alpha.30
-pnpm extract:native-r2 -- --version=v1.0.0-alpha.12
 ```
 
 ### Monitoring
@@ -141,7 +189,12 @@ Check extraction status in GitHub Actions:
 ```
 ❌ GitHub API error: 403 rate limit exceeded
 ```
-**Solution**: Add `GITHUB_TOKEN` secret for higher rate limits.
+**Solution**:
+1. Add `GITHUB_TOKEN` to your `.dev.vars` file (for local dev)
+2. Add `GITHUB_TOKEN` to GitHub secrets (for CI/CD)
+3. The extraction scripts include automatic rate limiting:
+   - With token: 100ms delay between requests
+   - Without token: 500ms delay between requests
 
 ## Benefits of R2 Storage
 
@@ -155,7 +208,9 @@ Check extraction status in GitHub Actions:
 ## Data Flow
 
 1. **Version Detection**
-   - GitHub Actions checks npm for new versions
+   - GitHub Actions checks for new versions from:
+     - HeroUI: `packages/react/package.json` on v3 branch
+     - Native: `package.json` on alpha branch
    - Compares with stored versions in R2
 
 2. **Data Extraction**
@@ -164,12 +219,14 @@ Check extraction status in GitHub Actions:
    - Validates extracted data
 
 3. **R2 Upload**
-   - Uploads versioned data (e.g., `v3.0.0-alpha.31.json`)
-   - Updates `latest.json` pointer
-   - Updates version metadata
+   - Uploads versioned data to `{library}/{version}.json`
+   - Updates latest data in `latest/{library}.json`
+   - Updates metadata in `versions.json`
 
 4. **MCP Server Access**
-   - Reads from R2 in production (Cloudflare Workers)
+   - Production: Reads from `heroui-mcp-data` bucket
+   - Staging: Reads from `heroui-mcp-data-staging` bucket
+   - Development: Reads from `heroui-mcp-data-dev` bucket
    - Falls back to bundled data if R2 unavailable
    - 5-minute cache for performance
 

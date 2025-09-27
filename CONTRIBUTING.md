@@ -17,13 +17,36 @@ cd heroui-mcp
 # Install dependencies
 pnpm install
 
-# Extract component data (recommended)
-pnpm extract:heroui
-pnpm extract:native
+# Set up environment variables
+cp .dev.vars.example .dev.vars
+# Edit .dev.vars with your credentials
+
+# Extract component data to local development R2 bucket
+pnpm extract:all:dev  # Extracts both HeroUI and Native
+# Or extract individually:
+pnpm extract:dev:heroui
+pnpm extract:dev:native
 
 # Start MCP server (stdio transport)
 pnpm mcp:stdio
 ```
+
+### Environment Variables Setup
+
+Create a `.dev.vars` file with your credentials:
+
+```bash
+# R2 Configuration
+CLOUDFLARE_ACCOUNT_ID=your_account_id
+R2_ACCESS_KEY_ID=your_r2_access_key
+R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+R2_BUCKET_NAME=heroui-mcp-data-dev
+
+# GitHub Token (optional but recommended to avoid rate limits)
+GITHUB_TOKEN=your_github_personal_access_token
+```
+
+**Note**: GitHub token doesn't need special permissions for public repos. Create one at [GitHub Settings](https://github.com/settings/tokens).
 
 ## 📦 Building for NPM
 
@@ -85,10 +108,20 @@ pnpm format
 ### MCP Server Commands
 - `pnpm mcp:stdio` - Run MCP server with stdio transport
 - `pnpm mcp:inspector` - Run MCP server with Inspector UI for testing
-- `pnpm extract:heroui` - Extract component data from HeroUI repository
-- `pnpm extract:native` - Extract component data from HeroUI Native repository
 - `pnpm build` - Build the project for npm distribution
 - `pnpm clean` - Clean build artifacts
+
+### Data Extraction Commands
+
+#### Development Environment (local R2 bucket)
+- `pnpm extract:all:dev` - Extract both HeroUI and Native to dev bucket
+- `pnpm extract:dev:heroui` - Extract HeroUI components to dev bucket
+- `pnpm extract:dev:native` - Extract Native components to dev bucket
+- `pnpm extract:dev both -- --force` - Force re-extraction even if version exists
+
+#### Direct R2 Upload (requires environment variables)
+- `pnpm extract:heroui-r2` - Extract HeroUI to R2 (uses R2_BUCKET_NAME env var)
+- `pnpm extract:native-r2` - Extract Native to R2 (uses R2_BUCKET_NAME env var)
 
 ### Cloudflare Workers Commands
 - `pnpm dev` - Start local development server (http://localhost:8787)
@@ -122,13 +155,21 @@ pnpm format
 │       ├── base-extractor.ts         # Base extraction functionality
 │       └── github-client.ts          # GitHub API client
 ├── scripts/
-│   ├── extract-heroui.ts     # HeroUI data extraction script
-│   └── extract-native.ts     # HeroUI Native extraction script
-├── data/
-│   ├── latest/               # Latest component data cache
-│   │   ├── heroui.json       # HeroUI components data
-│   │   └── native.json       # HeroUI Native components data
-│   └── versions.json         # Version tracking
+│   ├── extract-heroui-r2.ts  # HeroUI data extraction to R2
+│   ├── extract-native-r2.ts  # HeroUI Native extraction to R2
+│   ├── extract-dev.sh        # Development extraction helper
+│   └── check-versions-ci.mjs # CI version checking script
+├── lib/
+│   ├── base-extractor.ts     # Base extraction functionality
+│   ├── github-client.ts      # GitHub API client
+│   ├── r2-uploader.ts        # R2 storage upload client
+│   └── data-store.ts         # Data storage abstraction
+├── data/                     # Local fallback data (npm package)
+│   ├── latest/
+│   │   ├── heroui.json
+│   │   └── native.json
+│   └── versions.json
+├── .dev.vars.example         # Environment variables template
 ├── dist/                     # Build output (generated)
 ├── wrangler.toml             # Cloudflare Workers configuration
 ├── tsconfig.json             # TypeScript configuration
@@ -194,30 +235,58 @@ When deployed as a Cloudflare Worker:
 
 ### Component Data Extraction
 
-The server extracts component data from GitHub repositories:
+The server extracts component data from GitHub repositories and stores it in Cloudflare R2:
 
-- **HeroUI**: Main component library from `@heroui-org/heroui`
-- **HeroUI Native**: React Native components from `@heroui-org/heroui-native`
+- **HeroUI**: React components from `heroui-inc/heroui` (v3 branch)
+- **HeroUI Native**: React Native components from `heroui-inc/heroui-native` (alpha branch)
 
-Data is cached locally in the `data/` directory and versioned for consistency.
+### R2 Storage Structure
+
+```
+heroui-mcp-data/
+├── latest/
+│   ├── heroui.json           # Latest HeroUI data
+│   └── native.json           # Latest Native data
+├── heroui/
+│   ├── v3.0.0-alpha.31.json  # Versioned HeroUI data
+│   └── ...
+├── native/
+│   ├── v1.0.0-alpha.13.json  # Versioned Native data
+│   └── ...
+└── versions.json             # Version metadata
+```
+
+### Environment-Based Deployment
+
+- **Development**: `heroui-mcp-data-dev` (manual extraction)
+- **Staging**: `heroui-mcp-data-staging` (develop branch)
+- **Production**: `heroui-mcp-data` (main branch)
 
 ### Updating Component Data
 
-To update the component data:
-
+#### For Development
 ```bash
-# Extract latest HeroUI components
-pnpm extract:heroui
+# Set up environment variables in .dev.vars
+# Then extract to development bucket
+pnpm extract:all:dev
 
-# Extract latest HeroUI Native components
-pnpm extract:native
+# Force re-extraction
+pnpm extract:dev:heroui -- --force
 ```
 
-The extraction scripts will:
-1. Fetch the latest component information from GitHub
-2. Parse TypeScript definitions and props
-3. Generate structured JSON data
-4. Save to the `data/` directory
+#### For Staging/Production
+Data is automatically extracted via GitHub Actions when:
+- Code is pushed to `develop` (staging) or `main` (production)
+- Daily at 2 AM UTC
+- Manually triggered via GitHub Actions UI
+
+### Rate Limiting
+
+The extraction scripts include rate limiting to avoid GitHub API limits:
+- **With GitHub token**: 100ms delay between requests
+- **Without token**: 500ms delay between requests
+
+Always include `GITHUB_TOKEN` in your `.dev.vars` to avoid rate limits.
 
 ## 🛠️ Adding New Features
 

@@ -95,9 +95,16 @@ export abstract class BaseGitHubExtractor {
       // 4. Extract components
       const components: Record<string, ComponentDefinition> = {};
 
+      // Add delay between requests to avoid rate limiting
+      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+      const DELAY_MS = process.env.GITHUB_TOKEN ? 100 : 500; // Less delay with token
+
       for (const filePath of docFiles) {
         try {
           console.log(`   Processing ${filePath}...`);
+
+          // Add delay to avoid rate limiting
+          await delay(DELAY_MS);
 
           const content = await this.github.fetchFile(
             this.config.owner,
