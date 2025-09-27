@@ -48,10 +48,12 @@ GITHUB_TOKEN=your_github_personal_access_token
 
 **Note**: GitHub token doesn't need special permissions for public repos. Create one at [GitHub Settings](https://github.com/settings/tokens).
 
-## 📦 Building for NPM
+## 📦 Building
+
+### Building for NPM
 
 ```bash
-# Build the project for npm distribution
+# Build STDIO client for NPM
 pnpm build
 
 # Test the built package locally
@@ -59,7 +61,30 @@ npm pack
 # This creates a .tgz file you can install locally to test
 ```
 
+### Deploying API to Cloudflare
+
+```bash
+# Deploy to staging
+pnpm deploy:api:staging
+
+# Deploy to production
+pnpm deploy:api:production
+```
+
 ## 🧪 Testing
+
+### Quick Testing
+
+```bash
+# Test API endpoints
+pnpm test:api
+
+# Test with staging API
+pnpm test:api:staging
+
+# Test with production API
+pnpm test:api:production
+```
 
 ### Using MCP Inspector
 
@@ -84,7 +109,25 @@ For development or testing with a local build in your IDE:
   "mcpServers": {
     "heroui-local": {
       "command": "node",
-      "args": ["/path/to/heroui-mcp/dist/stdio-npm.js"]
+      "args": ["/path/to/heroui-mcp/dist/stdio.js"]
+    }
+  }
+}
+```
+
+### Environment Variables for Testing
+
+You can override the API URL for local development:
+
+```json
+{
+  "mcpServers": {
+    "heroui": {
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"],
+      "env": {
+        "HEROUI_API_URL": "http://localhost:8787"
+      }
     }
   }
 }
@@ -133,6 +176,29 @@ pnpm format
 - `pnpm typecheck` - Run TypeScript type checking
 - `pnpm lint` - Run ESLint code linting
 - `pnpm format` - Format code with Prettier
+
+## 🏗️ Architecture
+
+The HeroUI MCP uses a simple architecture:
+
+1. **STDIO Client** (`@heroui/mcp`) - Runs locally, handles MCP protocol
+2. **REST API** (Cloudflare Worker) - Serves component data
+3. **R2 Storage** - Stores component documentation
+
+```
+AI Assistant → STDIO Client → REST API → R2 Storage
+```
+
+### API Endpoints
+
+The REST API is publicly available at `https://mcp-api.heroui.com`:
+
+- `GET /api/components/heroui` - List HeroUI components
+- `GET /api/components/native` - List HeroUI Native components
+- `GET /api/components/heroui/Button` - Get Button component details
+- `GET /api/components/heroui/Button/props` - Get Button props
+- `GET /api/components/heroui/Button/example` - Get Button examples
+- `GET /api/versions` - Get version information
 
 ## 🏗️ Project Structure
 
@@ -287,6 +353,33 @@ The extraction scripts include rate limiting to avoid GitHub API limits:
 - **Without token**: 500ms delay between requests
 
 Always include `GITHUB_TOKEN` in your `.dev.vars` to avoid rate limits.
+
+## 🛠️ Debugging
+
+### Debug Mode
+
+Run with debug output:
+
+```bash
+DEBUG=* npx @heroui/mcp
+```
+
+### Testing API Connection
+
+```bash
+# Test if the API is accessible
+curl https://mcp-api.heroui.com/health
+
+# Check component data
+curl https://mcp-api.heroui.com/api/components/heroui
+```
+
+### Verifying Package Installation
+
+```bash
+# Check if the package is available
+npx @heroui/mcp --version
+```
 
 ## 🛠️ Adding New Features
 

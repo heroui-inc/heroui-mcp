@@ -12,7 +12,7 @@ const inputSchema = z.object({
     .string()
     .optional()
     .describe(
-      "Specific version to use (e.g., 'v3.0.0-alpha.3'). Defaults to latest if not specified",
+      "Specific version to use (e.g., 'v3.0.0-alpha.31'). Defaults to latest if not specified",
     ),
 });
 
@@ -23,7 +23,9 @@ export const getComponentPropsTool: Tool = {
   exec(server, {config, name, description}) {
     const handler = async ({library, component, version}: z.infer<typeof inputSchema>) => {
       try {
-        const endpoint = `/api/components/${library}/${component}/props${version ? `?version=${version}` : ""}`;
+        // Encode component name to handle special characters and ensure proper URL encoding
+        const encodedComponent = encodeURIComponent(component);
+        const endpoint = `/api/components/${library}/${encodedComponent}/props${version ? `?version=${version}` : ""}`;
 
         try {
           const data = await fetchApi<{props: string}>(endpoint, config.apiBaseUrl);
@@ -39,6 +41,35 @@ export const getComponentPropsTool: Tool = {
           };
         } catch (error: any) {
           if (error.status === 404) {
+            // Try with different case variations if not found
+            const variations = [
+              component.charAt(0).toUpperCase() + component.slice(1).toLowerCase(), // Capitalize first letter
+              component.toLowerCase(), // All lowercase
+              component.toUpperCase(), // All uppercase
+            ];
+
+            for (const variation of variations) {
+              if (variation !== component) {
+                try {
+                  const altEndpoint = `/api/components/${library}/${encodeURIComponent(variation)}/props${version ? `?version=${version}` : ""}`;
+                  const altData = await fetchApi<{props: string}>(altEndpoint, config.apiBaseUrl);
+                  const propsText =
+                    altData.props || `No props information available for ${component}`;
+
+                  return {
+                    content: [
+                      {
+                        type: "text",
+                        text: propsText,
+                      },
+                    ],
+                  };
+                } catch {
+                  // Continue to next variation
+                }
+              }
+            }
+
             return {
               content: [
                 {

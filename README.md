@@ -11,12 +11,9 @@ Access HeroUI component documentation directly in your AI assistant via Model Co
 
 ## Configuration
 
-### Claude Desktop
+### Cursor
 
-Add to your Claude Desktop configuration:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+Add to Cursor Settings → Features → MCP Servers:
 
 ```json
 {
@@ -35,21 +32,6 @@ Add to your Claude Code configuration:
 
 **macOS**: `~/Library/Application Support/Claude/claude_mcp_settings.json`
 **Windows**: `%APPDATA%\Claude\claude_mcp_settings.json`
-
-```json
-{
-  "mcpServers": {
-    "heroui": {
-      "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
-    }
-  }
-}
-```
-
-### Cursor
-
-Add to Cursor Settings → Features → MCP Servers:
 
 ```json
 {
@@ -84,6 +66,24 @@ Add to your VS Code settings:
 ```json
 {
   "mcp.servers": {
+    "heroui": {
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"]
+    }
+  }
+}
+```
+
+### Claude Desktop
+
+Add to your Claude Desktop configuration:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
     "heroui": {
       "command": "npx",
       "args": ["-y", "@heroui/mcp"]
@@ -155,128 +155,20 @@ Check if you're using the latest version.
 }
 ```
 
-## Development
-
-### Prerequisites
-
-- Node.js 18+
-- pnpm
-
-### Setup
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/heroui-inc/heroui-mcp
-   cd heroui-mcp
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   pnpm install
-   ```
-
-3. Start development:
-
-   ```bash
-   # Start API server
-   pnpm dev:api
-
-   # In another terminal, test STDIO client
-   pnpm dev:stdio
-   ```
-
-### Testing
-
-```bash
-# Test API endpoints
-pnpm test:api
-
-# Test with MCP Inspector
-pnpm mcp:inspector
-```
-
-### Building
-
-```bash
-# Build STDIO client for NPM
-pnpm build
-
-# Deploy API to Cloudflare
-pnpm deploy:api:production
-```
-
-## Architecture
-
-The HeroUI MCP uses a simple architecture:
-
-1. **STDIO Client** (`@heroui/mcp`) - Runs locally, handles MCP protocol
-2. **REST API** (Cloudflare Worker) - Serves component data
-3. **R2 Storage** - Stores component documentation
-
-```
-AI Assistant → STDIO Client → REST API → R2 Storage
-```
-
-## API Endpoints
-
-The REST API is publicly available at `https://mcp-api.heroui.com`:
-
-- `GET /api/components/heroui` - List HeroUI components
-- `GET /api/components/native` - List HeroUI Native components
-- `GET /api/components/heroui/Button` - Get Button component details
-- `GET /api/components/heroui/Button/props` - Get Button props
-- `GET /api/components/heroui/Button/example` - Get Button examples
-- `GET /api/versions` - Get version information
-
-## Environment Variables
-
-### Optional Configuration
-
-- `HEROUI_API_URL` - Custom API URL (default: `https://mcp-api.heroui.com`)
-
-Example:
-
-```json
-{
-  "mcpServers": {
-    "heroui": {
-      "command": "npx",
-      "args": ["-y", "@heroui/mcp"],
-      "env": {
-        "HEROUI_API_URL": "http://localhost:8787"
-      }
-    }
-  }
-}
-```
 
 ## Troubleshooting
 
 ### MCP server not found
 
-The package will be automatically downloaded when using `npx`. To verify it's available:
-
-```bash
-npx @heroui/mcp --version
-```
+Ensure you have Node.js 18+ installed. The package will be automatically downloaded when using `npx`.
 
 ### Connection issues
 
-Test the API is accessible:
+If you're behind a corporate firewall, you may need to configure proxy settings or use a custom API URL.
 
-```bash
-curl https://mcp-api.heroui.com/health
-```
+### Need help?
 
-### Debug mode
-
-Run with debug output:
-
-```bash
-DEBUG=* npx @heroui/mcp
-```
+Check our [troubleshooting guide](https://github.com/heroui-inc/heroui-mcp/wiki/Troubleshooting) or ask in our [Discord community](https://discord.gg/heroui).
 
 ## Contributing
 

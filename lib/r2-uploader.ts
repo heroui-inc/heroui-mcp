@@ -3,7 +3,12 @@
  * Handles uploading extracted component data to Cloudflare R2
  */
 
-import {S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command} from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  ListObjectsV2Command,
+} from "@aws-sdk/client-s3";
 
 export interface R2Config {
   accountId: string;
@@ -32,13 +37,9 @@ export class R2Uploader {
 
   /**
    * Upload versioned component data to R2
-   * Stores in: {library}/{version}.json (e.g., heroui/v3.0.0-alpha.31.json)
+   * Stores in: {library}/{version}.json (e.g., heroui/"v3.0.0-alpha.31"1.json)
    */
-  async uploadComponentData(
-    library: string,
-    version: string,
-    data: unknown,
-  ): Promise<void> {
+  async uploadComponentData(library: string, version: string, data: unknown): Promise<void> {
     const key = `${library}/${version}.json`;
     const body = JSON.stringify(data, null, 2);
 
@@ -153,8 +154,7 @@ export class R2Uploader {
         return [];
       }
 
-      return response.Contents
-        .map((obj) => obj.Key || "")
+      return response.Contents.map((obj) => obj.Key || "")
         .filter((key) => key.endsWith(".json"))
         .map((key) => key.replace(prefix, "").replace(".json", ""))
         .sort();
