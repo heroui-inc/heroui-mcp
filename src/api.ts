@@ -101,7 +101,7 @@ app.get("/", (c) => {
       "/components/:library": "List components",
       "/components/:library/:component": "Get component details",
       "/components/:library/:component/props": "Get component props",
-      "/components/:library/:component/example": "Get component example",
+      "/components/:library/:component/examples": "Get component examples",
       "/versions": "Get version information",
       "/versions/:package": "Check specific package version",
     },
@@ -216,6 +216,20 @@ app.get("/components/:library/:component", async (c) => {
       return c.json({error: `Component ${component} not found`}, 404);
     }
 
+    // Get the actual component name from the data (with correct casing)
+    const allComponents = await service.getAllComponents(library, version);
+    let actualComponentName = component;
+
+    if (allComponents) {
+      // Find the actual component name with correct casing
+      const foundComponent = Object.keys(allComponents).find(
+        (key) => key.toLowerCase() === component.toLowerCase(),
+      );
+      if (foundComponent) {
+        actualComponentName = foundComponent;
+      }
+    }
+
     const responseTime = Date.now() - startTime;
 
     // Track successful request
@@ -228,13 +242,13 @@ app.get("/components/:library/:component", async (c) => {
 
     analytics?.trackFeatureUsage("api-user", "component-details", {
       library,
-      component,
+      component: actualComponentName,
       version: version || "latest",
     });
 
     return c.json({
       library,
-      component,
+      component: actualComponentName,
       version: version || "latest",
       data,
     });
@@ -287,11 +301,25 @@ app.get("/components/:library/:component/props", async (c) => {
       return c.json({error: `Component ${component} not found`}, 404);
     }
 
+    // Get the actual component name from the data (with correct casing)
+    const allComponents = await service.getAllComponents(library, version);
+    let actualComponentName = component;
+
+    if (allComponents) {
+      // Find the actual component name with correct casing
+      const foundComponent = Object.keys(allComponents).find(
+        (key) => key.toLowerCase() === component.toLowerCase(),
+      );
+      if (foundComponent) {
+        actualComponentName = foundComponent;
+      }
+    }
+
     // Format props as markdown
     const libraryName = library === "heroui" ? "HeroUI" : "HeroUI Native";
     const versionText = version ? ` (${version})` : " (latest)";
 
-    let propsText = `# ${component} Component Props - ${libraryName}${versionText}\n\n`;
+    let propsText = `# ${actualComponentName} Component Props - ${libraryName}${versionText}\n\n`;
 
     if (data.description) {
       propsText += `${data.description}\n\n`;
@@ -324,13 +352,13 @@ app.get("/components/:library/:component/props", async (c) => {
 
     analytics?.trackFeatureUsage("api-user", "component-props", {
       library,
-      component,
+      component: actualComponentName,
       version: version || "latest",
     });
 
     return c.json({
       library,
-      component,
+      component: actualComponentName,
       version: version || "latest",
       props: propsText,
     });
@@ -354,8 +382,8 @@ app.get("/components/:library/:component/props", async (c) => {
   }
 });
 
-// Get component example
-app.get("/components/:library/:component/example", async (c) => {
+// Get component examples
+app.get("/components/:library/:component/examples", async (c) => {
   const library = c.req.param("library") as "heroui" | "native";
   const component = c.req.param("component");
   const version = c.req.query("version");
@@ -369,7 +397,7 @@ app.get("/components/:library/:component/example", async (c) => {
   }
 
   analytics?.trackToolInvocation("api-user", {
-    toolName: "get-component-example",
+    toolName: "get-component-examples",
     parameters: {library, component, version},
     context: "api",
   });
@@ -382,35 +410,56 @@ app.get("/components/:library/:component/example", async (c) => {
       return c.json({error: `Component ${component} not found`}, 404);
     }
 
-    // Format example
-    const libraryName = library === "heroui" ? "HeroUI" : "HeroUI Native";
-    const versionText = version ? ` (${version})` : " (latest)";
-    const importStatement =
-      library === "heroui"
-        ? `import { ${component} } from '@heroui/react';`
-        : `import { ${component} } from '@heroui/native';`;
+    // Get the actual component name from the data (with correct casing)
+    const allComponents = await service.getAllComponents(library, version);
+    let actualComponentName = component;
 
-    let exampleText = `// ${component} Component Example - ${libraryName}${versionText}\n\n`;
-    exampleText += `${importStatement}\n\n`;
+    if (allComponents) {
+      // Find the actual component name with correct casing
+      const foundComponent = Object.keys(allComponents).find(
+        (key) => key.toLowerCase() === component.toLowerCase(),
+      );
+      if (foundComponent) {
+        actualComponentName = foundComponent;
+      }
+    }
 
-    // Generate a basic example since usage property doesn't exist on ComponentData
-    {
+    // Return examples array if they exist, otherwise return a default example
+    const examples = data.examples || [];
+
+    // If no examples, provide a default one
+    if (examples.length === 0) {
+      const libraryName = library === "heroui" ? "HeroUI" : "HeroUI Native";
+      const versionText = version ? ` (${version})` : " (latest)";
+      const importStatement =
+        library === "heroui"
+          ? `import { ${actualComponentName} } from '@heroui/react';`
+          : `import { ${actualComponentName} } from '@heroui/native';`;
+
+      let exampleText = `// ${actualComponentName} Component Example - ${libraryName}${versionText}\n\n`;
+      exampleText += `${importStatement}\n\n`;
       exampleText += `export default function Example() {\n`;
       exampleText += `  return (\n`;
-      exampleText += `    <${component}>\n`;
+      exampleText += `    <${actualComponentName}>\n`;
       exampleText += `      Content\n`;
-      exampleText += `    </${component}>\n`;
+      exampleText += `    </${actualComponentName}>\n`;
       exampleText += `  );\n`;
       exampleText += `}\n`;
+
+      examples.push({
+        name: "basic",
+        content: exampleText,
+      });
     }
 
     const responseTime = Date.now() - startTime;
 
     // Track successful request
+    const totalSize = examples.reduce((acc, ex) => acc + ex.content.length, 0);
     analytics?.trackToolSuccess("api-user", {
-      toolName: "get-component-example",
+      toolName: "get-component-examples",
       executionTime: responseTime,
-      resultSize: exampleText.length,
+      resultSize: totalSize,
     });
 
     analytics?.trackComponentGenerated("api-user", {
@@ -422,23 +471,23 @@ app.get("/components/:library/:component/example", async (c) => {
 
     return c.json({
       library,
-      component,
+      component: actualComponentName,
       version: version || "latest",
-      example: exampleText,
+      examples,
     });
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    console.error("Error getting component example:", error);
+    console.error("Error getting component examples:", error);
 
     analytics?.trackToolError("api-user", {
-      toolName: "get-component-example",
+      toolName: "get-component-examples",
       error: error instanceof Error ? error.message : "Unknown error",
       executionTime: responseTime,
     });
 
     return c.json(
       {
-        error: "Failed to get component example",
+        error: "Failed to get component examples",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       500,

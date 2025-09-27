@@ -29,11 +29,17 @@ export interface ComponentProp {
   required?: boolean;
 }
 
+export interface ComponentExample {
+  name: string;
+  content: string;
+}
+
 export interface ComponentData {
   name: string;
   description?: string;
   importStatement?: string;
   props: Record<string, ComponentProp>;
+  examples?: ComponentExample[];
 }
 
 export interface ComponentDataset {

@@ -23,6 +23,11 @@ export interface PropDefinition {
   description: string;
 }
 
+export interface ComponentExample {
+  name: string;
+  content: string;
+}
+
 export interface ComponentDefinition {
   name: string;
   description: string;
@@ -35,11 +40,11 @@ export interface ComponentDefinition {
       props: Record<string, PropDefinition>;
     }
   >;
-  examples?: string[];
+  examples?: ComponentExample[];
 }
 
 export interface ComponentParser {
-  parseContent(content: string, filePath: string): ComponentDefinition | null;
+  parseContent(content: string, filePath: string): ComponentDefinition | null | Promise<ComponentDefinition | null>;
 }
 
 interface VersionMetadata {
@@ -111,7 +116,7 @@ export abstract class BaseGitHubExtractor {
             this.config.branch,
           );
 
-          const component = this.parser.parseContent(content, filePath);
+          const component = await this.parser.parseContent(content, filePath);
 
           if (component && Object.keys(component.props).length > 0) {
             components[component.name] = component;

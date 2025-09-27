@@ -2,7 +2,7 @@ import type {Tool, ToolConfig} from "./types";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import {checkVersionTool} from "./check-version";
-import {getComponentExampleTool} from "./get-component-example";
+import {getComponentExamplesTool} from "./get-component-examples";
 import {getComponentPropsTool} from "./get-component-props";
 import {listComponentsTool} from "./list-components";
 
@@ -10,7 +10,7 @@ import {listComponentsTool} from "./list-components";
 const tools: Tool[] = [
   listComponentsTool,
   getComponentPropsTool,
-  getComponentExampleTool,
+  getComponentExamplesTool,
   checkVersionTool,
 ];
 

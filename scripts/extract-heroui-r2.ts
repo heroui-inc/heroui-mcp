@@ -5,7 +5,12 @@
  * Fetches latest component documentation from GitHub and uploads to R2
  */
 
-import type {ComponentDefinition, ComponentParser, PropDefinition} from "../lib/base-extractor";
+import type {
+  ComponentDefinition,
+  ComponentExample,
+  ComponentParser,
+  PropDefinition,
+} from "../lib/base-extractor";
 import type {ComponentDataset} from "../src/types";
 
 import * as path from "path";
@@ -13,8 +18,67 @@ import * as path from "path";
 import {BaseGitHubExtractor} from "../lib/base-extractor";
 import {R2Uploader} from "../lib/r2-uploader";
 
+interface DemoItem {
+  component: unknown;
+  file: string;
+}
+
 export class HeroUIParser implements ComponentParser {
-  parseContent(content: string, filePath: string): ComponentDefinition | null {
+  private demoRegistry: Record<string, DemoItem> | null = null;
+
+  async fetchDemoRegistry(): Promise<Record<string, DemoItem>> {
+    if (this.demoRegistry) return this.demoRegistry;
+
+    try {
+      const response = await fetch(
+        "https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/src/demos/index.ts",
+      );
+      const content = await response.text();
+
+      // Parse the demos object from the TypeScript file
+      const demosMatch = content.match(
+        /export const demos:\s*Record<string,\s*DemoItem>\s*=\s*{([\s\S]*?)};/,
+      );
+      if (!demosMatch) return {};
+
+      const demosContent = demosMatch[1];
+      const registry: Record<string, DemoItem> = {};
+
+      // Parse each demo entry
+      const demoPattern = /"([^"]+)":\s*{[^}]*file:\s*"([^"]+)"/g;
+      let match;
+      while ((match = demoPattern.exec(demosContent)) !== null) {
+        registry[match[1]] = {
+          component: undefined,
+          file: match[2],
+        };
+      }
+
+      this.demoRegistry = registry;
+
+      return registry;
+    } catch (error) {
+      console.warn("Failed to fetch demo registry:", error);
+
+      return {};
+    }
+  }
+
+  async fetchDemoContent(filePath: string): Promise<string | null> {
+    try {
+      const url = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/src/demos/${filePath}`;
+      const response = await fetch(url);
+      if (!response.ok) return null;
+
+      return await response.text();
+    } catch (error) {
+      console.warn(`Failed to fetch demo content for ${filePath}:`, error);
+
+      return null;
+    }
+  }
+
+  async parseContent(content: string, filePath: string): Promise<ComponentDefinition | null> {
     const lines = content.split("\n");
 
     // Extract frontmatter
@@ -32,9 +96,12 @@ export class HeroUIParser implements ComponentParser {
       return null;
     }
 
+    // Extract examples
+    const examples = await this.extractExamples(lines);
+
     return {
       description,
-      examples: this.extractExamples(lines),
+      examples,
       importStatement,
       name: componentName,
       props: propsData.props,
@@ -182,22 +249,55 @@ export class HeroUIParser implements ComponentParser {
 
   private parsePropsTable(lines: string[], targetProps: Record<string, PropDefinition>): void {
     for (const line of lines) {
-      const parts = line
+      // First, check if the line contains backticks with pipe characters (union types)
+      // We need to handle these specially to avoid splitting them
+      const backtickPattern = /`([^`]+)`/g;
+
+      // Extract all backtick contents and replace with placeholders
+      let match;
+      let index = 0;
+      const matches: Array<{original: string; placeholder: string; content: string}> = [];
+
+      while ((match = backtickPattern.exec(line)) !== null) {
+        const placeholder = `__BACKTICK_${index}__`;
+        matches.push({
+          original: match[0],
+          placeholder,
+          content: match[1],
+        });
+        index++;
+      }
+
+      // Replace all matches in the line
+      let processedLine = line;
+      for (const m of matches) {
+        processedLine = processedLine.replace(m.original, m.placeholder);
+      }
+
+      // Now split by pipe
+      const parts = processedLine
         .split("|")
         .map((p) => p.trim())
         .filter(Boolean);
 
       if (parts.length >= 3) {
-        // Clean prop name - remove backticks and quotes
-        const name = parts[0].replace(/[`'"]/g, "").trim();
+        // Restore backtick contents
+        for (let i = 0; i < parts.length; i++) {
+          for (const m of matches) {
+            parts[i] = parts[i].replace(m.placeholder, m.content);
+          }
+        }
+
+        // Clean prop name
+        const name = parts[0].trim();
 
         // Skip if name is empty or looks like a header
         if (!name || name.toLowerCase() === "prop" || name.toLowerCase() === "attribute") {
           continue;
         }
 
-        // Clean type - remove backticks
-        const type = parts[1]?.replace(/[`'"]/g, "").trim() || "any";
+        // Get type - preserve union types with escaped pipes
+        const type = parts[1]?.trim() || "any";
 
         // v3 format: Prop | Type | Default | Description
         let defaultValue = "";
@@ -205,7 +305,9 @@ export class HeroUIParser implements ComponentParser {
 
         if (parts.length === 4) {
           // Format: Prop | Type | Default | Description
-          defaultValue = parts[2]?.replace(/[`'"]/g, "").replace("-", "").trim() || "";
+          defaultValue = parts[2]?.trim() || "";
+          // Remove dash for empty defaults
+          if (defaultValue === "-") defaultValue = "";
           description = parts[3]?.trim() || "";
         } else if (parts.length === 3) {
           // Format might be: Prop | Type | Description (no default)
@@ -214,7 +316,7 @@ export class HeroUIParser implements ComponentParser {
 
         targetProps[name] = {
           name,
-          type,
+          type: type.replace(/\\/g, ""), // Remove escape characters from the type
           description,
           ...(defaultValue &&
             defaultValue !== "" &&
@@ -224,27 +326,27 @@ export class HeroUIParser implements ComponentParser {
     }
   }
 
-  private extractExamples(lines: string[]): string[] {
-    const examples: string[] = [];
-    let inCodeBlock = false;
-    let currentExample = "";
-    let codeBlockLang = "";
+  private async extractExamples(lines: string[]): Promise<ComponentExample[]> {
+    const examples: ComponentExample[] = [];
+    const demoRegistry = await this.fetchDemoRegistry();
 
-    for (const line of lines) {
-      if (line.startsWith("```")) {
-        if (!inCodeBlock) {
-          inCodeBlock = true;
-          codeBlockLang = line.replace("```", "").trim();
-        } else {
-          if (["jsx", "tsx", "javascript", "typescript"].includes(codeBlockLang)) {
-            examples.push(currentExample.trim());
-          }
-          inCodeBlock = false;
-          currentExample = "";
-          codeBlockLang = "";
+    // Find all ComponentPreview tags
+    const componentPreviewPattern = /<ComponentPreview\s+name="([^"]+)"/g;
+    const fullContent = lines.join("\n");
+    let match;
+
+    while ((match = componentPreviewPattern.exec(fullContent)) !== null) {
+      const demoName = match[1];
+      const demoItem = demoRegistry[demoName];
+
+      if (demoItem && demoItem.file) {
+        const content = await this.fetchDemoContent(demoItem.file);
+        if (content) {
+          examples.push({
+            name: demoName,
+            content: content,
+          });
         }
-      } else if (inCodeBlock) {
-        currentExample += line + "\n";
       }
     }
 
@@ -254,6 +356,7 @@ export class HeroUIParser implements ComponentParser {
 
 class HeroUIExtractor extends BaseGitHubExtractor {
   constructor(token?: string) {
+    const parser = new HeroUIParser();
     super(
       {
         owner: "heroui-inc",
@@ -262,7 +365,7 @@ class HeroUIExtractor extends BaseGitHubExtractor {
         docsPath: "apps/docs/content/docs/components",
         outputLibraryName: "heroui",
       },
-      new HeroUIParser(),
+      parser,
       token,
     );
   }

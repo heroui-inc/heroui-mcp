@@ -2,8 +2,6 @@
 
 Access HeroUI component documentation directly in your AI assistant via Model Context Protocol (MCP).
 
-📚 [Documentation](https://github.com/heroui-inc/heroui-mcp#readme) • 🐛 [Troubleshooting](https://github.com/heroui-inc/heroui-mcp/blob/main/TROUBLESHOOTING.md) • 💬 [Discord](https://discord.gg/heroui)
-
 ## Features
 
 - Complete component documentation for HeroUI and HeroUI Native
@@ -133,7 +131,7 @@ Get detailed props information for a specific component.
 }
 ```
 
-### `get_component_example`
+### `get_component_examples`
 
 Get usage examples for a specific component.
 
@@ -157,7 +155,6 @@ Check if you're using the latest version.
 }
 ```
 
-
 ## Troubleshooting
 
 ### MCP server not found
@@ -174,14 +171,19 @@ Check our [troubleshooting guide](https://github.com/heroui-inc/heroui-mcp/blob/
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+Contributions are always welcome!
+
+See [CONTRIBUTING.md](https://github.com/heroui-inc/heroui-mcp/blob/main/CONTRIBUTING.md) for ways to get started.
+
+Please adhere to this project's [CODE_OF_CONDUCT](https://github.com/heroui-inc/heroui-mcp/blob/main/CODE_OF_CONDUCT.md).
 
 ## Support
 
+- [X](https://x.com/hero_ui)
 - [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
 - [Discord Community](https://discord.gg/heroui)
-- Email: support@heroui.com
+- [Email Us](mailto:support@heroui.com)
 
 ## License
 
-MIT © HeroUI Inc.
+[MIT](https://choosealicense.com/licenses/mit/)
