@@ -18,7 +18,7 @@ export const checkVersionTool: Tool = {
     const handler = async ({package: pkg}: z.infer<typeof inputSchema>) => {
       try {
         // Direct API call for version check
-        const endpoint = `/api/versions/${pkg}`;
+        const endpoint = `/versions/${pkg}`;
         const data = await fetchApi<{
           isLatest: boolean;
           currentVersion: string;

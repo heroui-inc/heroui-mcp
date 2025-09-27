@@ -25,7 +25,7 @@ export const getComponentPropsTool: Tool = {
       try {
         // Encode component name to handle special characters and ensure proper URL encoding
         const encodedComponent = encodeURIComponent(component);
-        const endpoint = `/api/components/${library}/${encodedComponent}/props${version ? `?version=${version}` : ""}`;
+        const endpoint = `/components/${library}/${encodedComponent}/props${version ? `?version=${version}` : ""}`;
 
         try {
           const data = await fetchApi<{props: string}>(endpoint, config.apiBaseUrl);
@@ -51,7 +51,7 @@ export const getComponentPropsTool: Tool = {
             for (const variation of variations) {
               if (variation !== component) {
                 try {
-                  const altEndpoint = `/api/components/${library}/${encodeURIComponent(variation)}/props${version ? `?version=${version}` : ""}`;
+                  const altEndpoint = `/components/${library}/${encodeURIComponent(variation)}/props${version ? `?version=${version}` : ""}`;
                   const altData = await fetchApi<{props: string}>(altEndpoint, config.apiBaseUrl);
                   const propsText =
                     altData.props || `No props information available for ${component}`;

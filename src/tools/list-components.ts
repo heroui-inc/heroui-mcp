@@ -23,7 +23,7 @@ export const listComponentsTool: Tool = {
     const handler = async ({library, version}: z.infer<typeof inputSchema>) => {
       try {
         // Direct API call
-        const endpoint = `/api/components/${library}${version ? `?version=${version}` : ""}`;
+        const endpoint = `/components/${library}${version ? `?version=${version}` : ""}`;
         const data = await fetchApi<{components: string[]}>(endpoint, config.apiBaseUrl);
         const components = data.components || [];
 

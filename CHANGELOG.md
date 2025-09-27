@@ -1,3 +1,7 @@
+# [1.0.0-alpha.5](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.4...v1.0.0-alpha.5) (2025-09-27)
+
+
+
 # [1.0.0-alpha.4](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2025-09-27)
 
 

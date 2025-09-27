@@ -98,12 +98,12 @@ app.get("/", (c) => {
     endpoints: {
       "/": "API information",
       "/health": "Health check",
-      "/api/components/:library": "List components",
-      "/api/components/:library/:component": "Get component details",
-      "/api/components/:library/:component/props": "Get component props",
-      "/api/components/:library/:component/example": "Get component example",
-      "/api/versions": "Get version information",
-      "/api/versions/:package": "Check specific package version",
+      "/components/:library": "List components",
+      "/components/:library/:component": "Get component details",
+      "/components/:library/:component/props": "Get component props",
+      "/components/:library/:component/example": "Get component example",
+      "/versions": "Get version information",
+      "/versions/:package": "Check specific package version",
     },
   });
 });
@@ -118,7 +118,7 @@ app.get("/health", (c) => {
 });
 
 // List components
-app.get("/api/components/:library", async (c) => {
+app.get("/components/:library", async (c) => {
   const library = c.req.param("library") as "heroui" | "native";
   const version = c.req.query("version");
   const startTime = Date.now();
@@ -180,7 +180,7 @@ app.get("/api/components/:library", async (c) => {
 });
 
 // Get component details
-app.get("/api/components/:library/:component", async (c) => {
+app.get("/components/:library/:component", async (c) => {
   const library = c.req.param("library") as "heroui" | "native";
   const component = c.req.param("component");
   const version = c.req.query("version");
@@ -260,7 +260,7 @@ app.get("/api/components/:library/:component", async (c) => {
 });
 
 // Get component props
-app.get("/api/components/:library/:component/props", async (c) => {
+app.get("/components/:library/:component/props", async (c) => {
   const library = c.req.param("library") as "heroui" | "native";
   const component = c.req.param("component");
   const version = c.req.query("version");
@@ -355,7 +355,7 @@ app.get("/api/components/:library/:component/props", async (c) => {
 });
 
 // Get component example
-app.get("/api/components/:library/:component/example", async (c) => {
+app.get("/components/:library/:component/example", async (c) => {
   const library = c.req.param("library") as "heroui" | "native";
   const component = c.req.param("component");
   const version = c.req.query("version");
@@ -447,7 +447,7 @@ app.get("/api/components/:library/:component/example", async (c) => {
 });
 
 // Get version information
-app.get("/api/versions", async (c) => {
+app.get("/versions", async (c) => {
   const startTime = Date.now();
   initAnalytics(c.env);
   const analytics = getAnalytics();
@@ -491,7 +491,7 @@ app.get("/api/versions", async (c) => {
 });
 
 // Check specific package version
-app.get("/api/versions/:package", async (c) => {
+app.get("/versions/:package", async (c) => {
   const pkg = c.req.param("package");
   const startTime = Date.now();
   initAnalytics(c.env);
