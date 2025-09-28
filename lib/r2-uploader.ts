@@ -141,6 +141,26 @@ export class R2Uploader {
   }
 
   /**
+   * Upload generic data to R2
+   */
+  async uploadData(key: string, data: any): Promise<void> {
+    try {
+      await this.client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+          Body: JSON.stringify(data, null, 2),
+          ContentType: "application/json",
+        }),
+      );
+      console.log(`✅ Uploaded ${key} to R2`);
+    } catch (error) {
+      console.error(`Failed to upload ${key}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * List all versions for a library
    */
   async listVersions(library: string): Promise<string[]> {

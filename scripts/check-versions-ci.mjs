@@ -94,8 +94,17 @@ async function main() {
   // Set GitHub Actions outputs
   setOutput('heroui-needs-update', results.heroui.needsUpdate);
   setOutput('native-needs-update', results.native.needsUpdate);
-  setOutput('heroui-version', results.heroui.version);
-  setOutput('native-version', results.native.version);
+  // Only output version if it's a valid string (not undefined/null/boolean)
+  if (results.heroui.version && typeof results.heroui.version === 'string') {
+    setOutput('heroui-version', results.heroui.version);
+  } else {
+    setOutput('heroui-version', '');
+  }
+  if (results.native.version && typeof results.native.version === 'string') {
+    setOutput('native-version', results.native.version);
+  } else {
+    setOutput('native-version', '');
+  }
 }
 
 // Run the script

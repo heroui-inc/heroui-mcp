@@ -112,19 +112,22 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ needs.set-environment.outputs.bucket-name }}
         run: |
+          ENV="${{ needs.set-environment.outputs.environment }}"
           FLAGS=""
+
           if [ "${{ inputs.force }}" == "true" ]; then
             FLAGS="--force"
           fi
+
+          # Only add version flag if we have a valid version string
           if [ -n "${{ inputs.version }}" ]; then
             FLAGS="$FLAGS --version=${{ inputs.version }}"
-          elif [ -n "${{ needs.check-versions.outputs.heroui-version }}" ]; then
+          elif [ -n "${{ needs.check-versions.outputs.heroui-version }}" ] && [ "${{ needs.check-versions.outputs.heroui-version }}" != "" ]; then
             FLAGS="$FLAGS --version=${{ needs.check-versions.outputs.heroui-version }}"
           fi
 
-          npx tsx scripts/extract-heroui-r2.ts $FLAGS
+          ./scripts/extract.sh "$ENV" heroui $FLAGS
 
       - name: Notify success
         if: success()
@@ -161,19 +164,22 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ needs.set-environment.outputs.bucket-name }}
         run: |
+          ENV="${{ needs.set-environment.outputs.environment }}"
           FLAGS=""
+
           if [ "${{ inputs.force }}" == "true" ]; then
             FLAGS="--force"
           fi
+
+          # Only add version flag if we have a valid version string
           if [ -n "${{ inputs.version }}" ]; then
             FLAGS="$FLAGS --version=${{ inputs.version }}"
-          elif [ -n "${{ needs.check-versions.outputs.native-version }}" ]; then
+          elif [ -n "${{ needs.check-versions.outputs.native-version }}" ] && [ "${{ needs.check-versions.outputs.native-version }}" != "" ]; then
             FLAGS="$FLAGS --version=${{ needs.check-versions.outputs.native-version }}"
           fi
 
-          npx tsx scripts/extract-native-r2.ts $FLAGS
+          ./scripts/extract.sh "$ENV" native $FLAGS
 
       - name: Notify success
         if: success()

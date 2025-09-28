@@ -101,6 +101,10 @@ Once configured, you can ask your AI assistant questions like:
 - "Give me an example of using the Card component"
 - "List all components in HeroUI Native"
 - "Check if I'm using the latest version of HeroUI"
+- "Get the source code for the Button component"
+- "Show me the CSS styles for Card"
+- "What are the theme variables for dark mode?"
+- "Explain HeroUI's color customization guide"
 
 ## Available Tools
 
@@ -154,6 +158,46 @@ Get usage examples for a specific component.
   library: "heroui" | "native",  // Required
   component: "Button",           // Required
   version?: "v3.0.0"            // Optional
+}
+```
+
+### `get_component_source`
+
+Get the source code (React/TypeScript) or CSS styles for a component.
+
+```javascript
+// Parameters
+{
+  library: "heroui" | "native",  // Required
+  component: "Button",           // Required
+  type: "source" | "styles" | "both", // Required
+  version?: "v3.0.0"            // Optional
+}
+```
+
+### `get_theme_info`
+
+Get HeroUI theme variables with an optimized structure that extracts common variables (base and calculated) shared between light and dark modes.
+
+```javascript
+// Parameters
+{
+  theme?: "default",   // Optional, defaults to "default"
+  mode?: "light" | "dark" | "both", // Optional, defaults to "both"
+  category?: "colors" | "typography" | "spacing" | "borders" | "shadows" | "animations" | "all" // Optional
+}
+```
+
+### `get_design_guide`
+
+Get HeroUI design guides and documentation for themes, colors, animations, and best practices.
+
+```javascript
+// Parameters
+{
+  guide: "color-theory" | "animations" | "dark-mode" | "custom-themes" |
+         "color-customization" | "responsive-design" | "accessibility", // Required
+  section?: "intro" | "examples" | "api"  // Optional
 }
 ```
 
