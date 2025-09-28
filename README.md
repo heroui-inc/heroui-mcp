@@ -92,6 +92,28 @@ Add to your Claude Desktop configuration:
 }
 ```
 
+## IDE Rules Setup (Optional)
+
+For better accuracy when working with HeroUI components, add the HeroUI rules file to your IDE:
+
+### Cursor / Windsurf / Claude Code
+
+Copy `heroui-web-rules.mdc` to your project's `.cursor/rules/` directory:
+
+```bash
+# Create rules directory if it doesn't exist
+mkdir -p .cursor/rules
+
+# Copy the HeroUI rules file
+curl -o .cursor/rules/heroui-web-rules.mdc https://raw.githubusercontent.com/heroui-inc/heroui-mcp/main/heroui-web-rules.mdc
+```
+
+This provides your AI assistant with:
+- Correct HeroUI v3 component patterns
+- MCP tool usage guidance
+- Theme customization rules
+- Best practices for implementation
+
 ## Usage
 
 Once configured, you can ask your AI assistant questions like:

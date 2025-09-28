@@ -1,0 +1,441 @@
+---
+description: HeroUI v3 Web Component System - MCP Tools and Design Guidelines
+globs:
+  - "**/*.{jsx,tsx}"
+  - "**/*.css"
+alwaysApply: false
+---
+
+# HeroUI v3 Web Rules - MCP Integration
+
+This rule set helps AI agents work with HeroUI v3 web components using the @heroui/mcp tools for accurate, up-to-date documentation and implementation guidance.
+
+**Important Context**: https://v3.heroui.com/llms.txt - Reference this for additional HeroUI v3 context.
+
+## Core Architecture
+
+### HeroUI v3 is built on:
+1. **Tailwind CSS v4** (v3 is NOT supported)
+2. **React Aria Components** - For accessibility and behavior (@heroui/react)
+3. **Framework-agnostic styles** - BEM classes via @heroui/styles
+
+## MCP Tools Overview
+
+The HeroUI MCP server provides these tools. Always use them instead of guessing component APIs:
+
+### Essential Tools for HeroUI Development
+
+1. **list_components** - Get all available components
+
+   ```javascript
+   // Always check available components first, use the version from package.json (if not latest)
+   { library: "heroui", version?: "latest" }
+   ```
+
+2. **get_component_info** - Get complete component details including anatomy (if applicable)
+
+   ```javascript
+   // Use this before implementing any component
+   { library: "heroui", component: "Button" }
+   // Returns: description, anatomy, props, examples
+   ```
+
+3. **get_component_props** - Get detailed prop types
+
+   ```javascript
+   // Use when you need TypeScript types or prop validation
+   { library: "heroui", component: "Card" }
+   ```
+
+4. **get_component_examples** - Get usage patterns
+
+   ```javascript
+   // Use for implementation examples
+   { library: "heroui", component: "Button" }
+   ```
+
+5. **get_theme_info** - Get CSS variables and theme tokens
+
+   ```javascript
+   // Essential for customization
+   { theme: "default", mode: "both", category: "all" }
+   ```
+
+6. **get_design_guide** - Get design documentation
+   ```javascript
+   // For theming and customization guidance
+   {
+     guide: "color-customization" | "custom-themes" | "dark-mode";
+   }
+   ```
+
+## Component Implementation Rules
+
+### 1. Always Verify Component API
+
+Before implementing any HeroUI component:
+
+- Use `get_component_info` to get the current API
+- Never assume prop names or component structure
+- Check for compound components (e.g., Card.Header, Card.Content)
+
+### 2. Component Anatomy Pattern
+
+HeroUI v3 uses compound components. Always check anatomy using the `get_component_info` tool:
+
+```jsx
+// CORRECT - Use compound components
+<Card>
+  <Card.Header>
+    <Card.Title>Title</Card.Title>
+  </Card.Header>
+  <Card.Content>Content</Card.Content>
+  <Card.Footer>Footer</Card.Footer>
+</Card>
+
+// WRONG - Don't use flat props
+<Card title="Title" content="Content" />
+```
+
+### 3. Import Patterns
+
+```jsx
+// React Components (with full accessibility)
+import {Button, Card, Avatar} from "@heroui/react";
+
+// Framework-agnostic styles (CSS only, no JavaScript behavior)
+import "@heroui/styles/dist/heroui.min.css";
+// Or via CDN:
+// <link href="https://cdn.jsdelivr.net/npm/@heroui/styles@3.0.0-alpha.31/dist/heroui.min.css" rel="stylesheet" />
+```
+
+### 4. Framework-Agnostic Usage (HTML + CSS)
+
+HeroUI v3 provides BEM classes via @heroui/styles for use without React:
+
+```html
+<!-- CDN link -->
+<link href="https://cdn.jsdelivr.net/npm/@heroui/styles@3.0.0-alpha.31/dist/heroui.min.css" rel="stylesheet" crossorigin="anonymous" />
+
+<!-- BEM class pattern: component component--variant component--size -->
+<div class="space-x-2 p-4">
+  <button class="button button--primary button--md">Primary</button>
+  <button class="button button--secondary button--md">Secondary</button>
+  <button class="button button--tertiary button--md">Tertiary</button>
+  <button class="button button--danger button--md">Danger</button>
+  <button class="button button--ghost button--md">Ghost</button>
+</div>
+
+<!-- Note: This provides styling only. No JavaScript behavior, accessibility features,
+     or interactive logic (open/close, focus management, etc.) -->
+```
+
+## Styling and Theming Rules
+
+### 1. CSS Variables System
+
+HeroUI uses CSS custom properties. Always use `get_theme_info` to get accurate variables:
+
+```css
+/* Theme variables follow this pattern */
+--{category}-{semantic}-{variant}
+
+/* Examples */
+--color-accent          /* Semantic color */
+--spacing-4            /* Spacing token */
+--radius-medium        /* Border radius */
+--ease-in-out-cubic    /* Animation timing */
+```
+
+### 2. Color System
+
+HeroUI v3 uses OKLCH color space for better perceptual uniformity:
+
+```css
+/* OKLCH format: oklch(lightness chroma hue) */
+--color-accent: oklch(0.7 0.25 260); /* L: 0-1, C: 0-0.4, H: 0-360 */
+```
+
+### 3. Theme Structure
+
+```javascript
+// Theme has three layers - always query with get_theme_info
+{
+  base: [],      // Primitives: --white, --black, spacing
+  semantic: [],  // Purpose-driven: --accent, --success
+  calculated: [] // Dynamic: hover states, computed values
+}
+```
+
+### 4. Dark Mode
+
+```jsx
+// HeroUI handles dark mode via CSS classes
+<html className="dark">  // or [data-theme="dark"]
+
+// Component automatically adapts
+<Button>Auto-adapts to dark mode</Button>
+```
+
+## Customization Patterns
+
+### 1. Custom Theme Creation
+
+Always use `get_design_guide` with guide="custom-themes" first, then:
+
+```jsx
+// 1. Define CSS variables
+const customTheme = {
+  light: {
+    "--color-accent": "oklch(0.65 0.3 250)",
+    "--color-success": "oklch(0.7 0.25 140)",
+  },
+  dark: {
+    "--color-accent": "oklch(0.75 0.25 250)",
+    "--color-success": "oklch(0.65 0.2 140)",
+  },
+};
+
+// 2. Apply via CSS-in-JS or CSS files
+// 3. Use data-theme attribute for switching
+```
+
+### 2. Component Styling
+
+```jsx
+// Use className for Tailwind classes
+<Button className="px-8 py-4">Large Button</Button>
+
+// Use style prop for CSS variables
+<Card style={{padding: '2rem'}}>
+  Custom padding
+</Card>
+
+// Component-specific classes
+<Button className="heroui-button-custom">
+  Custom styles
+</Button>
+```
+
+### 3. Extending Components
+
+```jsx
+// Wrap HeroUI components for consistent styling
+const CustomButton = ({variant = "accent", ...props}) => {
+  // Always check props with get_component_props first
+  return <Button className={`custom-${variant}`} {...props} />;
+};
+```
+
+## Animation System
+
+### 1. Built-in Animations
+
+Use `get_theme_info` with category="animations" to get:
+
+- Timing functions: --ease-in-quad, --ease-out-cubic
+- Presets: --animate-spin-fast, --animate-skeleton
+
+### 2. Custom Animations
+
+```css
+/* Use HeroUI timing functions */
+.custom-animation {
+  transition: all 0.3s var(--ease-out-cubic);
+}
+
+/* Reference animation presets */
+.loading {
+  animation: var(--animate-skeleton);
+}
+```
+
+## Best Practices
+
+### 1. Tool Usage Priority
+
+1. **ALWAYS** use MCP tools before implementing
+2. **NEVER** guess component APIs or prop names
+3. **CHECK** version compatibility with `check_version`
+
+### 2. Implementation Workflow
+
+```javascript
+// 1. Check component exists
+list_components({library: "heroui"});
+
+// 2. Get full documentation
+get_component_info({library: "heroui", component: "Card"});
+
+// 3. Get examples for patterns
+get_component_examples({library: "heroui", component: "Card"});
+
+// 4. Get theme variables if customizing
+get_theme_info({mode: "both", category: "colors"});
+
+// 5. Implement with accurate API
+```
+
+### 3. Common Patterns
+
+#### Form Controls
+
+```jsx
+// TextField uses compound pattern
+<TextField>
+  <TextField.Label>Email</TextField.Label>
+  <TextField.Input type="email" />
+  <TextField.Error>Invalid email</TextField.Error>
+</TextField>
+```
+
+#### Layout Components
+
+```jsx
+// Card with full anatomy
+<Card>
+  <Card.Image src="/image.jpg" alt="Description" />
+  <Card.Header>
+    <Card.Title>Title</Card.Title>
+    <Card.Description>Description</Card.Description>
+  </Card.Header>
+  <Card.Content>Main content</Card.Content>
+  <Card.Footer>
+    <Button>Action</Button>
+  </Card.Footer>
+</Card>
+```
+
+#### Interactive Components
+
+```jsx
+// Tabs with compound structure
+<Tabs defaultValue="tab1">
+  <Tabs.List>
+    <Tabs.Tab value="tab1">Tab 1</Tabs.Tab>
+    <Tabs.Tab value="tab2">Tab 2</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel value="tab1">Content 1</Tabs.Panel>
+  <Tabs.Panel value="tab2">Content 2</Tabs.Panel>
+</Tabs>
+```
+
+## Debugging Tips
+
+### 1. Component Not Working
+
+1. Use `get_component_info` to verify correct API
+2. Check import path is correct
+3. Verify compound component structure
+
+### 2. Styling Issues
+
+1. Use `get_theme_info` to get correct CSS variables
+2. Check dark mode class application
+3. Verify OKLCH color values are valid
+
+### 3. Props Not Recognized
+
+1. Use `get_component_props` for accurate prop types
+2. Check for compound component props
+3. Verify version compatibility
+
+## Available Design Guides
+
+Always query these guides for detailed information:
+
+- **color-theory**: Color system and OKLCH
+- **color-customization**: Custom color schemes
+- **custom-themes**: Full theme creation
+- **dark-mode**: Dark mode implementation
+- **animations**: Animation system
+- **responsive-design**: Responsive patterns
+- **accessibility**: A11y guidelines
+
+## Version Information
+
+Current stable: v3.0.0-alpha.31
+
+- Always use `check_version` to verify
+- Component APIs may change between versions
+- Use version parameter in tools for specific versions
+
+## Integration with Tailwind CSS v4
+
+```javascript
+// tailwind.config.js - MUST use Tailwind v4
+import heroui from "@heroui/theme";
+
+export default {
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
+  ],
+  darkMode: "class",
+  plugins: [heroui()],
+};
+```
+
+**IMPORTANT**: HeroUI v3 requires Tailwind CSS v4. Tailwind v3 is NOT supported.
+
+## React Aria Components Foundation
+
+@heroui/react is built on React Aria Components, providing:
+- Full keyboard navigation
+- Screen reader support
+- Focus management
+- ARIA attributes
+- Touch/mobile interactions
+
+```jsx
+// HeroUI components include all React Aria behaviors
+<Button onPress={handlePress}>
+  Fully accessible button with React Aria
+</Button>
+
+// Compared to BEM classes (styling only)
+<button class="button button--primary">
+  Visual styling only, no built-in a11y
+</button>
+```
+
+## Key Differences from Other UI Libraries
+
+1. **Tailwind v4 Required**: Not compatible with Tailwind v3
+2. **React Aria Based**: Full accessibility out of the box with @heroui/react
+3. **Framework Agnostic Styles**: BEM classes available via @heroui/styles
+4. **Compound Components**: Not single components with many props
+5. **OKLCH Colors**: Not hex or RGB
+6. **CSS Variables**: Not CSS-in-JS by default
+7. **Anatomy-based**: Each part is styleable separately
+8. **Theme Layers**: Base, semantic, and calculated variables
+
+## Usage Modes Summary
+
+### 1. React with Full Accessibility (@heroui/react)
+- Built on React Aria Components
+- Full keyboard navigation, screen readers, ARIA
+- Interactive behaviors included
+- Requires Tailwind CSS v4
+
+### 2. Framework-Agnostic Styles (@heroui/styles)
+- BEM class patterns
+- Visual styling only
+- No JavaScript behaviors
+- No accessibility features
+- Can be used with any framework or vanilla HTML
+
+## Remember
+
+- **Context URL** - Check https://v3.heroui.com/llms.txt for latest context
+- **Tailwind v4 Only** - HeroUI v3 requires Tailwind CSS v4, not v3
+- **React Aria Based** - @heroui/react provides full accessibility
+- **BEM Classes Available** - Use @heroui/styles for framework-agnostic styling
+- **Never assume** - Always use MCP tools
+- **Check first** - Verify component API before coding
+- **Theme tokens** - Use CSS variables, not hardcoded values
+- **Compound pattern** - Components have sub-components
+- **OKLCH colors** - Modern color space for better consistency
+- **Version aware** - APIs change, always verify
+
+When in doubt, use the MCP tools to get accurate, up-to-date information rather than making assumptions about the HeroUI API.
