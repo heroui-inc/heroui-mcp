@@ -1,3 +1,13 @@
+# [1.0.0-alpha.10](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.9...v1.0.0-alpha.10) (2025-09-28)
+
+
+### Features
+
+* add new extraction tools and improve API documentation with additional endpoints and examples ([2cc39be](https://github.com/heroui-inc/heroui-mcp/commit/2cc39bee4fa2510082bbaa2e9b38b54cb80c43e9))
+* enhance extraction pipeline to support HeroUI theme system and update library options ([df0a133](https://github.com/heroui-inc/heroui-mcp/commit/df0a1338219b7f17da1b0fcf1ce962be40647043))
+
+
+
 # [1.0.0-alpha.9](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.8...v1.0.0-alpha.9) (2025-09-28)
 
 
