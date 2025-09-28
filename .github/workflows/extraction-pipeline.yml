@@ -11,12 +11,14 @@ on:
   workflow_dispatch:
     inputs:
       library:
-        description: "Library to extract (heroui, native, or both)"
+        description: "Library to extract (all, components, theme, heroui, native)"
         required: false
-        default: "both"
+        default: "all"
         type: choice
         options:
-          - both
+          - all
+          - components
+          - theme
           - heroui
           - native
       force:
@@ -60,8 +62,10 @@ jobs:
     outputs:
       heroui-needs-update: ${{ steps.check.outputs.heroui-needs-update }}
       native-needs-update: ${{ steps.check.outputs.native-needs-update }}
+      theme-needs-update: ${{ steps.check.outputs.theme-needs-update }}
       heroui-version: ${{ steps.check.outputs.heroui-version }}
       native-version: ${{ steps.check.outputs.native-version }}
+      theme-version: ${{ steps.check.outputs.theme-version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -84,7 +88,7 @@ jobs:
         run: |
           node scripts/check-versions-ci.mjs \
             --force=${{ inputs.force }} \
-            --library=${{ inputs.library || 'both' }} \
+            --library=${{ inputs.library || 'all' }} \
             --version=${{ inputs.version }}
 
   extract-heroui:
@@ -191,10 +195,62 @@ jobs:
         run: |
           echo "❌ Failed to extract HeroUI Native components"
 
+  extract-theme:
+    name: Extract HeroUI Theme System
+    runs-on: ubuntu-latest
+    needs: [set-environment, check-versions]
+    if: needs.check-versions.outputs.theme-needs-update == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          npm install @aws-sdk/client-s3
+          npm install tsx
+
+      - name: Extract HeroUI theme system
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          ENV="${{ needs.set-environment.outputs.environment }}"
+          FLAGS=""
+
+          if [ "${{ inputs.force }}" == "true" ]; then
+            FLAGS="--force"
+          fi
+
+          # Only add version flag if we have a valid version string
+          if [ -n "${{ inputs.version }}" ]; then
+            FLAGS="$FLAGS --version=${{ inputs.version }}"
+          elif [ -n "${{ needs.check-versions.outputs.theme-version }}" ] && [ "${{ needs.check-versions.outputs.theme-version }}" != "" ]; then
+            FLAGS="$FLAGS --version=${{ needs.check-versions.outputs.theme-version }}"
+          fi
+
+          ./scripts/extract.sh "$ENV" theme $FLAGS
+
+      - name: Notify success
+        if: success()
+        run: |
+          echo "✅ Successfully extracted HeroUI theme system version ${{ needs.check-versions.outputs.theme-version }}"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Failed to extract HeroUI theme system"
+
   summary:
     name: Extraction Summary
     runs-on: ubuntu-latest
-    needs: [set-environment, check-versions, extract-heroui, extract-native]
+    needs: [set-environment, check-versions, extract-heroui, extract-native, extract-theme]
     if: always()
     steps:
       - name: Create summary
@@ -223,6 +279,16 @@ jobs:
             fi
           else
             echo "ℹ️ **HeroUI Native**: No update needed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.check-versions.outputs.theme-needs-update }}" == "true" ]; then
+            if [ "${{ needs.extract-theme.result }}" == "success" ]; then
+              echo "✅ **HeroUI Theme**: Successfully extracted version ${{ needs.check-versions.outputs.theme-version }}" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ **HeroUI Theme**: Failed to extract version ${{ needs.check-versions.outputs.theme-version }}" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "ℹ️ **HeroUI Theme**: No update needed" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY

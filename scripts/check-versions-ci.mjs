@@ -15,7 +15,7 @@ args.forEach(arg => {
 });
 
 const forceExtract = argMap.force === 'true';
-const targetLibrary = argMap.library || 'both';
+const targetLibrary = argMap.library || 'all';
 const specificVersion = argMap.version;
 
 // Configure S3 client for R2
@@ -64,11 +64,12 @@ function setOutput(name, value) {
 async function main() {
   const results = {
     heroui: {needsUpdate: false, version: null},
-    native: {needsUpdate: false, version: null}
+    native: {needsUpdate: false, version: null},
+    theme: {needsUpdate: false, version: null}
   };
 
   // Check HeroUI
-  if (targetLibrary === 'both' || targetLibrary === 'heroui') {
+  if (targetLibrary === 'all' || targetLibrary === 'both' || targetLibrary === 'heroui' || targetLibrary === 'components') {
     const storedVersion = await getStoredVersion('heroui');
     const latestVersion = specificVersion || await getLatestVersion('@heroui/react');
 
@@ -80,7 +81,7 @@ async function main() {
   }
 
   // Check Native
-  if (targetLibrary === 'both' || targetLibrary === 'native') {
+  if (targetLibrary === 'all' || targetLibrary === 'both' || targetLibrary === 'native' || targetLibrary === 'components') {
     const storedVersion = await getStoredVersion('native');
     const latestVersion = specificVersion || await getLatestVersion('heroui-native');
 
@@ -91,9 +92,23 @@ async function main() {
     }
   }
 
+  // Check Theme
+  if (targetLibrary === 'all' || targetLibrary === 'theme') {
+    const storedVersion = await getStoredVersion('heroui-theme');
+    // Theme version follows the HeroUI React package version
+    const latestVersion = specificVersion || await getLatestVersion('@heroui/react');
+
+    if (latestVersion) {
+      results.theme.version = latestVersion;
+      results.theme.needsUpdate = forceExtract || !storedVersion || storedVersion !== latestVersion;
+      console.log(`Theme: stored=${storedVersion}, latest=${latestVersion}, needsUpdate=${results.theme.needsUpdate}`);
+    }
+  }
+
   // Set GitHub Actions outputs
   setOutput('heroui-needs-update', results.heroui.needsUpdate);
   setOutput('native-needs-update', results.native.needsUpdate);
+  setOutput('theme-needs-update', results.theme.needsUpdate);
   // Only output version if it's a valid string (not undefined/null/boolean)
   if (results.heroui.version && typeof results.heroui.version === 'string') {
     setOutput('heroui-version', results.heroui.version);
@@ -104,6 +119,11 @@ async function main() {
     setOutput('native-version', results.native.version);
   } else {
     setOutput('native-version', '');
+  }
+  if (results.theme.version && typeof results.theme.version === 'string') {
+    setOutput('theme-version', results.theme.version);
+  } else {
+    setOutput('theme-version', '');
   }
 }
 
