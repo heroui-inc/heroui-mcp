@@ -228,6 +228,21 @@ export class ComponentDataServiceR2 {
   }
 
   /**
+   * Get the latest version for a library
+   */
+  async getLatestVersion(library: string): Promise<string | null> {
+    try {
+      const versionInfo = await this.getVersionInfo();
+
+      return versionInfo[library]?.current || null;
+    } catch (error) {
+      console.error(`Error getting latest version for ${library}:`, error);
+
+      return null;
+    }
+  }
+
+  /**
    * List available versions for a library
    */
   async listVersions(library: string): Promise<string[]> {

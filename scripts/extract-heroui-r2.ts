@@ -98,11 +98,15 @@ export class HeroUIParser implements ComponentParser {
       return null;
     }
 
+    // Extract anatomy
+    const anatomy = this.extractAnatomy(lines);
+
     // Extract examples
     const examples = await this.extractExamples(lines);
 
     return {
       description,
+      anatomy,
       examples,
       importStatement,
       name: componentName,
@@ -147,6 +151,55 @@ export class HeroUIParser implements ComponentParser {
     }
 
     return `import {Component} from "@heroui/react";`;
+  }
+
+  private extractAnatomy(lines: string[]): string | undefined {
+    let inAnatomySection = false;
+    let inCodeBlock = false;
+    const anatomyCodeLines: string[] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Check for Anatomy section header
+      if (line === "### Anatomy" || line === "## Anatomy") {
+        inAnatomySection = true;
+        continue;
+      }
+
+      // If we're in the anatomy section
+      if (inAnatomySection) {
+        // Check for end of anatomy section (next heading)
+        if (line.startsWith("#") && !line.startsWith("###") && !line.startsWith("## Anatomy")) {
+          break;
+        }
+
+        // Handle code blocks
+        if (line.startsWith("```")) {
+          if (!inCodeBlock) {
+            inCodeBlock = true;
+            // Skip the opening ```tsx or ```jsx line
+            continue;
+          } else {
+            // End of code block, we're done
+            inCodeBlock = false;
+            break;
+          }
+        }
+
+        // Collect only the code content (skip descriptive text)
+        if (inCodeBlock) {
+          anatomyCodeLines.push(line);
+        }
+      }
+    }
+
+    // Return the anatomy code if we found it
+    if (anatomyCodeLines.length > 0) {
+      return anatomyCodeLines.join("\n").trim();
+    }
+
+    return undefined;
   }
 
   private extractPropsData(
@@ -213,8 +266,8 @@ export class HeroUIParser implements ComponentParser {
         continue;
       }
 
-      // Skip separator line
-      if (inPropsTable && line.includes("|---")) {
+      // Skip separator line (more robust check)
+      if (inPropsTable && /^\s*\|?\s*[-\s|]+\s*\|?\s*$/.test(line)) {
         continue;
       }
 
@@ -251,6 +304,11 @@ export class HeroUIParser implements ComponentParser {
 
   private parsePropsTable(lines: string[], targetProps: Record<string, PropDefinition>): void {
     for (const line of lines) {
+      // Skip separator lines (containing only dashes, pipes, and spaces)
+      if (/^\s*\|?\s*[-\s|]+\s*\|?\s*$/.test(line)) {
+        continue;
+      }
+
       // First, check if the line contains backticks with pipe characters (union types)
       // We need to handle these specially to avoid splitting them
       const backtickPattern = /`([^`]+)`/g;
@@ -293,13 +351,25 @@ export class HeroUIParser implements ComponentParser {
         // Clean prop name
         const name = parts[0].trim();
 
-        // Skip if name is empty or looks like a header
-        if (!name || name.toLowerCase() === "prop" || name.toLowerCase() === "attribute") {
+        // Skip if name is empty, looks like a header, or is just dashes
+        if (
+          !name ||
+          name.toLowerCase() === "prop" ||
+          name.toLowerCase() === "attribute" ||
+          name.toLowerCase() === "property" ||
+          name.toLowerCase() === "name" ||
+          /^-+$/.test(name)
+        ) {
           continue;
         }
 
         // Get type - preserve union types with escaped pipes
         const type = parts[1]?.trim() || "any";
+
+        // Skip if type is just dashes
+        if (/^-+$/.test(type)) {
+          continue;
+        }
 
         // v3 format: Prop | Type | Default | Description
         let defaultValue = "";
@@ -309,11 +379,22 @@ export class HeroUIParser implements ComponentParser {
           // Format: Prop | Type | Default | Description
           defaultValue = parts[2]?.trim() || "";
           // Remove dash for empty defaults
-          if (defaultValue === "-") defaultValue = "";
+          if (defaultValue === "-" || /^-+$/.test(defaultValue)) defaultValue = "";
           description = parts[3]?.trim() || "";
+          // Skip if description is just dashes
+          if (/^-+$/.test(description)) description = "";
         } else if (parts.length === 3) {
           // Format might be: Prop | Type | Description (no default)
-          description = parts[2]?.trim() || "";
+          const thirdPart = parts[2]?.trim() || "";
+          // Check if third part looks like a description or default value
+          if (!thirdPart.includes(" ") && thirdPart !== "-" && !thirdPart.match(/^-+$/)) {
+            // Likely a default value
+            defaultValue = thirdPart;
+          } else {
+            // Likely a description
+            description = thirdPart;
+            if (/^-+$/.test(description)) description = "";
+          }
         }
 
         targetProps[name] = {

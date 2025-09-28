@@ -32,6 +32,7 @@ export interface ComponentDefinition {
   name: string;
   description: string;
   importStatement: string;
+  anatomy?: string;
   props: Record<string, PropDefinition>;
   subComponents?: Record<
     string,

@@ -134,6 +134,10 @@ app.get("/components/:library", async (c) => {
     const service = await getDataService(c.env);
     const components = await service.listComponents(library, version);
 
+    // Get the latest version and actual version being served
+    const latestVersion = await service.getLatestVersion(library);
+    const actualVersion = version || latestVersion || "latest";
+
     const responseTime = Date.now() - startTime;
 
     // Track successful request
@@ -153,7 +157,8 @@ app.get("/components/:library", async (c) => {
 
     return c.json({
       library,
-      version: version || "latest",
+      version: actualVersion,
+      latestVersion: latestVersion || "unknown",
       components,
       count: components.length,
     });
@@ -216,6 +221,10 @@ app.get("/components/:library/:component", async (c) => {
       return c.json({error: `Component ${component} not found`}, 404);
     }
 
+    // Get the latest version and actual version being served
+    const latestVersion = await service.getLatestVersion(library);
+    const actualVersion = version || latestVersion || "latest";
+
     // Get the actual component name from the data (with correct casing)
     const allComponents = await service.getAllComponents(library, version);
     let actualComponentName = component;
@@ -243,13 +252,14 @@ app.get("/components/:library/:component", async (c) => {
     analytics?.trackFeatureUsage("api-user", "component-details", {
       library,
       component: actualComponentName,
-      version: version || "latest",
+      version: actualVersion,
     });
 
     return c.json({
       library,
       component: actualComponentName,
-      version: version || "latest",
+      version: actualVersion,
+      latestVersion: latestVersion || "unknown",
       data,
     });
   } catch (error) {
@@ -301,6 +311,10 @@ app.get("/components/:library/:component/props", async (c) => {
       return c.json({error: `Component ${component} not found`}, 404);
     }
 
+    // Get the latest version and actual version being served
+    const latestVersion = await service.getLatestVersion(library);
+    const actualVersion = version || latestVersion || "latest";
+
     // Get the actual component name from the data (with correct casing)
     const allComponents = await service.getAllComponents(library, version);
     let actualComponentName = component;
@@ -317,7 +331,7 @@ app.get("/components/:library/:component/props", async (c) => {
 
     // Format props as markdown
     const libraryName = library === "heroui" ? "HeroUI" : "HeroUI Native";
-    const versionText = version ? ` (${version})` : " (latest)";
+    const versionText = ` (${actualVersion})`;
 
     let propsText = `# ${actualComponentName} Component Props - ${libraryName}${versionText}\n\n`;
 
@@ -353,13 +367,14 @@ app.get("/components/:library/:component/props", async (c) => {
     analytics?.trackFeatureUsage("api-user", "component-props", {
       library,
       component: actualComponentName,
-      version: version || "latest",
+      version: actualVersion,
     });
 
     return c.json({
       library,
       component: actualComponentName,
-      version: version || "latest",
+      version: actualVersion,
+      latestVersion: latestVersion || "unknown",
       props: propsText,
     });
   } catch (error) {
@@ -410,6 +425,10 @@ app.get("/components/:library/:component/examples", async (c) => {
       return c.json({error: `Component ${component} not found`}, 404);
     }
 
+    // Get the latest version and actual version being served
+    const latestVersion = await service.getLatestVersion(library);
+    const actualVersion = version || latestVersion || "latest";
+
     // Get the actual component name from the data (with correct casing)
     const allComponents = await service.getAllComponents(library, version);
     let actualComponentName = component;
@@ -430,7 +449,7 @@ app.get("/components/:library/:component/examples", async (c) => {
     // If no examples, provide a default one
     if (examples.length === 0) {
       const libraryName = library === "heroui" ? "HeroUI" : "HeroUI Native";
-      const versionText = version ? ` (${version})` : " (latest)";
+      const versionText = ` (${actualVersion})`;
       const importStatement =
         library === "heroui"
           ? `import { ${actualComponentName} } from '@heroui/react';`
@@ -472,7 +491,8 @@ app.get("/components/:library/:component/examples", async (c) => {
     return c.json({
       library,
       component: actualComponentName,
-      version: version || "latest",
+      version: actualVersion,
+      latestVersion: latestVersion || "unknown",
       examples,
     });
   } catch (error) {

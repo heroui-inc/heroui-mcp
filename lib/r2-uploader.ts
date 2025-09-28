@@ -1,13 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * R2 Storage Uploader
  * Handles uploading extracted component data to Cloudflare R2
  */
 
 import {
-  S3Client,
-  PutObjectCommand,
   GetObjectCommand,
   ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client,
 } from "@aws-sdk/client-s3";
 
 export interface R2Config {
@@ -124,12 +125,15 @@ export class R2Uploader {
 
       if (response.Body) {
         const text = await response.Body.transformToString();
+
         return JSON.parse(text);
       }
+
       return {};
     } catch (error: any) {
       if (error.name === "NoSuchKey") {
         console.log("No existing metadata found, starting fresh");
+
         return {};
       }
       throw error;
@@ -154,10 +158,48 @@ export class R2Uploader {
         return [];
       }
 
-      return response.Contents.map((obj) => obj.Key || "")
+      const versions = response.Contents.map((obj) => obj.Key || "")
         .filter((key) => key.endsWith(".json"))
-        .map((key) => key.replace(prefix, "").replace(".json", ""))
-        .sort();
+        .map((key) => key.replace(prefix, "").replace(".json", ""));
+
+      // Sort versions semantically (newest first)
+      return versions.sort((a, b) => {
+        // Remove 'v' prefix for comparison
+        const versionA = a.replace(/^v/, "");
+        const versionB = b.replace(/^v/, "");
+
+        // Split into parts for semantic comparison
+        const partsA = versionA.split(/[.-]/).map((p) => {
+          const num = parseInt(p, 10);
+
+          return isNaN(num) ? p : num;
+        });
+        const partsB = versionB.split(/[.-]/).map((p) => {
+          const num = parseInt(p, 10);
+
+          return isNaN(num) ? p : num;
+        });
+
+        // Compare each part
+        for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+          const partA = partsA[i] ?? 0;
+          const partB = partsB[i] ?? 0;
+
+          // Handle string vs number comparison
+          if (typeof partA === "string" && typeof partB === "string") {
+            if (partA < partB) return 1; // Reverse for newest first
+            if (partA > partB) return -1;
+          } else if (typeof partA === "number" && typeof partB === "number") {
+            if (partA < partB) return 1; // Reverse for newest first
+            if (partA > partB) return -1;
+          } else {
+            // Numbers come before strings (e.g., "31" before "alpha")
+            return typeof partA === "number" ? 1 : -1;
+          }
+        }
+
+        return 0;
+      });
     } catch (error) {
       console.error(`❌ Failed to list versions:`, error);
       throw error;
@@ -177,6 +219,7 @@ export class R2Uploader {
           Key: key,
         }),
       );
+
       return true;
     } catch (error: any) {
       if (error.name === "NoSuchKey") {

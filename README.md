@@ -118,6 +118,19 @@ List all available components in a library.
 }
 ```
 
+### `get_component_info`
+
+Get complete information about a specific component including description, anatomy, props, and examples.
+
+```javascript
+// Parameters
+{
+  library: "heroui" | "native",  // Required
+  component: "Button",           // Required
+  version?: "v3.0.0"            // Optional
+}
+```
+
 ### `get_component_props`
 
 Get detailed props information for a specific component.

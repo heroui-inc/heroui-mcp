@@ -38,6 +38,7 @@ export interface ComponentData {
   name: string;
   description?: string;
   importStatement?: string;
+  anatomy?: string;
   props: Record<string, ComponentProp>;
   examples?: ComponentExample[];
 }

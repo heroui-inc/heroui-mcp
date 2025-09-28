@@ -3,12 +3,14 @@ import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import {checkVersionTool} from "./check-version";
 import {getComponentExamplesTool} from "./get-component-examples";
+import {getComponentInfoTool} from "./get-component-info";
 import {getComponentPropsTool} from "./get-component-props";
 import {listComponentsTool} from "./list-components";
 
 // All available tools
 const tools: Tool[] = [
   listComponentsTool,
+  getComponentInfoTool,
   getComponentPropsTool,
   getComponentExamplesTool,
   checkVersionTool,
