@@ -1,3 +1,12 @@
+# [1.0.0-alpha.9](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.8...v1.0.0-alpha.9) (2025-09-28)
+
+
+### Features
+
+* add CSS class extraction and source/styles endpoints for components ([42696fd](https://github.com/heroui-inc/heroui-mcp/commit/42696fd6554c33749116ed84faf2bfd83b530483))
+
+
+
 # [1.0.0-alpha.8](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.7...v1.0.0-alpha.8) (2025-09-28)
 
 
