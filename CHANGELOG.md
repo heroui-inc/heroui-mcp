@@ -1,3 +1,17 @@
+# [1.0.0-alpha.8](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.7...v1.0.0-alpha.8) (2025-09-28)
+
+
+### Bug Fixes
+
+* update version handling in extraction scripts to filter out invalid values ([55402a2](https://github.com/heroui-inc/heroui-mcp/commit/55402a2d45722fd856f80c75fbd1d97f4fce7eb8))
+
+
+### Features
+
+* add get_component_info tool to retrieve detailed component information including anatomy and examples ([9796bf4](https://github.com/heroui-inc/heroui-mcp/commit/9796bf402b3207176d09221edc40821ab4932189))
+
+
+
 # [1.0.0-alpha.7](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.6...v1.0.0-alpha.7) (2025-09-27)
 
 
