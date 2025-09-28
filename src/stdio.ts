@@ -25,6 +25,45 @@ async function createServer(): Promise<McpServer> {
   const server = new McpServer({
     name: packageInfo.name,
     version: packageInfo.version,
+    instructions: `## HeroUI MCP Tools - Quick Start Guide
+
+Welcome to HeroUI MCP! These tools help you work with HeroUI v3 components effectively.
+
+### Essential Workflow
+Always follow this order when implementing HeroUI components:
+
+1. **list_components** - Check available components
+2. **get_component_info** - Get complete API and anatomy
+3. **get_component_props** - Review TypeScript types
+4. **get_component_examples** - See usage patterns
+
+### Key Points
+• HeroUI v3 uses compound components (e.g., Card.Header, Card.Content)
+• Requires Tailwind CSS v4 (v3 not supported)
+• Built on React Aria for full accessibility
+• Uses OKLCH color format for theming
+
+### Example Usage
+\`\`\`javascript
+// First, check component structure
+get_component_info({ library: "heroui", component: "Card" })
+
+// Then implement with correct anatomy
+<Card>
+  <Card.Header>
+    <Card.Title>Title</Card.Title>
+  </Card.Header>
+  <Card.Content>Content</Card.Content>
+</Card>
+\`\`\`
+
+### Pro Tips
+• Never guess component APIs - always use tools first
+• Check anatomy for compound component structure
+• Use get_theme_info for customization variables
+• Query design guides for best practices
+
+For detailed guidelines, see: https://v3.heroui.com/llms-full.txt`,
     capabilities: {
       tools: {
         listChanged: true,
