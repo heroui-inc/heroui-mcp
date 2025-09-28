@@ -5,6 +5,7 @@ import {checkVersionTool} from "./check-version";
 import {getComponentExamplesTool} from "./get-component-examples";
 import {getComponentInfoTool} from "./get-component-info";
 import {getComponentPropsTool} from "./get-component-props";
+import {getComponentSourceTool} from "./get-component-source";
 import {listComponentsTool} from "./list-components";
 
 // All available tools
@@ -13,6 +14,7 @@ const tools: Tool[] = [
   getComponentInfoTool,
   getComponentPropsTool,
   getComponentExamplesTool,
+  getComponentSourceTool,
   checkVersionTool,
 ];
 

@@ -28,6 +28,17 @@ export interface ComponentExample {
   content: string;
 }
 
+export interface CssClass {
+  name: string;
+  description: string;
+}
+
+export interface ComponentSourceLinks {
+  source?: string; // Path to the React/TS source file
+  styles?: string; // Path to the CSS file
+  [key: string]: string | undefined | boolean; // Allow any other source link
+}
+
 export interface ComponentDefinition {
   name: string;
   description: string;
@@ -42,6 +53,8 @@ export interface ComponentDefinition {
     }
   >;
   examples?: ComponentExample[];
+  cssClasses?: CssClass[];
+  links?: ComponentSourceLinks;
 }
 
 export interface ComponentParser {

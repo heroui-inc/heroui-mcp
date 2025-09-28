@@ -102,6 +102,8 @@ app.get("/", (c) => {
       "/components/:library/:component": "Get component details",
       "/components/:library/:component/props": "Get component props",
       "/components/:library/:component/examples": "Get component examples",
+      "/components/:library/:component/source": "Get component source code",
+      "/components/:library/:component/styles": "Get component CSS styles",
       "/versions": "Get version information",
       "/versions/:package": "Check specific package version",
     },
@@ -613,6 +615,132 @@ app.get("/versions/:package", async (c) => {
     return c.json(
       {
         error: "Failed to check version",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500,
+    );
+  }
+});
+
+// Get component source code
+app.get("/components/:library/:component/source", async (c) => {
+  const library = c.req.param("library") as "heroui" | "native";
+  const component = c.req.param("component");
+  const version = c.req.query("version");
+
+  initAnalytics(c.env);
+  const analytics = getAnalytics();
+
+  if (!["heroui", "native"].includes(library)) {
+    return c.json({error: "Invalid library. Must be 'heroui' or 'native'"}, 400);
+  }
+
+  try {
+    const service = await getDataService(c.env);
+    const data = await service.getComponent(library, component, version);
+
+    if (!data || !data.links?.source) {
+      return c.json({error: `Source code not available for ${component}`}, 404);
+    }
+
+    // Construct GitHub raw URL
+    const branch = version ? version.replace(/^v/, "") : "v3";
+    const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
+    const sourceUrl = `${baseUrl}/packages/react/src/components/${data.links.source}`;
+
+    // Fetch source code from GitHub
+    const response = await fetch(sourceUrl);
+    if (!response.ok) {
+      return c.json({error: `Failed to fetch source code from GitHub`}, 500);
+    }
+
+    const sourceCode = await response.text();
+
+    analytics?.trackFeatureUsage("api-user", "component-source", {
+      library,
+      component,
+      version,
+    });
+
+    return c.json({
+      library,
+      component,
+      version: version || "latest",
+      filePath: data.links.source,
+      sourceCode,
+      githubUrl: sourceUrl
+        .replace("raw.githubusercontent.com", "github.com")
+        .replace("/refs/heads/", "/blob/"),
+    });
+  } catch (error) {
+    console.error("Error getting component source:", error);
+
+    return c.json(
+      {
+        error: "Failed to get component source code",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500,
+    );
+  }
+});
+
+// Get component styles
+app.get("/components/:library/:component/styles", async (c) => {
+  const library = c.req.param("library") as "heroui" | "native";
+  const component = c.req.param("component");
+  const version = c.req.query("version");
+
+  initAnalytics(c.env);
+  const analytics = getAnalytics();
+
+  if (!["heroui", "native"].includes(library)) {
+    return c.json({error: "Invalid library. Must be 'heroui' or 'native'"}, 400);
+  }
+
+  try {
+    const service = await getDataService(c.env);
+    const data = await service.getComponent(library, component, version);
+
+    if (!data || !data.links?.styles) {
+      return c.json({error: `Styles not available for ${component}`}, 404);
+    }
+
+    // Construct GitHub raw URL
+    const branch = version ? version.replace(/^v/, "") : "v3";
+    const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
+    const stylesUrl = `${baseUrl}/packages/styles/components/${data.links.styles}`;
+
+    // Fetch styles from GitHub
+    const response = await fetch(stylesUrl);
+    if (!response.ok) {
+      return c.json({error: `Failed to fetch styles from GitHub`}, 500);
+    }
+
+    const stylesCode = await response.text();
+
+    analytics?.trackFeatureUsage("api-user", "component-styles", {
+      library,
+      component,
+      version,
+    });
+
+    return c.json({
+      library,
+      component,
+      version: version || "latest",
+      filePath: data.links.styles,
+      stylesCode,
+      githubUrl: stylesUrl
+        .replace("raw.githubusercontent.com", "github.com")
+        .replace("/refs/heads/", "/blob/"),
+    });
+  } catch (error) {
+    console.error("Error getting component styles:", error);
+
+    return c.json(
+      {
+        error: "Failed to get component styles",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       500,

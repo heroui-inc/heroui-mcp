@@ -9,6 +9,8 @@ import type {
   ComponentDefinition,
   ComponentExample,
   ComponentParser,
+  ComponentSourceLinks,
+  CssClass,
   PropDefinition,
 } from "../lib/base-extractor";
 import type {ComponentDataset} from "../src/types";
@@ -104,6 +106,12 @@ export class HeroUIParser implements ComponentParser {
     // Extract examples
     const examples = await this.extractExamples(lines);
 
+    // Extract CSS classes
+    const cssClasses = this.extractCssClasses(lines);
+
+    // Extract source links from frontmatter
+    const links = this.extractSourceLinks(frontmatter);
+
     return {
       description,
       anatomy,
@@ -112,12 +120,18 @@ export class HeroUIParser implements ComponentParser {
       name: componentName,
       props: propsData.props,
       subComponents: propsData.subComponents,
+      cssClasses,
+      links,
     };
   }
 
-  private extractFrontmatter(lines: string[]): Record<string, string> {
-    const frontmatter: Record<string, string> = {};
+  private extractFrontmatter(lines: string[]): Record<string, any> {
+    const frontmatter: Record<string, any> = {};
     let inFrontmatter = false;
+    let currentIndent = 0;
+    let currentObject: any = frontmatter;
+    let objectStack: any[] = [];
+    let keyStack: string[] = [];
 
     for (const line of lines) {
       if (line === "---") {
@@ -126,13 +140,48 @@ export class HeroUIParser implements ComponentParser {
         continue;
       }
 
-      if (inFrontmatter && line.includes(":")) {
-        const [key, ...valueParts] = line.split(":");
-        const value = valueParts
-          .join(":")
-          .trim()
-          .replace(/^["']|["']$/g, "");
-        frontmatter[key.trim()] = value;
+      if (inFrontmatter) {
+        const indent = line.search(/\S/);
+        if (indent === -1) continue; // Skip empty lines
+
+        if (line.includes(":")) {
+          const colonIndex = line.indexOf(":");
+          const key = line.substring(indent, colonIndex).trim();
+          const valueStr = line.substring(colonIndex + 1).trim();
+
+          if (valueStr === "" || valueStr === null) {
+            // This is a nested object
+            const newObject: Record<string, any> = {};
+
+            if (indent === 0) {
+              frontmatter[key] = newObject;
+              currentObject = newObject;
+              objectStack = [frontmatter];
+              keyStack = [key];
+            } else {
+              currentObject[key] = newObject;
+              objectStack.push(currentObject);
+              keyStack.push(key);
+              currentObject = newObject;
+            }
+            currentIndent = indent;
+          } else {
+            // This is a key-value pair
+            const value = valueStr.replace(/^["']|["']$/g, "");
+
+            if (indent === 0) {
+              frontmatter[key] = value;
+            } else {
+              // Nested value
+              while (objectStack.length > 0 && indent <= currentIndent) {
+                currentObject = objectStack.pop();
+                keyStack.pop();
+                currentIndent -= 2;
+              }
+              currentObject[key] = value === "true" ? true : value === "false" ? false : value;
+            }
+          }
+        }
       }
     }
 
@@ -434,6 +483,71 @@ export class HeroUIParser implements ComponentParser {
     }
 
     return examples;
+  }
+
+  private extractSourceLinks(frontmatter: Record<string, any>): ComponentSourceLinks | undefined {
+    const links: ComponentSourceLinks = {};
+
+    // Check if links object exists in frontmatter
+    if (frontmatter.links && typeof frontmatter.links === "object") {
+      const linksObj = frontmatter.links;
+      if (linksObj.source) links.source = linksObj.source;
+      if (linksObj.styles) links.styles = linksObj.styles;
+    }
+
+    return Object.keys(links).length > 0 ? links : undefined;
+  }
+
+  private extractCssClasses(lines: string[]): CssClass[] | undefined {
+    const cssClasses: CssClass[] = [];
+    let inCssSection = false;
+    let inBaseClasses = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Check for CSS Classes section (case insensitive and flexible)
+      // But skip if it's about "Passing Tailwind CSS classes"
+      if (
+        line.toLowerCase().includes("css classes") &&
+        !line.toLowerCase().includes("passing") &&
+        !line.toLowerCase().includes("tailwind") &&
+        line.startsWith("#")
+      ) {
+        inCssSection = true;
+        continue;
+      }
+
+      // Check for Base Classes subsection
+      if (inCssSection && line.toLowerCase().includes("base classes") && line.startsWith("#")) {
+        inBaseClasses = true;
+        continue;
+      }
+
+      // Stop if we hit another section
+      if (
+        inCssSection &&
+        line.startsWith("#") &&
+        !line.toLowerCase().includes("base classes") &&
+        !line.toLowerCase().includes("css classes")
+      ) {
+        break;
+      }
+
+      // Extract CSS class entries (looking for bullet points with class names)
+      if (inBaseClasses && line.startsWith("- ")) {
+        // Parse lines like: - `.kbd` - Base keyboard key styles with background, border, and spacing
+        const classMatch = line.match(/^-\s*`\.([^`]+)`\s*-\s*(.*)$/);
+        if (classMatch) {
+          cssClasses.push({
+            name: `.${classMatch[1]}`,
+            description: classMatch[2].trim(),
+          });
+        }
+      }
+    }
+
+    return cssClasses.length > 0 ? cssClasses : undefined;
   }
 }
 

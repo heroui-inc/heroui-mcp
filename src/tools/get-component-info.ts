@@ -42,6 +42,11 @@ export const getComponentInfoTool: Tool = {
               props: Record<string, any>;
               subComponents?: Record<string, any>;
               examples?: Array<{name: string; content: string}>;
+              cssClasses?: Array<{name: string; description: string}>;
+              links?: {
+                source?: string;
+                styles?: string;
+              };
             };
           }>(endpoint, config.apiBaseUrl);
 
@@ -106,6 +111,31 @@ export const getComponentInfoTool: Tool = {
               }
               responseText += "\n";
             });
+          }
+
+          // Add CSS classes
+          if (response.data.cssClasses && response.data.cssClasses.length > 0) {
+            responseText += `## CSS Classes (BEM)\n`;
+            responseText += `HeroUI v3 follows the BEM pattern for styling components. You can customize these classes globally:\n\n`;
+            response.data.cssClasses.forEach((cssClass) => {
+              responseText += `- **${cssClass.name}** - ${cssClass.description}\n`;
+            });
+            responseText += "\n";
+          }
+
+          // Add source links
+          if (response.data.links) {
+            responseText += `## Source Code\n`;
+            if (response.data.links.source || response.data.links.styles) {
+              responseText += `Use the \`get_component_source\` tool to retrieve:\n`;
+              if (response.data.links.source) {
+                responseText += `- React/TypeScript implementation\n`;
+              }
+              if (response.data.links.styles) {
+                responseText += `- CSS styles\n`;
+              }
+              responseText += "\n";
+            }
           }
 
           // Add examples count
