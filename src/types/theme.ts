@@ -17,7 +17,7 @@ export interface ThemeVariables {
 }
 
 export interface ThemeDefinition {
-  name: string; // Theme name (e.g., "default", "glass")
+  name: string; // Theme name (e.g., "default")
   light: ThemeVariables; // Light mode variables
   dark: ThemeVariables; // Dark mode variables
   components?: string; // Optional component-specific CSS overrides
@@ -25,7 +25,7 @@ export interface ThemeDefinition {
 
 // Optimized theme structure that extracts common variables
 export interface OptimizedThemeDefinition {
-  name: string; // Theme name (e.g., "default", "glass")
+  name: string; // Theme name (e.g., "default")
   common: {
     base: CSSVariable[]; // Base variables shared between modes
     calculated: CSSVariable[]; // Calculated variables shared between modes
@@ -87,7 +87,7 @@ export interface ThemeSystem {
 
 export interface ThemeGenerationOptions {
   name: string;
-  baseTheme: "default" | "glass"; // Base theme to extend from
+  baseTheme: "default"; // Base theme to extend from
   mode: "light" | "dark" | "both";
   colors?: {
     accent?: string;

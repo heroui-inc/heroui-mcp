@@ -194,6 +194,7 @@ export default defineConfig([
       "!scripts/**",
       "scripts/check-versions-ci.mjs", // Ignore .mjs file that has parser issues
       "eslint.config.js",
+      "tsup.config.ts",
     ],
   },
 ]);

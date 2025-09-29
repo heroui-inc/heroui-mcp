@@ -19,7 +19,6 @@ const inputSchema = z.object({
 export const getComponentExamplesTool: Tool = {
   name: "get_component_examples",
   description: "Get usage examples for a specific HeroUI or HeroUI Native component",
-
   exec(server, {config, name, description}) {
     const handler = async ({library, component, version}: z.infer<typeof inputSchema>) => {
       try {

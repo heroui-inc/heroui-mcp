@@ -82,7 +82,7 @@ class HeroUIThemeExtractor {
     let content = "";
 
     // Escape the selector for use in regex
-    const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     // Pattern 1: @layer base { .dark, [data-theme="dark"] { ... } }
     // Handle comma-separated selectors
@@ -348,7 +348,7 @@ class HeroUIThemeExtractor {
           },
           components: componentCSS || undefined,
         },
-      } as ThemeDefinition & { optimized: any };
+      } as ThemeDefinition & {optimized: any};
     } catch (error) {
       console.error(`    Failed to extract ${themeName} theme:`, error);
 
@@ -420,7 +420,7 @@ class HeroUIThemeExtractor {
 
     // Extract themes
     const themes: Record<string, ThemeDefinition> = {};
-    const themeNames = ["default", "glass"]; // Add more as they become available
+    const themeNames = ["default"]; // Add more as they become available
 
     for (const themeName of themeNames) {
       const theme = await this.extractTheme(themeName);

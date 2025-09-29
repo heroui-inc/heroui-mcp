@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type {Env} from "../types";
+
 import {Hono} from "hono";
 
 import {packageInfo} from "../../lib/package-info";
-import {Env} from "../types";
 import {getAnalytics, getDataService, initAnalytics} from "../services";
 
 const versions = new Hono<{Bindings: Env}>();

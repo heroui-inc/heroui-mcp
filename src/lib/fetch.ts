@@ -2,6 +2,7 @@
 /**
  * Fetch utilities for HeroUI MCP API endpoints
  */
+import {API_BASE_URL} from "../constants";
 
 export interface VersionCheckResult {
   isLatest: boolean;
@@ -11,14 +12,11 @@ export interface VersionCheckResult {
   message: string;
 }
 
-// Default API base URL
-const DEFAULT_API_URL = "https://mcp-api.heroui.com";
-
 /**
  * Get the base API URL from config or environment
  */
 export function getApiBaseUrl(configUrl?: string): string {
-  return configUrl || process.env.HEROUI_API_URL || DEFAULT_API_URL;
+  return configUrl || API_BASE_URL;
 }
 
 /**

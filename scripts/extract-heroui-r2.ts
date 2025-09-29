@@ -13,7 +13,7 @@ import type {
   CssClass,
   PropDefinition,
 } from "../lib/base-extractor";
-import type {ComponentDataset} from "../src/types";
+import type {ComponentDataset} from "../src/types/data";
 
 import * as path from "path";
 

@@ -8,15 +8,9 @@
 import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
 
+import {API_BASE_URL} from "./constants";
 import {packageInfo} from "./lib/package-info";
 import {initializeTools} from "./tools";
-
-// API client configuration
-// Use local development server when running in dev mode
-const isDevelopment = process.env.NODE_ENV === "development" || process.argv.includes("--dev");
-const API_BASE_URL =
-  process.env.HEROUI_API_URL ||
-  (isDevelopment ? "http://localhost:8787" : "https://mcp-api.heroui.com");
 
 /**
  * Create and configure the MCP server
@@ -41,7 +35,6 @@ Always follow this order when implementing HeroUI components:
 • HeroUI v3 uses compound components (e.g., Card.Header, Card.Content)
 • Requires Tailwind CSS v4 (v3 not supported)
 • Built on React Aria for full accessibility
-• Uses OKLCH color format for theming
 
 ### Example Usage
 \`\`\`javascript

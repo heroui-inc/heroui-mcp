@@ -1,4 +1,4 @@
-import { defineConfig } from "tsup";
+import {defineConfig} from "tsup";
 import packageJson from "./package.json";
 
 export default defineConfig({
@@ -13,6 +13,7 @@ export default defineConfig({
   clean: true,
   minify: false,
   sourcemap: false,
+  treeshake: true,
   external: ["@modelcontextprotocol/sdk"],
   banner: {
     js: "#!/usr/bin/env node",

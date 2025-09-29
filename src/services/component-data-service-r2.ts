@@ -7,7 +7,7 @@
 // Import polyfills first - must be before AWS SDK imports
 import "../lib/domparser-polyfill";
 
-import type {ComponentData, ComponentDataset, VersionInfo} from "../types";
+import type {ComponentData, ComponentDataset, VersionInfo} from "../types/data";
 
 import {GetObjectCommand, ListObjectsV2Command, S3Client} from "@aws-sdk/client-s3";
 

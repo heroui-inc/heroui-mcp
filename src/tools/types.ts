@@ -17,13 +17,10 @@ export interface Tool<T = unknown> {
   name: string;
   description: string;
   inputSchema?: Record<string, unknown>;
-
   // Optional context initialization
   ctx?(): Promise<T> | T | void;
-
   // Check if tool should be disabled
   disabled?(config: ToolConfig): boolean;
-
   // Execute the tool
   exec(
     server: McpServer,

@@ -26,7 +26,6 @@ export const getThemeInfoTool: Tool = {
   name: "get_theme_info",
   description:
     "Get HeroUI theme information including CSS variables, color values, and design tokens for customization",
-
   exec(server, {config, name, description}) {
     const handler = async ({
       theme,
@@ -84,6 +83,14 @@ export const getThemeInfoTool: Tool = {
 
           return {
             content: [
+              // TODO: Add a explanation message which add context about each category/token purpose
+              // e.g
+              /*
+               * {
+               *  type: "text",
+               *  text: `[EXPLAIN TOKENS PURPOSE/CATEGORIES/ETC]`
+               * },
+               */
               {
                 type: "text",
                 text: responseText,
@@ -92,7 +99,7 @@ export const getThemeInfoTool: Tool = {
           };
         } catch (error: any) {
           if (error.status === 404) {
-            throw new Error(`Theme "${theme}" not found. Available themes: default, glass`);
+            throw new Error(`Theme "${theme}" not found. Available themes: default`);
           }
           throw error;
         }

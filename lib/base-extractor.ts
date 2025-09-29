@@ -3,7 +3,7 @@
  */
 
 import type {GitHubClient} from "./github-client";
-import type {ComponentDataset} from "../src/types";
+import type {ComponentDataset} from "../src/types/data";
 
 import {dataStore} from "./data-store";
 import {SimpleGitHubClient} from "./github-client";

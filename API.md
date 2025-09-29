@@ -17,9 +17,11 @@ The API is public and does not require authentication.
 ### Core Information
 
 #### `GET /`
+
 Returns API information and available endpoints.
 
 **Response:**
+
 ```json
 {
   "name": "HeroUI MCP API",
@@ -30,9 +32,11 @@ Returns API information and available endpoints.
 ```
 
 #### `GET /health`
+
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -44,13 +48,16 @@ Health check endpoint.
 ### Component Endpoints
 
 #### `GET /components/:library`
+
 List all components in a library.
 
 **Parameters:**
+
 - `library` (path): `"heroui"` | `"native"` - Required
 - `version` (query): Version string (e.g., "v3.0.0") - Optional
 
 **Response:**
+
 ```json
 {
   "library": "heroui",
@@ -62,14 +69,17 @@ List all components in a library.
 ```
 
 #### `GET /components/:library/:component`
+
 Get complete component information.
 
 **Parameters:**
+
 - `library` (path): `"heroui"` | `"native"` - Required
 - `component` (path): Component name - Required
 - `version` (query): Version string - Optional
 
 **Response:**
+
 ```json
 {
   "library": "heroui",
@@ -90,14 +100,17 @@ Get complete component information.
 ```
 
 #### `GET /components/:library/:component/props`
+
 Get component props documentation.
 
 **Parameters:**
+
 - `library` (path): `"heroui"` | `"native"` - Required
 - `component` (path): Component name - Required
 - `version` (query): Version string - Optional
 
 **Response:**
+
 ```json
 {
   "library": "heroui",
@@ -109,14 +122,17 @@ Get component props documentation.
 ```
 
 #### `GET /components/:library/:component/examples`
+
 Get component usage examples.
 
 **Parameters:**
+
 - `library` (path): `"heroui"` | `"native"` - Required
 - `component` (path): Component name - Required
 - `version` (query): Version string - Optional
 
 **Response:**
+
 ```json
 {
   "library": "heroui",
@@ -133,14 +149,17 @@ Get component usage examples.
 ```
 
 #### `GET /components/:library/:component/source`
+
 Get component source code.
 
 **Parameters:**
+
 - `library` (path): `"heroui"` | `"native"` - Required
 - `component` (path): Component name - Required
 - `version` (query): Version string - Optional
 
 **Response:**
+
 ```json
 {
   "library": "heroui",
@@ -153,14 +172,17 @@ Get component source code.
 ```
 
 #### `GET /components/:library/:component/styles`
+
 Get component CSS styles.
 
 **Parameters:**
+
 - `library` (path): `"heroui"` | `"native"` - Required
 - `component` (path): Component name - Required
 - `version` (query): Version string - Optional
 
 **Response:**
+
 ```json
 {
   "library": "heroui",
@@ -175,9 +197,11 @@ Get component CSS styles.
 ### Theme Endpoints
 
 #### `GET /themes`
+
 Get complete theme system data.
 
 **Response:**
+
 ```json
 {
   "version": "3.0.0-alpha.31",
@@ -191,14 +215,17 @@ Get complete theme system data.
 ```
 
 #### `GET /themes/variables`
+
 Get theme CSS variables with optimized structure (common variables extracted).
 
 **Query Parameters:**
+
 - `theme`: Theme name (e.g., `"default"`) - Optional, returns all themes if not specified
 - `mode`: `"light"` | `"dark"` - Optional, only applies when specific theme is requested
 - `version`: Version string - Optional
 
 **Response (When no theme specified - returns array):**
+
 ```json
 {
   "themes": [
@@ -211,7 +238,7 @@ Get theme CSS variables with optimized structure (common variables extracted).
             "value": "oklch(100% 0 0)",
             "description": "Primitive Colors (Do not change between light and dark)",
             "category": "misc"
-          },
+          }
           // ... other base variables shared between modes
         ],
         "calculated": [
@@ -242,6 +269,7 @@ Get theme CSS variables with optimized structure (common variables extracted).
 ```
 
 **Response (When specific theme requested without mode):**
+
 ```json
 {
   "theme": "default",
@@ -261,6 +289,7 @@ Get theme CSS variables with optimized structure (common variables extracted).
 ```
 
 **Response (When specific theme and mode requested):**
+
 ```json
 {
   "theme": "default",
@@ -276,14 +305,17 @@ Get theme CSS variables with optimized structure (common variables extracted).
 ```
 
 #### `GET /themes/colors`
+
 Get theme color variables.
 
 **Query Parameters:**
+
 - `theme`: Theme name (e.g., `"default"`) - Optional, returns all themes if not specified
 - `mode`: `"light"` | `"dark"` - Optional, returns both modes if not specified
 - `version`: Version string - Optional
 
 **Response (When no theme and no mode specified - returns all themes with both modes):**
+
 ```json
 {
   "themes": [
@@ -317,6 +349,7 @@ Get theme color variables.
 ```
 
 **Response (When specific theme requested without mode - returns both modes):**
+
 ```json
 {
   "theme": "default",
@@ -344,6 +377,7 @@ Get theme color variables.
 ```
 
 **Response (When specific theme and mode requested):**
+
 ```json
 {
   "theme": "default",
@@ -363,12 +397,15 @@ Get theme color variables.
 ```
 
 #### `GET /themes/animations`
+
 Get animation timings and presets.
 
 **Query Parameters:**
+
 - `version`: Version string - Optional
 
 **Response:**
+
 ```json
 {
   "timings": [
@@ -391,9 +428,11 @@ Get animation timings and presets.
 ```
 
 #### `GET /themes/versions`
+
 Get available theme versions.
 
 **Response:**
+
 ```json
 {
   "latest": "3.0.0-alpha.31",
@@ -402,14 +441,17 @@ Get available theme versions.
 ```
 
 #### `GET /docs/:guide`
+
 Get documentation guides.
 
 **Parameters:**
+
 - `guide` (path): Guide name - Required
   - Valid values: `"theming"`, `"colors"`, `"styling"`, `"animation"`,
     `"composition"`, `"design-principles"`, `"quick-start"`
 
 **Response:**
+
 ```json
 {
   "title": "Theming Guide",
@@ -422,9 +464,11 @@ Get documentation guides.
 ### Version Endpoints
 
 #### `GET /versions`
+
 Get all version information.
 
 **Response:**
+
 ```json
 {
   "heroui": {
@@ -442,12 +486,15 @@ Get all version information.
 ```
 
 #### `GET /versions/:package`
+
 Check specific package version.
 
 **Parameters:**
+
 - `package` (path): `"heroui"` | `"native"` | `"mcp"` - Required
 
 **Response:**
+
 ```json
 {
   "package": "heroui",
