@@ -1,6 +1,6 @@
 {
   "name": "@heroui/mcp",
-  "version": "1.0.0-alpha.14",
+  "version": "1.0.0-alpha.15",
   "type": "module",
   "description": "MCP server for HeroUI component documentation via Model Context Protocol",
   "main": "dist/stdio.js",

@@ -1,3 +1,18 @@
+# [1.0.0-alpha.15](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.14...v1.0.0-alpha.15) (2025-09-30)
+
+
+### Bug Fixes
+
+* source apis wrong branch ([3e993eb](https://github.com/heroui-inc/heroui-mcp/commit/3e993eb77a169c81ade1451d6816d8b4f90c2d64))
+
+
+### Features
+
+* enhance installation guide for HeroUI v3 with new framework support and detailed examples for Astro, Vite, and Next.js ([c83e1ef](https://github.com/heroui-inc/heroui-mcp/commit/c83e1ef32102a6aa4cbb83c939cb5d722eec7cc2))
+* mastra playground for testing ([59fdb0d](https://github.com/heroui-inc/heroui-mcp/commit/59fdb0d1139fe8e3f12b03e99d3e8ad30b082ce4))
+
+
+
 # [1.0.0-alpha.14](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.13...v1.0.0-alpha.14) (2025-09-30)
 
 
