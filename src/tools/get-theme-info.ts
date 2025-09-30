@@ -10,22 +10,38 @@ const inputSchema = z.object({
     .string()
     .optional()
     .describe(
-      "The theme to get info for (e.g., 'default'). If not specified, returns all available themes",
+      `Theme name (default: "default").
+Currently only "default" theme is available in HeroUI v3 alpha.
+Leave empty to see all available themes.`,
     ),
-  mode: z
-    .enum(["light", "dark", "both"])
-    .optional()
-    .describe("The color mode to get variables for. Defaults to 'both'"),
+  mode: z.enum(["light", "dark", "both"]).optional()
+    .describe(`Color mode: "light" for light theme, "dark" for dark theme, "both" for all modes.
+HeroUI v3 supports automatic dark mode with [data-theme="dark"] or .dark class.
+Defaults to 'both' to show all available variables.`),
   category: z
     .enum(["colors", "typography", "spacing", "borders", "shadows", "animations", "all"])
-    .optional()
-    .describe("Specific category of variables to retrieve. Defaults to 'all'"),
+    .optional().describe(`Filter variables by design category:
+- "colors": Color tokens (accent, success, danger, background, foreground)
+- "typography": Font sizes, weights, line heights
+- "spacing": Margin, padding, gap values
+- "borders": Border radius, widths, colors
+- "shadows": Box shadows and elevations
+- "animations": Durations, timing functions
+- "all": Return everything (default)`),
 });
 
 export const getThemeInfoTool: Tool = {
   name: "get_theme_info",
-  description:
-    "Get HeroUI theme information including CSS variables, color values, and design tokens for customization",
+  description: `Get HeroUI v3 theme CSS variables and design tokens for customization.
+Returns organized CSS custom properties that control the entire design system.
+Variables follow a three-layer system: primitives → semantic → calculated.
+Use for customizing colors, spacing, typography, borders, shadows, animations.
+Variables use modern oklch() color format for better color manipulation.
+Apply these in your CSS with :root or theme-specific selectors.
+Example variables: --color-accent, --radius-md, --font-size-body, --spacing-4.
+Category options help filter to specific design aspects.
+Mode options (light/dark) show theme-specific values.
+IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
   exec(server, {config, name, description}) {
     const handler = async ({
       theme,

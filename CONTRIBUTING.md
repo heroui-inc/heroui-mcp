@@ -22,10 +22,9 @@ cp .dev.vars.example .dev.vars
 # Edit .dev.vars with your credentials
 
 # Extract component data to local development R2 bucket
-pnpm extract:all:dev  # Extracts both HeroUI and Native
+pnpm extract:all:dev  # Extracts HeroUI
 # Or extract individually:
 pnpm extract:dev:heroui
-pnpm extract:dev:native
 
 # Start MCP server (stdio transport)
 pnpm mcp:stdio
@@ -157,14 +156,12 @@ pnpm format
 ### Data Extraction Commands
 
 #### Development Environment (local R2 bucket)
-- `pnpm extract:all:dev` - Extract both HeroUI and Native to dev bucket
+- `pnpm extract:all:dev` - Extract HeroUI to dev bucket
 - `pnpm extract:dev:heroui` - Extract HeroUI components to dev bucket
-- `pnpm extract:dev:native` - Extract Native components to dev bucket
 - `pnpm extract:dev both -- --force` - Force re-extraction even if version exists
 
 #### Direct R2 Upload (requires environment variables)
 - `pnpm extract:heroui-r2` - Extract HeroUI to R2 (uses R2_BUCKET_NAME env var)
-- `pnpm extract:native-r2` - Extract Native to R2 (uses R2_BUCKET_NAME env var)
 
 ### Cloudflare Workers Commands
 - `pnpm dev` - Start local development server (http://localhost:8787)
@@ -193,11 +190,10 @@ AI Assistant → STDIO Client → REST API → R2 Storage
 
 The REST API is publicly available at `https://mcp-api.heroui.com`:
 
-- `GET /api/components/heroui` - List HeroUI components
-- `GET /api/components/native` - List HeroUI Native components
-- `GET /api/components/heroui/Button` - Get Button component details
-- `GET /api/components/heroui/Button/props` - Get Button props
-- `GET /api/components/heroui/Button/example` - Get Button examples
+- `GET /api/components` - List HeroUI components
+- `GET /api/components/Button` - Get Button component details
+- `GET /api/components/Button/props` - Get Button props
+- `GET /api/components/Button/examples` - Get Button examples
 - `GET /api/versions` - Get version information
 
 ## 🏗️ Project Structure
@@ -222,7 +218,6 @@ The REST API is publicly available at `https://mcp-api.heroui.com`:
 │       └── github-client.ts          # GitHub API client
 ├── scripts/
 │   ├── extract-heroui-r2.ts  # HeroUI data extraction to R2
-│   ├── extract-native-r2.ts  # HeroUI Native extraction to R2
 │   ├── extract-dev.sh        # Development extraction helper
 │   └── check-versions-ci.mjs # CI version checking script
 ├── lib/
@@ -232,8 +227,7 @@ The REST API is publicly available at `https://mcp-api.heroui.com`:
 │   └── data-store.ts         # Data storage abstraction
 ├── data/                     # Local fallback data (npm package)
 │   ├── latest/
-│   │   ├── heroui.json
-│   │   └── native.json
+│   │   └── heroui.json
 │   └── versions.json
 ├── .dev.vars.example         # Environment variables template
 ├── dist/                     # Build output (generated)
@@ -304,20 +298,15 @@ When deployed as a Cloudflare Worker:
 The server extracts component data from GitHub repositories and stores it in Cloudflare R2:
 
 - **HeroUI**: React components from `heroui-inc/heroui` (v3 branch)
-- **HeroUI Native**: React Native components from `heroui-inc/heroui-native` (alpha branch)
 
 ### R2 Storage Structure
 
 ```
 heroui-mcp-data/
 ├── latest/
-│   ├── heroui.json           # Latest HeroUI data
-│   └── native.json           # Latest Native data
+│   └── heroui.json           # Latest HeroUI data
 ├── heroui/
 │   ├── v3.0.0-alpha.31.json  # Versioned HeroUI data
-│   └── ...
-├── native/
-│   ├── v1.0.0-alpha.13.json  # Versioned Native data
 │   └── ...
 └── versions.json             # Version metadata
 ```
@@ -371,7 +360,7 @@ DEBUG=* npx @heroui/mcp
 curl https://mcp-api.heroui.com/health
 
 # Check component data
-curl https://mcp-api.heroui.com/api/components/heroui
+curl https://mcp-api.heroui.com/api/components
 ```
 
 ### Verifying Package Installation

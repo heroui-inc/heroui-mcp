@@ -142,7 +142,6 @@ export class R2DataStore implements DataStore {
 
         return {
           heroui: {current: "v3.0.0-alpha.31", extractDuration: 0, lastExtracted: ""},
-          native: {current: "v1.0.0-alpha.13", extractDuration: 0, lastExtracted: ""},
         };
       }
 
@@ -157,7 +156,6 @@ export class R2DataStore implements DataStore {
 
       return {
         heroui: {current: "v3.0.0-alpha.31", extractDuration: 0, lastExtracted: ""},
-        native: {current: "v1.0.0-alpha.13", extractDuration: 0, lastExtracted: ""},
       };
     }
   }

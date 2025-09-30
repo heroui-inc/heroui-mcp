@@ -43,12 +43,16 @@ graph LR
   ```
   GET /                                    # API info
   GET /health                              # Health check
-  GET /api/components/:library             # List components
-  GET /api/components/:library/:component  # Component details
-  GET /api/components/:library/:component/props    # Props info
-  GET /api/components/:library/:component/example  # Usage examples
-  GET /api/versions                        # Version info
-  GET /api/versions/:package               # Package version
+  GET /components                          # List HeroUI components (latest version)
+  GET /components/:component               # Component details (latest version)
+  GET /components/:component/props         # Props info (latest version)
+  GET /components/:component/examples      # Usage examples (latest version)
+  GET /components/:component/source        # React/TypeScript source code (latest version)
+  GET /components/:component/styles        # CSS styles (latest version)
+  GET /docs/available                      # List available documentation paths
+  GET /docs/content?path=                  # Get documentation content
+  GET /versions                            # Version info
+  GET /versions/:package                   # Package version
   ```
 
 ### 3. R2 Storage
@@ -57,37 +61,60 @@ graph LR
 - **Structure**:
   ```
   components/
-  ├── heroui/
-  │   ├── latest.json
-  │   └── v3.0.0-alpha.31.json
-  └── native/
+  └── heroui/
       ├── latest.json
-      └── v1.0.0-alpha.13.json
+      └── v3.0.0-alpha.31.json
   ```
 
 ## MCP Tools
 
-The STDIO client exposes four tools:
+The STDIO client exposes nine tools:
 
-1. **list_components** - List all components
+1. **installation** - Get complete installation guide for HeroUI v3
    ```javascript
-   { library: "heroui", version?: "v3.0.0" }
+   { framework: "next-app" | "next-pages" | "vite" | "general", packageManager?: "npm" | "pnpm" | "yarn" | "bun" }
    ```
 
-2. **get_component_props** - Get component props
+2. **list_components** - List all HeroUI components (always latest version)
    ```javascript
-   { library: "heroui", component: "Button", version?: "latest" }
+   // No parameters required
    ```
 
-3. **get_component_example** - Get usage examples
+3. **get_component_info** - Get complete component information
    ```javascript
-   { library: "heroui", component: "Button", version?: "latest" }
+   { component: "Button" }  // Must be one of the available components
    ```
 
-4. **check_version** - Check for updates
+4. **get_component_props** - Get component props
    ```javascript
-   { package: "mcp" | "heroui" | "native" }
+   { component: "Button" }  // Must be one of the available components
    ```
+
+5. **get_component_examples** - Get usage examples
+   ```javascript
+   { component: "Button" }  // Must be one of the available components
+   ```
+
+6. **get_component_source_code** - Get React/TypeScript source code (.tsx)
+   ```javascript
+   { component: "Button" }  // Must be one of the available components
+   ```
+
+7. **get_component_source_styles** - Get CSS styles (.css)
+   ```javascript
+   { component: "Button" }  // Must be one of the available components
+   ```
+
+8. **get_theme_info** - Get theme variables
+   ```javascript
+   { theme?: "default", mode?: "light" | "dark" | "both", category?: "colors" | "all" }
+   ```
+
+9. **get_docs** - Get documentation content from HeroUI v3 docs
+   ```javascript
+   { path: "/docs/introduction" }  // Documentation path
+   ```
+
 
 ## Installation & Usage
 

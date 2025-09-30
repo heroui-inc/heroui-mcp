@@ -16,7 +16,6 @@ versions.get("/", async (c) => {
   try {
     const service = await getDataService(c.env);
     const heroUIVersions = await service.listVersions("heroui");
-    const nativeVersions = await service.listVersions("native");
 
     const responseTime = Date.now() - startTime;
 
@@ -29,10 +28,6 @@ versions.get("/", async (c) => {
       heroui: {
         latest: heroUIVersions[0] || "unknown",
         versions: heroUIVersions,
-      },
-      native: {
-        latest: nativeVersions[0] || "unknown",
-        versions: nativeVersions,
       },
       mcp: {
         current: packageInfo.version,
@@ -58,8 +53,8 @@ versions.get("/:package", async (c) => {
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
-  if (!["heroui", "native", "mcp"].includes(pkg)) {
-    return c.json({error: "Invalid package. Must be 'heroui', 'native', or 'mcp'"}, 400);
+  if (!["heroui", "mcp"].includes(pkg)) {
+    return c.json({error: "Invalid package. Must be 'heroui' or 'mcp'"}, 400);
   }
 
   try {
@@ -73,7 +68,7 @@ versions.get("/:package", async (c) => {
     }
 
     const service = await getDataService(c.env);
-    const library = pkg as "heroui" | "native";
+    const library = pkg as "heroui";
     const versionList = await service.listVersions(library);
     const latestVersion = versionList[0] || "unknown";
 

@@ -2,6 +2,30 @@
 
 This document provides detailed information about the HeroUI MCP REST API endpoints.
 
+## Quick Reference
+
+### Available Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | API information and endpoint list |
+| `/health` | GET | Health check |
+| `/components` | GET | List all HeroUI components |
+| `/components/:component` | GET | Get component details |
+| `/components/:component/props` | GET | Get component props documentation |
+| `/components/:component/examples` | GET | Get component usage examples |
+| `/components/:component/source` | GET | Get component source code |
+| `/components/:component/styles` | GET | Get component CSS styles |
+| `/themes` | GET | Get complete theme system |
+| `/themes/variables` | GET | Get theme CSS variables |
+| `/themes/colors` | GET | Get theme color variables |
+| `/themes/animations` | GET | Get animation definitions |
+| `/themes/versions` | GET | Get available theme versions |
+| `/docs/available` | GET | Get all available documentation paths |
+| `/docs/content` | GET | Get documentation content from a specific path |
+| `/versions` | GET | Get all version information |
+| `/versions/:package` | GET | Check specific package version |
+
 ## Base URL
 
 - **Production**: `https://mcp-api.heroui.com`
@@ -47,45 +71,36 @@ Health check endpoint.
 
 ### Component Endpoints
 
-#### `GET /components/:library`
+#### `GET /components`
 
-List all components in a library.
+List all HeroUI components (always returns latest version).
 
-**Parameters:**
-
-- `library` (path): `"heroui"` | `"native"` - Required
-- `version` (query): Version string (e.g., "v3.0.0") - Optional
+**Parameters:** None
 
 **Response:**
 
 ```json
 {
-  "library": "heroui",
-  "version": "v3.0.0-alpha.31",
   "latestVersion": "v3.0.0-alpha.31",
   "components": ["Button", "Card", "Input", ...],
-  "count": 45
+  "count": 17
 }
 ```
 
-#### `GET /components/:library/:component`
+#### `GET /components/:component`
 
-Get complete component information.
+Get complete component information (always returns latest version).
 
 **Parameters:**
 
-- `library` (path): `"heroui"` | `"native"` - Required
 - `component` (path): Component name - Required
-- `version` (query): Version string - Optional
 
 **Response:**
 
 ```json
 {
-  "library": "heroui",
   "component": "Button",
   "version": "v3.0.0-alpha.31",
-  "latestVersion": "v3.0.0-alpha.31",
   "data": {
     "name": "Button",
     "description": "Buttons allow users to perform actions...",
@@ -99,46 +114,38 @@ Get complete component information.
 }
 ```
 
-#### `GET /components/:library/:component/props`
+#### `GET /components/:component/props`
 
-Get component props documentation.
+Get component props documentation (always returns latest version).
 
 **Parameters:**
 
-- `library` (path): `"heroui"` | `"native"` - Required
 - `component` (path): Component name - Required
-- `version` (query): Version string - Optional
 
 **Response:**
 
 ```json
 {
-  "library": "heroui",
   "component": "Button",
   "version": "v3.0.0-alpha.31",
-  "latestVersion": "v3.0.0-alpha.31",
   "props": "# Button Component Props - HeroUI (v3.0.0-alpha.31)..."
 }
 ```
 
-#### `GET /components/:library/:component/examples`
+#### `GET /components/:component/examples`
 
-Get component usage examples.
+Get component usage examples (always returns latest version).
 
 **Parameters:**
 
-- `library` (path): `"heroui"` | `"native"` - Required
 - `component` (path): Component name - Required
-- `version` (query): Version string - Optional
 
 **Response:**
 
 ```json
 {
-  "library": "heroui",
   "component": "Button",
   "version": "v3.0.0-alpha.31",
-  "latestVersion": "v3.0.0-alpha.31",
   "examples": [
     {
       "name": "basic",
@@ -148,46 +155,40 @@ Get component usage examples.
 }
 ```
 
-#### `GET /components/:library/:component/source`
+#### `GET /components/:component/source`
 
-Get component source code.
+Get component source code (always returns latest version).
 
 **Parameters:**
 
-- `library` (path): `"heroui"` | `"native"` - Required
 - `component` (path): Component name - Required
-- `version` (query): Version string - Optional
 
 **Response:**
 
 ```json
 {
-  "library": "heroui",
   "component": "Button",
-  "version": "latest",
+  "version": "v3.0.0-alpha.31",
   "filePath": "button/button.tsx",
   "sourceCode": "import React from 'react'...",
   "githubUrl": "https://github.com/heroui-inc/heroui/blob/v3/..."
 }
 ```
 
-#### `GET /components/:library/:component/styles`
+#### `GET /components/:component/styles`
 
-Get component CSS styles.
+Get component CSS styles (always returns latest version).
 
 **Parameters:**
 
-- `library` (path): `"heroui"` | `"native"` - Required
 - `component` (path): Component name - Required
-- `version` (query): Version string - Optional
 
 **Response:**
 
 ```json
 {
-  "library": "heroui",
   "component": "Button",
-  "version": "latest",
+  "version": "v3.0.0-alpha.31",
   "filePath": "button.css",
   "stylesCode": ".button { ... }",
   "githubUrl": "https://github.com/heroui-inc/heroui/blob/v3/..."
@@ -440,26 +441,54 @@ Get available theme versions.
 }
 ```
 
-#### `GET /docs/:guide`
+#### `GET /docs/available`
 
-Get documentation guides.
+Get all available documentation paths from HeroUI v3 docs.
 
-**Parameters:**
-
-- `guide` (path): Guide name - Required
-  - Valid values: `"theming"`, `"colors"`, `"styling"`, `"animation"`,
-    `"composition"`, `"design-principles"`, `"quick-start"`
+**Parameters:** None
 
 **Response:**
 
 ```json
 {
-  "title": "Theming Guide",
-  "description": "Learn how to customize HeroUI themes",
-  "content": "# Theming in HeroUI v3...",
-  "examples": [...]
+  "baseUrl": "https://v3.heroui.com",
+  "categories": [
+    {
+      "name": "components",
+      "docs": [
+        {
+          "title": "Button",
+          "path": "/docs/components/button",
+          "description": "A clickable button component"
+        },
+        // ... more components
+      ]
+    },
+    // ... more categories
+  ],
+  "total": 26
 }
 ```
+
+#### `GET /docs/content`
+
+Get documentation content from a specific path.
+
+**Query Parameters:**
+
+- `path`: Documentation path (e.g., `/docs/introduction`, `/docs/components/button`) - Required
+
+**Response:**
+
+```json
+{
+  "path": "/docs/introduction",
+  "url": "https://v3.heroui.com/docs/introduction.mdx",
+  "content": "# Introduction\n\n...",
+  "contentType": "text/mdx"
+}
+```
+
 
 ### Version Endpoints
 
@@ -475,10 +504,6 @@ Get all version information.
     "latest": "v3.0.0-alpha.31",
     "versions": ["v3.0.0-alpha.31", "v3.0.0-alpha.30", ...]
   },
-  "native": {
-    "latest": "v0.1.0",
-    "versions": ["v0.1.0"]
-  },
   "mcp": {
     "current": "1.0.0-alpha.9"
   }
@@ -491,7 +516,8 @@ Check specific package version.
 
 **Parameters:**
 
-- `package` (path): `"heroui"` | `"native"` | `"mcp"` - Required
+- `package` (path): Package name - Required
+  - Valid values: `"heroui"` or `"mcp"`
 
 **Response:**
 

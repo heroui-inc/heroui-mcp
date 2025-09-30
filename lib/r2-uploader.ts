@@ -62,7 +62,7 @@ export class R2Uploader {
 
   /**
    * Upload latest version data
-   * Stores in: latest/{library}.json (e.g., latest/heroui.json)
+   * Stores in: latest/{library}.json (e.g., latest/heroui-react.json)
    */
   async uploadLatestVersion(library: string, data: unknown): Promise<void> {
     const key = `latest/${library}.json`;

@@ -1,97 +1,73 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Tool} from "./types";
+import type {ComponentContext, Tool} from "./types";
 
 import {z} from "zod";
 
 import {fetchApi} from "../lib/fetch";
 
-const inputSchema = z.object({
-  library: z.enum(["heroui", "native"]).describe("The library to get the component from"),
-  component: z.string().describe("The name of the component"),
-  version: z
-    .string()
-    .optional()
-    .describe(
-      "Specific version to use (e.g., 'v3.0.0-alpha.31'). Defaults to latest if not specified",
-    ),
-});
-
-export const getComponentExamplesTool: Tool = {
+export const getComponentExamplesTool: Tool<ComponentContext> = {
   name: "get_component_examples",
-  description: "Get usage examples for a specific HeroUI or HeroUI Native component",
-  exec(server, {config, name, description}) {
-    const handler = async ({library, component, version}: z.infer<typeof inputSchema>) => {
+  description: `Get complete, working code examples for a HeroUI v3 component.
+Returns ready-to-use React/TypeScript code demonstrating various use cases.
+Examples show COMPOUND COMPONENT patterns - study these carefully.
+CRITICAL: Examples demonstrate the ONLY correct way to use components.
+Never modify the structure shown in examples (e.g., don't flatten compound components).
+Each example includes imports, component usage, and common patterns.
+Use this after get_component_info to see practical implementations.
+If implementing a component, ALWAYS check examples first to avoid mistakes.
+Common mistakes to avoid: Using onClick instead of onPress, flat props instead of compound components.
+Workflow: get_component_info → get_component_props → get_component_examples.`,
+
+  async ctx() {
+    try {
+      const data = await fetchApi<{components: string[]}>("/components");
+
+      return {
+        componentList: data.components || [],
+      };
+    } catch (error) {
+      console.error("Failed to fetch component list:", error);
+
+      // Return empty list as fallback
+      return {
+        componentList: [],
+      };
+    }
+  },
+
+  exec(server, {config, name, description, ctx}) {
+    // Create input schema with dynamic component enum
+    const inputSchema = z.object({
+      component: z.enum(ctx.componentList as [string, ...string[]])
+        .describe(`Component name exactly as shown in list_components output.
+Examples will show compound component usage if applicable.
+Study the examples carefully - they show the correct patterns.`),
+    });
+
+    const handler = async ({component}: z.infer<typeof inputSchema>) => {
       try {
         // Encode component name to handle special characters and ensure proper URL encoding
         const encodedComponent = encodeURIComponent(component);
-        const endpoint = `/components/${library}/${encodedComponent}/examples${version ? `?version=${version}` : ""}`;
+        const endpoint = `/components/${encodedComponent}/examples`;
 
-        try {
-          const data = await fetchApi<{examples: Array<{name: string; content: string}>}>(
-            endpoint,
-            config.apiBaseUrl,
-          );
-          const examples = data.examples || [];
-          const exampleText =
-            examples.length > 0
-              ? examples.map((ex) => `// ${ex.name} example\n${ex.content}`).join("\n\n")
-              : `No examples available for ${component}`;
+        const data = await fetchApi<{examples: Array<{name: string; content: string}>}>(
+          endpoint,
+          config.apiBaseUrl,
+        );
+        const examples = data.examples || [];
+        const exampleText =
+          examples.length > 0
+            ? examples.map((ex) => `// ${ex.name} example\n${ex.content}`).join("\n\n")
+            : `No examples available for ${component}`;
 
-          return {
-            content: [
-              {
-                type: "text" as const,
-                text: exampleText,
-              },
-            ],
-          };
-        } catch (error: any) {
-          if (error.status === 404) {
-            // Try with different case variations if not found
-            const variations = [
-              component.charAt(0).toUpperCase() + component.slice(1).toLowerCase(), // Capitalize first letter
-              component.toLowerCase(), // All lowercase
-              component.toUpperCase(), // All uppercase
-            ];
-
-            for (const variation of variations) {
-              if (variation !== component) {
-                try {
-                  const altEndpoint = `/components/${library}/${encodeURIComponent(variation)}/examples${version ? `?version=${version}` : ""}`;
-                  const altData = await fetchApi<{
-                    examples: Array<{name: string; content: string}>;
-                  }>(altEndpoint, config.apiBaseUrl);
-                  const examples = altData.examples || [];
-                  const exampleText =
-                    examples.length > 0
-                      ? examples.map((ex) => `// ${ex.name} example\n${ex.content}`).join("\n\n")
-                      : `No examples available for ${component}`;
-
-                  return {
-                    content: [
-                      {
-                        type: "text" as const,
-                        text: exampleText,
-                      },
-                    ],
-                  };
-                } catch {
-                  // Continue to next variation
-                }
-              }
-            }
-
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `Component "${component}" not found in ${library}${version ? ` version ${version}` : ""}`,
-                },
-              ],
-            };
-          }
-          throw error;
-        }
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: exampleText,
+            },
+          ],
+        };
       } catch (error) {
         return {
           content: [

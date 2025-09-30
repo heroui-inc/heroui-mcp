@@ -2,37 +2,33 @@ import type {Env} from "../types";
 
 import {Hono} from "hono";
 
+import {REACT_LIBRARY_NAME} from "../contants";
 import {getAnalytics, getDataService, initAnalytics} from "../services";
 
 const components = new Hono<{Bindings: Env}>();
 
+const LIBRARY_NAME = REACT_LIBRARY_NAME;
+
 // List components
-components.get("/:library", async (c) => {
-  const library = c.req.param("library") as "heroui" | "native";
-  const version = c.req.query("version");
+components.get("/", async (c) => {
   const startTime = Date.now();
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
-  if (!["heroui", "native"].includes(library)) {
-    return c.json({error: "Invalid library. Must be 'heroui' or 'native'"}, 400);
-  }
-
   try {
     const service = await getDataService(c.env);
-    const componentsList = await service.listComponents(library, version);
+    // Always use latest version
+    const componentsList = await service.listComponents(LIBRARY_NAME);
 
-    // Get the latest version and actual version being served
-    const latestVersion = await service.getLatestVersion(library);
-    const actualVersion = version || latestVersion || "latest";
+    // Get the latest version
+    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
     const responseTime = Date.now() - startTime;
 
     // Track successful request
     analytics?.trackComponentSearch("api-user", {
-      query: library,
-      filters: {version},
+      query: LIBRARY_NAME,
       resultsCount: componentsList.length,
       searchTime: responseTime,
     });
@@ -45,8 +41,6 @@ components.get("/:library", async (c) => {
     });
 
     return c.json({
-      library,
-      version: actualVersion,
       latestVersion: latestVersion || "unknown",
       components: componentsList,
       count: componentsList.length,
@@ -74,18 +68,12 @@ components.get("/:library", async (c) => {
 });
 
 // Get component details
-components.get("/:library/:component", async (c) => {
-  const library = c.req.param("library") as "heroui" | "native";
+components.get("/:component", async (c) => {
   const component = c.req.param("component");
-  const version = c.req.query("version");
   const startTime = Date.now();
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
-
-  if (!["heroui", "native"].includes(library)) {
-    return c.json({error: "Invalid library. Must be 'heroui' or 'native'"}, 400);
-  }
 
   analytics?.trackMcpRequest("api-user", {
     method: "GET",
@@ -95,7 +83,8 @@ components.get("/:library/:component", async (c) => {
 
   try {
     const service = await getDataService(c.env);
-    const data = await service.getComponent(library, component, version);
+    // Always use latest version
+    const data = await service.getComponent(LIBRARY_NAME, component);
 
     if (!data) {
       const responseTime = Date.now() - startTime;
@@ -110,12 +99,11 @@ components.get("/:library/:component", async (c) => {
       return c.json({error: `Component ${component} not found`}, 404);
     }
 
-    // Get the latest version and actual version being served
-    const latestVersion = await service.getLatestVersion(library);
-    const actualVersion = version || latestVersion || "latest";
+    // Get the latest version
+    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
     // Get the actual component name from the data (with correct casing)
-    const allComponents = await service.getAllComponents(library, version);
+    const allComponents = await service.getAllComponents(LIBRARY_NAME);
     let actualComponentName = component;
 
     if (allComponents) {
@@ -139,16 +127,13 @@ components.get("/:library/:component", async (c) => {
     });
 
     analytics?.trackFeatureUsage("api-user", "component-details", {
-      library,
+      library: LIBRARY_NAME,
       component: actualComponentName,
-      version: actualVersion,
     });
 
     return c.json({
-      library,
       component: actualComponentName,
-      version: actualVersion,
-      latestVersion: latestVersion || "unknown",
+      version: latestVersion || "unknown",
       data,
     });
   } catch (error) {
@@ -173,39 +158,33 @@ components.get("/:library/:component", async (c) => {
 });
 
 // Get component props
-components.get("/:library/:component/props", async (c) => {
-  const library = c.req.param("library") as "heroui" | "native";
+components.get("/:component/props", async (c) => {
   const component = c.req.param("component");
-  const version = c.req.query("version");
   const startTime = Date.now();
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
-  if (!["heroui", "native"].includes(library)) {
-    return c.json({error: "Invalid library. Must be 'heroui' or 'native'"}, 400);
-  }
-
   analytics?.trackToolInvocation("api-user", {
     toolName: "get-component-props",
-    parameters: {library, component, version},
+    parameters: {library: LIBRARY_NAME, component},
     context: "api",
   });
 
   try {
     const service = await getDataService(c.env);
-    const data = await service.getComponent(library, component, version);
+    // Always use latest version
+    const data = await service.getComponent(LIBRARY_NAME, component);
 
     if (!data) {
       return c.json({error: `Component ${component} not found`}, 404);
     }
 
-    // Get the latest version and actual version being served
-    const latestVersion = await service.getLatestVersion(library);
-    const actualVersion = version || latestVersion || "latest";
+    // Get the latest version
+    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
     // Get the actual component name from the data (with correct casing)
-    const allComponents = await service.getAllComponents(library, version);
+    const allComponents = await service.getAllComponents(LIBRARY_NAME);
     let actualComponentName = component;
 
     if (allComponents) {
@@ -219,8 +198,8 @@ components.get("/:library/:component/props", async (c) => {
     }
 
     // Format props as markdown
-    const libraryName = library === "heroui" ? "HeroUI" : "HeroUI Native";
-    const versionText = ` (${actualVersion})`;
+    const libraryName = "HeroUI";
+    const versionText = ` (${latestVersion})`;
 
     let propsText = `# ${actualComponentName} Component Props - ${libraryName}${versionText}\n\n`;
 
@@ -254,16 +233,13 @@ components.get("/:library/:component/props", async (c) => {
     });
 
     analytics?.trackFeatureUsage("api-user", "component-props", {
-      library,
+      library: LIBRARY_NAME,
       component: actualComponentName,
-      version: actualVersion,
     });
 
     return c.json({
-      library,
       component: actualComponentName,
-      version: actualVersion,
-      latestVersion: latestVersion || "unknown",
+      version: latestVersion || "unknown",
       props: propsText,
     });
   } catch (error) {
@@ -287,39 +263,33 @@ components.get("/:library/:component/props", async (c) => {
 });
 
 // Get component examples
-components.get("/:library/:component/examples", async (c) => {
-  const library = c.req.param("library") as "heroui" | "native";
+components.get("/:component/examples", async (c) => {
   const component = c.req.param("component");
-  const version = c.req.query("version");
   const startTime = Date.now();
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
-  if (!["heroui", "native"].includes(library)) {
-    return c.json({error: "Invalid library. Must be 'heroui' or 'native'"}, 400);
-  }
-
   analytics?.trackToolInvocation("api-user", {
     toolName: "get-component-examples",
-    parameters: {library, component, version},
+    parameters: {library: LIBRARY_NAME, component},
     context: "api",
   });
 
   try {
     const service = await getDataService(c.env);
-    const data = await service.getComponent(library, component, version);
+    // Always use latest version
+    const data = await service.getComponent(LIBRARY_NAME, component);
 
     if (!data) {
       return c.json({error: `Component ${component} not found`}, 404);
     }
 
-    // Get the latest version and actual version being served
-    const latestVersion = await service.getLatestVersion(library);
-    const actualVersion = version || latestVersion || "latest";
+    // Get the latest version
+    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
     // Get the actual component name from the data (with correct casing)
-    const allComponents = await service.getAllComponents(library, version);
+    const allComponents = await service.getAllComponents(LIBRARY_NAME);
     let actualComponentName = component;
 
     if (allComponents) {
@@ -337,12 +307,9 @@ components.get("/:library/:component/examples", async (c) => {
 
     // If no examples, provide a default one
     if (examples.length === 0) {
-      const libraryName = library === "heroui" ? "HeroUI" : "HeroUI Native";
-      const versionText = ` (${actualVersion})`;
-      const importStatement =
-        library === "heroui"
-          ? `import { ${actualComponentName} } from '@heroui/react';`
-          : `import { ${actualComponentName} } from '@heroui/native';`;
+      const libraryName = "HeroUI";
+      const versionText = ` (${latestVersion})`;
+      const importStatement = `import { ${actualComponentName} } from '@heroui/react';`;
 
       let exampleText = `// ${actualComponentName} Component Example - ${libraryName}${versionText}\n\n`;
       exampleText += `${importStatement}\n\n`;
@@ -372,16 +339,14 @@ components.get("/:library/:component/examples", async (c) => {
 
     analytics?.trackComponentGenerated("api-user", {
       componentType: component,
-      framework: library === "heroui" ? "react" : "react-native",
+      framework: "react",
       features: [],
       generationTime: responseTime,
     });
 
     return c.json({
-      library,
       component: actualComponentName,
-      version: actualVersion,
-      latestVersion: latestVersion || "unknown",
+      version: latestVersion || "unknown",
       examples,
     });
   } catch (error) {
@@ -405,28 +370,26 @@ components.get("/:library/:component/examples", async (c) => {
 });
 
 // Get component source code
-components.get("/:library/:component/source", async (c) => {
-  const library = c.req.param("library") as "heroui" | "native";
+components.get("/:component/source", async (c) => {
   const component = c.req.param("component");
-  const version = c.req.query("version");
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
-  if (!["heroui", "native"].includes(library)) {
-    return c.json({error: "Invalid library. Must be 'heroui' or 'native'"}, 400);
-  }
-
   try {
     const service = await getDataService(c.env);
-    const data = await service.getComponent(library, component, version);
+    // Always use latest version
+    const data = await service.getComponent(LIBRARY_NAME, component);
 
     if (!data || !data.links?.source) {
       return c.json({error: `Source code not available for ${component}`}, 404);
     }
 
-    // Construct GitHub raw URL
-    const branch = version ? version.replace(/^v/, "") : "v3";
+    // Get the latest version
+    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
+
+    // Construct GitHub raw URL using latest version
+    const branch = latestVersion ? latestVersion.replace(/^v/, "") : "v3";
     const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
     const sourceUrl = `${baseUrl}/packages/react/src/components/${data.links.source}`;
 
@@ -439,15 +402,13 @@ components.get("/:library/:component/source", async (c) => {
     const sourceCode = await response.text();
 
     analytics?.trackFeatureUsage("api-user", "component-source", {
-      library,
+      library: LIBRARY_NAME,
       component,
-      version,
     });
 
     return c.json({
-      library,
       component,
-      version: version || "latest",
+      version: latestVersion || "unknown",
       filePath: data.links.source,
       sourceCode,
       githubUrl: sourceUrl
@@ -468,28 +429,26 @@ components.get("/:library/:component/source", async (c) => {
 });
 
 // Get component styles
-components.get("/:library/:component/styles", async (c) => {
-  const library = c.req.param("library") as "heroui" | "native";
+components.get("/:component/styles", async (c) => {
   const component = c.req.param("component");
-  const version = c.req.query("version");
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
-  if (!["heroui", "native"].includes(library)) {
-    return c.json({error: "Invalid library. Must be 'heroui' or 'native'"}, 400);
-  }
-
   try {
     const service = await getDataService(c.env);
-    const data = await service.getComponent(library, component, version);
+    // Always use latest version
+    const data = await service.getComponent(LIBRARY_NAME, component);
 
     if (!data || !data.links?.styles) {
       return c.json({error: `Styles not available for ${component}`}, 404);
     }
 
-    // Construct GitHub raw URL
-    const branch = version ? version.replace(/^v/, "") : "v3";
+    // Get the latest version
+    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
+
+    // Construct GitHub raw URL using latest version
+    const branch = latestVersion ? latestVersion.replace(/^v/, "") : "v3";
     const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
     const stylesUrl = `${baseUrl}/packages/styles/components/${data.links.styles}`;
 
@@ -502,15 +461,13 @@ components.get("/:library/:component/styles", async (c) => {
     const stylesCode = await response.text();
 
     analytics?.trackFeatureUsage("api-user", "component-styles", {
-      library,
+      library: LIBRARY_NAME,
       component,
-      version,
     });
 
     return c.json({
-      library,
       component,
-      version: version || "latest",
+      version: latestVersion || "unknown",
       filePath: data.links.styles,
       stylesCode,
       githubUrl: stylesUrl

@@ -4,7 +4,7 @@ Access HeroUI component documentation directly in your AI assistant via Model Co
 
 ## Features
 
-- Complete component documentation for HeroUI and HeroUI Native
+- Complete component documentation for HeroUI
 - Search and browse components
 - Get props, types, and usage examples
 - Always up-to-date with latest versions
@@ -118,10 +118,10 @@ This provides your AI assistant with:
 
 Once configured, you can ask your AI assistant questions like:
 
+- "Help me install HeroUI v3 in my Next.js app"
 - "Show me all HeroUI components"
 - "What props does the Button component have?"
 - "Give me an example of using the Card component"
-- "List all components in HeroUI Native"
 - "Check if I'm using the latest version of HeroUI"
 - "Get the source code for the Button component"
 - "Show me the CSS styles for Card"
@@ -132,68 +132,78 @@ Once configured, you can ask your AI assistant questions like:
 
 The MCP server provides these tools to AI assistants:
 
-### `list_components`
+### `installation`
 
-List all available components in a library.
+Get complete installation guide for HeroUI v3 in your React/Next.js project.
 
 ```javascript
 // Parameters
 {
-  library: "heroui" | "native",  // Required
-  version?: "v3.0.0"             // Optional, defaults to latest
+  framework: "next-app" | "next-pages" | "vite" | "general",  // Required
+  packageManager?: "npm" | "pnpm" | "yarn" | "bun"            // Optional, defaults to npm
 }
+```
+
+### `list_components`
+
+List all available HeroUI components (always returns latest version).
+
+```javascript
+// No parameters required
 ```
 
 ### `get_component_info`
 
-Get complete information about a specific component including description, anatomy, props, and examples.
+Get complete information about a specific HeroUI component including description, anatomy, props, and examples.
 
 ```javascript
 // Parameters
 {
-  library: "heroui" | "native",  // Required
-  component: "Button",           // Required
-  version?: "v3.0.0"            // Optional
+  component: "Button"  // Required - must be one of the available components
 }
 ```
 
 ### `get_component_props`
 
-Get detailed props information for a specific component.
+Get detailed props information for a specific HeroUI component.
 
 ```javascript
 // Parameters
 {
-  library: "heroui" | "native",  // Required
-  component: "Button",           // Required
-  version?: "v3.0.0"            // Optional
+  component: "Button"  // Required - must be one of the available components
 }
 ```
 
 ### `get_component_examples`
 
-Get usage examples for a specific component.
+Get usage examples for a specific HeroUI component.
 
 ```javascript
 // Parameters
 {
-  library: "heroui" | "native",  // Required
-  component: "Button",           // Required
-  version?: "v3.0.0"            // Optional
+  component: "Button"  // Required - must be one of the available components
 }
 ```
 
-### `get_component_source`
+### `get_component_source_code`
 
-Get the source code (React/TypeScript) or CSS styles for a component.
+Get the React/TypeScript source code (.tsx) for a HeroUI component.
 
 ```javascript
 // Parameters
 {
-  library: "heroui" | "native",  // Required
-  component: "Button",           // Required
-  type: "source" | "styles" | "both", // Required
-  version?: "v3.0.0"            // Optional
+  component: "Button"  // Required - must be one of the available components
+}
+```
+
+### `get_component_source_styles`
+
+Get the CSS styles (.css) for a HeroUI component.
+
+```javascript
+// Parameters
+{
+  component: "Button"  // Required - must be one of the available components
 }
 ```
 
@@ -210,27 +220,14 @@ Get HeroUI theme variables with an optimized structure that extracts common vari
 }
 ```
 
-### `get_design_guide`
+### `get_docs`
 
-Get HeroUI design guides and documentation for themes, colors, animations, and best practices.
-
-```javascript
-// Parameters
-{
-  guide: "color-theory" | "animations" | "dark-mode" | "custom-themes" |
-         "color-customization" | "responsive-design" | "accessibility", // Required
-  section?: "intro" | "examples" | "api"  // Optional
-}
-```
-
-### `check_version`
-
-Check if you're using the latest version.
+Get HeroUI v3 documentation content for guides, principles, and component docs.
 
 ```javascript
 // Parameters
 {
-  package: "heroui" | "native" | "mcp"; // Required
+  path: string  // Required - documentation path (e.g., "/docs/introduction", "/docs/components/button")
 }
 ```
 

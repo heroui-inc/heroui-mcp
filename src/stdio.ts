@@ -19,29 +19,49 @@ async function createServer(): Promise<McpServer> {
   const server = new McpServer({
     name: packageInfo.name,
     version: packageInfo.version,
-    instructions: `## HeroUI MCP Tools - Quick Start Guide
+    instructions: `## HeroUI MCP Tools - v3 Alpha Documentation
 
-Welcome to HeroUI MCP! These tools help you work with HeroUI v3 components effectively.
+Welcome to HeroUI MCP! These tools provide documentation for **HeroUI v3 (Alpha)** React components.
+
+### ⚠️ IMPORTANT: Version Information
+• **Current Support:** HeroUI v3 (Alpha) ONLY
+• **HeroUI v2:** NOT supported by this MCP
+• **Migration from v2 to v3:** NOT available yet (coming when v3 is stable)
+• **Status:** v3 is in ALPHA - expect breaking changes
+
+### 🚫 Migration Notice
+**Migration from HeroUI v2 to v3 is NOT supported yet.**
+A migration tool will be available in the future when v3 reaches stable release.
+For now, v3 should only be used for new projects.
+
+### Getting Started
+Use the \`installation\` tool for setting up a NEW HeroUI v3 project:
+\`\`\`javascript
+installation({ framework: "next-app", packageManager: "npm" })
+\`\`\`
 
 ### Essential Workflow
-Always follow this order when implementing HeroUI components:
+Always follow this order when implementing HeroUI v3 components:
 
-1. **list_components** - Check available components
-2. **get_component_info** - Get complete API and anatomy
-3. **get_component_props** - Review TypeScript types
-4. **get_component_examples** - See usage patterns
+1. **installation** - Set up HeroUI v3 in your project (NEW projects only)
+2. **list_components** - Check available v3 components
+3. **get_component_info** - Get complete API and anatomy
+4. **get_component_props** - Review TypeScript types
+5. **get_component_examples** - See usage patterns
 
-### Key Points
-• HeroUI v3 uses compound components (e.g., Card.Header, Card.Content)
-• Requires Tailwind CSS v4 (v3 not supported)
-• Built on React Aria for full accessibility
+### Key Differences in v3
+• Compound components pattern (e.g., Card.Header, Card.Content)
+• Requires Tailwind CSS v4 (NOT v3)
+• No Provider component needed (unlike v2)
+• Built on React Aria Components
+• Modern React 19+ features
 
 ### Example Usage
 \`\`\`javascript
-// First, check component structure
-get_component_info({ library: "heroui", component: "Card" })
+// Check v3 component structure
+get_component_info({ component: "Card" })
 
-// Then implement with correct anatomy
+// v3 uses compound components (NOT flat props like v2)
 <Card>
   <Card.Header>
     <Card.Title>Title</Card.Title>
@@ -50,13 +70,19 @@ get_component_info({ library: "heroui", component: "Card" })
 </Card>
 \`\`\`
 
-### Pro Tips
-• Never guess component APIs - always use tools first
-• Check anatomy for compound component structure
-• Use get_theme_info for customization variables
-• Query design guides for best practices
+### Available Documentation
+• Components: Use tools to explore v3 components
+• Guides: Use get_docs({ path: "/docs/introduction" })
+• Theme: Use get_theme_info() for v3 theming
 
-For detailed guidelines, see: https://v3.heroui.com/llms-full.txt`,
+### Pro Tips
+• This MCP is for v3 ONLY - v2 docs are at https://heroui.com
+• v3 is ALPHA - use for experimentation and new projects
+• Migration guide will come with stable v3 release
+• Report v3 issues at: https://github.com/heroui-inc/heroui/issues
+
+For v3 guidelines: https://v3.heroui.com/llms-full.txt
+For v2 documentation: https://heroui.com (not supported by this MCP)`,
     capabilities: {
       tools: {
         listChanged: true,

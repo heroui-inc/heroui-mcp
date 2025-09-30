@@ -13,6 +13,10 @@ export interface ToolContext {
   config: ToolConfig;
 }
 
+export interface ComponentContext {
+  componentList: string[];
+}
+
 export interface Tool<T = unknown> {
   name: string;
   description: string;

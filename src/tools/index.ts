@@ -1,25 +1,27 @@
 import type {Tool, ToolConfig} from "./types";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
-import {checkVersionTool} from "./check-version";
 import {getComponentExamplesTool} from "./get-component-examples";
 import {getComponentInfoTool} from "./get-component-info";
 import {getComponentPropsTool} from "./get-component-props";
-import {getComponentSourceTool} from "./get-component-source";
-import {getDesignGuideTool} from "./get-design-guide";
+import {getComponentSourceCodeTool} from "./get-component-source-code";
+import {getComponentSourceStylesTool} from "./get-component-source-styles";
+import {getDocsTool} from "./get-docs";
 import {getThemeInfoTool} from "./get-theme-info";
+import {installationTool} from "./installation";
 import {listComponentsTool} from "./list-components";
 
 // All available tools
 const tools: Tool[] = [
+  installationTool,
   listComponentsTool,
   getComponentInfoTool,
   getComponentPropsTool,
   getComponentExamplesTool,
-  getComponentSourceTool,
+  getComponentSourceCodeTool,
+  getComponentSourceStylesTool,
   getThemeInfoTool,
-  getDesignGuideTool,
-  checkVersionTool,
+  getDocsTool,
 ];
 
 // Cache for registered tools

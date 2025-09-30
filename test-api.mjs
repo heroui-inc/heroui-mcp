@@ -154,7 +154,7 @@ async function testListComponents() {
   console.log(`${colors.blue}Testing List Components...${colors.reset}`);
 
   try {
-    const response = await makeRequest("/api/components/heroui");
+    const response = await makeRequest("/components");
 
     logTest("List components accessible", response.status === 200);
     logTest("Response has components array", Array.isArray(response.data?.components));
@@ -180,7 +180,7 @@ async function testGetComponentProps() {
   console.log(`${colors.blue}Testing Get Component Props...${colors.reset}`);
 
   try {
-    const response = await makeRequest("/api/components/heroui/Button/props");
+    const response = await makeRequest("/components/Button/props");
 
     logTest("Get component props accessible", response.status === 200);
     logTest("Response has props", !!response.data?.props);
@@ -197,23 +197,22 @@ async function testGetComponentProps() {
 }
 
 /**
- * Test get component example
+ * Test get component examples
  */
 async function testGetComponentExample() {
-  console.log(`${colors.blue}Testing Get Component Example...${colors.reset}`);
+  console.log(`${colors.blue}Testing Get Component Examples...${colors.reset}`);
 
   try {
-    const response = await makeRequest("/api/components/heroui/Button/example");
+    const response = await makeRequest("/components/Button/examples");
 
-    logTest("Get component example accessible", response.status === 200);
-    logTest("Response has example", !!response.data?.example);
+    logTest("Get component examples accessible", response.status === 200);
+    logTest("Response has examples", !!response.data?.examples);
 
-    if (response.data?.example) {
-      const preview = response.data.example.substring(0, 100);
-      console.log(`  Example preview: ${preview}...`);
+    if (response.data?.examples && Array.isArray(response.data.examples)) {
+      console.log(`  Found ${response.data.examples.length} examples`);
     }
   } catch (error) {
-    logTest("Get component example", false, error.message);
+    logTest("Get component examples", false, error.message);
   }
 
   console.log();
@@ -226,20 +225,84 @@ async function testVersions() {
   console.log(`${colors.blue}Testing Versions Endpoint...${colors.reset}`);
 
   try {
-    const response = await makeRequest("/api/versions");
+    const response = await makeRequest("/versions");
 
     logTest("Versions endpoint accessible", response.status === 200);
     logTest("Has HeroUI versions", !!response.data?.heroui);
-    logTest("Has Native versions", !!response.data?.native);
     logTest("Has MCP version", !!response.data?.mcp);
 
     if (response.data) {
       console.log(`  HeroUI latest: ${response.data.heroui?.latest || "unknown"}`);
-      console.log(`  Native latest: ${response.data.native?.latest || "unknown"}`);
       console.log(`  MCP version: ${response.data.mcp?.current || "unknown"}`);
     }
   } catch (error) {
     logTest("Versions endpoint", false, error.message);
+  }
+
+  console.log();
+}
+
+/**
+ * Test docs available endpoint
+ */
+async function testDocsAvailable() {
+  console.log(`${colors.blue}Testing Docs Available Endpoint...${colors.reset}`);
+
+  try {
+    const response = await makeRequest("/docs/available");
+
+    logTest("Docs available endpoint accessible", response.status === 200);
+    logTest("Response has categories", Array.isArray(response.data?.categories));
+    logTest("Response has total count", typeof response.data?.total === "number");
+    logTest("Response has baseUrl", !!response.data?.baseUrl);
+
+    if (response.data) {
+      console.log(`  Base URL: ${response.data.baseUrl}`);
+      console.log(`  Categories: ${response.data.categories?.length || 0}`);
+      console.log(`  Total docs: ${response.data.total || 0}`);
+
+      // Show first category as sample
+      if (response.data.categories?.[0]) {
+        const firstCategory = response.data.categories[0];
+        console.log(`  First category: ${firstCategory.name} (${firstCategory.docs?.length || 0} docs)`);
+      }
+    }
+  } catch (error) {
+    logTest("Docs available endpoint", false, error.message);
+  }
+
+  console.log();
+}
+
+/**
+ * Test docs content endpoint
+ */
+async function testDocsContent() {
+  console.log(`${colors.blue}Testing Docs Content Endpoint...${colors.reset}`);
+
+  try {
+    // Test with a known documentation path
+    const testPath = "/docs/introduction";
+    const response = await makeRequest(`/docs/content?path=${encodeURIComponent(testPath)}`);
+
+    logTest("Docs content endpoint accessible", response.status === 200);
+    logTest("Response has path", !!response.data?.path);
+    logTest("Response has content", !!response.data?.content);
+    logTest("Response has url", !!response.data?.url);
+    logTest("Response has contentType", !!response.data?.contentType);
+
+    if (response.data?.content) {
+      const preview = response.data.content.substring(0, 100).replace(/\n/g, " ");
+      console.log(`  Content preview: ${preview}...`);
+      console.log(`  URL: ${response.data.url}`);
+      console.log(`  Content length: ${response.data.content.length} characters`);
+    }
+
+    // Test error handling with invalid path
+    const badResponse = await makeRequest("/docs/content?path=/invalid/path");
+    logTest("Invalid path returns error", badResponse.status !== 200);
+  } catch (error) {
+    logTest("Docs content endpoint", false, error.message);
   }
 
   console.log();
@@ -252,7 +315,7 @@ async function test404Handling() {
   console.log(`${colors.blue}Testing 404 Handling...${colors.reset}`);
 
   try {
-    const response = await makeRequest("/api/nonexistent");
+    const response = await makeRequest("/nonexistent");
 
     logTest("404 returns proper status", response.status === 404);
     logTest("404 has error message", !!response.data?.error);
@@ -278,6 +341,8 @@ async function runTests() {
   await testGetComponentProps();
   await testGetComponentExample();
   await testVersions();
+  await testDocsAvailable();
+  await testDocsContent();
   await test404Handling();
 
   // Print summary

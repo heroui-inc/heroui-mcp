@@ -268,54 +268,6 @@ export class VersionCheckService {
   }
 
   /**
-   * Check version status for HeroUI Native packages
-   */
-  async checkHeroUINativeVersion(currentVersion?: string): Promise<VersionComparison> {
-    const packageInfo = await this.fetchPackageInfo("heroui-native");
-
-    if (!currentVersion) {
-      return {
-        allVersions: Object.keys(packageInfo.versions || {})
-          .reverse()
-          .slice(0, 10),
-        currentVersion: "unknown",
-        isLatest: false,
-        isPrerelease: false,
-        latestVersion: packageInfo["dist-tags"]?.latest || "unknown",
-        recommendation: "Install HeroUI Native using: npm install heroui-native",
-        updateAvailable: true,
-      };
-    }
-
-    const latest = packageInfo["dist-tags"]?.latest || "unknown";
-    const comparison = this.compareVersions(currentVersion, latest);
-    const isLatest = comparison >= 0;
-    const isPrerelease = this.isPrerelease(currentVersion);
-
-    let recommendation = "";
-
-    if (isLatest && !isPrerelease) {
-      recommendation = "You are using the latest stable version of HeroUI Native.";
-    } else if (isLatest && isPrerelease) {
-      recommendation = `You are using a prerelease version (${currentVersion}). Consider switching to the stable version ${latest} for production use.`;
-    } else {
-      recommendation = `Update available! You can update from ${currentVersion} to ${latest} using: npm update heroui-native`;
-    }
-
-    return {
-      allVersions: Object.keys(packageInfo.versions || {})
-        .reverse()
-        .slice(0, 10),
-      currentVersion,
-      isLatest,
-      isPrerelease,
-      latestVersion: latest,
-      recommendation,
-      updateAvailable: !isLatest,
-    };
-  }
-
-  /**
    * Check version status for the MCP server itself
    */
   async checkMCPVersion(currentVersion?: string): Promise<VersionComparison> {
@@ -366,7 +318,7 @@ export class VersionCheckService {
   /**
    * Unified check version method
    */
-  async checkVersion(pkg: "heroui" | "native" | "mcp", currentVersion?: string): Promise<string> {
+  async checkVersion(pkg: "heroui" | "mcp", currentVersion?: string): Promise<string> {
     let versionInfo;
     let packageName: string;
 
@@ -374,10 +326,6 @@ export class VersionCheckService {
       case "heroui":
         packageName = "HeroUI";
         versionInfo = await this.checkHeroUIVersion(currentVersion);
-        break;
-      case "native":
-        packageName = "HeroUI Native";
-        versionInfo = await this.checkHeroUINativeVersion(currentVersion);
         break;
       case "mcp":
         packageName = "HeroUI MCP";
@@ -405,9 +353,6 @@ export class VersionCheckService {
       switch (pkg) {
         case "heroui":
           result += `npm install @heroui/react@${versionInfo.latestVersion}\n`;
-          break;
-        case "native":
-          result += `npm install heroui-native@${versionInfo.latestVersion}\n`;
           break;
         case "mcp":
           result += `npm install -g @heroui/mcp\n`;

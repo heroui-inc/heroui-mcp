@@ -91,7 +91,6 @@ This guide helps you resolve common issues when using the HeroUI MCP server.
 
 3. **Verify library parameter**
    - Use `"heroui"` for React components
-   - Use `"native"` for React Native components
 
 ### 🔴 IDE/Editor specific issues
 
@@ -194,7 +193,7 @@ npx @heroui/mcp --version
 curl https://mcp-api.heroui.com/health
 
 # List components via API
-curl https://mcp-api.heroui.com/api/components/heroui
+curl https://mcp-api.heroui.com/api/components
 ```
 
 ### 2. Test in your AI assistant

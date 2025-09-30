@@ -127,28 +127,25 @@ HeroUI v3 follows 10 core principles that guide every implementation decision:
 Always follow this workflow when implementing HeroUI components:
 
 ```javascript
+// Note: This MCP only supports HeroUI React components (always uses latest version)
+
 // Step 1: Check available components
-await mcp.list_components({
-  library: "heroui",
-  version: "latest", // or specific version from package.json
-});
+await mcp.list_components();
+// No parameters needed - returns all components with latest version
 
 // Step 2: Get complete component documentation
 const info = await mcp.get_component_info({
-  library: "heroui",
-  component: "Card",
+  component: "Card", // Must be one of the available components
 });
-// Returns: description, anatomy, props, examples, styling
+// Returns: description, anatomy, props, examples, styling (latest version)
 
 // Step 3: Get TypeScript prop types
 const props = await mcp.get_component_props({
-  library: "heroui",
   component: "Card",
 });
 
 // Step 4: Get implementation examples
 const examples = await mcp.get_component_examples({
-  library: "heroui",
   component: "Card",
 });
 
@@ -158,23 +155,19 @@ const theme = await mcp.get_theme_info({
   mode: "both", // light, dark, or both
   category: "colors", // colors, spacing, typography, etc.
 });
-
-// Step 6: Get design guidelines
-const guide = await mcp.get_design_guide({
-  guide: "color-customization", // See available guides below
-});
 ```
 
 ### When to Use Each Tool
 
-| Tool                     | Use Case                                        | Example Query                          |
-| ------------------------ | ----------------------------------------------- | -------------------------------------- |
-| `list_components`        | Starting any project, checking what's available | "What components does HeroUI provide?" |
-| `get_component_info`     | Before using ANY component                      | "How do I use the Card component?"     |
-| `get_component_props`    | Type checking, prop validation                  | "What props does Button accept?"       |
-| `get_component_examples` | Implementation patterns                         | "Show me Card examples"                |
-| `get_theme_info`         | Customization, theming                          | "What are the color variables?"        |
-| `get_design_guide`       | Best practices, patterns                        | "How do I customize colors?"           |
+| Tool                           | Use Case                                        | Example Query                          |
+| ------------------------------ | ----------------------------------------------- | -------------------------------------- |
+| `list_components`              | Starting any project, checking what's available | "What components does HeroUI provide?" |
+| `get_component_info`           | Before using ANY component                      | "How do I use the Card component?"     |
+| `get_component_props`          | Type checking, prop validation                  | "What props does Button accept?"       |
+| `get_component_examples`       | Implementation patterns                         | "Show me Card examples"                |
+| `get_component_source_code`    | View React/TypeScript source code               | "Show me Button source code"           |
+| `get_component_source_styles`  | View CSS styles                                 | "Show me Card styles"                  |
+| `get_theme_info`               | Customization, theming                          | "What are the color variables?"        |
 
 ### Common Workflows
 
@@ -182,13 +175,14 @@ const guide = await mcp.get_design_guide({
 
 ```typescript
 // WORKFLOW: Card Implementation
+// Note: This MCP only supports HeroUI React components (always uses latest version)
+
 // 1. Check it exists
-const components = await list_components({library: "heroui"});
+const components = await list_components();
 
 // 2. Get full documentation
 const cardInfo = await get_component_info({
-  library: "heroui",
-  component: "Card",
+  component: "Card", // Must be one of the available components
 });
 
 // 3. Review anatomy (CRITICAL for compound components)
@@ -197,7 +191,6 @@ console.log(cardInfo.anatomy);
 
 // 4. Get examples for patterns
 const examples = await get_component_examples({
-  library: "heroui",
   component: "Card",
 });
 
@@ -374,8 +367,7 @@ All HeroUI React components include full keyboard support:
 
 // DEBUGGING: Check component info
 const info = await get_component_info({
-  library: "heroui",
-  component: "Card"
+  component: "Card" // This MCP only supports HeroUI React components
 });
 console.log(info.anatomy); // See required structure
 ```
@@ -407,7 +399,6 @@ const theme = await get_theme_info({
 // PROBLEM: Type errors with props
 // SOLUTION: Get correct types
 const props = await get_component_props({
-  library: "heroui",
   component: "Button",
 });
 
@@ -442,22 +433,6 @@ interface CustomProps extends ButtonProps {
    - [ ] Lazy loading implemented?
    - [ ] Unused components tree-shaken?
 
-## Available Design Guides
-
-Query these with `get_design_guide` for detailed documentation:
-
-| Guide Name            | Purpose                               |
-| --------------------- | ------------------------------------- |
-| `color-theory`        | Understanding OKLCH and color systems |
-| `color-customization` | Creating custom color schemes         |
-| `custom-themes`       | Building complete themes              |
-| `dark-mode`           | Implementing dark mode                |
-| `animations`          | Using animation system                |
-| `responsive-design`   | Responsive patterns                   |
-| `accessibility`       | WCAG compliance                       |
-| `typography`          | Font system and scales                |
-| `spacing`             | Spacing system and rhythm             |
-| `components`          | Component design patterns             |
 
 ## Version Compatibility
 
@@ -465,15 +440,6 @@ Query these with `get_design_guide` for detailed documentation:
 | --------------- | ------------- | ------------ | ----- | ---------- |
 | 3.0.0-alpha.31+ | yes           | v4.0+        | 19.0+ | Latest     |
 | 2.x.x           | no            | v3.x         | 17.0+ | N/A        |
-
-**IMPORTANT:** Always verify versions with:
-
-```javascript
-await mcp.check_version({
-  library: "heroui",
-  version: "3.0.0-alpha.31",
-});
-```
 
 ### Component Checklist
 

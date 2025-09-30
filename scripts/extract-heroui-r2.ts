@@ -560,7 +560,7 @@ class HeroUIExtractor extends BaseGitHubExtractor {
         repo: "heroui",
         branch: "v3",
         docsPath: "apps/docs/content/docs/components",
-        outputLibraryName: "heroui",
+        outputLibraryName: "heroui-react",
       },
       parser,
       token,
@@ -647,7 +647,7 @@ async function main() {
 
     // Check if version already exists (unless forced)
     if (!forceExtract) {
-      const exists = await r2Uploader.versionExists("heroui", versionWithPrefix);
+      const exists = await r2Uploader.versionExists("heroui-react", versionWithPrefix);
       if (exists) {
         console.log(
           `ℹ️  Version ${versionWithPrefix} already exists in R2. Use --force to overwrite.`,
@@ -662,13 +662,13 @@ async function main() {
     );
 
     // Upload versioned data
-    await r2Uploader.uploadComponentData("heroui", versionWithPrefix, result.data);
+    await r2Uploader.uploadComponentData("heroui-react", versionWithPrefix, result.data);
 
     // Upload as latest
-    await r2Uploader.uploadLatestVersion("heroui", result.data);
+    await r2Uploader.uploadLatestVersion("heroui-react", result.data);
 
     // Update metadata
-    metadata.heroui = {
+    metadata["heroui-react"] = {
       current: versionWithPrefix,
       lastExtracted: new Date().toISOString(),
       extractDuration,
