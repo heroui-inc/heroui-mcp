@@ -148,7 +148,7 @@ For v2 projects: Continue using v2 until migration tool is available with v3 sta
           description: "Import and use components directly - no Provider needed!",
           file: "App.tsx",
           language: "tsx",
-          code: `import { Button, Card, Chip } from "@heroui/react";
+          code: `import { Button, Card } from "@heroui/react";
 
 export default function MyComponent() {
   return (
@@ -160,7 +160,6 @@ export default function MyComponent() {
         </Card.Description>
       </Card.Header>
       <Card.Content className="space-y-4">
-        <Chip type="success">Success</Chip>
         <Button
           variant="primary"
           onPress={() => console.log("Pressed!")}
@@ -181,7 +180,7 @@ export default function MyComponent() {
           language: "tsx",
           code: `"use client";
 
-import { Button, Card, Chip } from "@heroui/react";
+import { Button, Card } from "@heroui/react";
 
 export default function ExampleButton() {
   return (
@@ -193,7 +192,6 @@ export default function ExampleButton() {
         </Card.Description>
       </Card.Header>
       <Card.Content className="space-y-4">
-        <Chip type="success">Client Component</Chip>
         <Button
           variant="primary"
           onPress={() => console.log("Button pressed!")}
@@ -598,7 +596,7 @@ import MyHeroUIComponent from "../components/MyHeroUIComponent.tsx";
                 title: "Create a HeroUI React component for Astro",
                 file: "src/components/MyHeroUIComponent.tsx",
                 language: "tsx",
-                code: `import { Button, Card, Chip } from "@heroui/react";
+                code: `import { Button, Card } from "@heroui/react";
 
 export default function MyHeroUIComponent() {
   return (
@@ -610,7 +608,6 @@ export default function MyHeroUIComponent() {
         </Card.Description>
       </Card.Header>
       <Card.Content className="space-y-4">
-        <Chip type="success">Success</Chip>
         <Button
           variant="accent"
           onPress={() => console.log("Pressed!")}
