@@ -389,7 +389,7 @@ components.get("/:component/source", async (c) => {
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
     // Construct GitHub raw URL using latest version
-    const branch = latestVersion ? latestVersion.replace(/^v/, "") : "v3";
+    const branch = "v3";
     const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
     const sourceUrl = `${baseUrl}/packages/react/src/components/${data.links.source}`;
 
@@ -448,7 +448,7 @@ components.get("/:component/styles", async (c) => {
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
     // Construct GitHub raw URL using latest version
-    const branch = latestVersion ? latestVersion.replace(/^v/, "") : "v3";
+    const branch = "v3";
     const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
     const stylesUrl = `${baseUrl}/packages/styles/components/${data.links.styles}`;
 
