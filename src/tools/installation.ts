@@ -162,7 +162,7 @@ export default function MyComponent() {
       <Card.Content className="space-y-4">
         <Chip type="success">Success</Chip>
         <Button
-          variant="accent"
+          variant="primary"
           onPress={() => console.log("Pressed!")}
         >
           Get Started
@@ -195,7 +195,7 @@ export default function ExampleButton() {
       <Card.Content className="space-y-4">
         <Chip type="success">Client Component</Chip>
         <Button
-          variant="accent"
+          variant="primary"
           onPress={() => console.log("Button pressed!")}
         >
           Click Me
@@ -283,7 +283,7 @@ export default function Home() {
           </nav>
 
           <Button
-            variant="accent"
+            variant="primary"
             onPress={() => console.log("Pressed!")}
           >
             Get Started
