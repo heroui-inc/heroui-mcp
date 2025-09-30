@@ -18,8 +18,8 @@ cd heroui-mcp
 pnpm install
 
 # Set up environment variables
-cp .dev.vars.example .dev.vars
-# Edit .dev.vars with your credentials
+cp .env.example .env
+# Edit .env with your credentials
 
 # Extract component data to local development R2 bucket
 pnpm extract:all:dev  # Extracts HeroUI
@@ -32,7 +32,7 @@ pnpm mcp:stdio
 
 ### Environment Variables Setup
 
-Create a `.dev.vars` file with your credentials:
+Create a `.env` file with your credentials:
 
 ```bash
 # R2 Configuration
@@ -95,6 +95,7 @@ pnpm mcp:inspector
 ```
 
 This will:
+
 1. Start the MCP server with stdio transport
 2. Launch the Inspector UI in your browser (usually at http://localhost:6274)
 3. Provide a session token for authentication
@@ -148,6 +149,7 @@ pnpm format
 ## 📋 Available Scripts
 
 ### MCP Server Commands
+
 - `pnpm mcp:stdio` - Run MCP server with stdio transport
 - `pnpm mcp:inspector` - Run MCP server with Inspector UI for testing
 - `pnpm build` - Build the project for npm distribution
@@ -156,20 +158,24 @@ pnpm format
 ### Data Extraction Commands
 
 #### Development Environment (local R2 bucket)
+
 - `pnpm extract:all:dev` - Extract HeroUI to dev bucket
 - `pnpm extract:dev:heroui` - Extract HeroUI components to dev bucket
 - `pnpm extract:dev both -- --force` - Force re-extraction even if version exists
 
 #### Direct R2 Upload (requires environment variables)
+
 - `pnpm extract:heroui-r2` - Extract HeroUI to R2 (uses R2_BUCKET_NAME env var)
 
 ### Cloudflare Workers Commands
+
 - `pnpm dev` - Start local development server (http://localhost:8787)
 - `pnpm deploy` - Deploy to production environment
 - `pnpm deploy:staging` - Deploy to staging environment
 - `pnpm deploy:production` - Deploy to production environment
 
 ### Development Commands
+
 - `pnpm typecheck` - Run TypeScript type checking
 - `pnpm lint` - Run ESLint code linting
 - `pnpm format` - Format code with Prettier
@@ -229,7 +235,7 @@ The REST API is publicly available at `https://mcp-api.heroui.com`:
 │   ├── latest/
 │   │   └── heroui.json
 │   └── versions.json
-├── .dev.vars.example         # Environment variables template
+├── .env.example         # Environment variables template
 ├── dist/                     # Build output (generated)
 ├── wrangler.toml             # Cloudflare Workers configuration
 ├── tsconfig.json             # TypeScript configuration
@@ -242,18 +248,21 @@ The REST API is publicly available at `https://mcp-api.heroui.com`:
 The project supports multiple environments with different configurations:
 
 ### Development
+
 ```bash
 APP_ENV=development
 LOG_LEVEL=debug
 ```
 
 ### Staging
+
 ```bash
 APP_ENV=staging
 LOG_LEVEL=info
 ```
 
 ### Production
+
 ```bash
 APP_ENV=production
 LOG_LEVEL=warn
@@ -277,11 +286,13 @@ When deployed as a Cloudflare Worker:
 ### Deployment Steps
 
 1. **Configure Wrangler** (if not already done):
+
    ```bash
    wrangler login
    ```
 
 2. **Deploy to staging**:
+
    ```bash
    pnpm deploy:staging
    ```
@@ -320,8 +331,9 @@ heroui-mcp-data/
 ### Updating Component Data
 
 #### For Development
+
 ```bash
-# Set up environment variables in .dev.vars
+# Set up environment variables in .env
 # Then extract to development bucket
 pnpm extract:all:dev
 
@@ -330,7 +342,9 @@ pnpm extract:dev:heroui -- --force
 ```
 
 #### For Staging/Production
+
 Data is automatically extracted via GitHub Actions when:
+
 - Code is pushed to `develop` (staging) or `main` (production)
 - Daily at 2 AM UTC
 - Manually triggered via GitHub Actions UI
@@ -338,10 +352,11 @@ Data is automatically extracted via GitHub Actions when:
 ### Rate Limiting
 
 The extraction scripts include rate limiting to avoid GitHub API limits:
+
 - **With GitHub token**: 100ms delay between requests
 - **Without token**: 500ms delay between requests
 
-Always include `GITHUB_TOKEN` in your `.dev.vars` to avoid rate limits.
+Always include `GITHUB_TOKEN` in your `.env` to avoid rate limits.
 
 ## 🛠️ Debugging
 
@@ -377,6 +392,7 @@ npx @heroui/mcp --version
 To add a new tool to the MCP server:
 
 1. Define the tool schema in `mcp-server-core.ts`:
+
 ```typescript
 const myToolSchema = z.object({
   // Define your parameters
@@ -384,6 +400,7 @@ const myToolSchema = z.object({
 ```
 
 2. Implement the handler method:
+
 ```typescript
 private async handleMyTool(args: {...}) {
   // Implementation
@@ -391,6 +408,7 @@ private async handleMyTool(args: {...}) {
 ```
 
 3. Register in `handleToolCall` method:
+
 ```typescript
 if (name === "my_tool") {
   return this.handleMyTool(args);
@@ -398,6 +416,7 @@ if (name === "my_tool") {
 ```
 
 4. Add to tool list in `handleListTools`:
+
 ```typescript
 {
   name: "my_tool",
@@ -407,6 +426,7 @@ if (name === "my_tool") {
 ```
 
 5. If creating a service (like version checking), add it to `services/`:
+
 ```typescript
 // services/my-service.ts
 export class MyService {
@@ -445,6 +465,7 @@ Both versions share the same core functionality but use different storage backen
 5. Open a Pull Request
 
 Please ensure:
+
 - All tests pass (`pnpm typecheck && pnpm lint`)
 - Code is formatted (`pnpm format`)
 - Documentation is updated if needed

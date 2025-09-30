@@ -48,11 +48,12 @@ For v2 projects: Continue using v2 until migration tool is available with v3 sta
 
   exec(server, {config, name, description}) {
     const inputSchema = z.object({
-      framework: z.enum(["next-app", "next-pages", "vite", "general"])
+      framework: z.enum(["next-app", "next-pages", "vite", "astro", "general"])
         .describe(`Choose your framework:
 - "next-app": Next.js 14+ with App Router (recommended)
 - "next-pages": Next.js with Pages Router
 - "vite": Vite with React
+- "astro": Astro framework
 - "general": Generic React setup`),
       packageManager: z
         .enum(["npm", "pnpm", "yarn", "bun"])
@@ -96,11 +97,18 @@ For v2 projects: Continue using v2 until migration tool is available with v3 sta
           packageManager,
         };
 
-        // Tailwind CSS v4 installation
-        const tailwindV4Step: InstallationStep = {
-          title: "Install Tailwind CSS v4",
-          description: "HeroUI v3 requires Tailwind CSS v4 (NOT v3)",
-          command: `${installCmd} tailwindcss@next @tailwindcss/postcss@next`,
+        // Tailwind CSS v4 installation steps per framework
+        const tailwindV4ViteStep: InstallationStep = {
+          title: "Install Tailwind CSS v4 with Vite plugin",
+          description: "HeroUI v3 requires Tailwind CSS v4 (NOT v3) - Using Vite plugin",
+          command: `${installCmd} tailwindcss @tailwindcss/vite`,
+          packageManager,
+        };
+
+        const tailwindV4PostCSSStep: InstallationStep = {
+          title: "Install Tailwind CSS v4 with PostCSS",
+          description: "HeroUI v3 requires Tailwind CSS v4 (NOT v3) - Using PostCSS plugin",
+          command: `${installCmd} tailwindcss @tailwindcss/postcss postcss`,
           packageManager,
         };
 
@@ -131,37 +139,14 @@ For v2 projects: Continue using v2 until migration tool is available with v3 sta
 }`,
         };
 
-        // TypeScript configuration
-        const tsConfigStep: InstallationStep = {
-          title: "Update TypeScript configuration",
-          description: "Configure module resolution and paths",
-          file: "tsconfig.json",
-          language: "json",
-          code: `{
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "skipLibCheck": true,
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "strict": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
-}`,
-        };
+        // TypeScript configuration removed - let framework handle its own TypeScript setup
+        // HeroUI v3 works with any valid TypeScript configuration
 
-        // Sample usage
+        // Sample usage - generic version for non-Next.js frameworks
         const usageExample: InstallationStep = {
           title: "Using HeroUI v3 components",
           description: "Import and use components directly - no Provider needed!",
-          file: "App.tsx or page.tsx",
+          file: "App.tsx",
           language: "tsx",
           code: `import { Button, Card, Chip } from "@heroui/react";
 
@@ -188,6 +173,128 @@ export default function MyComponent() {
 }`,
         };
 
+        // Next.js App Router specific examples
+        const nextAppClientComponent: InstallationStep = {
+          title: "Create a client component for interactive elements",
+          description: "Client components use event handlers and browser-only APIs",
+          file: "app/components/example-button.tsx",
+          language: "tsx",
+          code: `"use client";
+
+import { Button, Card, Chip } from "@heroui/react";
+
+export default function ExampleButton() {
+  return (
+    <Card className="p-6 max-w-md">
+      <Card.Header>
+        <Card.Title>Interactive HeroUI Component</Card.Title>
+        <Card.Description>
+          This component uses client-side interactivity
+        </Card.Description>
+      </Card.Header>
+      <Card.Content className="space-y-4">
+        <Chip type="success">Client Component</Chip>
+        <Button
+          variant="accent"
+          onPress={() => console.log("Button pressed!")}
+        >
+          Click Me
+        </Button>
+      </Card.Content>
+    </Card>
+  );
+}`,
+        };
+
+        const nextAppServerComponent: InstallationStep = {
+          title: "Use HeroUI components in server components",
+          description: "Import client components and use Next.js Link with HeroUI styling",
+          file: "app/page.tsx",
+          language: "tsx",
+          code: `import Link from "next/link";
+import { Card, Chip } from "@heroui/react";
+import ExampleButton from "./components/example-button";
+
+export default function Home() {
+  return (
+    <main className="container mx-auto p-8">
+      <Card className="mb-8">
+        <Card.Header>
+          <Card.Title>Welcome to HeroUI v3 with Next.js</Card.Title>
+          <Card.Description>
+            Server components can use HeroUI components without event handlers
+          </Card.Description>
+        </Card.Header>
+        <Card.Content className="space-y-4">
+          <div className="flex gap-2">
+            <Chip type="info">Server Component</Chip>
+            <Chip type="success">No Provider Needed</Chip>
+          </div>
+
+          {/* Use Next.js Link with HeroUI link class for styling */}
+          <nav className="flex gap-4">
+            <Link href="/dashboard" className="link">
+              Dashboard
+            </Link>
+            <Link href="/about" className="link">
+              About
+            </Link>
+          </nav>
+        </Card.Content>
+      </Card>
+
+      {/* Import and use client components for interactivity */}
+      <ExampleButton />
+    </main>
+  );
+}`,
+        };
+
+        // Next.js Pages Router example with Next.js Link
+        const nextPagesExample: InstallationStep = {
+          title: "Using HeroUI v3 with Next.js Pages Router",
+          description: "Use Next.js Link component with HeroUI styling",
+          file: "pages/index.tsx",
+          language: "tsx",
+          code: `import Link from "next/link";
+import { Button, Card, Chip } from "@heroui/react";
+
+export default function Home() {
+  return (
+    <div className="container mx-auto p-8">
+      <Card className="p-6 max-w-md mx-auto">
+        <Card.Header>
+          <Card.Title>Welcome to HeroUI v3</Card.Title>
+          <Card.Description>
+            Using Next.js Pages Router with HeroUI components
+          </Card.Description>
+        </Card.Header>
+        <Card.Content className="space-y-4">
+          <Chip type="success">Pages Router</Chip>
+
+          {/* Use Next.js Link with HeroUI link class */}
+          <nav className="flex gap-4">
+            <Link href="/dashboard" className="link">
+              Dashboard
+            </Link>
+            <Link href="/about" className="link">
+              About
+            </Link>
+          </nav>
+
+          <Button
+            variant="accent"
+            onPress={() => console.log("Pressed!")}
+          >
+            Get Started
+          </Button>
+        </Card.Content>
+      </Card>
+    </div>
+  );
+}`,
+        };
+
         // Framework-specific configurations
         const frameworkGuides: Record<string, FrameworkGuide> = {
           "next-app": {
@@ -195,11 +302,11 @@ export default function MyComponent() {
             nodeVersion: "Node.js 20.x or later",
             requirements: [
               "Next.js 14.0 or later",
-              "React 19.0 or later",
+              "React 18.0 or later",
               "Tailwind CSS v4 (NOT v3)",
             ],
             steps: [
-              tailwindV4Step,
+              tailwindV4PostCSSStep,
               baseInstallStep,
               {
                 title: "Create or update global CSS",
@@ -234,7 +341,6 @@ export default function RootLayout({
   );
 }`,
               },
-              tsConfigStep,
               {
                 title: "Configure PostCSS (if needed)",
                 file: "postcss.config.mjs",
@@ -245,7 +351,8 @@ export default function RootLayout({
   },
 };`,
               },
-              usageExample,
+              nextAppClientComponent,
+              nextAppServerComponent,
               {
                 title: "Optimize bundle (optional)",
                 file: "next.config.mjs",
@@ -265,6 +372,9 @@ export default nextConfig;`,
               },
             ],
             notes: [
+              "Use 'use client' directive for components with event handlers (onPress, onClick)",
+              "Server components can use HeroUI components without event handlers",
+              "Use Next.js Link component with className='link' for HeroUI styled links",
               "HeroUI v3 uses compound components (e.g., Card.Header, Card.Content)",
               "Use onPress instead of onClick for better accessibility",
               'Dark mode works with [data-theme="dark"] or .dark class',
@@ -277,11 +387,11 @@ export default nextConfig;`,
             nodeVersion: "Node.js 20.x or later",
             requirements: [
               "Next.js 14.0 or later",
-              "React 19.0 or later",
+              "React 18.0 or later",
               "Tailwind CSS v4 (NOT v3)",
             ],
             steps: [
-              tailwindV4Step,
+              tailwindV4PostCSSStep,
               baseInstallStep,
               {
                 title: "Create or update global CSS",
@@ -321,7 +431,6 @@ export default function Document() {
   );
 }`,
               },
-              tsConfigStep,
               {
                 title: "Configure PostCSS",
                 file: "postcss.config.mjs",
@@ -332,9 +441,10 @@ export default function Document() {
   },
 };`,
               },
-              usageExample,
+              nextPagesExample,
             ],
             notes: [
+              "Use Next.js Link component with className='link' for HeroUI styled links",
               "Import styles in _app.tsx, not in _document.tsx",
               "suppressHydrationWarning prevents hydration mismatches",
               "HeroUI v3 components work without any Provider wrapper",
@@ -344,13 +454,13 @@ export default function Document() {
           vite: {
             framework: "Vite",
             nodeVersion: "Node.js 20.x or later",
-            requirements: ["Vite 5.0 or later", "React 19.0 or later", "Tailwind CSS v4 (NOT v3)"],
+            requirements: ["Vite 7.0 or later", "React 18.0 or later", "Tailwind CSS v4 (NOT v3)"],
             steps: [
-              tailwindV4Step,
+              tailwindV4ViteStep,
               baseInstallStep,
               {
-                title: "Install Vite plugins",
-                command: `${devInstallCmd} @vitejs/plugin-react vite-tsconfig-paths`,
+                title: "Install Vite React plugin",
+                command: `${devInstallCmd} @vitejs/plugin-react`,
                 packageManager,
               },
               {
@@ -381,26 +491,144 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 language: "ts",
                 code: `import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import tsconfigPaths from "vite-tsconfig-paths";
+import tailwindcss from "@tailwindcss/vite";
 
+// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
-  css: {
-    postcss: {
-      plugins: [
-        require("@tailwindcss/postcss")(),
-      ],
-    },
-  },
+	plugins: [react(), tailwindcss()],
 });`,
               },
-              tsConfigStep,
               usageExample,
             ],
             notes: [
               "Vite's HMR works great with HeroUI v3 components",
-              "Use vite-tsconfig-paths for path aliases",
               "CSS imports go in index.css, not in component files",
+              "No PostCSS config needed - @tailwindcss/vite handles everything",
+            ],
+          },
+
+          astro: {
+            framework: "Astro",
+            nodeVersion: "Node.js 20.x or later",
+            requirements: ["Astro 4.0 or later", "React 18.0 or later", "Tailwind CSS v4 (NOT v3)"],
+            steps: [
+              tailwindV4ViteStep,
+              baseInstallStep,
+              {
+                title: "Install Astro React integration",
+                description: "Install the official React integration for Astro",
+                command: `${installCmd} @astrojs/react`,
+                packageManager,
+              },
+              {
+                title: "Create or update global CSS",
+                file: "src/styles/global.css",
+                language: "css",
+                code: cssSetupStep.code!,
+              },
+              {
+                title: "Configure Astro with Tailwind CSS Vite plugin",
+                file: "astro.config.mjs",
+                language: "js",
+                code: `// @ts-check
+import { defineConfig } from "astro/config";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@astrojs/react";
+
+// https://astro.build/config
+export default defineConfig({
+  integrations: [react()],
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});`,
+              },
+              {
+                title: "Import global CSS in your Astro pages or layouts",
+                description: "Import the global CSS in your Astro components or layouts",
+                file: "src/layouts/Layout.astro",
+                language: "astro",
+                code: `---
+import "../styles/global.css";
+
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description">
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>`,
+              },
+              {
+                title: "Using HeroUI components in Astro",
+                description: "Use HeroUI components in .astro files with client directives",
+                file: "src/pages/index.astro",
+                language: "astro",
+                code: `---
+import Layout from "../layouts/Layout.astro";
+import MyHeroUIComponent from "../components/MyHeroUIComponent.tsx";
+---
+
+<Layout title="Welcome to Astro with HeroUI v3">
+  <main>
+    <h1 class="text-3xl font-bold underline">
+      Welcome to <span class="text-accent">Astro</span> + HeroUI v3
+    </h1>
+
+    <!-- React components with HeroUI need client directives -->
+    <MyHeroUIComponent client:load />
+  </main>
+</Layout>`,
+              },
+              {
+                title: "Create a HeroUI React component for Astro",
+                file: "src/components/MyHeroUIComponent.tsx",
+                language: "tsx",
+                code: `import { Button, Card, Chip } from "@heroui/react";
+
+export default function MyHeroUIComponent() {
+  return (
+    <Card className="p-6 max-w-md mx-auto mt-8">
+      <Card.Header>
+        <Card.Title>Welcome to HeroUI v3 with Astro</Card.Title>
+        <Card.Description>
+          Using React components in Astro with HeroUI v3
+        </Card.Description>
+      </Card.Header>
+      <Card.Content className="space-y-4">
+        <Chip type="success">Success</Chip>
+        <Button
+          variant="accent"
+          onPress={() => console.log("Pressed!")}
+        >
+          Get Started with Astro
+        </Button>
+      </Card.Content>
+    </Card>
+  );
+}`,
+              },
+            ],
+            notes: [
+              "Astro uses @tailwindcss/vite plugin in the vite config",
+              "React components with HeroUI need client directives (client:load, client:visible, etc.)",
+              "Import global CSS in your Layout.astro or individual pages",
+              "HeroUI v3 components work without a Provider in Astro too",
+              "Install @astrojs/react integration for React support in Astro",
             ],
           },
 
@@ -408,15 +636,15 @@ export default defineConfig({
             framework: "General React Setup",
             nodeVersion: "Node.js 20.x or later",
             requirements: [
-              "React 19.0 or later",
+              "React 18.0 or later",
               "Tailwind CSS v4 (NOT v3)",
               "Build tool that supports CSS imports",
             ],
             steps: [
               {
                 title: "Install Tailwind CSS v4",
-                description: "Install the next version of Tailwind CSS",
-                command: `${installCmd} tailwindcss@next @tailwindcss/postcss@next`,
+                description: "Install Tailwind CSS v4 with PostCSS plugin",
+                command: `${installCmd} tailwindcss @tailwindcss/postcss postcss`,
                 packageManager,
               },
               baseInstallStep,
@@ -437,7 +665,6 @@ root.render(
   <App />
 );`,
               },
-              tsConfigStep,
               {
                 title: "Configure PostCSS",
                 description: "Set up PostCSS to process Tailwind CSS v4",
@@ -454,7 +681,7 @@ root.render(
             notes: [
               "Ensure your build tool supports CSS imports",
               "PostCSS configuration may vary by build tool",
-              "Check that you're using React 19+ for best compatibility",
+              "Check that you're using React 18+ for best compatibility",
             ],
           },
         };
@@ -508,7 +735,20 @@ root.render(
         output += `2. **No Provider Required** - Unlike HeroUI v2, v3 components work directly without a Provider\n`;
         output += `3. **Use Compound Components** - Components like Card use Card.Header, Card.Content pattern\n`;
         output += `4. **Use onPress, not onClick** - For better accessibility, use onPress event handlers\n`;
-        output += `5. **Import Order Matters** - Always import Tailwind CSS before HeroUI styles\n\n`;
+        output += `5. **Import Order Matters** - Always import Tailwind CSS before HeroUI styles\n`;
+
+        // Add Next.js specific reminders
+        if (framework === "next-app" || framework === "next-pages") {
+          output += `\n### 📌 Next.js Specific Guidelines\n\n`;
+          if (framework === "next-app") {
+            output += `- **Use 'use client' directive** - Required for components with event handlers (onPress, onClick)\n`;
+            output += `- **Server vs Client Components** - Server components can't have event handlers\n`;
+            output += `- **Create separate client components** - Put interactive elements in client components\n`;
+          }
+          output += `- **Use Next.js Link** - Import from 'next/link' and add className="link" for HeroUI styling\n`;
+          output += `- **Don't import HeroUI Link** - Use Next.js Link for proper routing and prefetching\n`;
+        }
+        output += `\n`;
 
         output += `### Next Steps\n\n`;
         output += `- Use \`list_components\` to see all available components\n`;

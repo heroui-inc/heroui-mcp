@@ -44,3 +44,9 @@ temp/
 # Claude
 .claude
 .workflows
+
+# Mastra
+.mastra/
+memory.db
+memory.db-shm
+memory.db-wal
