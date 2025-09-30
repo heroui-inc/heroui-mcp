@@ -1,3 +1,12 @@
+# [1.0.0-alpha.14](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.13...v1.0.0-alpha.14) (2025-09-30)
+
+
+### Features
+
+* add API client configuration and define component data types ([bd36362](https://github.com/heroui-inc/heroui-mcp/commit/bd36362822a8fec4282078fdcaa8eb560769be61))
+
+
+
 # [1.0.0-alpha.13](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.12...v1.0.0-alpha.13) (2025-09-29)
 
 
