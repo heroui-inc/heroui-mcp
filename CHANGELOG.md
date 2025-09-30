@@ -1,3 +1,12 @@
+# [1.0.0-alpha.17](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.16...v1.0.0-alpha.17) (2025-09-30)
+
+
+### Bug Fixes
+
+* update button variant from accent to primary for consistency across components ([38d2818](https://github.com/heroui-inc/heroui-mcp/commit/38d28181cc9ff5d7b771e7e8db220027d47f253a))
+
+
+
 # [1.0.0-alpha.16](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.15...v1.0.0-alpha.16) (2025-09-30)
 
 
