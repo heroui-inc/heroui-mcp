@@ -1,0 +1,463 @@
+---
+description: HeroUI v3 - AI Development Guidelines with MCP Integration
+globs:
+  - "**/*.{jsx,tsx,ts,js}"
+  - "**/*.css"
+alwaysApply: false
+---
+
+# HeroUI v3 Development Rules - MCP-Powered AI Assistant Guide
+
+This guide enables AI agents to work effectively with HeroUI v3, a modern React component library built on React Aria Components with Tailwind CSS v4 integration.
+
+**Reference**: https://v3.heroui.com/llms-full.txt - Complete HeroUI v3 context for AI assistants
+
+## 🚨 Critical Rules - MUST READ
+
+### Version Requirements
+
+- **CRITICAL:** HeroUI v3 requires Tailwind CSS v4 (v3 is NOT supported)
+- **CRITICAL:** Use @heroui/react for React components with full accessibility
+- **CRITICAL:** Use @heroui/styles for framework-agnostic BEM classes (styling only)
+- **CRITICAL:** Never mix React components with BEM classes - choose one approach
+
+### MCP Tool Usage
+
+- **CRITICAL:** ALWAYS use MCP tools before implementing any component
+- **CRITICAL:** NEVER guess component APIs or prop names
+- **CRITICAL:** Check component anatomy with `get_component_info` before using compound components
+
+## Quick Start
+
+### Installation & Setup
+
+```bash
+# React with full accessibility
+npm install @heroui/react@alpha
+
+# Framework-agnostic styles only
+npm install @heroui/styles@alpha
+```
+
+### Basic Imports
+
+```tsx
+// React Components (recommended - includes accessibility)
+import {Button, Card, TextField, Tabs} from "@heroui/react";
+
+// Framework-agnostic styles (CSS only - no JavaScript behavior)
+import "@heroui/styles/dist/heroui.min.css";
+// Or via CDN:
+// <link href="https://cdn.jsdelivr.net/npm/@heroui/styles@3.0.0-alpha.31/dist/heroui.min.css" rel="stylesheet" />
+```
+
+### Tailwind Configuration (Required for React)
+
+```css
+/* index.css or global.css (Tailwind CSS v4) */
+@import "tailwindcss";
+
+@import "@heroui/styles";
+
+/* Important: This source is important to make sure storybook styles are compiled */
+
+/* Custom theme overrides - Just use CSS! */
+:root {
+  /* Your values */
+  /* --radius: 2.5rem; */
+
+  /* Use OS-native cursor for interactive elements (macOS style) */
+  /* --cursor-interactive: cursor; */
+}
+
+[data-theme="light"],
+.light {
+  /* --background: #f9f9f9; */
+  /* -skeleton-default-animation-type: none; */ /* possible values: shimmer, pulse, none */
+}
+
+/* Dark theme overrides sing data-theme or class */
+[data-theme="dark"],
+.dark {
+  /* Your values */
+  /* --radius: 0.5rem; */
+  /* --cursor: default; */
+  /* --cursor-interactive: pointer; */
+  /* --skeleton-default-animation-type: shimmer; */ /* possible values: shimmer, pulse, none */
+}
+
+/* Inline theme customizations */
+/* @theme inline { */
+/* Radius */
+/* --radius-xs: calc(var(--radius) * 0.25);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: calc(var(--radius) * 1);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 3);
+  --radius-4xl: calc(var(--radius) * 4);
+} */
+
+/* Inline component classes customizations */
+/* @utility button {
+  @apply rounded-lg;
+} */
+```
+
+## Design Philosophy
+
+HeroUI v3 follows 10 core principles that guide every implementation decision:
+
+1. **Accessibility First** - Every component is keyboard navigable and screen reader friendly
+2. **Composable Architecture** - Build complex UIs from simple, reusable parts
+3. **Semantic Intent** - Components express purpose, not just appearance
+4. **Progressive Disclosure** - Reveal complexity gradually as needed
+5. **Type Safety** - Full TypeScript support with comprehensive types
+6. **Separation of Concerns** - Logic, styling, and behavior are cleanly separated
+7. **Predictable Behavior** - Consistent patterns across all components
+8. **Performance Optimized** - Minimal runtime overhead, tree-shakeable
+9. **Framework Flexibility** - React today, more frameworks tomorrow
+10. **AI-Ready Design** - Structured for LLM understanding and generation
+
+## MCP Tools Workflow
+
+### Essential Tool Chain for Development
+
+Always follow this workflow when implementing HeroUI components:
+
+```javascript
+// Note: This MCP only supports HeroUI React components (always uses latest version)
+
+// Step 1: Check available components
+await mcp.list_components();
+// No parameters needed - returns all components with latest version
+
+// Step 2: Get complete component documentation
+const info = await mcp.get_component_info({
+  component: "Card", // Must be one of the available components
+});
+// Returns: description, anatomy, props, examples, styling (latest version)
+
+// Step 3: Get TypeScript prop types
+const props = await mcp.get_component_props({
+  component: "Card",
+});
+
+// Step 4: Get implementation examples
+const examples = await mcp.get_component_examples({
+  component: "Card",
+});
+
+// Step 5: Get theme variables for customization
+const theme = await mcp.get_theme_info({
+  theme: "default",
+  mode: "both", // light, dark, or both
+  category: "colors", // colors, spacing, typography, etc.
+});
+```
+
+### When to Use Each Tool
+
+| Tool                           | Use Case                                        | Example Query                          |
+| ------------------------------ | ----------------------------------------------- | -------------------------------------- |
+| `list_components`              | Starting any project, checking what's available | "What components does HeroUI provide?" |
+| `get_component_info`           | Before using ANY component                      | "How do I use the Card component?"     |
+| `get_component_props`          | Type checking, prop validation                  | "What props does Button accept?"       |
+| `get_component_examples`       | Implementation patterns                         | "Show me Card examples"                |
+| `get_component_source_code`    | View React/TypeScript source code               | "Show me Button source code"           |
+| `get_component_source_styles`  | View CSS styles                                 | "Show me Card styles"                  |
+| `get_theme_info`               | Customization, theming                          | "What are the color variables?"        |
+
+### Common Workflows
+
+#### Implementing a New Component
+
+```typescript
+// WORKFLOW: Card Implementation
+// Note: This MCP only supports HeroUI React components (always uses latest version)
+
+// 1. Check it exists
+const components = await list_components();
+
+// 2. Get full documentation
+const cardInfo = await get_component_info({
+  component: "Card", // Must be one of the available components
+});
+
+// 3. Review anatomy (CRITICAL for compound components)
+console.log(cardInfo.anatomy);
+// Output: ["Card", "Card.Image", "Card.Header", "Card.Title", "Card.Description", "Card.Content", "Card.Footer"]
+
+// 4. Get examples for patterns
+const examples = await get_component_examples({
+  component: "Card",
+});
+
+// 5. Implement with correct structure
+```
+
+## Component Architecture
+
+### Compound Components Pattern
+
+**CRITICAL:** HeroUI v3 uses compound components. Never use flat prop patterns.
+
+```tsx
+// ✅ CORRECT - Compound components with anatomy
+<Card>
+  <Card.Image src="/hero.jpg" alt="Hero image" />
+  <Card.Header>
+    <Card.Title>Product Name</Card.Title>
+    <Card.Description>Short description</Card.Description>
+  </Card.Header>
+  <Card.Content>
+    <p>Main content goes here with full flexibility</p>
+  </Card.Content>
+  <Card.Footer>
+    <Button variant="accent">Buy Now</Button>
+    <Button variant="ghost">Learn More</Button>
+  </Card.Footer>
+</Card>
+
+// ❌ WRONG - Flat props (not supported)
+<Card
+  title="Product Name"
+  description="Short description"
+  content="Main content"
+  footer={<Button>Buy Now</Button>}
+/>
+```
+
+## Styling System
+
+### CSS Variables Architecture
+
+HeroUI uses a three-layer CSS variable system. Always query with `get_theme_info`:
+
+```css
+/* Layer 1: Base Primitives */
+--white: oklch(1 0 0);
+--black: oklch(0 0 0);
+--spacing-1: 0.25rem;
+--radius-sm: 0.375rem;
+
+/* Layer 2: Semantic Tokens */
+--color-accent: oklch(0.7 0.25 260);
+--color-success: oklch(0.65 0.2 140);
+--color-danger: oklch(0.6 0.25 30);
+--font-size-body: 1rem;
+
+/* Layer 3: Calculated/Dynamic */
+--color-accent-hover: oklch(0.65 0.25 260);
+--shadow-card: 0 2px 8px oklch(0 0 0 / 0.1);
+```
+
+### Tailwind Integration
+
+```tsx
+// Using Tailwind utilities with HeroUI components
+<Button
+  className="px-8 py-4 text-lg font-bold" // Tailwind utilities
+  variant="accent" // HeroUI variant
+>
+  Large Button
+</Button>
+
+// Responsive design with Tailwind
+<Card className="w-full md:w-1/2 lg:w-1/3">
+  <Card.Content className="p-4 md:p-6 lg:p-8">
+    Responsive padding
+  </Card.Content>
+</Card>
+```
+
+## Framework-Agnostic Usage (BEM Classes)
+
+When React isn't available, use @heroui/styles for styling:
+
+```html
+<!-- Include styles via CDN -->
+<link
+  href="https://cdn.jsdelivr.net/npm/@heroui/styles@3.0.0-alpha.31/dist/heroui.min.css"
+  rel="stylesheet"
+  crossorigin="anonymous"
+/>
+
+<!-- Button variants using BEM -->
+<div class="flex gap-4 p-4">
+  <button class="button button--accent button--md">Primary Action</button>
+  <button class="button button--secondary button--md">Secondary</button>
+  <button class="button button--danger button--md">Delete</button>
+  <button class="button button--ghost button--md" disabled>Disabled</button>
+</div>
+```
+
+**WARNING:** BEM classes provide styling only - no JavaScript behavior, keyboard navigation, or ARIA attributes. Use @heroui/react for full accessibility.
+
+### Component Extension (Custom Variants)
+
+```tsx
+// Extending HeroUI components with custom variants
+interface CustomButtonProps extends ButtonProps {
+  variant?: "accent" | "gradient" | "neon";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+}
+
+const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
+  ({variant = "accent", size = "md", className, ...props}, ref) => {
+    const variantStyles = {
+      gradient: "bg-gradient-to-r from-purple-500 to-pink-500 text-white",
+      neon: "shadow-neon border-2 border-cyan-400 text-cyan-400",
+    };
+
+    const sizeStyles = {
+      xs: "px-2 py-1 text-xs",
+      xl: "px-8 py-4 text-xl",
+    };
+
+    return (
+      <Button
+        ref={ref}
+        className={cn(variantStyles[variant], sizeStyles[size], className)}
+        {...props}
+      />
+    );
+  },
+);
+```
+
+## Accessibility Best Practices
+
+### Keyboard Navigation
+
+All HeroUI React components include full keyboard support:
+
+```tsx
+// Components handle keyboard automatically
+<Button
+  onPress={handleAction} // Uses onPress, not onClick
+  onKeyDown={(e) => {
+    // Additional keyboard handling if needed
+    if (e.key === "Enter" && e.ctrlKey) {
+      handleSpecialAction();
+    }
+  }}
+>
+  Keyboard Accessible
+</Button>
+```
+
+## Troubleshooting Guide
+
+### Common Issues and Solutions
+
+#### Component Not Rendering
+
+```typescript
+// PROBLEM: Component doesn't appear
+<Card title="Test" />  // ❌ Wrong
+
+// SOLUTION: Use compound components
+<Card>  // ✅ Correct
+  <Card.Header>
+    <Card.Title>Test</Card.Title>
+  </Card.Header>
+</Card>
+
+// DEBUGGING: Check component info
+const info = await get_component_info({
+  component: "Card" // This MCP only supports HeroUI React components
+});
+console.log(info.anatomy); // See required structure
+```
+
+#### Styling Not Applied
+
+```typescript
+// PROBLEM: Tailwind classes not working
+// CHECK 1: Ensure Tailwind v4 is installed
+npm list tailwindcss  // Should show v4.x.x
+
+// CHECK 2: Verify config includes HeroUI
+// index.css or global.css (Tailwind CSS v4)
+@import "tailwindcss";
+
+@import "@heroui/styles";
+
+
+// CHECK 3: CSS variables loaded
+const theme = await get_theme_info({
+  category: "all"
+});
+// Apply missing variables
+```
+
+#### TypeScript Errors
+
+```typescript
+// PROBLEM: Type errors with props
+// SOLUTION: Get correct types
+const props = await get_component_props({
+  component: "Button",
+});
+
+// Use generated types
+import type {ButtonProps} from "@heroui/react";
+
+interface CustomProps extends ButtonProps {
+  // Your extensions
+}
+```
+
+### Debugging Checklist
+
+1. **Component Issues**
+   - [ ] Used `get_component_info` to verify API?
+   - [ ] Following compound component pattern?
+   - [ ] Imported from correct package?
+
+2. **Styling Issues**
+   - [ ] Tailwind CSS v4 installed?
+   - [ ] HeroUI plugin configured?
+   - [ ] CSS variables defined?
+   - [ ] Dark mode class applied correctly?
+
+3. **Behavior Issues**
+   - [ ] Using `onPress` instead of `onClick`?
+   - [ ] ARIA attributes present?
+   - [ ] Keyboard navigation working?
+
+4. **Performance Issues**
+   - [ ] Components memoized where needed?
+   - [ ] Lazy loading implemented?
+   - [ ] Unused components tree-shaken?
+
+
+## Version Compatibility
+
+| HeroUI Version  | MCP Supported | Tailwind CSS | React | React Aria |
+| --------------- | ------------- | ------------ | ----- | ---------- |
+| 3.0.0-alpha.31+ | yes           | v4.0+        | 19.0+ | Latest     |
+| 2.x.x           | no            | v3.x         | 17.0+ | N/A        |
+
+### Component Checklist
+
+Before implementing any component:
+
+1. ✅ Query `list_components` - Verify it exists
+2. ✅ Query `get_component_info` - Understand anatomy
+3. ✅ Query `get_component_props` - Get correct props
+4. ✅ Query `get_component_examples` - See patterns
+5. ✅ Use compound components - Not flat props
+
+## Resources
+
+- **Official Documentation**: https://v3.heroui.com
+- **GitHub Repository**: https://github.com/heroui-inc/heroui/tree/v3
+- **Discord Community**: https://discord.gg/9b6yyZKmH4
+- **AI Context**: https://v3.heroui.com/llms-full.txt
+
+---
+
+**Remember**: Always use MCP tools for accurate, up-to-date component information. Never assume or guess component APIs. HeroUI v3 is actively evolving - verify everything with the tools provided.

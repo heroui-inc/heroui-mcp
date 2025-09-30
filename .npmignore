@@ -4,6 +4,7 @@
 .cursor/
 scripts/
 src/
+mastra/
 *.ts
 !dist/**/*.d.ts
 

@@ -17,18 +17,42 @@ cd heroui-mcp
 # Install dependencies
 pnpm install
 
-# Extract component data (recommended)
-pnpm extract:heroui
-pnpm extract:native
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your credentials
+
+# Extract component data to local development R2 bucket
+pnpm extract:all:dev  # Extracts HeroUI
+# Or extract individually:
+pnpm extract:dev:heroui
 
 # Start MCP server (stdio transport)
 pnpm mcp:stdio
 ```
 
-## 📦 Building for NPM
+### Environment Variables Setup
+
+Create a `.env` file with your credentials:
 
 ```bash
-# Build the project for npm distribution
+# R2 Configuration
+CLOUDFLARE_ACCOUNT_ID=your_account_id
+R2_ACCESS_KEY_ID=your_r2_access_key
+R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+R2_BUCKET_NAME=heroui-mcp-data-dev
+
+# GitHub Token (optional but recommended to avoid rate limits)
+GITHUB_TOKEN=your_github_personal_access_token
+```
+
+**Note**: GitHub token doesn't need special permissions for public repos. Create one at [GitHub Settings](https://github.com/settings/tokens).
+
+## 📦 Building
+
+### Building for NPM
+
+```bash
+# Build STDIO client for NPM
 pnpm build
 
 # Test the built package locally
@@ -36,7 +60,30 @@ npm pack
 # This creates a .tgz file you can install locally to test
 ```
 
+### Deploying API to Cloudflare
+
+```bash
+# Deploy to staging
+pnpm deploy:api:staging
+
+# Deploy to production
+pnpm deploy:api:production
+```
+
 ## 🧪 Testing
+
+### Quick Testing
+
+```bash
+# Test API endpoints
+pnpm test:api
+
+# Test with staging API
+pnpm test:api:staging
+
+# Test with production API
+pnpm test:api:production
+```
 
 ### Using MCP Inspector
 
@@ -48,6 +95,7 @@ pnpm mcp:inspector
 ```
 
 This will:
+
 1. Start the MCP server with stdio transport
 2. Launch the Inspector UI in your browser (usually at http://localhost:6274)
 3. Provide a session token for authentication
@@ -61,7 +109,25 @@ For development or testing with a local build in your IDE:
   "mcpServers": {
     "heroui-local": {
       "command": "node",
-      "args": ["/path/to/heroui-mcp/dist/stdio-npm.js"]
+      "args": ["/path/to/heroui-mcp/dist/stdio.js"]
+    }
+  }
+}
+```
+
+### Environment Variables for Testing
+
+You can override the API URL for local development:
+
+```json
+{
+  "mcpServers": {
+    "heroui": {
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"],
+      "env": {
+        "HEROUI_API_URL": "http://localhost:8787"
+      }
     }
   }
 }
@@ -83,23 +149,58 @@ pnpm format
 ## 📋 Available Scripts
 
 ### MCP Server Commands
+
 - `pnpm mcp:stdio` - Run MCP server with stdio transport
 - `pnpm mcp:inspector` - Run MCP server with Inspector UI for testing
-- `pnpm extract:heroui` - Extract component data from HeroUI repository
-- `pnpm extract:native` - Extract component data from HeroUI Native repository
 - `pnpm build` - Build the project for npm distribution
 - `pnpm clean` - Clean build artifacts
 
+### Data Extraction Commands
+
+#### Development Environment (local R2 bucket)
+
+- `pnpm extract:all:dev` - Extract HeroUI to dev bucket
+- `pnpm extract:dev:heroui` - Extract HeroUI components to dev bucket
+- `pnpm extract:dev both -- --force` - Force re-extraction even if version exists
+
+#### Direct R2 Upload (requires environment variables)
+
+- `pnpm extract:heroui-r2` - Extract HeroUI to R2 (uses R2_BUCKET_NAME env var)
+
 ### Cloudflare Workers Commands
+
 - `pnpm dev` - Start local development server (http://localhost:8787)
 - `pnpm deploy` - Deploy to production environment
 - `pnpm deploy:staging` - Deploy to staging environment
 - `pnpm deploy:production` - Deploy to production environment
 
 ### Development Commands
+
 - `pnpm typecheck` - Run TypeScript type checking
 - `pnpm lint` - Run ESLint code linting
 - `pnpm format` - Format code with Prettier
+
+## 🏗️ Architecture
+
+The HeroUI MCP uses a simple architecture:
+
+1. **STDIO Client** (`@heroui/mcp`) - Runs locally, handles MCP protocol
+2. **REST API** (Cloudflare Worker) - Serves component data
+3. **R2 Storage** - Stores component documentation
+
+```
+AI Assistant → STDIO Client → REST API → R2 Storage
+```
+
+### API Endpoints
+
+The REST API is publicly available at `https://mcp-api.heroui.com`:
+
+- `GET /api/components` - List HeroUI components
+- `GET /api/components/Button` - Get Button component details
+- `GET /api/components/Button/props` - Get Button props
+- `GET /api/components/Button/examples` - Get Button examples
+- `GET /api/versions` - Get version information
 
 ## 🏗️ Project Structure
 
@@ -122,13 +223,19 @@ pnpm format
 │       ├── base-extractor.ts         # Base extraction functionality
 │       └── github-client.ts          # GitHub API client
 ├── scripts/
-│   ├── extract-heroui.ts     # HeroUI data extraction script
-│   └── extract-native.ts     # HeroUI Native extraction script
-├── data/
-│   ├── latest/               # Latest component data cache
-│   │   ├── heroui.json       # HeroUI components data
-│   │   └── native.json       # HeroUI Native components data
-│   └── versions.json         # Version tracking
+│   ├── extract-heroui-r2.ts  # HeroUI data extraction to R2
+│   ├── extract-dev.sh        # Development extraction helper
+│   └── check-versions-ci.mjs # CI version checking script
+├── lib/
+│   ├── base-extractor.ts     # Base extraction functionality
+│   ├── github-client.ts      # GitHub API client
+│   ├── r2-uploader.ts        # R2 storage upload client
+│   └── data-store.ts         # Data storage abstraction
+├── data/                     # Local fallback data (npm package)
+│   ├── latest/
+│   │   └── heroui.json
+│   └── versions.json
+├── .env.example         # Environment variables template
 ├── dist/                     # Build output (generated)
 ├── wrangler.toml             # Cloudflare Workers configuration
 ├── tsconfig.json             # TypeScript configuration
@@ -141,18 +248,21 @@ pnpm format
 The project supports multiple environments with different configurations:
 
 ### Development
+
 ```bash
 APP_ENV=development
 LOG_LEVEL=debug
 ```
 
 ### Staging
+
 ```bash
 APP_ENV=staging
 LOG_LEVEL=info
 ```
 
 ### Production
+
 ```bash
 APP_ENV=production
 LOG_LEVEL=warn
@@ -176,11 +286,13 @@ When deployed as a Cloudflare Worker:
 ### Deployment Steps
 
 1. **Configure Wrangler** (if not already done):
+
    ```bash
    wrangler login
    ```
 
 2. **Deploy to staging**:
+
    ```bash
    pnpm deploy:staging
    ```
@@ -194,30 +306,84 @@ When deployed as a Cloudflare Worker:
 
 ### Component Data Extraction
 
-The server extracts component data from GitHub repositories:
+The server extracts component data from GitHub repositories and stores it in Cloudflare R2:
 
-- **HeroUI**: Main component library from `@heroui-org/heroui`
-- **HeroUI Native**: React Native components from `@heroui-org/heroui-native`
+- **HeroUI**: React components from `heroui-inc/heroui` (v3 branch)
 
-Data is cached locally in the `data/` directory and versioned for consistency.
+### R2 Storage Structure
+
+```
+heroui-mcp-data/
+├── latest/
+│   └── heroui.json           # Latest HeroUI data
+├── heroui/
+│   ├── v3.0.0-alpha.31.json  # Versioned HeroUI data
+│   └── ...
+└── versions.json             # Version metadata
+```
+
+### Environment-Based Deployment
+
+- **Development**: `heroui-mcp-data-dev` (manual extraction)
+- **Staging**: `heroui-mcp-data-staging` (develop branch)
+- **Production**: `heroui-mcp-data` (main branch)
 
 ### Updating Component Data
 
-To update the component data:
+#### For Development
 
 ```bash
-# Extract latest HeroUI components
-pnpm extract:heroui
+# Set up environment variables in .env
+# Then extract to development bucket
+pnpm extract:all:dev
 
-# Extract latest HeroUI Native components
-pnpm extract:native
+# Force re-extraction
+pnpm extract:dev:heroui -- --force
 ```
 
-The extraction scripts will:
-1. Fetch the latest component information from GitHub
-2. Parse TypeScript definitions and props
-3. Generate structured JSON data
-4. Save to the `data/` directory
+#### For Staging/Production
+
+Data is automatically extracted via GitHub Actions when:
+
+- Code is pushed to `develop` (staging) or `main` (production)
+- Daily at 2 AM UTC
+- Manually triggered via GitHub Actions UI
+
+### Rate Limiting
+
+The extraction scripts include rate limiting to avoid GitHub API limits:
+
+- **With GitHub token**: 100ms delay between requests
+- **Without token**: 500ms delay between requests
+
+Always include `GITHUB_TOKEN` in your `.env` to avoid rate limits.
+
+## 🛠️ Debugging
+
+### Debug Mode
+
+Run with debug output:
+
+```bash
+DEBUG=* npx @heroui/mcp
+```
+
+### Testing API Connection
+
+```bash
+# Test if the API is accessible
+curl https://mcp-api.heroui.com/health
+
+# Check component data
+curl https://mcp-api.heroui.com/api/components
+```
+
+### Verifying Package Installation
+
+```bash
+# Check if the package is available
+npx @heroui/mcp --version
+```
 
 ## 🛠️ Adding New Features
 
@@ -226,6 +392,7 @@ The extraction scripts will:
 To add a new tool to the MCP server:
 
 1. Define the tool schema in `mcp-server-core.ts`:
+
 ```typescript
 const myToolSchema = z.object({
   // Define your parameters
@@ -233,6 +400,7 @@ const myToolSchema = z.object({
 ```
 
 2. Implement the handler method:
+
 ```typescript
 private async handleMyTool(args: {...}) {
   // Implementation
@@ -240,6 +408,7 @@ private async handleMyTool(args: {...}) {
 ```
 
 3. Register in `handleToolCall` method:
+
 ```typescript
 if (name === "my_tool") {
   return this.handleMyTool(args);
@@ -247,6 +416,7 @@ if (name === "my_tool") {
 ```
 
 4. Add to tool list in `handleListTools`:
+
 ```typescript
 {
   name: "my_tool",
@@ -256,6 +426,7 @@ if (name === "my_tool") {
 ```
 
 5. If creating a service (like version checking), add it to `services/`:
+
 ```typescript
 // services/my-service.ts
 export class MyService {
@@ -294,6 +465,7 @@ Both versions share the same core functionality but use different storage backen
 5. Open a Pull Request
 
 Please ensure:
+
 - All tests pass (`pnpm typecheck && pnpm lint`)
 - Code is formatted (`pnpm format`)
 - Documentation is updated if needed

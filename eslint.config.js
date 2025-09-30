@@ -43,7 +43,7 @@ export default defineConfig([
       parser: typescriptParser,
       parserOptions: {
         ecmaVersion: "latest",
-        project: "./tsconfig.json",
+        project: ["./tsconfig.json", "./mastra/tsconfig.json"],
       },
       sourceType: "module",
     },
@@ -98,21 +98,9 @@ export default defineConfig([
       "no-process-exit": "off", // Allow process.exit in server contexts
       "no-unused-vars": "off",
       "object-curly-spacing": ["error", "never"],
-      "padding-line-between-statements": [
-        "error",
-        {blankLine: "always", next: "*", prev: "directive"},
-        {blankLine: "any", next: "directive", prev: "directive"},
-        {blankLine: "always", next: "*", prev: ["const", "let", "var"]},
-        {blankLine: "any", next: ["const", "let", "var"], prev: ["const", "let", "var"]},
-        {blankLine: "always", next: "return", prev: "*"},
-      ],
+      "padding-line-between-statements": ["warn", {blankLine: "always", next: "return", prev: "*"}],
       "prettier/prettier": "error",
-      "sort-destructure-keys/sort-destructure-keys": [
-        "error",
-        {
-          caseSensitive: true,
-        },
-      ],
+      "sort-destructure-keys/sort-destructure-keys": "off",
       "sort-imports": [
         "error",
         {
@@ -123,16 +111,8 @@ export default defineConfig([
           memberSyntaxSortOrder: ["none", "all", "multiple", "single"],
         },
       ],
-      "sort-keys": [
-        "error",
-        "asc",
-        {
-          caseSensitive: true,
-          minKeys: 2,
-          natural: false,
-        },
-      ],
-      "sort-keys-fix/sort-keys-fix": "error",
+      "sort-keys": "off",
+      "sort-keys-fix/sort-keys-fix": "off",
       "unused-imports/no-unused-imports": "error",
       "unused-imports/no-unused-vars": [
         "error",
@@ -153,8 +133,23 @@ export default defineConfig([
     },
   },
   {
-    files: [".*.js", ".*.cjs", ".*.mjs"],
+    files: [".*.js", ".*.cjs", ".*.mjs", "test-mcp-local.js", "test-api.mjs"],
     ...tseslint.configs.disableTypeChecked,
+  },
+  {
+    files: ["scripts/**/*.mjs"],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      ecmaVersion: "latest",
+      globals: {
+        ...globals.node,
+        ...globals.es2025,
+      },
+      sourceType: "module",
+    },
+    rules: {
+      "no-console": "off",
+    },
   },
   {
     files: ["scripts/**/*.ts"],
@@ -197,7 +192,9 @@ export default defineConfig([
       "**/data/**/*.json", // Ignore extracted component data
       "!.vscode/**",
       "!scripts/**",
+      "scripts/check-versions-ci.mjs", // Ignore .mjs file that has parser issues
       "eslint.config.js",
+      "tsup.config.ts",
     ],
   },
 ]);

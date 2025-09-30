@@ -1,55 +1,129 @@
-#!/usr/bin/env node
-
 /**
- * HeroUI MCP Server
- * Provides component documentation and props via Model Context Protocol
+ * HeroUI MCP STDIO Server
+ *
+ * This is the main entry point for the npm package @heroui/mcp
+ * It runs locally and communicates with the HeroUI API server
  */
 
-import {Server} from "@modelcontextprotocol/sdk/server/index.js";
+import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
-import {CallToolRequestSchema, ListToolsRequestSchema} from "@modelcontextprotocol/sdk/types.js";
 
-import {McpServerCore} from "./services/mcp-server-core.js";
+import {API_BASE_URL} from "./constants";
+import {packageInfo} from "./lib/package-info";
+import {initializeTools} from "./tools";
 
-// Initialize MCP server core
-const mcpServerCore = new McpServerCore();
+/**
+ * Create and configure the MCP server
+ */
+async function createServer(): Promise<McpServer> {
+  const server = new McpServer({
+    name: packageInfo.name,
+    version: packageInfo.version,
+    instructions: `## HeroUI MCP Tools - v3 Alpha Documentation
 
-// Create the MCP server
-const server = new Server(
-  {
-    name: "heroui-mcp",
-    version: "0.0.0-alpha.1",
-  },
-  {
+Welcome to HeroUI MCP! These tools provide documentation for **HeroUI v3 (Alpha)** React components.
+
+### ⚠️ IMPORTANT: Version Information
+• **Current Support:** HeroUI v3 (Alpha) ONLY
+• **HeroUI v2:** NOT supported by this MCP
+• **Migration from v2 to v3:** NOT available yet (coming when v3 is stable)
+• **Status:** v3 is in ALPHA - expect breaking changes
+
+### 🚫 Migration Notice
+**Migration from HeroUI v2 to v3 is NOT supported yet.**
+A migration tool will be available in the future when v3 reaches stable release.
+For now, v3 should only be used for new projects.
+
+### Getting Started
+Use the \`installation\` tool for setting up a NEW HeroUI v3 project:
+\`\`\`javascript
+installation({ framework: "next-app", packageManager: "npm" })
+\`\`\`
+
+### Essential Workflow
+Always follow this order when implementing HeroUI v3 components:
+
+1. **installation** - Set up HeroUI v3 in your project (NEW projects only)
+2. **list_components** - Check available v3 components
+3. **get_component_info** - Get complete API and anatomy
+4. **get_component_props** - Review TypeScript types
+5. **get_component_examples** - See usage patterns
+
+### Key Differences in v3
+• Compound components pattern (e.g., Card.Header, Card.Content)
+• Requires Tailwind CSS v4 (NOT v3)
+• No Provider component needed (unlike v2)
+• Built on React Aria Components
+• Modern React 19+ features
+
+### Example Usage
+\`\`\`javascript
+// Check v3 component structure
+get_component_info({ component: "Card" })
+
+// v3 uses compound components (NOT flat props like v2)
+<Card>
+  <Card.Header>
+    <Card.Title>Title</Card.Title>
+  </Card.Header>
+  <Card.Content>Content</Card.Content>
+</Card>
+\`\`\`
+
+### Available Documentation
+• Components: Use tools to explore v3 components
+• Guides: Use get_docs({ path: "/docs/introduction" })
+• Theme: Use get_theme_info() for v3 theming
+
+### Pro Tips
+• This MCP is for v3 ONLY - v2 docs are at https://heroui.com
+• v3 is ALPHA - use for experimentation and new projects
+• Migration guide will come with stable v3 release
+• Report v3 issues at: https://github.com/heroui-inc/heroui/issues
+
+For v3 guidelines: https://v3.heroui.com/llms-full.txt
+For v2 documentation: https://heroui.com (not supported by this MCP)`,
     capabilities: {
-      tools: {},
+      tools: {
+        listChanged: true,
+      },
     },
-  },
-);
+  });
 
-// Delegate to MCP server core
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return await mcpServerCore.handleListTools();
-});
+  // Initialize tools from the tools directory
+  await initializeTools(server, {
+    apiBaseUrl: API_BASE_URL,
+  });
 
-// Delegate tool calls to MCP server core
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  return await mcpServerCore.handleToolCall(request.params);
-});
-
-// Start the server
-async function main() {
-  // Initialize MCP server core
-  await mcpServerCore.initialize();
-
-  const transport = new StdioServerTransport();
-
-  await server.connect(transport);
-
-  console.error("HeroUI MCP Server running on stdio");
+  return server;
 }
 
+/**
+ * Main function
+ */
+async function main() {
+  try {
+    // Create server
+    const server = await createServer();
+
+    // Create STDIO transport
+    const transport = new StdioServerTransport();
+
+    // Connect server to transport
+    await server.connect(transport);
+
+    // Log to stderr to avoid interfering with STDIO
+    console.error("HeroUI MCP Server running on STDIO");
+    console.error(`API URL: ${API_BASE_URL}`);
+    console.error(`Version: ${packageInfo.version}`);
+  } catch (error) {
+    console.error("Fatal error:", error);
+    process.exit(1);
+  }
+}
+
+// Run the server
 main().catch((error) => {
-  console.error("Fatal error:", error);
+  console.error("Failed to start server:", error);
   process.exit(1);
 });

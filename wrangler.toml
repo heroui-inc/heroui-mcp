@@ -1,9 +1,9 @@
-name = "heroui-mcp"
+name = "heroui-mcp-api"
 
 # ------------------------------------------------------------
 # -- General
 # ------------------------------------------------------------
-main = "src/index.ts"
+main = "src/api.ts"
 compatibility_date = "2025-01-18"
 compatibility_flags = ["nodejs_compat"]
 
@@ -13,38 +13,57 @@ compatibility_flags = ["nodejs_compat"]
 [env.development]
 # Local development configuration
 
+[[env.development.r2_buckets]]
+binding = 'COMPONENT_DATA'
+bucket_name = 'heroui-mcp-data-dev'
+
 [env.development.vars]
 APP_ENV = "development"
 LOG_LEVEL = "debug"
-# Add your development environment variables here
+# Analytics configuration - disabled in development
+POSTHOG_KEY = ""
+POSTHOG_HOST = ""
+R2_BUCKET_NAME = "heroui-mcp-data-dev"
 
 # ------------------------------------------------------------
 # -- Staging Environment
 # ------------------------------------------------------------
 [env.staging]
-# Routes will be configured when we have a domain
-# routes = [
-#   { pattern = "staging-mcp.heroui.chat", custom_domain = true }
-# ]
+routes = [
+  { pattern = "staging-mcp-api.heroui.com", custom_domain = true }
+]
+
+[[env.staging.r2_buckets]]
+binding = 'COMPONENT_DATA'
+bucket_name = 'heroui-mcp-data-staging'
 
 [env.staging.vars]
 APP_ENV = "staging"
 LOG_LEVEL = "info"
-# Add your staging environment variables here
+# Analytics configuration - disabled in staging for now
+POSTHOG_KEY = ""
+POSTHOG_HOST = ""
+R2_BUCKET_NAME = "heroui-mcp-data-staging"
 
 # ------------------------------------------------------------
 # -- Production Environment
 # ------------------------------------------------------------
 [env.production]
-# Routes will be configured when we have a domain
-# routes = [
-#   { pattern = "mcp.heroui.chat", custom_domain = true }
-# ]
+routes = [
+  { pattern = "mcp-api.heroui.com", custom_domain = true }
+]
+
+[[env.production.r2_buckets]]
+binding = 'COMPONENT_DATA'
+bucket_name = 'heroui-mcp-data'
 
 [env.production.vars]
 APP_ENV = "production"
 LOG_LEVEL = "warn"
-# Add your production environment variables here
+# Analytics configuration - enabled in production
+POSTHOG_KEY = "phc_VrhZEcKbs1xMxKoRtnvB8vxY8FwBApG8Pk87aOqvfLt"
+POSTHOG_HOST = "https://us.i.posthog.com"
+R2_BUCKET_NAME = "heroui-mcp-data"
 
 # ------------------------------------------------------------
 # -- Worker Settings

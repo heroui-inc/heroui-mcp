@@ -1,32 +1,21 @@
 # HeroUI MCP Server
 
-A Model Context Protocol (MCP) server that provides AI assistants with access to HeroUI v3 and HeroUI Native component documentation, props, and usage examples.
+Access HeroUI component documentation directly in your AI assistant via Model Context Protocol (MCP).
+
+> **Note:** Currently supports **@heroui/react v3** only. Support for **heroui-native** coming soon.
 
 ## Features
 
-- Component documentation with detailed props and descriptions
-- Support for both HeroUI and HeroUI Native libraries
-- Version-specific component queries
-- Full TypeScript support with type definitions
-- Integration with popular AI-powered IDEs and editors
+- Complete component documentation for HeroUI React v3
+- Search and browse components
+- Get props, types, and usage examples
+- Always up-to-date with latest versions
 
-## Installation
-
-```bash
-# Install globally from npm
-npm install -g @heroui/mcp
-
-# Or use directly with npx (no installation needed)
-npx @heroui/mcp
-```
-
-## IDE Setup
-
-The MCP server supports [stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio) and is published at `@heroui/mcp`.
+## Configuration
 
 ### Cursor
 
-Add to `.cursor/mcp.json` in your project root:
+Add to Cursor Settings → Features → MCP Servers:
 
 ```json
 {
@@ -38,24 +27,28 @@ Add to `.cursor/mcp.json` in your project root:
   }
 }
 ```
-
-> Restart Cursor if it doesn't automatically detect the changes.
 
 ### Claude Code
 
-Run this command in your terminal:
+Add to your Claude Code configuration:
 
-```bash
-claude mcp add heroui -- npx -y @heroui/mcp
+**macOS**: `~/Library/Application Support/Claude/claude_mcp_settings.json`
+**Windows**: `%APPDATA%\Claude\claude_mcp_settings.json`
+
+```json
+{
+  "mcpServers": {
+    "heroui": {
+      "command": "npx",
+      "args": ["-y", "@heroui/mcp"]
+    }
+  }
+}
 ```
-
-Then start a Claude Code session with `claude`.
 
 ### Windsurf
 
-1. Go to Settings > Windsurf Settings > Cascade
-2. Click "Manage MCPs" > "View raw config"
-3. Add the configuration:
+Add to Windsurf configuration → MCP Servers:
 
 ```json
 {
@@ -68,15 +61,13 @@ Then start a Claude Code session with `claude`.
 }
 ```
 
-### Visual Studio Code
+### VS Code (with MCP extension)
 
-> Requires [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) and [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extensions.
-
-Add to `.vscode/mcp.json` in your project root:
+Add to your VS Code settings:
 
 ```json
 {
-  "servers": {
+  "mcp.servers": {
     "heroui": {
       "command": "npx",
       "args": ["-y", "@heroui/mcp"]
@@ -85,25 +76,12 @@ Add to `.vscode/mcp.json` in your project root:
 }
 ```
 
-### Zed
+### Claude Desktop
 
-Add to your Zed settings.json:
+Add to your Claude Desktop configuration:
 
-```json
-{
-  "context_servers": {
-    "heroui": {
-      "source": "custom",
-      "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
-    }
-  }
-}
-```
-
-### Custom MCP Client
-
-For any MCP-compatible client:
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
@@ -116,248 +94,198 @@ For any MCP-compatible client:
 }
 ```
 
-## Available Tools
+## IDE Rules Setup (Optional)
 
-### check_version
+For better accuracy when working with HeroUI components, add the HeroUI rules file to your IDE:
 
-Checks if you're using the latest version of HeroUI packages or the MCP server itself.
+### Cursor / Windsurf / Claude Code
 
-**Parameters:**
-- `package` (required): `"heroui"`, `"native"`, or `"mcp"`
-- `currentVersion` (optional): Your current version (e.g., `"3.0.0-alpha.31"`). If not provided, suggests installation.
+Copy `heroui-web-rules.mdc` to your project's `.cursor/rules/` directory:
 
-**Example:**
-```json
-{
-  "name": "check_version",
-  "arguments": {
-    "package": "heroui",
-    "currentVersion": "3.0.0-alpha.31"
-  }
-}
+```bash
+# Create rules directory if it doesn't exist
+mkdir -p .cursor/rules
+
+# Copy the HeroUI rules file
+curl -o .cursor/rules/heroui-web-rules.mdc https://raw.githubusercontent.com/heroui-inc/heroui-mcp/main/heroui-web-rules.mdc
 ```
 
-**Response (up to date):**
-```markdown
-# HeroUI Version Check
+This provides your AI assistant with:
+- Correct HeroUI v3 component patterns
+- MCP tool usage guidance
+- Theme customization rules
+- Best practices for implementation
 
-**Current Version:** 3.0.0-alpha.31
-**Latest Version:** 3.0.0-alpha.31
-**Status:** ✅ Up to date
-
-You are using the latest v3 version of HeroUI (prerelease).
-
-## Recent Versions
-- 3.0.0-alpha.31
-- 3.0.0-alpha.30
-- 3.0.0-alpha.29
-```
-
-**Response (v2 user - error):**
-```markdown
-# ❌ Error: Incompatible HeroUI Version
-
-**This MCP server is only compatible with @heroui/react v3+**
-
-You are currently using v2.x, which is not supported.
-
-## Required Action:
-
-1. Upgrade to HeroUI v3 (currently in alpha status):
-   ```bash
-   npm install @heroui/react@3.0.0-alpha.31
-   ```
-
-2. Update your imports and components to v3 syntax
-
-⚠️ **Note:** v3 is currently in alpha and may have breaking changes
-```
-
-### list_components
-
-Lists all available components in the specified library.
-
-**Parameters:**
-- `library` (required): `"heroui"` or `"native"`
-- `version` (optional): Specific version (e.g., `"v3.0.0-alpha.3"`)
-
-**Example:**
-```json
-{
-  "name": "list_components",
-  "arguments": {
-    "library": "heroui"
-  }
-}
-```
-
-**Response:**
-```
-Available Components in HeroUI (latest)
-
-- Accordion
-- Avatar
-- Badge
-- Button
-- Card
-- Checkbox
-- Chip
-- CircularProgress
-- ...
-
-Total: 50+ components
-```
-
-### get_component_props
-
-Gets detailed props information for a specific component.
-
-**Parameters:**
-- `library` (required): `"heroui"` or `"native"`
-- `component` (required): Component name (e.g., `"Button"`, `"Card"`)
-- `version` (optional): Specific version
-
-**Example:**
-```json
-{
-  "name": "get_component_props",
-  "arguments": {
-    "library": "heroui",
-    "component": "Button"
-  }
-}
-```
-
-**Response:**
-```markdown
-Button Component Props - HeroUI (latest)
-
-A button component for user interactions.
-
-Props
-
-- **children**: `ReactNode` - Button content
-- **variant**: `"solid" | "bordered" | "ghost" | "flat"` - Button style variant
-- **color**: `"default" | "primary" | "secondary" | "success" | "warning" | "danger"` - Button color
-- **size**: `"sm" | "md" | "lg"` - Button size
-- **isDisabled**: `boolean` - Whether the button is disabled
-- **isLoading**: `boolean` - Shows loading state
-- **startContent**: `ReactNode` - Content before children
-- **endContent**: `ReactNode` - Content after children
-- **onPress**: `(e: PressEvent) => void` - Click handler
-...
-
-Import
-
-import {Button} from "@heroui/react";
-```
-
-### get_component_example
-
-Gets usage examples for a component.
-
-**Parameters:**
-- `library` (required): `"heroui"` or `"native"`
-- `component` (required): Component name
-- `version` (optional): Specific version
-
-**Example:**
-```json
-{
-  "name": "get_component_example",
-  "arguments": {
-    "library": "heroui",
-    "component": "Button"
-  }
-}
-```
-
-**Response:**
-```tsx
-// Button Component Example - HeroUI (latest)
-
-import {Button} from "@heroui/react";
-
-export default function Example() {
-  return (
-    <Button
-      color="primary"
-      variant="solid"
-      size="md"
-      onPress={() => console.log("Button clicked")}
-    >
-      Click me
-    </Button>
-  );
-}
-```
-
-## Usage Examples
-
-### With AI Assistants
+## Usage
 
 Once configured, you can ask your AI assistant questions like:
 
-- "Am I using the latest version of HeroUI?"
-- "Check if my HeroUI version is up to date"
+- "Help me install HeroUI v3 in my Next.js app"
 - "Show me all HeroUI components"
 - "What props does the Button component have?"
 - "Give me an example of using the Card component"
-- "List all components in HeroUI Native"
-- "Show me the Modal component props from version v3.0.0-alpha.3"
+- "Check if I'm using the latest version of HeroUI"
+- "Get the source code for the Button component"
+- "Show me the CSS styles for Card"
+- "What are the theme variables for dark mode?"
+- "Explain HeroUI's color customization guide"
 
-The AI assistant will use the MCP server to fetch accurate, up-to-date information about HeroUI components and version compatibility.
+## Available Tools
 
-> **Important:** This MCP server is only compatible with HeroUI v3+. If you're using v2, the version check will guide you through upgrading.
+The MCP server provides these tools to AI assistants:
 
-### Example Workflow
+### `installation`
 
-1. **Check your HeroUI version:**
-   > "Am I using the latest version of HeroUI?"
+Get complete installation guide for @heroui/react v3 in your React/Next.js project.
 
-   The assistant will use `check_version` to verify your version and suggest updates if needed.
-
-2. **Ask about available components:**
-   > "What components are available in HeroUI?"
-
-   The assistant will use `list_components` to show all available components.
-
-3. **Get component details:**
-   > "Show me the props for the Select component"
-
-   The assistant will use `get_component_props` to provide detailed prop information.
-
-4. **Get usage examples:**
-   > "How do I use the DatePicker component?"
-
-   The assistant will use `get_component_example` to show implementation examples.
-
-## Testing
-
-To test the MCP server directly, you can use the MCP Inspector:
-
-```bash
-# Clone the repository
-git clone https://github.com/heroui-inc/heroui-mcp.git
-cd heroui-mcp
-
-# Install and run the inspector
-pnpm install
-pnpm mcp:inspector
+```javascript
+// Parameters
+{
+  framework: "next-app" | "next-pages" | "vite" | "general",  // Required
+  packageManager?: "npm" | "pnpm" | "yarn" | "bun"            // Optional, defaults to npm
+}
 ```
 
-This opens a web UI where you can test all available tools interactively.
+### `list_components`
+
+List all available HeroUI components (always returns latest version).
+
+```javascript
+// No parameters required
+```
+
+### `get_component_info`
+
+Get complete information about a specific HeroUI component including description, anatomy, props, and examples.
+
+```javascript
+// Parameters
+{
+  component: "Button"  // Required - must be one of the available components
+}
+```
+
+### `get_component_props`
+
+Get detailed props information for a specific HeroUI component.
+
+```javascript
+// Parameters
+{
+  component: "Button"  // Required - must be one of the available components
+}
+```
+
+### `get_component_examples`
+
+Get usage examples for a specific HeroUI component.
+
+```javascript
+// Parameters
+{
+  component: "Button"  // Required - must be one of the available components
+}
+```
+
+### `get_component_source_code`
+
+Get the React/TypeScript source code (.tsx) for a HeroUI component.
+
+```javascript
+// Parameters
+{
+  component: "Button"  // Required - must be one of the available components
+}
+```
+
+### `get_component_source_styles`
+
+Get the CSS styles (.css) for a HeroUI component.
+
+```javascript
+// Parameters
+{
+  component: "Button"  // Required - must be one of the available components
+}
+```
+
+### `get_theme_info`
+
+Get HeroUI theme variables with an optimized structure that extracts common variables (base and calculated) shared between light and dark modes.
+
+```javascript
+// Parameters
+{
+  theme?: "default",   // Optional, defaults to "default"
+  mode?: "light" | "dark" | "both", // Optional, defaults to "both"
+  category?: "colors" | "typography" | "spacing" | "borders" | "shadows" | "animations" | "all" // Optional
+}
+```
+
+### `get_docs`
+
+Get HeroUI v3 documentation content for guides, principles, and component docs.
+
+```javascript
+// Parameters
+{
+  path: string  // Required - documentation path (e.g., "/docs/introduction", "/docs/components/button")
+}
+```
+
+## Development
+
+### Local Testing with Mastra Playground
+
+For local development and testing of MCP tools, you can use the built-in Mastra playground:
+
+```bash
+# Install dependencies
+pnpm install
+
+# Configure environment (one-time setup)
+cd mastra
+cp .env.example .env
+# Edit .env and add your AI model API key
+
+# Start the playground
+cd ..
+pnpm dev:mastra
+```
+
+Then open http://localhost:4111 in your browser to test MCP tools interactively with an AI agent.
+
+See [mastra/README.md](./mastra/README.md) for detailed setup instructions.
+
+## Troubleshooting
+
+### MCP server not found
+
+Ensure you have Node.js 18+ installed. The package will be automatically downloaded when using `npx`.
+
+### Connection issues
+
+If you're behind a corporate firewall, you may need to configure proxy settings or use a custom API URL.
+
+### Need help?
+
+Check our [troubleshooting guide](https://github.com/heroui-inc/heroui-mcp/blob/main/TROUBLESHOOTING.md) or ask in our [Discord community](https://discord.gg/heroui).
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for development setup and guidelines.
+Contributions are always welcome!
+
+See [CONTRIBUTING.md](https://github.com/heroui-inc/heroui-mcp/blob/main/CONTRIBUTING.md) for ways to get started.
+
+Please adhere to this project's [CODE_OF_CONDUCT](https://github.com/heroui-inc/heroui-mcp/blob/main/CODE_OF_CONDUCT.md).
 
 ## Support
 
-- [Report Issues](https://github.com/heroui-inc/heroui-mcp/issues)
-- [HeroUI Documentation](https://heroui.com)
-- [MCP Specification](https://modelcontextprotocol.io)
+- [X](https://x.com/hero_ui)
+- [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
+- [Discord Community](https://discord.gg/heroui)
+- [Email Us](mailto:support@heroui.com)
 
 ## License
 
-MIT
+[MIT](https://choosealicense.com/licenses/mit/)

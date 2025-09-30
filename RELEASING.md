@@ -22,9 +22,11 @@ Before releasing, ensure you have:
 First, ensure your local repository is up to date:
 
 ```bash
-git checkout main
-git pull origin main
+git checkout develop
+git pull origin develop
 ```
+
+> **Note**: The default branch is now `develop` instead of `main`.
 
 Make sure all tests pass:
 
@@ -108,7 +110,7 @@ Before releasing, verify:
 - [ ] Documentation is updated
 - [ ] CONTRIBUTING.md reflects any process changes
 - [ ] No uncommitted changes in working directory
-- [ ] You're on the `main` branch
+- [ ] You're on the `develop` branch
 - [ ] You've pulled the latest changes
 
 ## Troubleshooting
@@ -122,14 +124,14 @@ If the release command fails:
    git status
    ```
 
-2. Ensure you're on the main branch:
+2. Ensure you're on the develop branch:
    ```bash
-   git checkout main
+   git checkout develop
    ```
 
 3. Make sure you have the latest changes:
    ```bash
-   git pull origin main
+   git pull origin develop
    ```
 
 ### npm Publish Fails

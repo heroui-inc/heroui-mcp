@@ -24,12 +24,20 @@ jobs:
         id: deploy
         uses: cloudflare/wrangler-action@v3
         timeout-minutes: 5
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
           environment: staging
           workingDirectory: "."
+          secrets: |
+            CLOUDFLARE_ACCOUNT_ID
+            R2_ACCESS_KEY_ID
+            R2_SECRET_ACCESS_KEY
       - name: Show outputs
         env:
           CMD_OUTPUT: ${{ steps.deploy.outputs.command-output }}
