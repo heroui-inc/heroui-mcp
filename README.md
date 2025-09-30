@@ -2,9 +2,11 @@
 
 Access HeroUI component documentation directly in your AI assistant via Model Context Protocol (MCP).
 
+> **Note:** Currently supports **@heroui/react v3** only. Support for **heroui-native** coming soon.
+
 ## Features
 
-- Complete component documentation for HeroUI
+- Complete component documentation for HeroUI React v3
 - Search and browse components
 - Get props, types, and usage examples
 - Always up-to-date with latest versions
@@ -134,7 +136,7 @@ The MCP server provides these tools to AI assistants:
 
 ### `installation`
 
-Get complete installation guide for HeroUI v3 in your React/Next.js project.
+Get complete installation guide for @heroui/react v3 in your React/Next.js project.
 
 ```javascript
 // Parameters
