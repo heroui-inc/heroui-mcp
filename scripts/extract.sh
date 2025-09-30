@@ -47,10 +47,10 @@ case "$ENVIRONMENT" in
     dev)
         export R2_BUCKET_NAME="heroui-mcp-data-dev"
         # Load dev vars if available
-        if [ -f .dev.vars ]; then
+        if [ -f .env ]; then
             echo "Loading development environment variables..."
             set -a
-            source .dev.vars
+            source .env
             set +a
         fi
         ;;
@@ -77,7 +77,7 @@ done
 if [ -n "$MISSING_VARS" ]; then
     echo -e "${RED}Error: Missing required environment variables:${NC}$MISSING_VARS"
     echo ""
-    echo "For local development, create a .dev.vars file with:"
+    echo "For local development, create a .env file with:"
     for var in $REQUIRED_VARS; do
         echo "  $var=your_value"
     done
