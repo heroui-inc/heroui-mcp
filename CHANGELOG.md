@@ -1,3 +1,12 @@
+# [1.0.0-alpha.18](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.17...v1.0.0-alpha.18) (2025-10-01)
+
+
+### Features
+
+* support querying multiple components ([45a19e9](https://github.com/heroui-inc/heroui-mcp/commit/45a19e9478f420510ab4a8b1b0bedb1c1b707c0f))
+
+
+
 # [1.0.0-alpha.17](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.16...v1.0.0-alpha.17) (2025-09-30)
 
 
