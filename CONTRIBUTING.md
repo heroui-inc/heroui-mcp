@@ -365,7 +365,7 @@ Always include `GITHUB_TOKEN` in your `.env` to avoid rate limits.
 Run with debug output:
 
 ```bash
-DEBUG=* npx @heroui/react-mcp
+DEBUG=* npx @heroui/react-mcp@latest
 ```
 
 ### Testing API Connection
@@ -381,8 +381,8 @@ curl https://mcp-api.heroui.com/api/components
 ### Verifying Package Installation
 
 ```bash
-# Check if the package is available
-npx @heroui/react-mcp --version
+# Check if the package is available (always use @latest)
+npx @heroui/react-mcp@latest --version
 ```
 
 ## 🛠️ Adding New Features

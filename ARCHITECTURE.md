@@ -26,7 +26,7 @@ graph LR
 ### 1. STDIO Client (`@heroui/react-mcp`)
 - **Location**: NPM package
 - **Entry**: `src/stdio.ts`
-- **Installation**: `npm install -g @heroui/react-mcp`
+- **Installation**: `npm install -g @heroui/react-mcp@latest`
 - **Purpose**: Local MCP server that AI assistants connect to
 - **Features**:
   - Lightweight and simple
@@ -122,7 +122,7 @@ The STDIO client exposes nine tools:
 
 1. Install the MCP client:
    ```bash
-   npm install -g @heroui/react-mcp
+   npm install -g @heroui/react-mcp@latest
    ```
 
 2. Configure your AI assistant (e.g., Claude Desktop):
@@ -131,7 +131,7 @@ The STDIO client exposes nine tools:
      "mcpServers": {
        "heroui": {
          "command": "npx",
-         "args": ["-y", "@heroui/react-mcp"]
+         "args": ["-y", "@heroui/react-mcp@latest"]
        }
      }
    }
