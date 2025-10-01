@@ -7,7 +7,8 @@ import {fetchApi} from "../lib/fetch";
 
 export const getComponentSourceStylesTool: Tool<ComponentContext> = {
   name: "get_component_source_styles",
-  description: `Get the CSS styles and BEM classes for a HeroUI v3 component.
+  description: `Get the CSS styles and BEM classes for HeroUI v3 components.
+Accepts an array of component names and returns styles for each.
 Returns the complete CSS implementation including all variants and states.
 Shows BEM class structure (e.g., .button, .button--accent, .button--disabled).
 IMPORTANT: These are framework-agnostic styles from @heroui/styles package.
@@ -38,30 +39,43 @@ GitHub links are provided for viewing styles in context.`,
   exec(server, {config, name, description, ctx}) {
     // Create input schema with dynamic component enum
     const inputSchema = z.object({
-      component: z.enum(ctx.componentList as [string, ...string[]])
-        .describe(`Component name from list_components to view CSS styles.
+      components: z.array(z.enum(ctx.componentList as [string, ...string[]])).min(1)
+        .describe(`Array of component names from list_components.
 These are BEM classes from @heroui/styles - not for use with React components.`),
     });
 
-    const handler = async ({component}: z.infer<typeof inputSchema>) => {
+    const handler = async ({components}: z.infer<typeof inputSchema>) => {
       try {
-        // Encode component name to handle special characters
-        const encodedComponent = encodeURIComponent(component);
-        const stylesEndpoint = `/components/${encodedComponent}/styles`;
-
-        const stylesResponse = await fetchApi<{
-          component: string;
+        const response = await fetchApi<{
           version: string;
-          filePath: string;
-          stylesCode: string;
-          githubUrl: string;
-        }>(stylesEndpoint, config.apiBaseUrl);
+          results: Array<{
+            component: string;
+            filePath?: string;
+            stylesCode?: string;
+            githubUrl?: string;
+            error?: string;
+          }>;
+        }>("/components/styles", config.apiBaseUrl, {
+          method: "POST",
+          body: JSON.stringify({components}),
+        });
 
-        let responseText = `# ${component} Component Styles\n\n`;
-        responseText += `## CSS Styles\n`;
-        responseText += `**File:** \`${stylesResponse.filePath}\`\n`;
-        responseText += `**GitHub:** [View on GitHub](${stylesResponse.githubUrl})\n\n`;
-        responseText += `\`\`\`css\n${stylesResponse.stylesCode}\n\`\`\`\n`;
+        let responseText = "";
+
+        response.results.forEach((result, index) => {
+          if (index > 0) responseText += "\n\n---\n\n";
+
+          if (result.error || !result.stylesCode) {
+            responseText += `# ${result.component} Component Styles\n\n`;
+            responseText += `Error: ${result.error || "Styles not available"}\n`;
+          } else {
+            responseText += `# ${result.component} Component Styles\n\n`;
+            responseText += `## CSS Styles\n`;
+            responseText += `**File:** \`${result.filePath}\`\n`;
+            responseText += `**GitHub:** [View on GitHub](${result.githubUrl})\n\n`;
+            responseText += `\`\`\`css\n${result.stylesCode}\n\`\`\`\n`;
+          }
+        });
 
         return {
           content: [
@@ -72,22 +86,11 @@ These are BEM classes from @heroui/styles - not for use with React components.`)
           ],
         };
       } catch (error: any) {
-        if (error.status === 404) {
-          return {
-            content: [
-              {
-                type: "text" as const,
-                text: `CSS styles not available for ${component}. The component may not have styles in the repository.`,
-              },
-            ],
-          };
-        }
-
         return {
           content: [
             {
               type: "text" as const,
-              text: `Error: Unable to get styles for ${component}. ${error instanceof Error ? error.message : "Unknown error"}`,
+              text: `Error: Unable to get styles for components. ${error instanceof Error ? error.message : "Unknown error"}`,
             },
           ],
         };

@@ -24,9 +24,6 @@ const tools: Tool[] = [
   getDocsTool,
 ];
 
-// Cache for registered tools
-const registeredToolCache = new Map<string, Tool>();
-
 /**
  * Initialize all tools with the server
  */
@@ -40,13 +37,7 @@ export async function initializeTools(server: McpServer, config: ToolConfig = {}
 
   await Promise.all(
     enabledTools.map(async (tool) => {
-      if (registeredToolCache.has(tool.name)) {
-        return;
-      }
-
       const toolCtx = await tool.ctx?.();
-
-      registeredToolCache.set(tool.name, tool);
 
       tool.exec(server, {
         ctx: toolCtx,
@@ -56,25 +47,4 @@ export async function initializeTools(server: McpServer, config: ToolConfig = {}
       });
     }),
   );
-}
-
-/**
- * Clear all registered tools
- */
-export function clearTools(): void {
-  registeredToolCache.clear();
-}
-
-/**
- * Get a registered tool by name
- */
-export function getTool(name: string): Tool | undefined {
-  return registeredToolCache.get(name);
-}
-
-/**
- * Get all registered tools
- */
-export function getAllTools(): Tool[] {
-  return Array.from(registeredToolCache.values());
 }

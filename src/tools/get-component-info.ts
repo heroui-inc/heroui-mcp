@@ -7,9 +7,10 @@ import {fetchApi} from "../lib/fetch";
 
 export const getComponentInfoTool: Tool<ComponentContext> = {
   name: "get_component_info",
-  description: `Get complete information about a HeroUI v3 (Alpha) component - v2 API NOT supported.
+  description: `Get complete information about HeroUI v3 (Alpha) components - v2 API NOT supported.
 ⚠️ This returns v3 ALPHA component info - APIs may differ from v2 and may change before stable.
 CRITICAL: Always use this before implementing ANY component to understand its v3 anatomy.
+Accepts an array of component names and returns information for each component.
 Returns: description, import statement, anatomy (compound structure), props, subcomponents, examples count, and CSS classes.
 v3 DIFFERENCE: Uses COMPOUND COMPONENTS (e.g., <Card><Card.Header>...</Card.Header></Card>)
 v2 used flat props like <Card title="..."> - this pattern is NOT supported in v3.
@@ -38,131 +39,142 @@ Workflow: list_components → get_component_info → get_component_examples.`,
   exec(server, {config, name, description, ctx}) {
     // Create input schema with dynamic component enum
     const inputSchema = z.object({
-      component: z.enum(ctx.componentList as [string, ...string[]])
-        .describe(`The exact component name from list_components (case-sensitive).
-Examples: "Button", "Card", "TextField", "Tabs".
+      components: z.array(z.enum(ctx.componentList as [string, ...string[]])).min(1)
+        .describe(`Array of component names from list_components (case-sensitive).
+Examples: ["Button"], ["Card", "TextField"], ["Button", "Card", "Tabs"].
 DO NOT guess names - always verify with list_components first.`),
     });
 
-    const handler = async ({component}: z.infer<typeof inputSchema>) => {
+    const handler = async ({components}: z.infer<typeof inputSchema>) => {
       try {
-        // Encode component name to handle special characters
-        const encodedComponent = encodeURIComponent(component);
-        const endpoint = `/components/${encodedComponent}`;
-
         const response = await fetchApi<{
-          component: string;
           version: string;
-          data: {
-            name: string;
-            description?: string;
-            importStatement?: string;
-            anatomy?: string;
-            props: Record<string, any>;
-            subComponents?: Record<string, any>;
-            examples?: Array<{name: string; content: string}>;
-            cssClasses?: Array<{name: string; description: string}>;
-            links?: {
-              source?: string;
-              styles?: string;
+          results: Array<{
+            component: string;
+            data?: {
+              name: string;
+              description?: string;
+              importStatement?: string;
+              anatomy?: string;
+              props: Record<string, any>;
+              subComponents?: Record<string, any>;
+              examples?: Array<{name: string; content: string}>;
+              cssClasses?: Array<{name: string; description: string}>;
+              links?: {
+                source?: string;
+                styles?: string;
+              };
             };
-          };
-        }>(endpoint, config.apiBaseUrl);
+            error?: string;
+          }>;
+        }>("/components", config.apiBaseUrl, {
+          method: "POST",
+          body: JSON.stringify({components}),
+        });
 
-        // Format the response as structured text
-        let responseText = `# ${response.component} Component (v3 Alpha)\n\n`;
+        let responseText = "";
 
-        // Add version warning
-        responseText += `⚠️ **v3 ALPHA Notice:** This is v3 documentation - NOT compatible with v2\n`;
-        responseText += `Migration from v2 is not supported yet. APIs may change before stable release.\n\n`;
-
-        // Add library and version info
-        responseText += `**Library:** HeroUI v3\n`;
-        responseText += `**Version:** ${response.version} (Alpha)\n\n`;
-
-        // Add description
-        if (response.data.description) {
-          responseText += `## Description\n${response.data.description}\n\n`;
+        if (components.length > 1) {
+          responseText = `# Component Information (${components.length} components)\n\n`;
+          responseText += `⚠️ **v3 ALPHA Notice:** This is v3 documentation - NOT compatible with v2\n\n`;
         }
 
-        // Add import statement
-        if (response.data.importStatement) {
-          responseText += `## Import\n\`\`\`tsx\n${response.data.importStatement}\n\`\`\`\n\n`;
-        }
+        response.results.forEach((result, index) => {
+          if (index > 0) responseText += "\n---\n\n";
 
-        // Add anatomy if available
-        if (response.data.anatomy) {
-          responseText += `## Anatomy\n\`\`\`tsx\n${response.data.anatomy}\n\`\`\`\n\n`;
-        }
+          if (result.error || !result.data) {
+            responseText += `# ${result.component} Component\n\n`;
+            responseText += `Error: ${result.error || "Component not found"}\n`;
 
-        // Add props
-        if (response.data.props && Object.keys(response.data.props).length > 0) {
-          responseText += `## Props\n`;
-          Object.entries(response.data.props).forEach(([propName, prop]) => {
-            responseText += `- **${propName}**: \`${prop.type}\``;
-            if (prop.default) {
-              responseText += ` = \`${prop.default}\``;
-            }
-            if (prop.description) {
-              responseText += ` - ${prop.description}`;
-            }
-            responseText += "\n";
-          });
-          responseText += "\n";
-        }
+            return;
+          }
 
-        // Add sub-components
-        if (response.data.subComponents && Object.keys(response.data.subComponents).length > 0) {
-          responseText += `## Sub-components\n`;
-          Object.entries(response.data.subComponents).forEach(([subName, subComp]) => {
-            responseText += `### ${response.component}.${subName}\n`;
-            if (subComp.props && Object.keys(subComp.props).length > 0) {
-              Object.entries(subComp.props).forEach(([propName, prop]: [string, any]) => {
-                responseText += `- **${propName}**: \`${prop.type}\``;
-                if (prop.default) {
-                  responseText += ` = \`${prop.default}\``;
-                }
-                if (prop.description) {
-                  responseText += ` - ${prop.description}`;
-                }
-                responseText += "\n";
-              });
-            }
-            responseText += "\n";
-          });
-        }
+          responseText += `# ${result.component} Component (v3 Alpha)\n\n`;
 
-        // Add CSS classes
-        if (response.data.cssClasses && response.data.cssClasses.length > 0) {
-          responseText += `## CSS Classes (BEM)\n`;
-          responseText += `HeroUI v3 follows the BEM pattern for styling components. You can customize these classes globally:\n\n`;
-          response.data.cssClasses.forEach((cssClass) => {
-            responseText += `- **${cssClass.name}** - ${cssClass.description}\n`;
-          });
-          responseText += "\n";
-        }
+          if (components.length === 1) {
+            responseText += `⚠️ **v3 ALPHA Notice:** This is v3 documentation - NOT compatible with v2\n`;
+            responseText += `Migration from v2 is not supported yet. APIs may change before stable release.\n\n`;
+          }
 
-        // Add source links
-        if (response.data.links) {
-          responseText += `## Source Code\n`;
-          if (response.data.links.source || response.data.links.styles) {
-            responseText += `Use the \`get_component_source\` tool to retrieve:\n`;
-            if (response.data.links.source) {
-              responseText += `- React/TypeScript implementation\n`;
-            }
-            if (response.data.links.styles) {
-              responseText += `- CSS styles\n`;
-            }
+          responseText += `**Library:** HeroUI v3\n`;
+          responseText += `**Version:** ${response.version} (Alpha)\n\n`;
+
+          if (result.data.description) {
+            responseText += `## Description\n${result.data.description}\n\n`;
+          }
+
+          if (result.data.importStatement) {
+            responseText += `## Import\n\`\`\`tsx\n${result.data.importStatement}\n\`\`\`\n\n`;
+          }
+
+          if (result.data.anatomy) {
+            responseText += `## Anatomy\n\`\`\`tsx\n${result.data.anatomy}\n\`\`\`\n\n`;
+          }
+
+          if (result.data.props && Object.keys(result.data.props).length > 0) {
+            responseText += `## Props\n`;
+            Object.entries(result.data.props).forEach(([propName, prop]) => {
+              responseText += `- **${propName}**: \`${prop.type}\``;
+              if (prop.default) {
+                responseText += ` = \`${prop.default}\``;
+              }
+              if (prop.description) {
+                responseText += ` - ${prop.description}`;
+              }
+              responseText += "\n";
+            });
             responseText += "\n";
           }
-        }
 
-        // Add examples count
-        if (response.data.examples && response.data.examples.length > 0) {
-          responseText += `## Examples\n`;
-          responseText += `This component has ${response.data.examples.length} example${response.data.examples.length > 1 ? "s" : ""} available.\n`;
-          responseText += `Use the \`get_component_examples\` tool to retrieve the example code.\n`;
-        }
+          if (result.data.subComponents && Object.keys(result.data.subComponents).length > 0) {
+            responseText += `## Sub-components\n`;
+            Object.entries(result.data.subComponents).forEach(([subName, subComp]) => {
+              responseText += `### ${result.component}.${subName}\n`;
+              if (subComp.props && Object.keys(subComp.props).length > 0) {
+                Object.entries(subComp.props).forEach(([propName, prop]: [string, any]) => {
+                  responseText += `- **${propName}**: \`${prop.type}\``;
+                  if (prop.default) {
+                    responseText += ` = \`${prop.default}\``;
+                  }
+                  if (prop.description) {
+                    responseText += ` - ${prop.description}`;
+                  }
+                  responseText += "\n";
+                });
+              }
+              responseText += "\n";
+            });
+          }
+
+          if (result.data.cssClasses && result.data.cssClasses.length > 0) {
+            responseText += `## CSS Classes (BEM)\n`;
+            responseText += `HeroUI v3 follows the BEM pattern for styling components. You can customize these classes globally:\n\n`;
+            result.data.cssClasses.forEach((cssClass) => {
+              responseText += `- **${cssClass.name}** - ${cssClass.description}\n`;
+            });
+            responseText += "\n";
+          }
+
+          if (result.data.links) {
+            responseText += `## Source Code\n`;
+            if (result.data.links.source || result.data.links.styles) {
+              responseText += `Use the \`get_component_source\` tool to retrieve:\n`;
+              if (result.data.links.source) {
+                responseText += `- React/TypeScript implementation\n`;
+              }
+              if (result.data.links.styles) {
+                responseText += `- CSS styles\n`;
+              }
+              responseText += "\n";
+            }
+          }
+
+          if (result.data.examples && result.data.examples.length > 0) {
+            responseText += `## Examples\n`;
+            responseText += `This component has ${result.data.examples.length} example${result.data.examples.length > 1 ? "s" : ""} available.\n`;
+            responseText += `Use the \`get_component_examples\` tool to retrieve the example code.\n`;
+          }
+        });
 
         return {
           content: [
@@ -177,7 +189,7 @@ DO NOT guess names - always verify with list_components first.`),
           content: [
             {
               type: "text" as const,
-              text: `Error: Unable to get information for ${component}. ${error instanceof Error ? error.message : "Unknown error"}`,
+              text: `Error: Unable to get information for components. ${error instanceof Error ? error.message : "Unknown error"}`,
             },
           ],
         };

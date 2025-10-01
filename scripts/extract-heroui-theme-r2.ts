@@ -20,7 +20,6 @@ import {R2Uploader} from "../lib/r2-uploader";
 class HeroUIThemeExtractor {
   private static readonly GITHUB_RAW_BASE_URL =
     "https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3";
-  private static readonly LIBRARY_NAME = "heroui";
 
   /**
    * Parse CSS file and extract variables

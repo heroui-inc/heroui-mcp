@@ -164,33 +164,53 @@ export class ComponentDataServiceR2 {
   }
 
   /**
-   * Get component data for a specific component
+   * Get component data for multiple components
    */
-  async getComponent(
+  async getComponents(
     library: string,
-    componentName: string,
+    componentNames: string[],
     version?: string,
-  ): Promise<ComponentData | null> {
+  ): Promise<Array<{component: string; data: ComponentData | null; error?: string}>> {
     try {
       const versionToUse = version || "latest";
       const key =
         versionToUse === "latest" ? `latest/${library}.json` : `${library}/${versionToUse}.json`;
-      const data = await this.getFromR2<ComponentDataset>(key);
+      const dataset = await this.getFromR2<ComponentDataset>(key);
 
-      if (!data) {
-        return null;
+      if (!dataset) {
+        return componentNames.map((name) => ({
+          component: name,
+          data: null,
+          error: `No data found for ${library}`,
+        }));
       }
 
-      // Case-insensitive search
-      const component = Object.keys(data).find(
-        (key) => key.toLowerCase() === componentName.toLowerCase(),
-      );
+      return componentNames.map((componentName) => {
+        const component = Object.keys(dataset).find(
+          (key) => key.toLowerCase() === componentName.toLowerCase(),
+        );
 
-      return component ? data[component] : null;
+        if (!component) {
+          return {
+            component: componentName,
+            data: null,
+            error: `Component ${componentName} not found`,
+          };
+        }
+
+        return {
+          component,
+          data: dataset[component],
+        };
+      });
     } catch (error) {
-      console.error(`Error getting component ${componentName} from ${library}:`, error);
+      console.error(`Error getting components from ${library}:`, error);
 
-      return null;
+      return componentNames.map((name) => ({
+        component: name,
+        data: null,
+        error: error instanceof Error ? error.message : "Unknown error",
+      }));
     }
   }
 
