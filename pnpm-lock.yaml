@@ -55,7 +55,7 @@ importers:
         specifier: ^0.14.3
         version: 0.14.3(@mastra/core@0.18.0(openapi-types@12.1.3)(react@18.3.1)(zod@3.25.76))
       '@mastra/loggers':
-        specifier: ^0.10.13
+        specifier: ^0.10.12
         version: 0.10.13(@mastra/core@0.18.0(openapi-types@12.1.3)(react@18.3.1)(zod@3.25.76))
       '@mastra/mcp':
         specifier: ^0.13.1
