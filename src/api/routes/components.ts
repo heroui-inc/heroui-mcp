@@ -67,82 +67,55 @@ components.get("/", async (c) => {
   }
 });
 
-// Get component details
-components.get("/:component", async (c) => {
-  const component = c.req.param("component");
+// Get component details (multiple components)
+components.post("/", async (c) => {
   const startTime = Date.now();
+  const body = await c.req.json();
+  const components = body.components as string[];
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
   analytics?.trackMcpRequest("api-user", {
-    method: "GET",
-    toolName: "get-component",
-    requestSize: 0,
+    method: "POST",
+    toolName: "get-components",
+    requestSize: components.length,
   });
 
   try {
     const service = await getDataService(c.env);
-    // Always use latest version
-    const data = await service.getComponent(LIBRARY_NAME, component);
-
-    if (!data) {
-      const responseTime = Date.now() - startTime;
-      analytics?.trackMcpError("api-user", {
-        method: "GET",
-        toolName: "get-component",
-        error: `Component ${component} not found`,
-        errorCode: "404",
-        responseTime,
-      });
-
-      return c.json({error: `Component ${component} not found`}, 404);
-    }
-
-    // Get the latest version
+    const results = await service.getComponents(LIBRARY_NAME, components);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
-
-    // Get the actual component name from the data (with correct casing)
-    const allComponents = await service.getAllComponents(LIBRARY_NAME);
-    let actualComponentName = component;
-
-    if (allComponents) {
-      // Find the actual component name with correct casing
-      const foundComponent = Object.keys(allComponents).find(
-        (key) => key.toLowerCase() === component.toLowerCase(),
-      );
-      if (foundComponent) {
-        actualComponentName = foundComponent;
-      }
-    }
 
     const responseTime = Date.now() - startTime;
 
-    // Track successful request
     analytics?.trackMcpSuccess("api-user", {
-      method: "GET",
-      toolName: "get-component",
+      method: "POST",
+      toolName: "get-components",
       responseTime,
-      responseSize: JSON.stringify(data).length,
+      responseSize: JSON.stringify(results).length,
     });
 
-    analytics?.trackFeatureUsage("api-user", "component-details", {
-      library: LIBRARY_NAME,
-      component: actualComponentName,
+    results.forEach((result) => {
+      if (!result.error) {
+        analytics?.trackFeatureUsage("api-user", "component-details", {
+          library: LIBRARY_NAME,
+          component: result.component,
+        });
+      }
     });
 
     return c.json({
-      component: actualComponentName,
       version: latestVersion || "unknown",
-      data,
+      results,
     });
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    console.error("Error getting component:", error);
+    console.error("Error getting components:", error);
 
     analytics?.trackMcpError("api-user", {
-      method: "GET",
-      toolName: "get-component",
+      method: "POST",
+      toolName: "get-components",
       error: error instanceof Error ? error.message : "Unknown error",
       responseTime,
     });
@@ -157,90 +130,84 @@ components.get("/:component", async (c) => {
   }
 });
 
-// Get component props
-components.get("/:component/props", async (c) => {
-  const component = c.req.param("component");
+// Get component props (multiple components)
+components.post("/props", async (c) => {
   const startTime = Date.now();
+  const body = await c.req.json();
+  const componentNames = body.components as string[];
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
   analytics?.trackToolInvocation("api-user", {
     toolName: "get-component-props",
-    parameters: {library: LIBRARY_NAME, component},
+    parameters: {library: LIBRARY_NAME, components: componentNames},
     context: "api",
   });
 
   try {
     const service = await getDataService(c.env);
-    // Always use latest version
-    const data = await service.getComponent(LIBRARY_NAME, component);
-
-    if (!data) {
-      return c.json({error: `Component ${component} not found`}, 404);
-    }
-
-    // Get the latest version
+    const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
-    // Get the actual component name from the data (with correct casing)
-    const allComponents = await service.getAllComponents(LIBRARY_NAME);
-    let actualComponentName = component;
-
-    if (allComponents) {
-      // Find the actual component name with correct casing
-      const foundComponent = Object.keys(allComponents).find(
-        (key) => key.toLowerCase() === component.toLowerCase(),
-      );
-      if (foundComponent) {
-        actualComponentName = foundComponent;
+    const propsResults = results.map((result) => {
+      if (result.error || !result.data) {
+        return {
+          component: result.component,
+          error: result.error || "Component not found",
+        };
       }
-    }
 
-    // Format props as markdown
-    const libraryName = "HeroUI";
-    const versionText = ` (${latestVersion})`;
+      const libraryName = "HeroUI";
+      const versionText = ` (${latestVersion})`;
+      let propsText = `# ${result.component} Component Props - ${libraryName}${versionText}\n\n`;
 
-    let propsText = `# ${actualComponentName} Component Props - ${libraryName}${versionText}\n\n`;
+      if (result.data.description) {
+        propsText += `${result.data.description}\n\n`;
+      }
 
-    if (data.description) {
-      propsText += `${data.description}\n\n`;
-    }
+      if (result.data.props && Object.keys(result.data.props).length > 0) {
+        propsText += "## Props\n\n";
+        Object.entries(result.data.props).forEach(([propName, prop]) => {
+          propsText += `- **${propName}**: \`${prop.type}\``;
+          if (prop.default) {
+            propsText += ` = \`${prop.default}\``;
+          }
+          if (prop.description) {
+            propsText += ` - ${prop.description}`;
+          }
+          propsText += "\n";
+        });
+      } else {
+        propsText += "No props available for this component.\n";
+      }
 
-    if (data.props && Object.keys(data.props).length > 0) {
-      propsText += "## Props\n\n";
-      Object.entries(data.props).forEach(([propName, prop]) => {
-        propsText += `- **${propName}**: \`${prop.type}\``;
-        if (prop.default) {
-          propsText += ` = \`${prop.default}\``;
-        }
-        if (prop.description) {
-          propsText += ` - ${prop.description}`;
-        }
-        propsText += "\n";
-      });
-    } else {
-      propsText += "No props available for this component.\n";
-    }
+      return {
+        component: result.component,
+        props: propsText,
+      };
+    });
 
     const responseTime = Date.now() - startTime;
 
-    // Track successful request
     analytics?.trackToolSuccess("api-user", {
       toolName: "get-component-props",
       executionTime: responseTime,
-      resultSize: propsText.length,
+      resultSize: JSON.stringify(propsResults).length,
     });
 
-    analytics?.trackFeatureUsage("api-user", "component-props", {
-      library: LIBRARY_NAME,
-      component: actualComponentName,
+    propsResults.forEach((result) => {
+      if (!result.error) {
+        analytics?.trackFeatureUsage("api-user", "component-props", {
+          library: LIBRARY_NAME,
+          component: result.component,
+        });
+      }
     });
 
     return c.json({
-      component: actualComponentName,
       version: latestVersion || "unknown",
-      props: propsText,
+      results: propsResults,
     });
   } catch (error) {
     const responseTime = Date.now() - startTime;
@@ -262,92 +229,85 @@ components.get("/:component/props", async (c) => {
   }
 });
 
-// Get component examples
-components.get("/:component/examples", async (c) => {
-  const component = c.req.param("component");
+// Get component examples (multiple components)
+components.post("/examples", async (c) => {
   const startTime = Date.now();
+  const body = await c.req.json();
+  const componentNames = body.components as string[];
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
   analytics?.trackToolInvocation("api-user", {
     toolName: "get-component-examples",
-    parameters: {library: LIBRARY_NAME, component},
+    parameters: {library: LIBRARY_NAME, components: componentNames},
     context: "api",
   });
 
   try {
     const service = await getDataService(c.env);
-    // Always use latest version
-    const data = await service.getComponent(LIBRARY_NAME, component);
-
-    if (!data) {
-      return c.json({error: `Component ${component} not found`}, 404);
-    }
-
-    // Get the latest version
+    const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
-    // Get the actual component name from the data (with correct casing)
-    const allComponents = await service.getAllComponents(LIBRARY_NAME);
-    let actualComponentName = component;
-
-    if (allComponents) {
-      // Find the actual component name with correct casing
-      const foundComponent = Object.keys(allComponents).find(
-        (key) => key.toLowerCase() === component.toLowerCase(),
-      );
-      if (foundComponent) {
-        actualComponentName = foundComponent;
+    const exampleResults = results.map((result) => {
+      if (result.error || !result.data) {
+        return {
+          component: result.component,
+          error: result.error || "Component not found",
+        };
       }
-    }
 
-    // Return examples array if they exist, otherwise return a default example
-    const examples = data.examples || [];
+      const examples = result.data.examples || [];
 
-    // If no examples, provide a default one
-    if (examples.length === 0) {
-      const libraryName = "HeroUI";
-      const versionText = ` (${latestVersion})`;
-      const importStatement = `import { ${actualComponentName} } from '@heroui/react';`;
+      if (examples.length === 0) {
+        const libraryName = "HeroUI";
+        const versionText = ` (${latestVersion})`;
+        const importStatement = `import { ${result.component} } from '@heroui/react';`;
 
-      let exampleText = `// ${actualComponentName} Component Example - ${libraryName}${versionText}\n\n`;
-      exampleText += `${importStatement}\n\n`;
-      exampleText += `export default function Example() {\n`;
-      exampleText += `  return (\n`;
-      exampleText += `    <${actualComponentName}>\n`;
-      exampleText += `      Content\n`;
-      exampleText += `    </${actualComponentName}>\n`;
-      exampleText += `  );\n`;
-      exampleText += `}\n`;
+        let exampleText = `// ${result.component} Component Example - ${libraryName}${versionText}\n\n`;
+        exampleText += `${importStatement}\n\n`;
+        exampleText += `export default function Example() {\n`;
+        exampleText += `  return (\n`;
+        exampleText += `    <${result.component}>\n`;
+        exampleText += `      Content\n`;
+        exampleText += `    </${result.component}>\n`;
+        exampleText += `  );\n`;
+        exampleText += `}\n`;
 
-      examples.push({
-        name: "basic",
-        content: exampleText,
-      });
-    }
+        examples.push({
+          name: "basic",
+          content: exampleText,
+        });
+      }
+
+      return {
+        component: result.component,
+        examples,
+      };
+    });
 
     const responseTime = Date.now() - startTime;
 
-    // Track successful request
-    const totalSize = examples.reduce((acc, ex) => acc + ex.content.length, 0);
     analytics?.trackToolSuccess("api-user", {
       toolName: "get-component-examples",
       executionTime: responseTime,
-      resultSize: totalSize,
+      resultSize: JSON.stringify(exampleResults).length,
     });
 
-    analytics?.trackComponentGenerated("api-user", {
-      componentType: component,
-      framework: "react",
-      features: [],
-      generationTime: responseTime,
+    exampleResults.forEach((result) => {
+      if (!result.error) {
+        analytics?.trackComponentGenerated("api-user", {
+          componentType: result.component,
+          framework: "react",
+          features: [],
+          generationTime: responseTime,
+        });
+      }
     });
 
     return c.json({
-      component: actualComponentName,
       version: latestVersion || "unknown",
-      examples,
+      results: exampleResults,
     });
   } catch (error) {
     const responseTime = Date.now() - startTime;
@@ -369,51 +329,73 @@ components.get("/:component/examples", async (c) => {
   }
 });
 
-// Get component source code
-components.get("/:component/source", async (c) => {
-  const component = c.req.param("component");
+// Get component source code (multiple components)
+components.post("/source", async (c) => {
+  const body = await c.req.json();
+  const componentNames = body.components as string[];
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
   try {
     const service = await getDataService(c.env);
-    // Always use latest version
-    const data = await service.getComponent(LIBRARY_NAME, component);
-
-    if (!data || !data.links?.source) {
-      return c.json({error: `Source code not available for ${component}`}, 404);
-    }
-
-    // Get the latest version
+    const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
-    // Construct GitHub raw URL using latest version
     const branch = "v3";
     const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
-    const sourceUrl = `${baseUrl}/packages/react/src/components/${data.links.source}`;
 
-    // Fetch source code from GitHub
-    const response = await fetch(sourceUrl);
-    if (!response.ok) {
-      return c.json({error: `Failed to fetch source code from GitHub`}, 500);
-    }
+    const sourceResults = await Promise.all(
+      results.map(async (result) => {
+        if (result.error || !result.data || !result.data.links?.source) {
+          return {
+            component: result.component,
+            error: result.error || "Source code not available",
+          };
+        }
 
-    const sourceCode = await response.text();
+        const sourceUrl = `${baseUrl}/packages/react/src/components/${result.data.links.source}`;
 
-    analytics?.trackFeatureUsage("api-user", "component-source", {
-      library: LIBRARY_NAME,
-      component,
+        try {
+          const response = await fetch(sourceUrl);
+          if (!response.ok) {
+            return {
+              component: result.component,
+              error: "Failed to fetch source code from GitHub",
+            };
+          }
+
+          const sourceCode = await response.text();
+
+          return {
+            component: result.component,
+            filePath: result.data.links.source,
+            sourceCode,
+            githubUrl: sourceUrl
+              .replace("raw.githubusercontent.com", "github.com")
+              .replace("/refs/heads/", "/blob/"),
+          };
+        } catch (error) {
+          return {
+            component: result.component,
+            error: error instanceof Error ? error.message : "Failed to fetch source code",
+          };
+        }
+      }),
+    );
+
+    sourceResults.forEach((result) => {
+      if (!result.error) {
+        analytics?.trackFeatureUsage("api-user", "component-source", {
+          library: LIBRARY_NAME,
+          component: result.component,
+        });
+      }
     });
 
     return c.json({
-      component,
       version: latestVersion || "unknown",
-      filePath: data.links.source,
-      sourceCode,
-      githubUrl: sourceUrl
-        .replace("raw.githubusercontent.com", "github.com")
-        .replace("/refs/heads/", "/blob/"),
+      results: sourceResults,
     });
   } catch (error) {
     console.error("Error getting component source:", error);
@@ -428,51 +410,73 @@ components.get("/:component/source", async (c) => {
   }
 });
 
-// Get component styles
-components.get("/:component/styles", async (c) => {
-  const component = c.req.param("component");
+// Get component styles (multiple components)
+components.post("/styles", async (c) => {
+  const body = await c.req.json();
+  const componentNames = body.components as string[];
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
   try {
     const service = await getDataService(c.env);
-    // Always use latest version
-    const data = await service.getComponent(LIBRARY_NAME, component);
-
-    if (!data || !data.links?.styles) {
-      return c.json({error: `Styles not available for ${component}`}, 404);
-    }
-
-    // Get the latest version
+    const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
-    // Construct GitHub raw URL using latest version
     const branch = "v3";
     const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
-    const stylesUrl = `${baseUrl}/packages/styles/components/${data.links.styles}`;
 
-    // Fetch styles from GitHub
-    const response = await fetch(stylesUrl);
-    if (!response.ok) {
-      return c.json({error: `Failed to fetch styles from GitHub`}, 500);
-    }
+    const styleResults = await Promise.all(
+      results.map(async (result) => {
+        if (result.error || !result.data || !result.data.links?.styles) {
+          return {
+            component: result.component,
+            error: result.error || "Styles not available",
+          };
+        }
 
-    const stylesCode = await response.text();
+        const stylesUrl = `${baseUrl}/packages/styles/components/${result.data.links.styles}`;
 
-    analytics?.trackFeatureUsage("api-user", "component-styles", {
-      library: LIBRARY_NAME,
-      component,
+        try {
+          const response = await fetch(stylesUrl);
+          if (!response.ok) {
+            return {
+              component: result.component,
+              error: "Failed to fetch styles from GitHub",
+            };
+          }
+
+          const stylesCode = await response.text();
+
+          return {
+            component: result.component,
+            filePath: result.data.links.styles,
+            stylesCode,
+            githubUrl: stylesUrl
+              .replace("raw.githubusercontent.com", "github.com")
+              .replace("/refs/heads/", "/blob/"),
+          };
+        } catch (error) {
+          return {
+            component: result.component,
+            error: error instanceof Error ? error.message : "Failed to fetch styles",
+          };
+        }
+      }),
+    );
+
+    styleResults.forEach((result) => {
+      if (!result.error) {
+        analytics?.trackFeatureUsage("api-user", "component-styles", {
+          library: LIBRARY_NAME,
+          component: result.component,
+        });
+      }
     });
 
     return c.json({
-      component,
       version: latestVersion || "unknown",
-      filePath: data.links.styles,
-      stylesCode,
-      githubUrl: stylesUrl
-        .replace("raw.githubusercontent.com", "github.com")
-        .replace("/refs/heads/", "/blob/"),
+      results: styleResults,
     });
   } catch (error) {
     console.error("Error getting component styles:", error);
