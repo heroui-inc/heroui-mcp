@@ -156,56 +156,84 @@ List all available HeroUI components (always returns latest version).
 
 ### `get_component_info`
 
-Get complete information about a specific HeroUI component including description, anatomy, props, and examples.
+Get complete information about HeroUI components including description, anatomy, props, and examples.
 
 ```javascript
 // Parameters
 {
-  component: "Button"  // Required - must be one of the available components
+  components: ["Button"]  // Required - array of component names
+}
+
+// Examples
+{
+  components: ["Button"]  // Single component
+}
+{
+  components: ["Button", "Card", "TextField"]  // Multiple components
 }
 ```
 
 ### `get_component_props`
 
-Get detailed props information for a specific HeroUI component.
+Get detailed props information for HeroUI components.
 
 ```javascript
 // Parameters
 {
-  component: "Button"  // Required - must be one of the available components
+  components: ["Button"]  // Required - array of component names
+}
+
+// Examples
+{
+  components: ["Button", "Card"]  // Get props for multiple components
 }
 ```
 
 ### `get_component_examples`
 
-Get usage examples for a specific HeroUI component.
+Get usage examples for HeroUI components.
 
 ```javascript
 // Parameters
 {
-  component: "Button"  // Required - must be one of the available components
+  components: ["Button"]  // Required - array of component names
+}
+
+// Examples
+{
+  components: ["Card", "Button"]  // Get examples for multiple components
 }
 ```
 
 ### `get_component_source_code`
 
-Get the React/TypeScript source code (.tsx) for a HeroUI component.
+Get the React/TypeScript source code (.tsx) for HeroUI components.
 
 ```javascript
 // Parameters
 {
-  component: "Button"  // Required - must be one of the available components
+  components: ["Button"]  // Required - array of component names
+}
+
+// Examples
+{
+  components: ["Button", "TextField"]  // Get source for multiple components
 }
 ```
 
 ### `get_component_source_styles`
 
-Get the CSS styles (.css) for a HeroUI component.
+Get the CSS styles (.css) for HeroUI components.
 
 ```javascript
 // Parameters
 {
-  component: "Button"  // Required - must be one of the available components
+  components: ["Button"]  // Required - array of component names
+}
+
+// Examples
+{
+  components: ["Button", "Card"]  // Get styles for multiple components
 }
 ```
 
