@@ -15,7 +15,9 @@ Access HeroUI component documentation directly in your AI assistant via Model Co
 
 ### Cursor
 
-Add to Cursor Settings → Features → MCP Servers:
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/install-mcp?name=heroui-react&config=eyJjb21tYW5kIjoibnB4IC15IEBoZXJvdWkvcmVhY3QtbWNwQGxhdGVzdCJ9)
+
+Or add manually to Cursor Settings → Features → MCP Servers:
 
 ```json
 {
@@ -30,7 +32,12 @@ Add to Cursor Settings → Features → MCP Servers:
 
 ### Claude Code
 
-Add to your Claude Code configuration:
+**Quick Install (CLI)**:
+```bash
+claude mcp add heroui-react -- npx -y @heroui/react-mcp@latest
+```
+
+Or manually add to your Claude Code configuration:
 
 **macOS**: `~/Library/Application Support/Claude/claude_mcp_settings.json`
 **Windows**: `%APPDATA%\Claude\claude_mcp_settings.json`
