@@ -10,7 +10,7 @@ let analyticsInitialized = false;
 export function initAnalytics(env: Record<string, any>) {
   if (!analyticsInitialized) {
     const posthogKey = env.POSTHOG_API_KEY || process.env.POSTHOG_API_KEY;
-    const posthogHost = env.POSTHOG_HOST || process.env.POSTHOG_HOST || "https://app.posthog.com";
+    const posthogHost = env.POSTHOG_HOST || process.env.POSTHOG_HOST || "https://us.i.posthog.com";
     const environment = env.APP_ENV || process.env.APP_ENV || "development";
 
     initializeAnalytics(

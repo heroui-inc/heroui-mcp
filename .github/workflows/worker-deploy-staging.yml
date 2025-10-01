@@ -26,7 +26,7 @@ jobs:
         timeout-minutes: 5
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         with:
@@ -37,7 +37,7 @@ jobs:
           workingDirectory: "."
           secrets: |
             CLOUDFLARE_ACCOUNT_ID
-            POSTHOG_KEY
+            POSTHOG_API_KEY
             R2_ACCESS_KEY_ID
             R2_SECRET_ACCESS_KEY
       - name: Show outputs
