@@ -23,22 +23,6 @@ export interface ThemeDefinition {
   components?: string; // Optional component-specific CSS overrides
 }
 
-// Optimized theme structure that extracts common variables
-export interface OptimizedThemeDefinition {
-  name: string; // Theme name (e.g., "default")
-  common: {
-    base: CSSVariable[]; // Base variables shared between modes
-    calculated: CSSVariable[]; // Calculated variables shared between modes
-  };
-  light: {
-    semantic: CSSVariable[]; // Light mode specific semantic variables
-  };
-  dark: {
-    semantic: CSSVariable[]; // Dark mode specific semantic variables
-  };
-  components?: string; // Optional component-specific CSS overrides
-}
-
 export interface AnimationTiming {
   name: string; // e.g., "--ease-in-quad"
   value: string; // e.g., "cubic-bezier(0.55, 0.085, 0.68, 0.53)"
@@ -83,21 +67,4 @@ export interface ThemeSystem {
     designPrinciples?: GuideContent;
     quickStart?: GuideContent;
   };
-}
-
-export interface ThemeGenerationOptions {
-  name: string;
-  baseTheme: "default"; // Base theme to extend from
-  mode: "light" | "dark" | "both";
-  colors?: {
-    accent?: string;
-    success?: string;
-    warning?: string;
-    danger?: string;
-    background?: string;
-    foreground?: string;
-    [key: string]: string | undefined;
-  };
-  radius?: string;
-  fontFamily?: string;
 }

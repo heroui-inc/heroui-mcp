@@ -7,12 +7,6 @@ export interface ToolConfig {
   dataService?: ComponentDataServiceR2;
 }
 
-export interface ToolContext {
-  name: string;
-  description: string;
-  config: ToolConfig;
-}
-
 export interface ComponentContext {
   componentList: string[];
 }
@@ -36,10 +30,3 @@ export interface Tool<T = unknown> {
     },
   ): Promise<void> | void;
 }
-
-export type ToolResponse = {
-  content: Array<{
-    type: "text";
-    text: string;
-  }>;
-};
