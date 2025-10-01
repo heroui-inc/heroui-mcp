@@ -1,8 +1,8 @@
-# HeroUI MCP Architecture
+# HeroUI React MCP Architecture
 
 ## Overview
 
-The HeroUI MCP server provides component documentation via Model Context Protocol (MCP) using a simple STDIO transport with a REST API backend.
+The HeroUI React MCP server provides component documentation via Model Context Protocol (MCP) using a simple STDIO transport with a REST API backend.
 
 ```mermaid
 graph LR
@@ -23,10 +23,10 @@ graph LR
 
 ## Components
 
-### 1. STDIO Client (`@heroui/mcp`)
+### 1. STDIO Client (`@heroui/react-mcp`)
 - **Location**: NPM package
 - **Entry**: `src/stdio.ts`
-- **Installation**: `npm install -g @heroui/mcp`
+- **Installation**: `npm install -g @heroui/react-mcp`
 - **Purpose**: Local MCP server that AI assistants connect to
 - **Features**:
   - Lightweight and simple
@@ -122,7 +122,7 @@ The STDIO client exposes nine tools:
 
 1. Install the MCP client:
    ```bash
-   npm install -g @heroui/mcp
+   npm install -g @heroui/react-mcp
    ```
 
 2. Configure your AI assistant (e.g., Claude Desktop):
@@ -130,7 +130,8 @@ The STDIO client exposes nine tools:
    {
      "mcpServers": {
        "heroui": {
-         "command": "heroui-mcp"
+         "command": "npx",
+         "args": ["-y", "@heroui/react-mcp"]
        }
      }
    }

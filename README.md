@@ -1,4 +1,4 @@
-# HeroUI MCP Server
+# HeroUI React MCP Server
 
 Access HeroUI component documentation directly in your AI assistant via Model Context Protocol (MCP).
 
@@ -22,7 +22,7 @@ Add to Cursor Settings → Features → MCP Servers:
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/react-mcp"]
     }
   }
 }
@@ -40,7 +40,7 @@ Add to your Claude Code configuration:
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/react-mcp"]
     }
   }
 }
@@ -55,7 +55,7 @@ Add to Windsurf configuration → MCP Servers:
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/react-mcp"]
     }
   }
 }
@@ -70,7 +70,7 @@ Add to your VS Code settings:
   "mcp.servers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/react-mcp"]
     }
   }
 }
@@ -88,7 +88,7 @@ Add to your Claude Desktop configuration:
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/react-mcp"]
     }
   }
 }

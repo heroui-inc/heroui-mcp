@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * HeroUI MCP API Test Suite
+ * HeroUI React MCP API Test Suite
  *
  * Tests the simplified REST API endpoints
  * Usage: node test-api.js [--url http://localhost:8787]
@@ -17,7 +17,7 @@ const urlArgIndex = args.indexOf("--url");
 const baseUrl =
   urlArgIndex !== -1 && args[urlArgIndex + 1] ? args[urlArgIndex + 1] : "http://localhost:8787";
 
-console.log(`\n🧪 Testing HeroUI MCP API at: ${baseUrl}\n`);
+console.log(`\n🧪 Testing HeroUI React MCP API at: ${baseUrl}\n`);
 
 // Colors for terminal output
 const colors = {
@@ -264,7 +264,9 @@ async function testDocsAvailable() {
       // Show first category as sample
       if (response.data.categories?.[0]) {
         const firstCategory = response.data.categories[0];
-        console.log(`  First category: ${firstCategory.name} (${firstCategory.docs?.length || 0} docs)`);
+        console.log(
+          `  First category: ${firstCategory.name} (${firstCategory.docs?.length || 0} docs)`,
+        );
       }
     }
   } catch (error) {

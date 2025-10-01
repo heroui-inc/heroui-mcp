@@ -1,7 +1,7 @@
 /* eslint-disable import/order */
 
 /**
- * HeroUI MCP API Server
+ * HeroUI React MCP API Server
  *
  * This is a Cloudflare Worker that serves component data from R2
  * It provides REST API endpoints for the STDIO client to consume

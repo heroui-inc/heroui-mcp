@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-This guide helps you resolve common issues when using the HeroUI MCP server.
+This guide helps you resolve common issues when using the HeroUI React MCP server.
 
 ## Common Issues
 
@@ -8,7 +8,7 @@ This guide helps you resolve common issues when using the HeroUI MCP server.
 
 #### Symptoms
 - Error: "MCP server 'heroui' not found"
-- Command not recognized when running `npx @heroui/mcp`
+- Command not recognized when running `npx @heroui/react-mcp`
 
 #### Solutions
 
@@ -26,13 +26,13 @@ This guide helps you resolve common issues when using the HeroUI MCP server.
 
 3. **Try installing globally**
    ```bash
-   npm install -g @heroui/mcp
+   npm install -g @heroui/react-mcp
    ```
-   Then use `heroui-mcp` instead of `npx @heroui/mcp`
+   Then use `heroui-mcp` instead of `npx @heroui/react-mcp`
 
 4. **Verify package availability**
    ```bash
-   npm view @heroui/mcp version
+   npm view @heroui/react-mcp version
    ```
 
 ### 🔴 Connection timeout or network errors
@@ -64,7 +64,7 @@ This guide helps you resolve common issues when using the HeroUI MCP server.
      "mcpServers": {
        "heroui": {
          "command": "npx",
-         "args": ["-y", "@heroui/mcp"],
+         "args": ["-y", "@heroui/react-mcp"],
          "env": {
            "HEROUI_API_URL": "http://your-custom-url"
          }
@@ -133,12 +133,12 @@ New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"
 
 1. **Update to latest version**
    ```bash
-   npm update -g @heroui/mcp
+   npm update -g @heroui/react-mcp
    ```
 
 2. **Check current version**
    ```bash
-   npx @heroui/mcp --version
+   npx @heroui/react-mcp --version
    ```
 
 3. **Force latest version with npx**
@@ -147,7 +147,7 @@ New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"
      "mcpServers": {
        "heroui": {
          "command": "npx",
-         "args": ["-y", "@heroui/mcp@latest"]
+         "args": ["-y", "@heroui/react-mcp@latest"]
        }
      }
    }
@@ -159,12 +159,12 @@ Enable detailed logging to diagnose issues:
 
 ### For Unix/Linux/macOS:
 ```bash
-DEBUG=* npx @heroui/mcp
+DEBUG=* npx @heroui/react-mcp
 ```
 
 ### For Windows:
 ```cmd
-set DEBUG=* && npx @heroui/mcp
+set DEBUG=* && npx @heroui/react-mcp
 ```
 
 ### In IDE configuration:
@@ -173,7 +173,7 @@ set DEBUG=* && npx @heroui/mcp
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"],
+      "args": ["-y", "@heroui/react-mcp"],
       "env": {
         "DEBUG": "*"
       }
@@ -187,7 +187,7 @@ set DEBUG=* && npx @heroui/mcp
 ### 1. Test via command line
 ```bash
 # Should output version number
-npx @heroui/mcp --version
+npx @heroui/react-mcp --version
 
 # Test API connectivity
 curl https://mcp-api.heroui.com/health

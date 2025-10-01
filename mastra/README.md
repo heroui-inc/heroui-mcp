@@ -1,6 +1,6 @@
-# HeroUI MCP Mastra Test Agent
+# HeroUI React MCP Mastra Test Agent
 
-Local development agent for testing HeroUI MCP server tools via Mastra playground.
+Local development agent for testing HeroUI React MCP server tools via Mastra playground.
 
 > **Note:** This is a development-only tool. All Mastra dependencies are in the main package.json as devDependencies and are excluded from production builds.
 
@@ -41,7 +41,7 @@ Local development agent for testing HeroUI MCP server tools via Mastra playgroun
 
 ## How It Works
 
-The agent connects directly to the HeroUI MCP server via stdio (standard input/output). When you start the playground, it:
+The agent connects directly to the HeroUI React MCP server via stdio (standard input/output). When you start the playground, it:
 
 1. Spawns the MCP server process using `tsx src/stdio.ts`
 2. Automatically loads all available MCP tools and resources
@@ -53,7 +53,7 @@ When you ask questions in the playground, the agent can:
 - Get detailed component information
 - Test MCP tool functionality in real-time
 
-> **⚠️ Important:** If you make changes to the MCP server code, you must **refresh the playground page** in your browser for the agent to pick up the changes. The MCP connection is established when the playground loads.
+> **⚠️ Important:** If you make changes to the MCP server code, you must **restart the playground server** to see the changes.
 
 ## Memory
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Fetch utilities for HeroUI MCP API endpoints
+ * Fetch utilities for HeroUI React MCP API endpoints
  */
 import {API_BASE_URL} from "../constants";
 

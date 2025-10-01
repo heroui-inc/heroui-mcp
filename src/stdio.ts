@@ -1,7 +1,7 @@
 /**
- * HeroUI MCP STDIO Server
+ * HeroUI React MCP STDIO Server
  *
- * This is the main entry point for the npm package @heroui/mcp
+ * This is the main entry point for the npm package @heroui/react-mcp
  * It runs locally and communicates with the HeroUI API server
  */
 
@@ -19,9 +19,9 @@ async function createServer(): Promise<McpServer> {
   const server = new McpServer({
     name: packageInfo.name,
     version: packageInfo.version,
-    instructions: `## HeroUI MCP Tools - v3 Alpha Documentation
+    instructions: `## HeroUI React MCP Tools - v3 Alpha Documentation
 
-Welcome to HeroUI MCP! These tools provide documentation for **HeroUI v3 (Alpha)** React components.
+Welcome to HeroUI React MCP! These tools provide documentation for **HeroUI v3 (Alpha)** React components.
 
 ### ⚠️ IMPORTANT: Version Information
 • **Current Support:** HeroUI v3 (Alpha) ONLY

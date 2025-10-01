@@ -1,6 +1,6 @@
-# Contributing to HeroUI MCP Server
+# Contributing to HeroUI React MCP Server
 
-Thank you for your interest in contributing to the HeroUI MCP Server! This guide will help you get started with development.
+Thank you for your interest in contributing to the HeroUI React MCP Server! This guide will help you get started with development.
 
 ## 📋 Prerequisites
 
@@ -11,7 +11,7 @@ Thank you for your interest in contributing to the HeroUI MCP Server! This guide
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/heroui-mcp.git
+git clone https://github.com/heroui-inc/heroui-mcp.git
 cd heroui-mcp
 
 # Install dependencies
@@ -124,7 +124,7 @@ You can override the API URL for local development:
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"],
+      "args": ["-y", "@heroui/react-mcp"],
       "env": {
         "HEROUI_API_URL": "http://localhost:8787"
       }
@@ -184,7 +184,7 @@ pnpm format
 
 The HeroUI MCP uses a simple architecture:
 
-1. **STDIO Client** (`@heroui/mcp`) - Runs locally, handles MCP protocol
+1. **STDIO Client** (`@heroui/react-mcp`) - Runs locally, handles MCP protocol
 2. **REST API** (Cloudflare Worker) - Serves component data
 3. **R2 Storage** - Stores component documentation
 
@@ -365,7 +365,7 @@ Always include `GITHUB_TOKEN` in your `.env` to avoid rate limits.
 Run with debug output:
 
 ```bash
-DEBUG=* npx @heroui/mcp
+DEBUG=* npx @heroui/react-mcp
 ```
 
 ### Testing API Connection
@@ -382,7 +382,7 @@ curl https://mcp-api.heroui.com/api/components
 
 ```bash
 # Check if the package is available
-npx @heroui/mcp --version
+npx @heroui/react-mcp --version
 ```
 
 ## 🛠️ Adding New Features
@@ -442,7 +442,7 @@ export const myService = new MyService();
 
 ### Architecture Notes
 
-The project has two parallel implementations:
+The HeroUI React MCP project has two parallel implementations:
 
 1. **Cloudflare Workers version** (`src/index.ts`, `src/services/data-store.ts`)
    - Uses Cloudflare R2 for storage
