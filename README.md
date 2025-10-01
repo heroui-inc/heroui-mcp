@@ -15,7 +15,7 @@ Access HeroUI component documentation directly in your AI assistant via Model Co
 
 ### Cursor
 
-[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](cursor://anysphere.cursor-deeplink/mcp/install?name=heroui-react&config=eyJjb21tYW5kIjoibnB4IC15IEBoZXJvdWkvcmVhY3QtbWNwQGxhdGVzdCJ9)
+[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://link.heroui.com/mcp-cursor-install)
 
 Or add manually to Cursor Settings → Features → MCP Servers:
 
