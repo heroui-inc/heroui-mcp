@@ -1,3 +1,20 @@
+# [1.0.0-alpha.19](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.18...v1.0.0-alpha.19) (2025-10-01)
+
+
+### Bug Fixes
+
+* add to cursor button styl ([293cb5a](https://github.com/heroui-inc/heroui-mcp/commit/293cb5a1558aeba636b5bef6dac91d70489de5c5))
+* add to cursor button style ([169cfc3](https://github.com/heroui-inc/heroui-mcp/commit/169cfc37dba330ea6d9504448889f67a979086ac))
+* bump mastra version for logger ([34e30c2](https://github.com/heroui-inc/heroui-mcp/commit/34e30c213131d272a58131dfd7af22dbef205f3e))
+* cleanup envs ([823e312](https://github.com/heroui-inc/heroui-mcp/commit/823e31259e310cd745afb85b83bc138d26e0122a))
+* cursor install link ([8871fb2](https://github.com/heroui-inc/heroui-mcp/commit/8871fb2e892492fee9d54600b2d9e1ce00e1697a))
+* docs should always use [@latest](https://github.com/latest) ([9a25898](https://github.com/heroui-inc/heroui-mcp/commit/9a258985d07f4bececd97d0f63d949279ee6ebf3))
+* mastra logger version ([4bb53b4](https://github.com/heroui-inc/heroui-mcp/commit/4bb53b432ba7966e45c402f1fd455a8f9b20f24a))
+* rename package mentions to react mcp ([3fb347c](https://github.com/heroui-inc/heroui-mcp/commit/3fb347cccf32b5a4031a20f4d1ba0b57ff2cc135))
+* update quick install instruction ([bb67ac3](https://github.com/heroui-inc/heroui-mcp/commit/bb67ac33729729748c928cc95cd2b21aa0b5974b))
+
+
+
 # [1.0.0-alpha.18](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.17...v1.0.0-alpha.18) (2025-10-01)
 
 
