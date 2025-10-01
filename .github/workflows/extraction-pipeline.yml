@@ -72,8 +72,13 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+
       - name: Install dependencies for version check
-        run: npm install @aws-sdk/client-s3
+        run: pnpm install @aws-sdk/client-s3
 
       - name: Check for new versions
         id: check
@@ -102,10 +107,15 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+
       - name: Install dependencies
         run: |
-          npm install @aws-sdk/client-s3
-          npm install tsx
+          pnpm install @aws-sdk/client-s3
+          pnpm install tsx
 
       - name: Extract HeroUI components
         env:
@@ -154,10 +164,15 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+
       - name: Install dependencies
         run: |
-          npm install @aws-sdk/client-s3
-          npm install tsx
+          pnpm install @aws-sdk/client-s3
+          pnpm install tsx
 
       - name: Extract HeroUI theme system
         env:
