@@ -9,9 +9,9 @@ const health = new Hono<{Bindings: Env}>();
 // Root endpoint - API info
 health.get("/", (c) => {
   return c.json({
-    name: "HeroUI MCP API",
+    name: "HeroUI React MCP API",
     version: packageInfo.version,
-    description: "REST API for HeroUI component documentation",
+    description: "REST API for HeroUI React component documentation",
     endpoints: {
       "/": "API information",
       "/health": "Health check",

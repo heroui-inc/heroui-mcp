@@ -20,9 +20,7 @@ bucket_name = 'heroui-mcp-data-dev'
 [env.development.vars]
 APP_ENV = "development"
 LOG_LEVEL = "debug"
-# Analytics configuration - disabled in development
-POSTHOG_KEY = ""
-POSTHOG_HOST = ""
+POSTHOG_HOST = "https://us.i.posthog.com"
 R2_BUCKET_NAME = "heroui-mcp-data-dev"
 
 # ------------------------------------------------------------
@@ -40,9 +38,7 @@ bucket_name = 'heroui-mcp-data-staging'
 [env.staging.vars]
 APP_ENV = "staging"
 LOG_LEVEL = "info"
-# Analytics configuration - disabled in staging for now
-POSTHOG_KEY = ""
-POSTHOG_HOST = ""
+POSTHOG_HOST = "https://us.i.posthog.com"
 R2_BUCKET_NAME = "heroui-mcp-data-staging"
 
 # ------------------------------------------------------------
@@ -60,8 +56,6 @@ bucket_name = 'heroui-mcp-data'
 [env.production.vars]
 APP_ENV = "production"
 LOG_LEVEL = "warn"
-# Analytics configuration - enabled in production
-POSTHOG_KEY = "phc_VrhZEcKbs1xMxKoRtnvB8vxY8FwBApG8Pk87aOqvfLt"
 POSTHOG_HOST = "https://us.i.posthog.com"
 R2_BUCKET_NAME = "heroui-mcp-data"
 

@@ -1,5 +1,5 @@
 /**
- * HeroUI MCP API Server
+ * HeroUI React MCP API Server
  *
  * Re-export from the modular API structure
  */

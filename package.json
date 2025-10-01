@@ -1,6 +1,6 @@
 {
   "name": "@heroui/react-mcp",
-  "version": "1.0.0-alpha.18",
+  "version": "1.0.0-alpha.19",
   "type": "module",
   "description": "MCP server for HeroUI component documentation via Model Context Protocol",
   "main": "dist/stdio.js",
@@ -73,7 +73,7 @@
     "@cloudflare/workers-types": "^4.20250920.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.36.0",
-    "@mastra/core": "^0.18.0",
+    "@mastra/core": "^0.19.0",
     "@mastra/libsql": "^0.14.3",
     "@mastra/loggers": "^0.10.13",
     "@mastra/mcp": "^0.13.1",

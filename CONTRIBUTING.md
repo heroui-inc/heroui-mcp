@@ -1,6 +1,6 @@
-# Contributing to HeroUI MCP Server
+# Contributing to HeroUI React MCP Server
 
-Thank you for your interest in contributing to the HeroUI MCP Server! This guide will help you get started with development.
+Thank you for your interest in contributing to the HeroUI React MCP Server! This guide will help you get started with development.
 
 ## 📋 Prerequisites
 
@@ -11,7 +11,7 @@ Thank you for your interest in contributing to the HeroUI MCP Server! This guide
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/heroui-mcp.git
+git clone https://github.com/heroui-inc/heroui-mcp.git
 cd heroui-mcp
 
 # Install dependencies
@@ -39,7 +39,7 @@ Create a `.env` file with your credentials:
 CLOUDFLARE_ACCOUNT_ID=your_account_id
 R2_ACCESS_KEY_ID=your_r2_access_key
 R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
-R2_BUCKET_NAME=heroui-mcp-data-dev
+R2_BUCKET_NAME=your_r2_bucket_name
 
 # GitHub Token (optional but recommended to avoid rate limits)
 GITHUB_TOKEN=your_github_personal_access_token
@@ -124,7 +124,7 @@ You can override the API URL for local development:
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"],
+      "args": ["-y", "@heroui/react-mcp"],
       "env": {
         "HEROUI_API_URL": "http://localhost:8787"
       }
@@ -184,7 +184,7 @@ pnpm format
 
 The HeroUI MCP uses a simple architecture:
 
-1. **STDIO Client** (`@heroui/mcp`) - Runs locally, handles MCP protocol
+1. **STDIO Client** (`@heroui/react-mcp`) - Runs locally, handles MCP protocol
 2. **REST API** (Cloudflare Worker) - Serves component data
 3. **R2 Storage** - Stores component documentation
 
@@ -322,12 +322,6 @@ heroui-mcp-data/
 └── versions.json             # Version metadata
 ```
 
-### Environment-Based Deployment
-
-- **Development**: `heroui-mcp-data-dev` (manual extraction)
-- **Staging**: `heroui-mcp-data-staging` (develop branch)
-- **Production**: `heroui-mcp-data` (main branch)
-
 ### Updating Component Data
 
 #### For Development
@@ -365,7 +359,7 @@ Always include `GITHUB_TOKEN` in your `.env` to avoid rate limits.
 Run with debug output:
 
 ```bash
-DEBUG=* npx @heroui/mcp
+DEBUG=* npx @heroui/react-mcp@latest
 ```
 
 ### Testing API Connection
@@ -381,8 +375,8 @@ curl https://mcp-api.heroui.com/api/components
 ### Verifying Package Installation
 
 ```bash
-# Check if the package is available
-npx @heroui/mcp --version
+# Check if the package is available (always use @latest)
+npx @heroui/react-mcp@latest --version
 ```
 
 ## 🛠️ Adding New Features
@@ -442,7 +436,7 @@ export const myService = new MyService();
 
 ### Architecture Notes
 
-The project has two parallel implementations:
+The HeroUI React MCP project has two parallel implementations:
 
 1. **Cloudflare Workers version** (`src/index.ts`, `src/services/data-store.ts`)
    - Uses Cloudflare R2 for storage

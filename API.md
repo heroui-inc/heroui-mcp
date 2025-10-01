@@ -1,6 +1,6 @@
-# HeroUI MCP API Documentation
+# HeroUI React MCP API Documentation
 
-This document provides detailed information about the HeroUI MCP REST API endpoints.
+This document provides detailed information about the HeroUI React MCP REST API endpoints.
 
 ## Quick Reference
 

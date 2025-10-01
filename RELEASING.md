@@ -1,12 +1,12 @@
-# Releasing HeroUI MCP
+# Releasing HeroUI React MCP
 
-This document describes the release process for the HeroUI MCP server package.
+This document describes the release process for the HeroUI React MCP server package.
 
 ## Prerequisites
 
 Before releasing, ensure you have:
 
-1. **npm account** with publish permissions for `@heroui/mcp`
+1. **npm account** with publish permissions for `@heroui/react-mcp`
 2. **Git push permissions** to the main repository
 3. **Clean working directory** (all changes committed)
 4. **Updated component data** (if needed):
@@ -63,7 +63,7 @@ npm publish --access public
 
 ### 4. Create GitHub Release
 
-1. Go to [GitHub Releases](https://github.com/your-org/heroui-mcp/releases)
+1. Go to [GitHub Releases](https://github.com/heroui-inc/heroui-mcp/releases)
 2. Click "Create a new release"
 3. Select the tag you just created
 4. Add release notes describing:
@@ -152,7 +152,7 @@ If npm publish fails:
 
 4. Check if the version already exists:
    ```bash
-   npm view @heroui/mcp versions
+   npm view @heroui/react-mcp versions
    ```
 
 ### Build Fails
@@ -190,7 +190,7 @@ If a critical issue is found after release:
 
 1. **Deprecate the broken version**:
    ```bash
-   npm deprecate @heroui/mcp@{version} "Critical issue found, please use previous version"
+   npm deprecate @heroui/react-mcp@{version} "Critical issue found, please use previous version"
    ```
 
 2. **Create a patch release** with the fix

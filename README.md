@@ -1,4 +1,4 @@
-# HeroUI MCP Server
+# HeroUI React MCP Server
 
 Access HeroUI component documentation directly in your AI assistant via Model Context Protocol (MCP).
 
@@ -15,14 +15,16 @@ Access HeroUI component documentation directly in your AI assistant via Model Co
 
 ### Cursor
 
-Add to Cursor Settings → Features → MCP Servers:
+[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](cursor://anysphere.cursor-deeplink/mcp/install?name=heroui-react&config=eyJjb21tYW5kIjoibnB4IC15IEBoZXJvdWkvcmVhY3QtbWNwQGxhdGVzdCJ9)
+
+Or add manually to Cursor Settings → Features → MCP Servers:
 
 ```json
 {
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/react-mcp@latest"]
     }
   }
 }
@@ -30,7 +32,12 @@ Add to Cursor Settings → Features → MCP Servers:
 
 ### Claude Code
 
-Add to your Claude Code configuration:
+**Quick Install (CLI)**:
+```bash
+claude mcp add heroui-react -- npx -y @heroui/react-mcp@latest
+```
+
+Or manually add to your Claude Code configuration:
 
 **macOS**: `~/Library/Application Support/Claude/claude_mcp_settings.json`
 **Windows**: `%APPDATA%\Claude\claude_mcp_settings.json`
@@ -40,7 +47,7 @@ Add to your Claude Code configuration:
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/react-mcp@latest"]
     }
   }
 }
@@ -55,7 +62,7 @@ Add to Windsurf configuration → MCP Servers:
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/react-mcp@latest"]
     }
   }
 }
@@ -70,7 +77,7 @@ Add to your VS Code settings:
   "mcp.servers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/react-mcp@latest"]
     }
   }
 }
@@ -88,7 +95,7 @@ Add to your Claude Desktop configuration:
   "mcpServers": {
     "heroui": {
       "command": "npx",
-      "args": ["-y", "@heroui/mcp"]
+      "args": ["-y", "@heroui/react-mcp@latest"]
     }
   }
 }
