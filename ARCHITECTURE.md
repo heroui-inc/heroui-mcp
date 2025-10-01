@@ -56,7 +56,6 @@ graph LR
   ```
 
 ### 3. R2 Storage
-- **Bucket**: `heroui-mcp-data`
 - **Access**: Private (Worker only)
 - **Structure**:
   ```

@@ -39,7 +39,7 @@ Create a `.env` file with your credentials:
 CLOUDFLARE_ACCOUNT_ID=your_account_id
 R2_ACCESS_KEY_ID=your_r2_access_key
 R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
-R2_BUCKET_NAME=heroui-mcp-data-dev
+R2_BUCKET_NAME=your_r2_bucket_name
 
 # GitHub Token (optional but recommended to avoid rate limits)
 GITHUB_TOKEN=your_github_personal_access_token
@@ -321,12 +321,6 @@ heroui-mcp-data/
 │   └── ...
 └── versions.json             # Version metadata
 ```
-
-### Environment-Based Deployment
-
-- **Development**: `heroui-mcp-data-dev` (manual extraction)
-- **Staging**: `heroui-mcp-data-staging` (develop branch)
-- **Production**: `heroui-mcp-data` (main branch)
 
 ### Updating Component Data
 
