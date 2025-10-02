@@ -64,8 +64,6 @@ class Analytics {
     if (config.environment === "production") {
       this.client = new PostHog(config.apiKey, {
         host: config.host,
-        flushAt: 20,
-        flushInterval: 10000, // 10 seconds
       });
     } else {
       console.info(
@@ -82,10 +80,15 @@ class Analytics {
     };
   }
 
-  private track(event: AnalyticsEvent, properties: EventProperties = {}, distinctId?: string) {
+  private async track(
+    event: AnalyticsEvent,
+    properties: EventProperties = {},
+    distinctId?: string,
+  ) {
     const enrichedProperties = {
       ...this.getBaseProperties(),
       ...properties,
+      project: "react",
     };
 
     // Always log in non-production for debugging
@@ -106,6 +109,8 @@ class Analytics {
         event,
         properties: enrichedProperties,
       });
+
+      await this.client.shutdown();
     }
   }
 
