@@ -1,21 +1,15 @@
 {
-  "name": "@heroui/react-mcp",
-  "version": "1.0.0-alpha.19",
-  "type": "module",
-  "description": "MCP server for HeroUI component documentation via Model Context Protocol",
-  "main": "dist/stdio.js",
-  "bin": {
-    "heroui-mcp": "./dist/stdio.js"
-  },
-  "files": [
-    "dist"
-  ],
+  "name": "@heroui/mcp-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for HeroUI Model Context Protocol servers",
   "keywords": [
     "mcp",
     "heroui",
     "model-context-protocol",
     "ai",
-    "llm"
+    "llm",
+    "monorepo"
   ],
   "author": "HeroUI <support@heroui.com> (https://github.com/heroui-inc)",
   "license": "MIT",
@@ -27,87 +21,25 @@
     "url": "https://github.com/heroui-inc/heroui-mcp/issues"
   },
   "homepage": "https://github.com/heroui-inc/heroui-mcp",
-  "scripts": {
-    "build": "tsup && chmod +x dist/stdio.js",
-    "build:api": "wrangler deploy --dry-run --outdir dist-api",
-    "dev:api": "dotenv -- wrangler dev src/api.ts --env development --port 8787",
-    "dev:stdio": "NODE_ENV=development tsx --watch src/stdio.ts",
-    "dev:mastra": "mastra dev --dir ./mastra",
-    "dev": "npm run dev:api",
-    "test:api": "node test-api.mjs",
-    "test:api:staging": "node test-api.mjs --url https://staging-mcp-api.heroui.com",
-    "test:api:production": "node test-api.mjs --url https://mcp-api.heroui.com",
-    "deploy:api": "wrangler deploy src/api.ts --minify",
-    "deploy:api:staging": "wrangler deploy src/api.ts --env staging",
-    "deploy:api:production": "wrangler deploy src/api.ts --env production",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
-    "mcp:stdio": "NODE_ENV=development tsx src/stdio.ts",
-    "mcp:inspector": "NODE_ENV=development npx @modelcontextprotocol/inspector -e HEROUI_API_URL=http://localhost:8787 tsx src/stdio.ts",
-    "extract:heroui-r2": "tsx scripts/extract-heroui-r2.ts",
-    "extract:theme-r2": "tsx scripts/extract-heroui-theme-r2.ts",
-    "extract:dev": "./scripts/extract-dev.sh",
-    "extract:dev:heroui": "./scripts/extract-dev.sh heroui",
-    "extract:dev:theme": "./scripts/extract-dev.sh theme",
-    "clean": "rm -rf dist",
-    "prepublishOnly": "pnpm build",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
-    "release": "bumpp --execute='pnpm run changelog' --all",
-    "release:check": "pnpm run lint && pnpm run typecheck && pnpm run build"
-  },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.696.0",
-    "@hono/node-server": "^1.13.7",
-    "@modelcontextprotocol/sdk": "^1.18.1",
-    "@xmldom/xmldom": "^0.8.11",
-    "hono": "^4.9.8",
-    "posthog-node": "^5.9.1",
-    "zod": "^3.24.4"
-  },
-  "devDependencies": {
-    "@ai-sdk/amazon-bedrock": "^3.0.29",
-    "@ai-sdk/anthropic": "^2.0.22",
-    "@ai-sdk/openai": "^2.0.42",
-    "@cloudflare/workers-types": "^4.20250920.0",
-    "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.36.0",
-    "@mastra/core": "^0.19.0",
-    "@mastra/libsql": "^0.14.3",
-    "@mastra/loggers": "^0.10.13",
-    "@mastra/mcp": "^0.13.1",
-    "@mastra/memory": "^0.15.3",
-    "@modelcontextprotocol/inspector": "^0.16.8",
-    "@types/node": "^22.18.6",
-    "@typescript-eslint/eslint-plugin": "^8.44.0",
-    "@typescript-eslint/parser": "^8.44.0",
-    "bumpp": "10.2.0",
-    "changelogithub": "13.16.0",
-    "conventional-changelog-cli": "5.0.0",
-    "dotenv": "^17.2.3",
-    "dotenv-cli": "^10.0.0",
-    "eslint": "^9.36.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-import-resolver-typescript": "^4.4.4",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-only-warn": "^1.1.0",
-    "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-sort-destructure-keys": "^2.0.0",
-    "eslint-plugin-sort-keys-fix": "^1.1.2",
-    "eslint-plugin-unused-imports": "^4.2.0",
-    "glob": "^11.0.3",
-    "globals": "^16.4.0",
-    "mastra": "^0.13.2",
-    "prettier": "^3.6.2",
-    "tsup": "^8.5.0",
-    "tsx": "^4.20.5",
-    "typescript": "^5.9.2",
-    "typescript-eslint": "^8.44.1",
-    "wrangler": "^4.38.0"
-  },
   "engines": {
     "node": ">=22.0.0"
   },
-  "packageManager": "pnpm@10.17.0"
+  "packageManager": "pnpm@10.17.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean",
+    "format": "prettier --write \"packages/**/*.{ts,tsx,json,md}\"",
+    "test": "turbo run test",
+    "release:check": "turbo run release:check"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.6",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "turbo": "^2.3.3",
+    "typescript": "^5.9.2"
+  }
 }

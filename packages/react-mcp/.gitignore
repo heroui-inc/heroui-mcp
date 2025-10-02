@@ -7,12 +7,6 @@ dist/
 dist-api/
 .wrangler/
 .dev.vars
-build/
-.next/
-.vercel/
-
-# Turbo
-.turbo/
 
 # Environment files
 .env
@@ -50,3 +44,9 @@ temp/
 # Claude
 .claude
 .workflows
+
+# Mastra
+.mastra/
+memory.db
+memory.db-shm
+memory.db-wal

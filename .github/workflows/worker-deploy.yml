@@ -17,6 +17,9 @@ jobs:
       - name: Setup node and pnpm
         uses: ./.github/actions/install
 
+      - name: Build package
+        run: pnpm run build --filter=@heroui/react-mcp
+
       - name: Install wrangler
         run: pnpm add -g wrangler@latest
 
@@ -34,7 +37,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
           environment: production
-          workingDirectory: "."
+          workingDirectory: "packages/react-mcp"
           secrets: |
             CLOUDFLARE_ACCOUNT_ID
             POSTHOG_API_KEY

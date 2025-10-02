@@ -21,4 +21,4 @@ jobs:
         uses: ./.github/actions/install
 
       - name: Run Script ${{ matrix.script }}
-        run: pnpm ${{ matrix.script }}
+        run: pnpm run ${{ matrix.script }}
