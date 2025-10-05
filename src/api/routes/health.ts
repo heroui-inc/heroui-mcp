@@ -2,7 +2,7 @@ import type {Env} from "../types";
 
 import {Hono} from "hono";
 
-import {packageInfo} from "../../lib/package-info";
+import packageJson from "../../../package.json";
 
 const health = new Hono<{Bindings: Env}>();
 
@@ -10,7 +10,7 @@ const health = new Hono<{Bindings: Env}>();
 health.get("/", (c) => {
   return c.json({
     name: "HeroUI React MCP API",
-    version: packageInfo.version,
+    version: packageJson.version,
     description: "REST API for HeroUI React component documentation",
     endpoints: {
       "/": "API information",
