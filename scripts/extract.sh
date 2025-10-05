@@ -3,7 +3,7 @@
 # Unified extraction script for all environments
 # Usage: extract.sh [environment] [target] [options]
 #   environment: dev | staging | production
-#   target: heroui | native | both | theme
+#   target: heroui | theme
 #   options: --force | --version=VERSION
 
 set -e
@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # Parse arguments
 ENVIRONMENT=${1:-dev}
-TARGET=${2:-both}
+TARGET=${2:-heroui}
 shift 2 2>/dev/null || true
 OPTIONS="$@"
 
@@ -25,15 +25,15 @@ if [[ ! "$ENVIRONMENT" =~ ^(dev|staging|production)$ ]]; then
     echo -e "${RED}Error: Invalid environment '$ENVIRONMENT'${NC}"
     echo "Usage: $0 [environment] [target] [options]"
     echo "  environment: dev | staging | production"
-    echo "  target: heroui | native | both | theme"
+    echo "  target: heroui | theme"
     echo "  options: --force | --version=VERSION"
     exit 1
 fi
 
 # Validate target
-if [[ ! "$TARGET" =~ ^(heroui|native|both|all|theme|heroui-theme)$ ]]; then
+if [[ ! "$TARGET" =~ ^(heroui|theme|heroui-theme)$ ]]; then
     echo -e "${RED}Error: Invalid target '$TARGET'${NC}"
-    echo "Valid targets: heroui | native | both | theme | heroui-theme"
+    echo "Valid targets: heroui | theme | heroui-theme"
     exit 1
 fi
 
@@ -119,20 +119,6 @@ case "$TARGET" in
     heroui)
         echo -e "${GREEN}Extracting HeroUI components...${NC}"
         npx tsx scripts/extract-heroui-r2.ts $EXTRACT_FLAGS
-        ;;
-    native)
-        echo -e "${GREEN}Extracting HeroUI Native components...${NC}"
-        npx tsx scripts/extract-native-r2.ts $EXTRACT_FLAGS
-        ;;
-    both|all)
-        echo -e "${GREEN}Extracting both HeroUI and HeroUI Native components...${NC}"
-        npx tsx scripts/extract-heroui-r2.ts $EXTRACT_FLAGS
-        if [ $? -eq 0 ]; then
-            npx tsx scripts/extract-native-r2.ts $EXTRACT_FLAGS
-        else
-            echo -e "${RED}HeroUI extraction failed, skipping Native extraction${NC}"
-            exit 1
-        fi
         ;;
     theme|heroui-theme)
         echo -e "${GREEN}Extracting HeroUI theme system...${NC}"

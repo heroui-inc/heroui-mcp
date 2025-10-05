@@ -2,7 +2,7 @@ import type {Env} from "../types";
 
 import {Hono} from "hono";
 
-import {packageInfo} from "../../lib/package-info";
+import packageJson from "../../../package.json";
 import {getAnalytics, getDataService, initAnalytics} from "../services";
 
 const versions = new Hono<{Bindings: Env}>();
@@ -30,7 +30,7 @@ versions.get("/", async (c) => {
         versions: heroUIVersions,
       },
       mcp: {
-        current: packageInfo.version,
+        current: packageJson.version,
       },
     });
   } catch (error) {
@@ -61,8 +61,8 @@ versions.get("/:package", async (c) => {
     if (pkg === "mcp") {
       return c.json({
         package: "mcp",
-        currentVersion: packageInfo.version,
-        latestVersion: packageInfo.version,
+        currentVersion: packageJson.version,
+        latestVersion: packageJson.version,
         isLatest: true,
       });
     }
