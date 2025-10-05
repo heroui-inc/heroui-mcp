@@ -7,6 +7,7 @@ This guide helps you resolve common issues when using the HeroUI React MCP serve
 ### 🔴 MCP server not found
 
 #### Symptoms
+
 - Error: "MCP server 'heroui' not found"
 - Command not recognized when running `npx @heroui/react-mcp@latest`
 
@@ -15,26 +16,32 @@ This guide helps you resolve common issues when using the HeroUI React MCP serve
 1. **Always use @latest tag**
 
    ⚠️ **Important**: Always install with `@latest` to ensure you get the most recent version:
+
    ```bash
    npx -y @heroui/react-mcp@latest
    ```
 
 2. **Check Node.js version**
+
    ```bash
    node --version
    ```
+
    Ensure you have Node.js 18 or higher installed.
 
 3. **Clear npm cache**
+
    ```bash
    npm cache clean --force
    npx clear-npx-cache
    ```
 
 4. **Try installing globally**
+
    ```bash
    npm install -g @heroui/react-mcp@latest
    ```
+
    Then use `heroui-mcp` instead of `npx @heroui/react-mcp@latest`
 
 5. **Verify package availability**
@@ -45,6 +52,7 @@ This guide helps you resolve common issues when using the HeroUI React MCP serve
 ### 🔴 Connection timeout or network errors
 
 #### Symptoms
+
 - "Failed to connect to API"
 - "Network timeout" errors
 - Tools not responding
@@ -52,14 +60,17 @@ This guide helps you resolve common issues when using the HeroUI React MCP serve
 #### Solutions
 
 1. **Test API connectivity**
+
    ```bash
    curl https://mcp-api.heroui.com/health
    ```
+
    Should return: `{"status":"healthy",...}`
 
 2. **Behind a corporate firewall/proxy?**
 
    Configure npm proxy:
+
    ```bash
    npm config set proxy http://your-proxy:port
    npm config set https-proxy http://your-proxy:port
@@ -83,6 +94,7 @@ This guide helps you resolve common issues when using the HeroUI React MCP serve
 ### 🔴 Components not found
 
 #### Symptoms
+
 - "Component not found" errors
 - Empty component lists
 - Case sensitivity issues (e.g., "button" vs "Button")
@@ -104,10 +116,12 @@ This guide helps you resolve common issues when using the HeroUI React MCP serve
 #### Claude Desktop / Claude Code
 
 **Config location not found:**
+
 - macOS: `~/Library/Application Support/Claude/`
 - Windows: `%APPDATA%\Claude\`
 
 Create the directory if it doesn't exist:
+
 ```bash
 # macOS
 mkdir -p ~/Library/Application\ Support/Claude/
@@ -119,6 +133,7 @@ New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"
 #### Cursor
 
 **MCP not showing in Cursor:**
+
 1. Go to Settings → Features → MCP Servers
 2. Add the configuration manually
 3. Restart Cursor
@@ -126,6 +141,7 @@ New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"
 #### VS Code
 
 **Extension not working:**
+
 1. Ensure you have the MCP extension installed
 2. Check VS Code settings JSON (Cmd/Ctrl + Shift + P → "Open Settings JSON")
 3. Restart VS Code
@@ -133,6 +149,7 @@ New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"
 ### 🔴 Version mismatch
 
 #### Symptoms
+
 - "Version not found" errors
 - Old component data
 
@@ -141,11 +158,13 @@ New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"
 1. **Always use @latest tag**
 
    ⚠️ **Recommended**: Always use `@latest` to get the most recent version:
+
    ```bash
    npm install -g @heroui/react-mcp@latest
    ```
 
 2. **Check current version**
+
    ```bash
    npx @heroui/react-mcp@latest --version
    ```
@@ -153,6 +172,7 @@ New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"
 3. **Force latest version in MCP configuration**
 
    Always use `@latest` in your configuration:
+
    ```json
    {
      "mcpServers": {
@@ -169,16 +189,19 @@ New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"
 Enable detailed logging to diagnose issues:
 
 ### For Unix/Linux/macOS:
+
 ```bash
 DEBUG=* npx @heroui/react-mcp@latest
 ```
 
 ### For Windows:
+
 ```cmd
 set DEBUG=* && npx @heroui/react-mcp@latest
 ```
 
 ### In IDE configuration:
+
 ```json
 {
   "mcpServers": {
@@ -196,6 +219,7 @@ set DEBUG=* && npx @heroui/react-mcp@latest
 ## Testing the Installation
 
 ### 1. Test via command line
+
 ```bash
 # Should output version number
 npx @heroui/react-mcp@latest --version
@@ -208,7 +232,9 @@ curl https://mcp-api.heroui.com/api/components
 ```
 
 ### 2. Test in your AI assistant
+
 Ask these questions to verify it's working:
+
 - "List all HeroUI components"
 - "Show me the Button component props"
 - "Give me an example of the Card component"
@@ -218,6 +244,7 @@ Ask these questions to verify it's working:
 ### macOS
 
 **Permission denied errors:**
+
 ```bash
 # Fix npm permissions
 sudo chown -R $(whoami) ~/.npm
@@ -227,6 +254,7 @@ sudo chown -R $(whoami) /usr/local/lib/node_modules
 ### Windows
 
 **Execution policy errors:**
+
 ```powershell
 # Run PowerShell as Administrator
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -234,6 +262,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 **Path too long errors:**
 Enable long path support in Windows:
+
 ```powershell
 # Run as Administrator
 New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
@@ -242,6 +271,7 @@ New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name
 ### Linux
 
 **EACCES errors:**
+
 ```bash
 # Configure npm to use a different directory
 mkdir ~/.npm-global
@@ -259,6 +289,7 @@ If you're still experiencing problems:
 3. **Report a bug**: [Create an issue](https://github.com/heroui-inc/heroui-mcp/issues/new)
 
 When reporting issues, please include:
+
 - Your operating system and version
 - Node.js version (`node --version`)
 - npm version (`npm --version`)
@@ -275,7 +306,7 @@ A: No, the MCP server requires internet access to fetch component data from the 
 A: Component data is updated daily. The MCP always fetches the latest available data.
 
 **Q: Can I use a specific version of HeroUI docs?**
-A: Yes, tools support a `version` parameter. Ask your AI to use a specific version like "v3.0.0-alpha.31".
+A: Yes, tools support a `version` parameter. Ask your AI to use a specific version like "v3.0.0-alpha.33".
 
 **Q: Is this free to use?**
 A: Yes, the HeroUI MCP server is free and open source under the MIT license.
