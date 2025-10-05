@@ -24,6 +24,7 @@ graph LR
 ## Components
 
 ### 1. STDIO Client (`@heroui/react-mcp`)
+
 - **Location**: NPM package
 - **Entry**: `src/stdio.ts`
 - **Installation**: `npm install -g @heroui/react-mcp@latest`
@@ -35,6 +36,7 @@ graph LR
   - Cross-platform compatible
 
 ### 2. REST API (Cloudflare Worker)
+
 - **Production**: `https://mcp-api.heroui.com`
 - **Staging**: `https://staging-mcp-api.heroui.com`
 - **Entry**: `src/api.ts`
@@ -56,13 +58,14 @@ graph LR
   ```
 
 ### 3. R2 Storage
+
 - **Access**: Private (Worker only)
 - **Structure**:
   ```
   components/
   └── heroui/
       ├── latest.json
-      └── v3.0.0-alpha.31.json
+      └── v3.0.0-alpha.33.json
   ```
 
 ## MCP Tools
@@ -70,56 +73,76 @@ graph LR
 The STDIO client exposes nine tools:
 
 1. **installation** - Get complete installation guide for HeroUI v3
+
    ```javascript
    { framework: "next-app" | "next-pages" | "vite" | "general", packageManager?: "npm" | "pnpm" | "yarn" | "bun" }
    ```
 
 2. **list_components** - List all HeroUI components (always latest version)
+
    ```javascript
    // No parameters required
    ```
 
 3. **get_component_info** - Get complete component information
+
    ```javascript
-   { component: "Button" }  // Must be one of the available components
+   {
+     component: "Button";
+   } // Must be one of the available components
    ```
 
 4. **get_component_props** - Get component props
+
    ```javascript
-   { component: "Button" }  // Must be one of the available components
+   {
+     component: "Button";
+   } // Must be one of the available components
    ```
 
 5. **get_component_examples** - Get usage examples
+
    ```javascript
-   { component: "Button" }  // Must be one of the available components
+   {
+     component: "Button";
+   } // Must be one of the available components
    ```
 
 6. **get_component_source_code** - Get React/TypeScript source code (.tsx)
+
    ```javascript
-   { component: "Button" }  // Must be one of the available components
+   {
+     component: "Button";
+   } // Must be one of the available components
    ```
 
 7. **get_component_source_styles** - Get CSS styles (.css)
+
    ```javascript
-   { component: "Button" }  // Must be one of the available components
+   {
+     component: "Button";
+   } // Must be one of the available components
    ```
 
 8. **get_theme_info** - Get theme variables
+
    ```javascript
    { theme?: "default", mode?: "light" | "dark" | "both", category?: "colors" | "all" }
    ```
 
 9. **get_docs** - Get documentation content from HeroUI v3 docs
    ```javascript
-   { path: "/docs/introduction" }  // Documentation path
+   {
+     path: "/docs/introduction";
+   } // Documentation path
    ```
-
 
 ## Installation & Usage
 
 ### For End Users
 
 1. Install the MCP client:
+
    ```bash
    npm install -g @heroui/react-mcp@latest
    ```
@@ -139,11 +162,13 @@ The STDIO client exposes nine tools:
 ### For Development
 
 1. Start the API server:
+
    ```bash
    pnpm dev:api
    ```
 
 2. Test the STDIO client:
+
    ```bash
    pnpm dev:stdio
    ```
@@ -157,6 +182,7 @@ The STDIO client exposes nine tools:
 ## Deployment
 
 ### STDIO Client (NPM)
+
 ```bash
 # Build
 pnpm build
@@ -166,6 +192,7 @@ npm publish
 ```
 
 ### API Server (Cloudflare)
+
 ```bash
 # Deploy to staging
 pnpm deploy:api:staging
@@ -177,9 +204,11 @@ pnpm deploy:api:production
 ## Environment Variables
 
 ### STDIO Client
+
 - `HEROUI_API_URL` - API base URL (default: `https://mcp-api.heroui.com`)
 
 ### API Server (Cloudflare)
+
 - `CLOUDFLARE_ACCOUNT_ID` - Cloudflare account
 - `R2_ACCESS_KEY_ID` - R2 access key
 - `R2_SECRET_ACCESS_KEY` - R2 secret

@@ -38,7 +38,7 @@ export class R2Uploader {
 
   /**
    * Upload versioned component data to R2
-   * Stores in: {library}/{version}.json (e.g., heroui/"v3.0.0-alpha.31"1.json)
+   * Stores in: {library}/{version}.json (e.g., heroui/"v3.0.0-alpha.33"1.json)
    */
   async uploadComponentData(library: string, version: string, data: unknown): Promise<void> {
     const key = `${library}/${version}.json`;

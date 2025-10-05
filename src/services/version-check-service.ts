@@ -122,7 +122,7 @@ export class VersionCheckService {
     if (pre1 && !pre2) return -1; // Prerelease < release
 
     // Both have prereleases, need to compare them
-    // Extract prerelease type and number (e.g., "alpha.31" -> ["alpha", "31"])
+    // Extract prerelease type and number (e.g., "alpha.33" -> ["alpha", "31"])
     const preMatch1 = pre1.match(/^([a-z]+)\.?(\d+)?$/i);
     const preMatch2 = pre2.match(/^([a-z]+)\.?(\d+)?$/i);
 

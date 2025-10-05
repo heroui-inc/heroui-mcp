@@ -386,11 +386,11 @@ class HeroUIThemeExtractor {
       const latestResponse = await fetch("https://registry.npmjs.org/@heroui/react/latest");
       const latestData = (await latestResponse.json()) as {version: string};
 
-      return latestData.version || "3.0.0-alpha.31";
+      return latestData.version || "3.0.0-alpha.33";
     } catch (error) {
       console.warn("Failed to fetch latest version from npm, using default alpha version");
 
-      return "3.0.0-alpha.31";
+      return "3.0.0-alpha.33";
     }
   }
 

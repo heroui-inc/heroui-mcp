@@ -48,7 +48,7 @@ import {Button, Card, TextField, Tabs} from "@heroui/react";
 // Framework-agnostic styles (CSS only - no JavaScript behavior)
 import "@heroui/styles/dist/heroui.min.css";
 // Or via CDN:
-// <link href="https://cdn.jsdelivr.net/npm/@heroui/styles@3.0.0-alpha.31/dist/heroui.min.css" rel="stylesheet" />
+// <link href="https://cdn.jsdelivr.net/npm/@heroui/styles@3.0.0-alpha.33/dist/heroui.min.css" rel="stylesheet" />
 ```
 
 ### Tailwind Configuration (Required for React)
@@ -159,15 +159,15 @@ const theme = await mcp.get_theme_info({
 
 ### When to Use Each Tool
 
-| Tool                           | Use Case                                        | Example Query                          |
-| ------------------------------ | ----------------------------------------------- | -------------------------------------- |
-| `list_components`              | Starting any project, checking what's available | "What components does HeroUI provide?" |
-| `get_component_info`           | Before using ANY component                      | "How do I use the Card component?"     |
-| `get_component_props`          | Type checking, prop validation                  | "What props does Button accept?"       |
-| `get_component_examples`       | Implementation patterns                         | "Show me Card examples"                |
-| `get_component_source_code`    | View React/TypeScript source code               | "Show me Button source code"           |
-| `get_component_source_styles`  | View CSS styles                                 | "Show me Card styles"                  |
-| `get_theme_info`               | Customization, theming                          | "What are the color variables?"        |
+| Tool                          | Use Case                                        | Example Query                          |
+| ----------------------------- | ----------------------------------------------- | -------------------------------------- |
+| `list_components`             | Starting any project, checking what's available | "What components does HeroUI provide?" |
+| `get_component_info`          | Before using ANY component                      | "How do I use the Card component?"     |
+| `get_component_props`         | Type checking, prop validation                  | "What props does Button accept?"       |
+| `get_component_examples`      | Implementation patterns                         | "Show me Card examples"                |
+| `get_component_source_code`   | View React/TypeScript source code               | "Show me Button source code"           |
+| `get_component_source_styles` | View CSS styles                                 | "Show me Card styles"                  |
+| `get_theme_info`              | Customization, theming                          | "What are the color variables?"        |
 
 ### Common Workflows
 
@@ -279,7 +279,7 @@ When React isn't available, use @heroui/styles for styling:
 ```html
 <!-- Include styles via CDN -->
 <link
-  href="https://cdn.jsdelivr.net/npm/@heroui/styles@3.0.0-alpha.31/dist/heroui.min.css"
+  href="https://cdn.jsdelivr.net/npm/@heroui/styles@3.0.0-alpha.33/dist/heroui.min.css"
   rel="stylesheet"
   crossorigin="anonymous"
 />
@@ -433,12 +433,11 @@ interface CustomProps extends ButtonProps {
    - [ ] Lazy loading implemented?
    - [ ] Unused components tree-shaken?
 
-
 ## Version Compatibility
 
 | HeroUI Version  | MCP Supported | Tailwind CSS | React | React Aria |
 | --------------- | ------------- | ------------ | ----- | ---------- |
-| 3.0.0-alpha.31+ | yes           | v4.0+        | 19.0+ | Latest     |
+| 3.0.0-alpha.33+ | yes           | v4.0+        | 19.0+ | Latest     |
 | 2.x.x           | no            | v3.x         | 17.0+ | N/A        |
 
 ### Component Checklist

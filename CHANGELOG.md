@@ -1,3 +1,13 @@
+# [1.0.0-alpha.20](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.19...v1.0.0-alpha.20) (2025-10-05)
+
+
+### Bug Fixes
+
+* add to cursor deeplink redirect ([fb3c091](https://github.com/heroui-inc/heroui-mcp/commit/fb3c09173a56df9dce00e0948c7c85311de4c79f))
+* posthog flush analytics events ([de278ea](https://github.com/heroui-inc/heroui-mcp/commit/de278ea59e9e2a063d6d915b5ba77dababf6c634))
+
+
+
 # [1.0.0-alpha.19](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.18...v1.0.0-alpha.19) (2025-10-01)
 
 

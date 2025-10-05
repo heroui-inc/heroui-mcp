@@ -292,7 +292,7 @@ export class ComponentDataServiceR2 {
       const versions = response.Contents.map((obj) => obj.Key || "")
         .filter((key) => key.endsWith(".json"))
         .map((key) => {
-          // Extract version from path like "heroui/"v3.0.0-alpha.31"1.json"
+          // Extract version from path like "heroui/"v3.0.0-alpha.33"1.json"
           const match = key.match(new RegExp(`^${library}/(.+)\\.json$`));
 
           return match ? match[1] : null;
