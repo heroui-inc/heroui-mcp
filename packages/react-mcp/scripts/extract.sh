@@ -3,7 +3,7 @@
 # Unified extraction script for all environments
 # Usage: extract.sh [environment] [target] [options]
 #   environment: dev | staging | production
-#   target: heroui | theme
+#   target: heroui | theme | both
 #   options: --force | --version=VERSION
 
 set -e
@@ -25,15 +25,15 @@ if [[ ! "$ENVIRONMENT" =~ ^(dev|staging|production)$ ]]; then
     echo -e "${RED}Error: Invalid environment '$ENVIRONMENT'${NC}"
     echo "Usage: $0 [environment] [target] [options]"
     echo "  environment: dev | staging | production"
-    echo "  target: heroui | theme"
+    echo "  target: heroui | theme | both"
     echo "  options: --force | --version=VERSION"
     exit 1
 fi
 
 # Validate target
-if [[ ! "$TARGET" =~ ^(heroui|theme|heroui-theme)$ ]]; then
+if [[ ! "$TARGET" =~ ^(heroui|both|all|theme|heroui-theme)$ ]]; then
     echo -e "${RED}Error: Invalid target '$TARGET'${NC}"
-    echo "Valid targets: heroui | theme | heroui-theme"
+    echo "Valid targets: heroui | theme | both"
     exit 1
 fi
 
@@ -118,11 +118,21 @@ EXTRACT_FLAGS="$FORCE_FLAG $VERSION_FLAG"
 case "$TARGET" in
     heroui)
         echo -e "${GREEN}Extracting HeroUI components...${NC}"
-        npx tsx scripts/extract-heroui-r2.ts $EXTRACT_FLAGS
+        npx tsx scripts/extract-components.ts $EXTRACT_FLAGS
+        ;;
+    both|all)
+        echo -e "${GREEN}Extracting both HeroUI components and theme...${NC}"
+        npx tsx scripts/extract-components.ts $EXTRACT_FLAGS
+        if [ $? -eq 0 ]; then
+            npx tsx scripts/extract-theme.ts $EXTRACT_FLAGS
+        else
+            echo -e "${RED}Component extraction failed, skipping theme extraction${NC}"
+            exit 1
+        fi
         ;;
     theme|heroui-theme)
         echo -e "${GREEN}Extracting HeroUI theme system...${NC}"
-        npx tsx scripts/extract-heroui-theme-r2.ts $EXTRACT_FLAGS
+        npx tsx scripts/extract-theme.ts $EXTRACT_FLAGS
         ;;
 esac
 

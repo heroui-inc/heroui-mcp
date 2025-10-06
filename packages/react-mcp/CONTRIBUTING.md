@@ -165,7 +165,7 @@ pnpm format
 
 #### Direct R2 Upload (requires environment variables)
 
-- `pnpm extract:heroui-r2` - Extract HeroUI to R2 (uses R2_BUCKET_NAME env var)
+- `pnpm extract:heroui` - Extract HeroUI to R2 (uses R2_BUCKET_NAME env var)
 
 ### Cloudflare Workers Commands
 
