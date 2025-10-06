@@ -6,25 +6,25 @@ This document provides detailed information about the HeroUI React MCP REST API 
 
 ### Available Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | API information and endpoint list |
-| `/health` | GET | Health check |
-| `/components` | GET | List all HeroUI components |
-| `/components/:component` | GET | Get component details |
-| `/components/:component/props` | GET | Get component props documentation |
-| `/components/:component/examples` | GET | Get component usage examples |
-| `/components/:component/source` | GET | Get component source code |
-| `/components/:component/styles` | GET | Get component CSS styles |
-| `/themes` | GET | Get complete theme system |
-| `/themes/variables` | GET | Get theme CSS variables |
-| `/themes/colors` | GET | Get theme color variables |
-| `/themes/animations` | GET | Get animation definitions |
-| `/themes/versions` | GET | Get available theme versions |
-| `/docs/available` | GET | Get all available documentation paths |
-| `/docs/content` | GET | Get documentation content from a specific path |
-| `/versions` | GET | Get all version information |
-| `/versions/:package` | GET | Check specific package version |
+| Endpoint                          | Method | Description                                    |
+| --------------------------------- | ------ | ---------------------------------------------- |
+| `/`                               | GET    | API information and endpoint list              |
+| `/health`                         | GET    | Health check                                   |
+| `/components`                     | GET    | List all HeroUI components                     |
+| `/components/:component`          | GET    | Get component details                          |
+| `/components/:component/props`    | GET    | Get component props documentation              |
+| `/components/:component/examples` | GET    | Get component usage examples                   |
+| `/components/:component/source`   | GET    | Get component source code                      |
+| `/components/:component/styles`   | GET    | Get component CSS styles                       |
+| `/themes`                         | GET    | Get complete theme system                      |
+| `/themes/variables`               | GET    | Get theme CSS variables                        |
+| `/themes/colors`                  | GET    | Get theme color variables                      |
+| `/themes/animations`              | GET    | Get animation definitions                      |
+| `/themes/versions`                | GET    | Get available theme versions                   |
+| `/docs/available`                 | GET    | Get all available documentation paths          |
+| `/docs/content`                   | GET    | Get documentation content from a specific path |
+| `/versions`                       | GET    | Get all version information                    |
+| `/versions/:package`              | GET    | Check specific package version                 |
 
 ## Base URL
 
@@ -81,7 +81,7 @@ List all HeroUI components (always returns latest version).
 
 ```json
 {
-  "latestVersion": "v3.0.0-alpha.31",
+  "latestVersion": "v3.0.0-alpha.33",
   "components": ["Button", "Card", "Input", ...],
   "count": 17
 }
@@ -100,7 +100,7 @@ Get complete component information (always returns latest version).
 ```json
 {
   "component": "Button",
-  "version": "v3.0.0-alpha.31",
+  "version": "v3.0.0-alpha.33",
   "data": {
     "name": "Button",
     "description": "Buttons allow users to perform actions...",
@@ -127,8 +127,8 @@ Get component props documentation (always returns latest version).
 ```json
 {
   "component": "Button",
-  "version": "v3.0.0-alpha.31",
-  "props": "# Button Component Props - HeroUI (v3.0.0-alpha.31)..."
+  "version": "v3.0.0-alpha.33",
+  "props": "# Button Component Props - HeroUI (v3.0.0-alpha.33)..."
 }
 ```
 
@@ -145,7 +145,7 @@ Get component usage examples (always returns latest version).
 ```json
 {
   "component": "Button",
-  "version": "v3.0.0-alpha.31",
+  "version": "v3.0.0-alpha.33",
   "examples": [
     {
       "name": "basic",
@@ -168,7 +168,7 @@ Get component source code (always returns latest version).
 ```json
 {
   "component": "Button",
-  "version": "v3.0.0-alpha.31",
+  "version": "v3.0.0-alpha.33",
   "filePath": "button/button.tsx",
   "sourceCode": "import React from 'react'...",
   "githubUrl": "https://github.com/heroui-inc/heroui/blob/v3/..."
@@ -188,7 +188,7 @@ Get component CSS styles (always returns latest version).
 ```json
 {
   "component": "Button",
-  "version": "v3.0.0-alpha.31",
+  "version": "v3.0.0-alpha.33",
   "filePath": "button.css",
   "stylesCode": ".button { ... }",
   "githubUrl": "https://github.com/heroui-inc/heroui/blob/v3/..."
@@ -205,7 +205,7 @@ Get complete theme system data.
 
 ```json
 {
-  "version": "3.0.0-alpha.31",
+  "version": "3.0.0-alpha.33",
   "themes": {
     "default": {...}
   },
@@ -264,8 +264,8 @@ Get theme CSS variables with optimized structure (common variables extracted).
     // ... additional themes
   ],
   "count": 1,
-  "version": "3.0.0-alpha.31",
-  "latestVersion": "3.0.0-alpha.31"
+  "version": "3.0.0-alpha.33",
+  "latestVersion": "3.0.0-alpha.33"
 }
 ```
 
@@ -284,8 +284,8 @@ Get theme CSS variables with optimized structure (common variables extracted).
   "dark": {
     "semantic": [...]
   },
-  "version": "3.0.0-alpha.31",
-  "latestVersion": "3.0.0-alpha.31"
+  "version": "3.0.0-alpha.33",
+  "latestVersion": "3.0.0-alpha.33"
 }
 ```
 
@@ -300,8 +300,8 @@ Get theme CSS variables with optimized structure (common variables extracted).
     "semantic": [...],
     "calculated": [...]
   },
-  "version": "3.0.0-alpha.31",
-  "latestVersion": "3.0.0-alpha.31"
+  "version": "3.0.0-alpha.33",
+  "latestVersion": "3.0.0-alpha.33"
 }
 ```
 
@@ -344,8 +344,8 @@ Get theme color variables.
     // ... additional themes
   ],
   "count": 1,
-  "version": "3.0.0-alpha.31",
-  "latestVersion": "3.0.0-alpha.31"
+  "version": "3.0.0-alpha.33",
+  "latestVersion": "3.0.0-alpha.33"
 }
 ```
 
@@ -372,8 +372,8 @@ Get theme color variables.
     }
     // ... more dark color variables
   ],
-  "version": "3.0.0-alpha.31",
-  "latestVersion": "3.0.0-alpha.31"
+  "version": "3.0.0-alpha.33",
+  "latestVersion": "3.0.0-alpha.33"
 }
 ```
 
@@ -392,8 +392,8 @@ Get theme color variables.
     }
     // ... more color variables for the specified mode
   ],
-  "version": "3.0.0-alpha.31",
-  "latestVersion": "3.0.0-alpha.31"
+  "version": "3.0.0-alpha.33",
+  "latestVersion": "3.0.0-alpha.33"
 }
 ```
 
@@ -423,8 +423,8 @@ Get animation timings and presets.
       "description": "Fast spinning animation"
     }
   ],
-  "version": "3.0.0-alpha.31",
-  "latestVersion": "3.0.0-alpha.31"
+  "version": "3.0.0-alpha.33",
+  "latestVersion": "3.0.0-alpha.33"
 }
 ```
 
@@ -436,8 +436,8 @@ Get available theme versions.
 
 ```json
 {
-  "latest": "3.0.0-alpha.31",
-  "versions": ["3.0.0-alpha.31"]
+  "latest": "3.0.0-alpha.33",
+  "versions": ["3.0.0-alpha.33"]
 }
 ```
 
@@ -460,10 +460,10 @@ Get all available documentation paths from HeroUI v3 docs.
           "title": "Button",
           "path": "/docs/components/button",
           "description": "A clickable button component"
-        },
+        }
         // ... more components
       ]
-    },
+    }
     // ... more categories
   ],
   "total": 26
@@ -489,7 +489,6 @@ Get documentation content from a specific path.
 }
 ```
 
-
 ### Version Endpoints
 
 #### `GET /versions`
@@ -501,8 +500,8 @@ Get all version information.
 ```json
 {
   "heroui": {
-    "latest": "v3.0.0-alpha.31",
-    "versions": ["v3.0.0-alpha.31", "v3.0.0-alpha.30", ...]
+    "latest": "v3.0.0-alpha.33",
+    "versions": ["v3.0.0-alpha.33", "v3.0.0-alpha.30", ...]
   },
   "mcp": {
     "current": "1.0.0-alpha.9"
@@ -524,10 +523,10 @@ Check specific package version.
 ```json
 {
   "package": "heroui",
-  "currentVersion": "v3.0.0-alpha.31",
-  "latestVersion": "v3.0.0-alpha.31",
+  "currentVersion": "v3.0.0-alpha.33",
+  "latestVersion": "v3.0.0-alpha.33",
   "isLatest": true,
-  "availableVersions": ["v3.0.0-alpha.31", ...]
+  "availableVersions": ["v3.0.0-alpha.33", ...]
 }
 ```
 

@@ -1,6 +1,5 @@
 {
   "name": "@heroui/mcp-monorepo",
-  "version": "1.0.0",
   "private": true,
   "description": "Monorepo for HeroUI Model Context Protocol servers",
   "keywords": [

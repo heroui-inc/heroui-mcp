@@ -317,7 +317,7 @@ heroui-mcp-data/
 ├── latest/
 │   └── heroui.json           # Latest HeroUI data
 ├── heroui/
-│   ├── v3.0.0-alpha.31.json  # Versioned HeroUI data
+│   ├── v3.0.0-alpha.33.json  # Versioned HeroUI data
 │   └── ...
 └── versions.json             # Version metadata
 ```
