@@ -4,7 +4,7 @@
  * Component extraction script for HeroUI Native
  */
 
-import {ComponentExtractor} from "../src/lib/extractors/components";
+import {ComponentExtractor} from "../lib/extractors/components";
 
 async function main() {
   // Parse arguments

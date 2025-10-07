@@ -4,7 +4,7 @@
  * Theme extraction script for HeroUI Native
  */
 
-import {ThemeExtractor} from "../src/lib/extractors/theme";
+import {ThemeExtractor} from "../lib/extractors/theme";
 
 async function main() {
   // Parse arguments
