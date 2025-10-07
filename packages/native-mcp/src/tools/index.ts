@@ -25,7 +25,8 @@ const tools: Tool[] = [
  */
 export async function initializeTools(server: McpServer, config: ToolConfig = {}): Promise<void> {
   const finalConfig: ToolConfig = {
-    apiBaseUrl: config.apiBaseUrl || process.env.HEROUI_NATIVE_API_URL || "https://native-mcp-api.heroui.com",
+    apiBaseUrl:
+      config.apiBaseUrl || process.env.HEROUI_NATIVE_API_URL || "https://native-mcp-api.heroui.com",
     ...config,
   };
 

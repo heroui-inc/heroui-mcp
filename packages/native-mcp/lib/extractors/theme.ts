@@ -3,9 +3,12 @@
  */
 
 import type {GitHubClient} from "../github-client";
+import type {NativeThemeDefinition} from "./theme-parser";
+
 import {SimpleGitHubClient} from "../github-client";
-import {ThemeParser, type NativeThemeDefinition} from "./theme-parser";
+
 import {BaseExtractor} from "./base";
+import {ThemeParser} from "./theme-parser";
 
 export type {NativeThemeDefinition};
 
@@ -39,7 +42,12 @@ export class ThemeExtractor extends BaseExtractor {
     try {
       console.log(`   Fetching theme documentation from ${themePath}...`);
 
-      const content = await this.github.fetchFile("heroui-inc", "heroui-native", themePath, "alpha");
+      const content = await this.github.fetchFile(
+        "heroui-inc",
+        "heroui-native",
+        themePath,
+        "alpha",
+      );
       const theme = this.parser.parseContent(content);
 
       console.log("✓ Theme extracted successfully");

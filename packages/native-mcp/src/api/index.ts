@@ -5,6 +5,8 @@
  * It provides REST API endpoints for the STDIO client to consume
  */
 
+import type {Env} from "./types";
+
 import {Hono} from "hono";
 
 import {corsMiddleware} from "./middleware/cors";
@@ -13,7 +15,6 @@ import {docs} from "./routes/docs";
 import {health} from "./routes/health";
 import {themes} from "./routes/themes";
 import {versions} from "./routes/versions";
-import type {Env} from "./types";
 
 const app = new Hono<{Bindings: Env}>();
 

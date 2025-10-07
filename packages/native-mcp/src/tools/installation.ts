@@ -12,21 +12,25 @@ HeroUI Native is a React Native component library for mobile applications.`,
 
   exec(server, {name, description}) {
     const inputSchema = z.object({
-      framework: z.enum(["react-native", "expo", "bare"])
-        .describe(`Choose your framework:
+      framework: z.enum(["react-native", "expo", "bare"]).describe(`Choose your framework:
 - "react-native": Standard React Native CLI project
 - "expo": Expo managed or bare workflow
 - "bare": Bare React Native without Expo`),
-      packageManager: z.enum(["npm", "pnpm", "yarn", "bun"])
+      packageManager: z
+        .enum(["npm", "pnpm", "yarn", "bun"])
         .optional()
         .describe(`Package manager to use for install commands. Defaults to npm.`),
     });
 
     const handler = async ({framework, packageManager = "npm"}: z.infer<typeof inputSchema>) => {
-      const installCmd = packageManager === "npm" ? "npm install" :
-                         packageManager === "pnpm" ? "pnpm add" :
-                         packageManager === "yarn" ? "yarn add" :
-                         "bun add";
+      const installCmd =
+        packageManager === "npm"
+          ? "npm install"
+          : packageManager === "pnpm"
+            ? "pnpm add"
+            : packageManager === "yarn"
+              ? "yarn add"
+              : "bun add";
 
       let responseText = `# HeroUI Native Installation Guide\n\n`;
       responseText += `**Framework:** ${framework}\n`;

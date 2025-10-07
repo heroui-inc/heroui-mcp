@@ -13,7 +13,12 @@ export interface GitHubClient {
   fetchFile(owner: string, repo: string, path: string, ref: string): Promise<string>;
   getPackageVersion(owner: string, repo: string, packagePath: string, ref: string): Promise<string>;
   listFiles(owner: string, repo: string, dirPath: string, ref: string): Promise<GitHubFile[]>;
-  getComponentFiles(owner: string, repo: string, componentsPath: string, ref: string): Promise<string[]>;
+  getComponentFiles(
+    owner: string,
+    repo: string,
+    componentsPath: string,
+    ref: string,
+  ): Promise<string[]>;
 }
 
 export class SimpleGitHubClient implements GitHubClient {
@@ -54,7 +59,12 @@ export class SimpleGitHubClient implements GitHubClient {
     return Buffer.from(data.content, "base64").toString("utf-8");
   }
 
-  async getPackageVersion(owner: string, repo: string, packagePath: string, ref: string): Promise<string> {
+  async getPackageVersion(
+    owner: string,
+    repo: string,
+    packagePath: string,
+    ref: string,
+  ): Promise<string> {
     try {
       const packageJson = await this.fetchFile(owner, repo, `${packagePath}/package.json`, ref);
       const parsed = JSON.parse(packageJson);

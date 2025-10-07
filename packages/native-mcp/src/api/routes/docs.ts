@@ -82,9 +82,11 @@ docs.get("/available", async (c) => {
       }
 
       // Exit both sections when we hit another ## heading
-      if (trimmedLine.startsWith("## ") &&
-          trimmedLine !== "## Documentation" &&
-          trimmedLine !== "## Changelog") {
+      if (
+        trimmedLine.startsWith("## ") &&
+        trimmedLine !== "## Documentation" &&
+        trimmedLine !== "## Changelog"
+      ) {
         inDocumentationSection = false;
         inChangelogSection = false;
         continue;

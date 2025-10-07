@@ -6,7 +6,8 @@ import {R2Uploader} from "../r2-uploader";
 
 export abstract class BaseExtractor {
   protected r2: R2Uploader;
-  protected githubBase = "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha";
+  protected githubBase =
+    "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha";
 
   constructor() {
     // Validate environment variables
@@ -132,7 +133,9 @@ export abstract class BaseExtractor {
       };
       await this.r2.updateVersionMetadata(metadata);
 
-      console.log(`✅ Successfully uploaded ${storageKey} data to R2 (version: ${versionWithPrefix})`);
+      console.log(
+        `✅ Successfully uploaded ${storageKey} data to R2 (version: ${versionWithPrefix})`,
+      );
       console.log(`⏱️  Extraction took ${(extractDuration / 1000).toFixed(2)} seconds`);
     } catch (error) {
       console.error("❌ Extraction failed:", error);
