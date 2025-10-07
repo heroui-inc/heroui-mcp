@@ -56,7 +56,7 @@ export async function getThemeService(env: Record<string, any>): Promise<ThemeSe
     const r2AccountId = env.CLOUDFLARE_ACCOUNT_ID || process.env.CLOUDFLARE_ACCOUNT_ID;
     const r2AccessKeyId = env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID;
     const r2SecretAccessKey = env.R2_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY;
-    const r2Bucket = env.R2_BUCKET_NAME || process.env.R2_BUCKET_NAME;
+    const r2Bucket = env.R2_BUCKET_NAME || process.env.R2_BUCKET_NAME || "heroui-mcp";
 
     if (!r2AccountId || !r2AccessKeyId || !r2SecretAccessKey) {
       throw new Error("R2 credentials not configured");

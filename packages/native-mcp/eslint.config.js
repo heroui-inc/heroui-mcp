@@ -43,7 +43,7 @@ export default defineConfig([
       parser: typescriptParser,
       parserOptions: {
         ecmaVersion: "latest",
-        project: ["./tsconfig.json", "./mastra/tsconfig.json"],
+        project: ["./tsconfig.json"],
         tsconfigRootDir: __dirname,
       },
       sourceType: "module",

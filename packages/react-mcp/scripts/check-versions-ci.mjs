@@ -32,7 +32,7 @@ async function getStoredVersion(library) {
   try {
     const response = await client.send(
       new GetObjectCommand({
-        Bucket: process.env.R2_BUCKET_NAME || "heroui-mcp-data",
+        Bucket: process.env.R2_BUCKET_NAME,
         Key: "metadata/versions.json",
       })
     );

@@ -24,14 +24,102 @@ importers:
         specifier: ^5.9.2
         version: 5.9.3
 
+  packages/native-mcp:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.696.0
+        version: 3.901.0
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.18.1
+        version: 1.18.2
+      '@xmldom/xmldom':
+        specifier: ^0.8.11
+        version: 0.8.11
+      hono:
+        specifier: ^4.9.8
+        version: 4.9.9
+      posthog-node:
+        specifier: ^5.9.1
+        version: 5.9.2
+      zod:
+        specifier: ^3.24.4
+        version: 3.25.76
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20250920.0
+        version: 4.20251001.0
+      '@eslint/eslintrc':
+        specifier: ^3.3.1
+        version: 3.3.1
+      '@eslint/js':
+        specifier: ^9.36.0
+        version: 9.36.0
+      '@types/node':
+        specifier: ^22.18.6
+        version: 22.18.8
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.44.0
+        version: 8.45.0(@typescript-eslint/parser@8.45.0(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.44.0
+        version: 8.45.0(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3)
+      dotenv-cli:
+        specifier: ^10.0.0
+        version: 10.0.0
+      eslint:
+        specifier: ^9.36.0
+        version: 9.36.0(jiti@2.6.1)
+      eslint-config-prettier:
+        specifier: ^10.1.8
+        version: 10.1.8(eslint@9.36.0(jiti@2.6.1))
+      eslint-import-resolver-typescript:
+        specifier: ^4.4.4
+        version: 4.4.4(eslint-plugin-import@2.32.0)(eslint@9.36.0(jiti@2.6.1))
+      eslint-plugin-import:
+        specifier: ^2.32.0
+        version: 2.32.0(@typescript-eslint/parser@8.45.0(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@4.4.4)(eslint@9.36.0(jiti@2.6.1))
+      eslint-plugin-only-warn:
+        specifier: ^1.1.0
+        version: 1.1.0
+      eslint-plugin-prettier:
+        specifier: ^5.5.4
+        version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.36.0(jiti@2.6.1)))(eslint@9.36.0(jiti@2.6.1))(prettier@3.6.2)
+      eslint-plugin-sort-destructure-keys:
+        specifier: ^2.0.0
+        version: 2.0.0(eslint@9.36.0(jiti@2.6.1))
+      eslint-plugin-sort-keys-fix:
+        specifier: ^1.1.2
+        version: 1.1.2
+      eslint-plugin-unused-imports:
+        specifier: ^4.2.0
+        version: 4.2.0(@typescript-eslint/eslint-plugin@8.45.0(@typescript-eslint/parser@8.45.0(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.36.0(jiti@2.6.1))
+      globals:
+        specifier: ^16.4.0
+        version: 16.4.0
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@2.6.1)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      tsx:
+        specifier: ^4.20.5
+        version: 4.20.6
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.44.1
+        version: 8.45.0(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3)
+      wrangler:
+        specifier: ^4.38.3
+        version: 4.40.3(@cloudflare/workers-types@4.20251001.0)
+
   packages/react-mcp:
     dependencies:
       '@aws-sdk/client-s3':
         specifier: ^3.696.0
         version: 3.901.0
-      '@hono/node-server':
-        specifier: ^1.13.7
-        version: 1.19.5(hono@4.9.9)
       '@modelcontextprotocol/sdk':
         specifier: ^1.18.1
         version: 1.18.2
@@ -979,12 +1067,6 @@ packages:
     resolution: {integrity: sha512-rc1hOQtjIWGxcxpb9aHAfLpIctjEnsDehj0DAiVfBlmT84uvR0uUtN2hEi/ecvWVjXUGf5qPF4qEgiLOx1YIMQ==}
     engines: {node: '>=6'}
     hasBin: true
-
-  '@hono/node-server@1.19.5':
-    resolution: {integrity: sha512-iBuhh+uaaggeAuf+TftcjZyWh2GEgZcVGXkNtskLVoWaXhnJtC5HLHrU8W1KHDoucqO1MswwglmkWLFyiDn4WQ==}
-    engines: {node: '>=18.14.1'}
-    peerDependencies:
-      hono: ^4
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -7220,10 +7302,6 @@ snapshots:
       long: 5.3.2
       protobufjs: 7.5.4
       yargs: 17.7.2
-
-  '@hono/node-server@1.19.5(hono@4.9.9)':
-    dependencies:
-      hono: 4.9.9
 
   '@humanfs/core@0.19.1': {}
 

@@ -1,0 +1,41 @@
+# Development files
+.github/
+.vscode/
+.cursor/
+scripts/
+src/
+mastra/
+*.ts
+!dist/**/*.d.ts
+
+# Configuration files
+.bumprc
+.gitignore
+.nvmrc
+.prettierrc
+eslint.config.js
+tsconfig.json
+tsconfig.build.json
+wrangler.toml
+
+# Documentation (keep README for npm)
+CONTRIBUTING.md
+RELEASING.md
+
+# Test files
+*.test.ts
+*.spec.ts
+__tests__/
+
+# Build artifacts
+.wrangler/
+
+# Development dependencies config
+pnpm-lock.yaml
+
+# Keep only essential files for npm package:
+# - dist/ (built files)
+# - data/ (component data)
+# - README.md
+# - LICENSE
+# - package.json

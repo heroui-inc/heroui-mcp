@@ -1,0 +1,54 @@
+name: Native Worker Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  edge-functions:
+    name: deploy
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
+      - name: Setup node and pnpm
+        uses: ./.github/actions/install
+
+      - name: Build package
+        run: pnpm run build --filter=@heroui/native-mcp
+
+      - name: Install wrangler
+        run: pnpm add -g wrangler@latest
+
+      - name: Deploy
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        timeout-minutes: 5
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
+          environment: production
+          workingDirectory: "packages/native-mcp"
+          secrets: |
+            CLOUDFLARE_ACCOUNT_ID
+            POSTHOG_API_KEY
+            R2_ACCESS_KEY_ID
+            R2_SECRET_ACCESS_KEY
+      - name: Show outputs
+        env:
+          CMD_OUTPUT: ${{ steps.deploy.outputs.command-output }}
+        run: echo $CMD_OUTPUT
+
+      - name: Show deployment url
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: echo $DEPLOYMENT_URL

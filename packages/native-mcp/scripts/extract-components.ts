@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Simplified theme extraction script
+ * Component extraction script for HeroUI Native
  */
 
-import {ThemeExtractor} from "../lib/extractors/theme";
+import {ComponentExtractor} from "../src/lib/extractors/components";
 
 async function main() {
   // Parse arguments
@@ -15,12 +15,12 @@ async function main() {
 
   // Handle --help
   if (process.argv.includes("--help")) {
-    console.log(`Usage: extract-theme [--force] [--version=VERSION]
+    console.log(`Usage: extract-components [--force] [--version=VERSION]
 
-Extracts HeroUI theme system from GitHub and uploads to R2
+Extracts HeroUI Native component documentation and uploads to R2
 
 Options:
-  --force           Force re-extraction even if data exists
+  --force           Force re-extraction even if version exists
   --version=VERSION Extract specific version
 
 Environment variables:
@@ -34,7 +34,7 @@ Environment variables:
   }
 
   // Run extraction
-  const extractor = new ThemeExtractor();
+  const extractor = new ComponentExtractor();
   await extractor.run(force, specificVersion);
 }
 
