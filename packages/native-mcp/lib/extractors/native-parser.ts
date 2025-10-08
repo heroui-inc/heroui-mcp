@@ -32,11 +32,19 @@ export interface NativeComponentDefinition {
   examples?: ComponentExample[];
 }
 
+interface ExampleItem {
+  file: string;
+}
+
 export class NativeParser {
+  private static readonly GITHUB_RAW_BASE_URL =
+    "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha";
+  private exampleRegistry: Record<string, ExampleItem> | null = null;
+
   /**
    * Parse a markdown file and extract component definition
    */
-  parseContent(content: string, filePath: string): NativeComponentDefinition | null {
+  async parseContent(content: string, filePath: string): Promise<NativeComponentDefinition | null> {
     try {
       const componentName = this.extractComponentName(content, filePath);
       const description = this.extractDescription(content);
@@ -44,7 +52,7 @@ export class NativeParser {
       const anatomy = this.extractAnatomy(content);
       const props = this.extractProps(content, componentName);
       const subComponents = this.extractSubComponents(content, componentName);
-      const examples = this.extractExamples(content);
+      const examples = await this.extractExamples(componentName);
 
       return {
         name: componentName,
@@ -57,6 +65,59 @@ export class NativeParser {
       };
     } catch (error) {
       console.error(`Failed to parse ${filePath}:`, error);
+
+      return null;
+    }
+  }
+
+  /**
+   * Fetch example registry from GitHub API
+   */
+  async fetchExampleRegistry(): Promise<Record<string, ExampleItem>> {
+    if (this.exampleRegistry) return this.exampleRegistry;
+
+    try {
+      const response = await fetch(
+        "https://api.github.com/repos/heroui-inc/heroui-native/contents/example/src/app/(home)/components?ref=alpha",
+      );
+      const files = (await response.json()) as Array<{
+        type: string;
+        name: string;
+      }>;
+
+      const registry: Record<string, ExampleItem> = {};
+
+      for (const file of files) {
+        if (file.type === "file" && file.name.endsWith(".tsx")) {
+          const componentName = file.name.replace(".tsx", "");
+          registry[componentName] = {
+            file: file.name,
+          };
+        }
+      }
+
+      this.exampleRegistry = registry;
+
+      return registry;
+    } catch (error) {
+      console.warn("Failed to fetch example registry:", error);
+
+      return {};
+    }
+  }
+
+  /**
+   * Fetch example content from GitHub
+   */
+  async fetchExampleContent(filePath: string): Promise<string | null> {
+    try {
+      const url = `${NativeParser.GITHUB_RAW_BASE_URL}/example/src/app/(home)/components/${filePath}`;
+      const response = await fetch(url);
+      if (!response.ok) return null;
+
+      return await response.text();
+    } catch (error) {
+      console.warn(`Failed to fetch example content for ${filePath}:`, error);
 
       return null;
     }
@@ -250,28 +311,60 @@ export class NativeParser {
     return Object.keys(subComponents).length > 0 ? subComponents : undefined;
   }
 
-  private extractExamples(content: string): ComponentExample[] {
-    const examples: ComponentExample[] = [];
+  /**
+   * Convert component name to kebab-case
+   */
+  private toKebabCase(str: string): string {
+    return str
+      .replace(/([A-Z])/g, "-$1")
+      .toLowerCase()
+      .replace(/^-/, "");
+  }
 
-    // Find example section
-    const exampleSection = content.match(/##\s+Example[\s\S]*?```tsx([\s\S]*?)```/);
-    if (exampleSection) {
-      examples.push({
-        name: "main",
-        code: exampleSection[1].trim(),
-      });
+  /**
+   * Extract examples from registry with fuzzy matching
+   */
+  private async extractExamples(componentName: string): Promise<ComponentExample[]> {
+    const examples: ComponentExample[] = [];
+    const registry = await this.fetchExampleRegistry();
+    const kebabName = this.toKebabCase(componentName);
+
+    // Find all matching example files
+    const matchingExamples = Object.entries(registry).filter(([exampleName]) => {
+      // Exact match
+      if (exampleName === kebabName) return true;
+      // Starts with component name (e.g., "dialog" matches "dialog-native-modal")
+      if (exampleName.startsWith(kebabName + "-")) return true;
+      // Component name without common suffixes (e.g., "DropShadowView" -> "drop-shadow", "SkeletonGroup" -> "skeleton")
+      const nameWithoutSuffix = kebabName.replace(/-view$|-component$|-element$|-group$/, "");
+      if (exampleName === nameWithoutSuffix) return true;
+
+      return false;
+    });
+
+    if (matchingExamples.length === 0) {
+      console.warn(
+        `⚠️  No example files found for component "${componentName}" (tried: ${kebabName})`,
+      );
+
+      return examples;
     }
 
-    // Find usage examples
-    const usageMatches = content.matchAll(/###\s+([^#\n]+)[\s\S]*?```tsx([\s\S]*?)```/g);
-    for (const match of usageMatches) {
-      const name = match[1].trim().toLowerCase().replace(/\s+/g, "-");
-      if (name !== "example" && !name.includes("import")) {
+    // Fetch all matching examples
+    for (const [exampleName, exampleItem] of matchingExamples) {
+      const exampleContent = await this.fetchExampleContent(exampleItem.file);
+      if (exampleContent) {
         examples.push({
-          name,
-          code: match[2].trim(),
+          name: exampleName,
+          code: exampleContent,
         });
       }
+    }
+
+    if (examples.length > 0) {
+      console.log(
+        `      ✓ Found ${examples.length} example(s): ${examples.map((e) => e.name).join(", ")}`,
+      );
     }
 
     return examples;

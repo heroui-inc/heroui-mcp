@@ -18,16 +18,18 @@ Workflow: get_component_info → get_component_props → get_component_examples.
 
   async ctx() {
     try {
-      const data = await fetchApi<{components: string[]}>("/components");
+      const data = await fetchApi<{components: string[]; examples: string[]}>("/components");
 
       return {
         componentList: data.components || [],
+        exampleList: data.examples || [],
       };
     } catch (error) {
       console.error("Failed to fetch component list:", error);
 
       return {
         componentList: [],
+        exampleList: [],
       };
     }
   },

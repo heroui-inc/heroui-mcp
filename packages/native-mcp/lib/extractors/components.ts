@@ -68,7 +68,7 @@ export class ComponentExtractor extends BaseExtractor {
           "alpha",
         );
 
-        const component = this.parser.parseContent(content, filePath);
+        const component = await this.parser.parseContent(content, filePath);
 
         if (component && Object.keys(component.props).length > 0) {
           components[component.name] = component;

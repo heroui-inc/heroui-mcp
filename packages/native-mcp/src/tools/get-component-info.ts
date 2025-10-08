@@ -18,10 +18,11 @@ Workflow: list_components → get_component_info → get_component_examples.`,
 
   async ctx() {
     try {
-      const data = await fetchApi<{components: string[]}>("/components");
+      const data = await fetchApi<{components: string[]; examples: string[]}>("/components");
 
       return {
         componentList: data.components || [],
+        exampleList: data.examples || [],
       };
     } catch (error) {
       console.error("Failed to fetch component list:", error);
@@ -29,6 +30,7 @@ Workflow: list_components → get_component_info → get_component_examples.`,
       // Return empty list as fallback
       return {
         componentList: [],
+        exampleList: [],
       };
     }
   },

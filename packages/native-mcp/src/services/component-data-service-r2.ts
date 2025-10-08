@@ -166,6 +166,42 @@ export class ComponentDataServiceR2 {
   }
 
   /**
+   * List all available examples from component data
+   */
+  async listExamples(version?: string): Promise<string[]> {
+    try {
+      const versionToUse = version || "latest";
+      const key =
+        versionToUse === "latest"
+          ? "native/latest/components.json"
+          : `native/components/${versionToUse}.json`;
+      const data = await this.getFromR2<ComponentDataset>(key);
+
+      if (!data) {
+        return [];
+      }
+
+      // Extract all unique example names from all components
+      const exampleNames = new Set<string>();
+      for (const component of Object.values(data)) {
+        if (component.examples && Array.isArray(component.examples)) {
+          for (const example of component.examples) {
+            if (example.name) {
+              exampleNames.add(example.name);
+            }
+          }
+        }
+      }
+
+      return Array.from(exampleNames).sort();
+    } catch (error) {
+      console.error(`Error listing examples:`, error);
+
+      return [];
+    }
+  }
+
+  /**
    * Get component data for multiple components
    */
   async getComponents(

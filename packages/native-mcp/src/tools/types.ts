@@ -7,6 +7,7 @@ export interface ToolConfig {
 
 export interface ComponentContext {
   componentList: string[];
+  exampleList: string[];
 }
 
 export interface ThemeContext {

@@ -21,6 +21,7 @@ components.get("/", async (c) => {
   try {
     const service = await getDataService(c.env);
     const componentsList = await service.listComponents();
+    const examplesList = await service.listExamples();
     const latestVersion = await service.getLatestVersion();
 
     const responseTime = Date.now() - startTime;
@@ -45,6 +46,7 @@ components.get("/", async (c) => {
     return c.json({
       latestVersion: latestVersion || "unknown",
       components: componentsList,
+      examples: examplesList,
       count: componentsList.length,
     });
   } catch (error) {
@@ -262,13 +264,13 @@ components.post("/examples", async (c) => {
 
   try {
     const body = await c.req.json();
-    const componentNames = body.components as string[];
+    const exampleNames = body.examples as string[];
 
-    if (!componentNames || !Array.isArray(componentNames)) {
+    if (!exampleNames || !Array.isArray(exampleNames)) {
       return c.json(
         {
           error: "Invalid request",
-          details: "components array is required",
+          details: "examples array is required",
         },
         400,
       );
@@ -277,58 +279,41 @@ components.post("/examples", async (c) => {
     analytics?.trackMcpRequest("api-user", {
       method: "POST",
       toolName: "get-component-examples",
-      requestSize: componentNames.length,
+      requestSize: exampleNames.length,
     });
 
-    const service = await getDataService(c.env);
-    const results = await service.getComponents(componentNames);
-    const latestVersion = await service.getLatestVersion();
+    const latestVersion = (await getDataService(c.env)).getLatestVersion();
+    const baseUrl =
+      "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha/example/src/app/(home)/components";
 
-    // Format examples for each component
-    const exampleResults = results.map((result) => {
-      if (!result.data) {
-        return {
-          component: result.component,
-          error: result.error || "Component not found",
-        };
-      }
+    // Fetch example files from GitHub
+    const exampleResults = await Promise.all(
+      exampleNames.map(async (exampleName) => {
+        try {
+          const url = `${baseUrl}/${exampleName}.tsx`;
+          const response = await fetch(url);
 
-      const componentData = result.data;
-      let examples = componentData.examples || [];
+          if (!response.ok) {
+            return {
+              example: exampleName,
+              error: "Example file not found",
+            };
+          }
 
-      // If no examples, create a basic one
-      if (examples.length === 0) {
-        const importStatement = `import { ${result.component} } from 'heroui-native';`;
+          const content = await response.text();
 
-        let exampleText = `// ${result.component} Component Example - HeroUI Native\n\n`;
-        exampleText += `${importStatement}\n\n`;
-        exampleText += `export default function Example() {\n`;
-        exampleText += `  return (\n`;
-        exampleText += `    <${result.component}>\n`;
-        exampleText += `      {/* Component content */}\n`;
-        exampleText += `    </${result.component}>\n`;
-        exampleText += `  );\n`;
-        exampleText += `}\n`;
-
-        examples = [
-          {
-            name: "basic",
-            content: exampleText,
-          },
-        ];
-      } else {
-        // Format existing examples
-        examples = examples.map((ex: any) => ({
-          name: ex.name,
-          content: ex.code || ex.content || "",
-        }));
-      }
-
-      return {
-        component: result.component,
-        examples,
-      };
-    });
+          return {
+            example: exampleName,
+            content,
+          };
+        } catch (error) {
+          return {
+            example: exampleName,
+            error: error instanceof Error ? error.message : "Failed to fetch example",
+          };
+        }
+      }),
+    );
 
     const responseTime = Date.now() - startTime;
 
@@ -345,7 +330,6 @@ components.post("/examples", async (c) => {
     return c.json({
       results: exampleResults,
       version: latestVersion || "unknown",
-      latestVersion: latestVersion || "unknown",
     });
   } catch (error) {
     const responseTime = Date.now() - startTime;

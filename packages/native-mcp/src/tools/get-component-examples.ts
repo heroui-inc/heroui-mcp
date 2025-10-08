@@ -8,51 +8,53 @@ import {fetchApi} from "../lib/fetch";
 export const getComponentExamplesTool: Tool<ComponentContext> = {
   name: "get_component_examples",
   description: `Get complete, working code examples for HeroUI Native components.
-Accepts an array of component names and returns examples for each.
+Accepts an array of example file names and returns the example code for each.
 Returns ready-to-use React Native/TypeScript code demonstrating various use cases.
 Each example includes imports, component usage, and common patterns.
 Use this after get_component_info to see practical implementations.
 If implementing a component, ALWAYS check examples first to avoid mistakes.
 Common patterns include styling, event handling, and state management.
-Workflow: get_component_info → get_component_props → get_component_examples.`,
+Note: Example files use kebab-case naming (e.g., "dialog", "dialog-native-modal", "drop-shadow-view").`,
 
   async ctx() {
     try {
-      const data = await fetchApi<{components: string[]}>("/components");
+      const data = await fetchApi<{components: string[]; examples: string[]}>("/components");
 
       return {
         componentList: data.components || [],
+        exampleList: data.examples || [],
       };
     } catch (error) {
       console.error("Failed to fetch component list:", error);
 
       return {
         componentList: [],
+        exampleList: [],
       };
     }
   },
 
   exec(server, {config, name, description, ctx}) {
-    // Create input schema with dynamic component enum
+    // Create input schema with dynamic example enum
     const inputSchema = z.object({
-      components: z.array(z.enum(ctx.componentList as [string, ...string[]])).min(1)
-        .describe(`Array of component names from list_components (case-sensitive).
-Examples will show React Native usage patterns.
-Study the examples carefully - they show the correct patterns.`),
+      examples: z.array(z.enum(ctx.exampleList as [string, ...string[]])).min(1)
+        .describe(`Array of example names (kebab-case, without .tsx extension).
+Examples: "dialog", "dialog-native-modal", "drop-shadow-view", "button".
+Study the examples carefully - they show the correct React Native patterns.`),
     });
 
-    const handler = async ({components}: z.infer<typeof inputSchema>) => {
+    const handler = async ({examples}: z.infer<typeof inputSchema>) => {
       try {
         const response = await fetchApi<{
           version: string;
           results: Array<{
-            component: string;
-            examples?: Array<{name: string; content: string}>;
+            example: string;
+            content?: string;
             error?: string;
           }>;
         }>("/components/examples", config.apiBaseUrl, {
           method: "POST",
-          body: JSON.stringify({components}),
+          body: JSON.stringify({examples}),
         });
 
         let responseText = "";
@@ -60,14 +62,11 @@ Study the examples carefully - they show the correct patterns.`),
         response.results.forEach((result, index) => {
           if (index > 0) responseText += "\n\n---\n\n";
 
-          if (result.error || !result.examples) {
-            responseText += `# ${result.component} Examples\n\n`;
-            responseText += `Error: ${result.error || "Examples not available"}\n`;
+          if (result.error || !result.content) {
+            responseText += `# ${result.example} Example\n\n`;
+            responseText += `Error: ${result.error || "Example not available"}\n`;
           } else {
-            result.examples.forEach((ex, exIndex) => {
-              if (exIndex > 0) responseText += "\n\n";
-              responseText += `// ${ex.name} example\n${ex.content}`;
-            });
+            responseText += `// ${result.example} example\n${result.content}`;
           }
         });
 
@@ -84,7 +83,7 @@ Study the examples carefully - they show the correct patterns.`),
           content: [
             {
               type: "text" as const,
-              text: `Error: Unable to get examples for components. ${error instanceof Error ? error.message : "Unknown error"}`,
+              text: `Error: Unable to get examples. ${error instanceof Error ? error.message : "Unknown error"}`,
             },
           ],
         };
