@@ -4,6 +4,14 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'packages/native-mcp/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'turbo.json'
+      - 'pnpm-workspace.yaml'
+      - '.github/actions/**'
+      - '.github/workflows/native-worker-deploy.yml'
 
 jobs:
   edge-functions:
