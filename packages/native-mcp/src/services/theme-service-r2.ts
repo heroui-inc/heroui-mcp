@@ -111,45 +111,6 @@ export class ThemeServiceR2 {
   }
 
   /**
-   * Get a specific guide
-   */
-  async getGuide(
-    guideName: keyof ThemeSystem["guides"],
-    version?: string,
-  ): Promise<ThemeSystem["guides"][typeof guideName] | null> {
-    const themeSystem = await this.getThemeSystem(version);
-    if (!themeSystem || !themeSystem.guides[guideName]) {
-      return null;
-    }
-
-    return themeSystem.guides[guideName];
-  }
-
-  /**
-   * Get animations (timings and presets)
-   */
-  async getAnimations(version?: string): Promise<ThemeSystem["animations"] | null> {
-    const themeSystem = await this.getThemeSystem(version);
-    if (!themeSystem) {
-      return null;
-    }
-
-    return themeSystem.animations;
-  }
-
-  /**
-   * Get shared variables
-   */
-  async getSharedVariables(version?: string): Promise<ThemeSystem["sharedVariables"] | null> {
-    const themeSystem = await this.getThemeSystem(version);
-    if (!themeSystem) {
-      return null;
-    }
-
-    return themeSystem.sharedVariables;
-  }
-
-  /**
    * Get the latest version
    */
   async getLatestVersion(): Promise<string | null> {

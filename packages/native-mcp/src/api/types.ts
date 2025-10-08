@@ -4,7 +4,7 @@
 
 /// <reference types="@cloudflare/workers-types" />
 
-import type {NativeComponentDefinition, NativeThemeDefinition} from "../lib/native-types";
+import type {NativeComponentDefinition, NativeThemeSystem} from "../lib/native-types";
 
 export interface Env {
   // R2 bindings
@@ -25,7 +25,7 @@ export interface ComponentResult {
 
 export interface ThemeResult {
   theme: string;
-  data?: NativeThemeDefinition;
+  data?: NativeThemeSystem;
   error?: string;
 }
 

@@ -1,209 +1,209 @@
 /**
- * Parser for HeroUI Native theme documentation
+ * Parser for HeroUI Native theme TypeScript source
  */
 
-export interface ThemeColor {
-  name: string;
-  description: string;
-  usage: string;
-}
-
-export interface ThemeUtility {
-  name: string;
-  values: string[];
-  description: string;
-}
-
-export interface NativeThemeDefinition {
-  description: string;
-  colors: {
-    semantic: ThemeColor[];
-    status: ThemeColor[];
-    surface: ThemeColor[];
-  };
-  utilities: {
-    borderRadius: ThemeUtility;
-    opacity: ThemeUtility;
-  };
-  configuration: {
-    colorScheme: string[];
-    examples: Array<{
-      name: string;
-      code: string;
-    }>;
-  };
-}
+import type {ColorToken, NativeTheme, NativeThemeSystem} from "../../src/lib/native-types";
 
 export class ThemeParser {
   /**
-   * Parse theme documentation and extract theme definition
+   * Parse colors.ts TypeScript source for default theme
    */
-  parseContent(content: string): NativeThemeDefinition {
-    const description = this.extractDescription(content);
-    const colors = this.extractColors(content);
-    const utilities = this.extractUtilities(content);
-    const configuration = this.extractConfiguration(content);
+  parseColorSource(tsContent: string): {light: ColorToken[]; dark: ColorToken[]} {
+    const lightColors = this.parseColorObject(tsContent, "light");
+    const darkColors = this.parseColorObject(tsContent, "dark");
 
-    return {
-      description,
-      colors,
-      utilities,
-      configuration,
-    };
+    return {light: lightColors, dark: darkColors};
   }
 
-  private extractDescription(content: string): string {
-    const overviewMatch = content.match(/##\s+Overview[\s\S]*?(?=##)/);
-    if (overviewMatch) {
-      const lines = overviewMatch[0]
-        .split("\n")
-        .filter((line) => !line.startsWith("#"))
-        .filter((line) => line.trim())
-        .slice(0, 2);
+  /**
+   * Parse theme file from example/src/themes/*.ts
+   */
+  parseThemeFile(tsContent: string): Record<string, NativeTheme> {
+    const themes: Record<string, NativeTheme> = {};
 
-      return lines.join(" ");
-    }
+    // Match exported theme constants: export const themeName: ThemeConfig = { ... }
+    const themeExportRegex = /export\s+const\s+(\w+Theme):\s*ThemeConfig\s*=\s*\{([\s\S]*?)\n\};/g;
+    let match;
 
-    return "HeroUI Native theme system provides comprehensive theming with semantic colors and utilities";
-  }
+    while ((match = themeExportRegex.exec(tsContent)) !== null) {
+      const themeVarName = match[1]; // e.g., 'lavenderDreamTheme'
+      const themeContent = match[2];
 
-  private extractColors(content: string): NativeThemeDefinition["colors"] {
-    const colors = {
-      semantic: [] as ThemeColor[],
-      status: [] as ThemeColor[],
-      surface: [] as ThemeColor[],
-    };
+      try {
+        // Parse light and dark colors
+        const lightColors = this.parseColorObject(themeContent, "light");
+        const darkColors = this.parseColorObject(themeContent, "dark");
 
-    // Extract color examples from NativeWind Classes section
-    const classesSection = content.match(/###\s+NativeWind Classes[\s\S]*?(?=###|\n##|$)/);
-    if (classesSection) {
-      const lines = classesSection[0].split("\n");
+        // Extract borderRadius and opacity values
+        const borderRadius = this.extractBorderRadius(themeContent);
+        const opacity = this.extractOpacity(themeContent);
 
-      for (const line of lines) {
-        if (line.includes("bg-") || line.includes("text-")) {
-          // Semantic colors
-          if (line.includes("background") || line.includes("panel") || line.includes("border")) {
-            const match = line.match(/<\w+\s+className="([\w-]+)"\s*\/>/);
-            if (match) {
-              const colorName = match[1].replace("bg-", "").replace("text-", "");
-              colors.semantic.push({
-                name: colorName,
-                description: this.getColorDescription(colorName),
-                usage: match[1],
-              });
-            }
-          }
+        // Convert variable name to theme ID: lavenderDreamTheme -> lavender-dream
+        const themeId = this.themeVarNameToId(themeVarName);
 
-          // Status colors
-          if (line.match(/success|warning|danger|info/)) {
-            const match = line.match(/className="([\w-]+)"/);
-            if (match) {
-              const colorName = match[1].replace("bg-", "");
-              if (!colors.status.find((c) => c.name === colorName)) {
-                colors.status.push({
-                  name: colorName,
-                  description: this.getColorDescription(colorName),
-                  usage: match[1],
-                });
-              }
-            }
-          }
-
-          // Surface levels
-          if (line.includes("surface-")) {
-            const match = line.match(/bg-surface-(\d)/);
-            if (match) {
-              colors.surface.push({
-                name: `surface-${match[1]}`,
-                description: `Surface level ${match[1]} for layered UI`,
-                usage: `bg-surface-${match[1]}`,
-              });
-            }
-          }
-        }
+        themes[themeId] = {
+          name: themeId,
+          light: {colors: lightColors},
+          dark: {colors: darkColors},
+          borderRadius,
+          opacity,
+        };
+      } catch (error) {
+        console.warn(`Failed to parse theme ${themeVarName}:`, error);
       }
     }
 
-    // Add core semantic colors
-    if (colors.semantic.length === 0) {
-      colors.semantic = [
-        {name: "background", description: "Main background color", usage: "bg-background"},
-        {name: "foreground", description: "Main foreground text color", usage: "text-foreground"},
-        {name: "accent", description: "Primary accent color", usage: "bg-accent"},
-        {name: "accent-soft", description: "Soft variant of accent", usage: "bg-accent-soft"},
-      ];
+    return themes;
+  }
+
+  /**
+   * Convert theme variable name to theme ID
+   * lavenderDreamTheme -> lavender-dream
+   */
+  private themeVarNameToId(varName: string): string {
+    // Remove 'Theme' suffix and convert camelCase to kebab-case
+    const withoutTheme = varName.replace(/Theme$/, "");
+
+    return withoutTheme.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+  }
+
+  /**
+   * Extract borderRadius values from theme content
+   */
+  private extractBorderRadius(content: string): NativeTheme["borderRadius"] {
+    const borderRadiusMatch = content.match(/borderRadius:\s*\{([^}]+)\}/s);
+    if (!borderRadiusMatch) {
+      return {DEFAULT: "8", panel: "16", "panel-inner": "12"};
+    }
+
+    const borderRadiusContent = borderRadiusMatch[1];
+    const values: Record<string, string> = {};
+
+    // Match: 'DEFAULT': '18px' or DEFAULT: '18px'
+    const valueRegex = /['"]?(\w+(?:-\w+)?)['"]?\s*:\s*['"]([^'"]+)['"]/g;
+    let match;
+
+    while ((match = valueRegex.exec(borderRadiusContent)) !== null) {
+      const [, key, value] = match;
+      values[key] = value.replace(/px$/, ""); // Remove 'px' suffix
+    }
+
+    return {
+      DEFAULT: values.DEFAULT || "8",
+      panel: values.panel || "16",
+      "panel-inner": values["panel-inner"] || "12",
+    };
+  }
+
+  /**
+   * Extract opacity values from theme content
+   */
+  private extractOpacity(content: string): NativeTheme["opacity"] {
+    const opacityMatch = content.match(/opacity:\s*\{([^}]+)\}/s);
+    if (!opacityMatch) {
+      return {disabled: 0.5};
+    }
+
+    const opacityContent = opacityMatch[1];
+    const disabledMatch = opacityContent.match(/disabled:\s*([\d.]+)/);
+
+    return {
+      disabled: disabledMatch ? parseFloat(disabledMatch[1]) : 0.5,
+    };
+  }
+
+  /**
+   * Parse color object from TypeScript source
+   * Handles two patterns:
+   * 1. Default theme: light: { background: 'hsl(...)', ... }
+   * 2. Custom theme: light: { colors: { background: 'hsl(...)', ... } }
+   */
+  private parseColorObject(content: string, mode: "light" | "dark"): ColorToken[] {
+    const colors: ColorToken[] = [];
+
+    // Try Pattern 1: mode: { colors: { ... } } (custom themes)
+    let modeRegex = new RegExp(
+      `${mode}:\\s*\\{[^}]*colors:\\s*\\{([\\s\\S]*?)\\}[\\s\\S]*?\\}(?:\\s*,|\\s*\\})`,
+      "s",
+    );
+    let match = content.match(modeRegex);
+
+    if (match) {
+      // Found nested colors object
+      const colorBlock = match[1];
+      return this.extractColorsFromBlock(colorBlock);
+    }
+
+    // Try Pattern 2: mode: { background: 'hsl(...)', ... } (default theme)
+    modeRegex = new RegExp(`${mode}:\\s*\\{([\\s\\S]*?)\\}(?:\\s*,|\\s*\\})`, "s");
+    match = content.match(modeRegex);
+
+    if (match) {
+      // Direct color properties
+      const colorBlock = match[1];
+      return this.extractColorsFromBlock(colorBlock);
     }
 
     return colors;
   }
 
-  private extractUtilities(content: string): NativeThemeDefinition["utilities"] {
-    const utilities = {
-      borderRadius: {
-        name: "borderRadius",
-        values: [] as string[],
-        description: "Border radius utilities",
-      },
-      opacity: {
-        name: "opacity",
-        values: [] as string[],
-        description: "Opacity utilities",
-      },
-    };
+  /**
+   * Extract color tokens from a color block
+   */
+  private extractColorsFromBlock(colorBlock: string): ColorToken[] {
+    const colors: ColorToken[] = [];
 
-    // Extract border radius utilities
-    const radiusMatches = content.matchAll(/rounded-(xs|sm|md|lg|xl)/g);
-    const radiusSet = new Set<string>();
-    for (const match of radiusMatches) {
-      radiusSet.add(`rounded-${match[1]}`);
-    }
-    utilities.borderRadius.values = Array.from(radiusSet);
+    // Extract individual color definitions: colorName: 'hsl(...)'
+    // Handle both quoted strings and comments
+    const colorRegex = /(\w+):\s*['"]([^'"]+)['"]/g;
+    let colorMatch;
 
-    // Extract opacity utilities
-    if (content.includes("opacity-disabled")) {
-      utilities.opacity.values = ["opacity-disabled"];
-    }
+    while ((colorMatch = colorRegex.exec(colorBlock)) !== null) {
+      const [, name, value] = colorMatch;
 
-    return utilities;
-  }
+      // Skip non-color properties
+      if (["borderRadius", "opacity", "DEFAULT", "panel"].includes(name)) continue;
 
-  private extractConfiguration(content: string): NativeThemeDefinition["configuration"] {
-    const configuration = {
-      colorScheme: ["light", "dark", "system"],
-      examples: [] as Array<{name: string; code: string}>,
-    };
-
-    // Extract configuration examples
-    const configMatches = content.matchAll(/```tsx\n<HeroUINativeProvider[\s\S]*?```/g);
-    let index = 0;
-    for (const match of configMatches) {
-      const code = match[0].replace(/```tsx\n/, "").replace(/\n```/, "");
-      configuration.examples.push({
-        name: `config-example-${++index}`,
-        code,
+      colors.push({
+        name,
+        value: value.replace(/^hsl\(/, "").replace(/\)$/, ""), // Remove hsl() wrapper if present
+        category: this.categorizeColor(name),
       });
     }
 
-    return configuration;
+    return colors;
   }
 
-  private getColorDescription(colorName: string): string {
-    const descriptions: Record<string, string> = {
-      background: "Main background color of the app",
-      foreground: "Main text color",
-      panel: "Panel background color",
-      border: "Border color for components",
-      surface: "Surface color for cards and modals",
-      "surface-foreground": "Text color on surface backgrounds",
-      accent: "Primary accent color for interactive elements",
-      "accent-soft": "Soft variant of accent color",
-      "accent-foreground": "Text color on accent backgrounds",
-      success: "Success state color",
-      warning: "Warning state color",
-      danger: "Error/danger state color",
-      info: "Information state color",
-    };
+  /**
+   * Categorize color based on name
+   */
+  private categorizeColor(name: string): ColorToken["category"] {
+    if (["background", "foreground", "panel", "muted"].includes(name)) {
+      return "base";
+    }
 
-    return descriptions[colorName] || `${colorName} color`;
+    if (["success", "warning", "danger"].includes(name)) {
+      return "status";
+    }
+
+    if (name.startsWith("surface")) {
+      return "surface";
+    }
+
+    if (["border", "divider", "link"].includes(name)) {
+      return "utility";
+    }
+
+    return "semantic";
+  }
+
+  /**
+   * Build complete theme system from parsed data
+   */
+  buildThemeSystem(version: string, themes: Record<string, NativeTheme>): NativeThemeSystem {
+    return {
+      version,
+      themes,
+    };
   }
 }

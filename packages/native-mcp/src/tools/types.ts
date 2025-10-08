@@ -9,6 +9,10 @@ export interface ComponentContext {
   componentList: string[];
 }
 
+export interface ThemeContext {
+  themeList: string[];
+}
+
 export interface Tool<T = unknown> {
   name: string;
   description: string;

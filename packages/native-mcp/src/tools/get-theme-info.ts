@@ -1,89 +1,120 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Tool} from "./types";
+import type {ThemeContext, Tool} from "./types";
 
 import {z} from "zod";
 
 import {fetchApi} from "../lib/fetch";
 
-const inputSchema = z.object({
-  category: z
-    .enum(["colors", "typography", "spacing", "borders", "shadows", "all"])
-    .optional()
-    .describe(
-      `Filter variables by design category:
-- "colors": Color tokens (primary, success, danger, background, foreground)
-- "typography": Font sizes, weights, line heights
-- "spacing": Margin, padding, gap values
-- "borders": Border radius, widths, colors
-- "shadows": Box shadows and elevations
-- "all": Return everything (default)`,
-    ),
-});
-
-export const getThemeInfoTool: Tool = {
+export const getThemeInfoTool: Tool<ThemeContext> = {
   name: "get_theme_info",
-  description: `Get HeroUI Native theme variables and design tokens for customization.
-Returns organized CSS variables that control the entire design system.
-Use for customizing colors, spacing, typography, borders, shadows.
-Apply these in your StyleSheet or inline styles.
-Example: colors.primary, spacing[4], typography.fontSizes.md
-Category options help filter to specific design aspects.`,
+  description: `Get HeroUI Native theme colors and design tokens.
+Returns theme colors in HSL format for light and dark modes.
+Custom themes (if any) are example implementations for reference only - they demonstrate how to create custom themes but are not included in the package.
+Use this tool to understand theme structure and color token organization.`,
 
-  exec(server, {config, name, description}) {
-    const handler = async ({category = "all"}: z.infer<typeof inputSchema>) => {
+  async ctx() {
+    try {
+      const data = await fetchApi<{themes: string[]}>("/themes");
+
+      return {
+        themeList: data.themes || ["default"],
+      };
+    } catch (error) {
+      console.error("Failed to fetch theme list:", error);
+
+      return {
+        themeList: ["default"],
+      };
+    }
+  },
+
+  exec(server, {config, name, description, ctx}) {
+    // Create input schema with dynamic theme enum
+    const inputSchema = z.object({
+      theme: z
+        .enum(ctx.themeList as [string, ...string[]])
+        .optional()
+        .describe(
+          `Theme name. Defaults to "default".
+${ctx.themeList.length > 1 ? `Additional themes available: ${ctx.themeList.filter((t) => t !== "default").join(", ")} (example implementations for reference only).` : ""}
+Leave empty to use default theme.`,
+        ),
+      mode: z
+        .enum(["light", "dark", "both"])
+        .optional()
+        .describe(
+          `Color mode: "light", "dark", or "both" (default).
+Returns color tokens for the specified mode(s).`,
+        ),
+    });
+
+    const handler = async ({theme = "default", mode = "both"}: z.infer<typeof inputSchema>) => {
       try {
-        // Build endpoint based on category
-        const endpoint = category === "all" ? "/themes/variables" : `/themes/${category}`;
+        // Build query parameters
+        const params = new URLSearchParams();
+        params.append("theme", theme);
+        if (mode !== "both") params.append("mode", mode);
 
+        const endpoint = `/themes/variables?${params.toString()}`;
         const response = await fetchApi<any>(endpoint, config.apiBaseUrl);
 
         // Format the response as structured text
-        let responseText = `# HeroUI Native Theme Variables\n\n`;
-        responseText += `**Version:** ${response.version || response.latestVersion || "unknown"}\n`;
-        responseText += `**Category:** ${category}\n\n`;
+        let responseText = `# HeroUI Native Theme\n\n`;
+        responseText += `**Theme:** ${response.theme}\n`;
+        responseText += `**Version:** ${response.version || "unknown"}\n`;
 
-        if (response.variables && Array.isArray(response.variables)) {
-          responseText += `## Variables\n\n`;
-          response.variables.forEach((v: any) => {
-            responseText += `- **${v.name}**: \`${v.value}\``;
-            if (v.description) responseText += ` - ${v.description}`;
-            if (v.category) responseText += ` (${v.category})`;
-            responseText += `\n`;
-          });
-        } else if (response.colors && Array.isArray(response.colors)) {
-          responseText += `## Color Variables\n\n`;
-          response.colors.forEach((v: any) => {
-            responseText += `- **${v.name}**: \`${v.value}\``;
-            if (v.description) responseText += ` - ${v.description}`;
-            responseText += `\n`;
-          });
-        } else if (response.typography && Array.isArray(response.typography)) {
-          responseText += `## Typography Variables\n\n`;
-          response.typography.forEach((v: any) => {
-            responseText += `- **${v.name}**: \`${v.value}\``;
-            if (v.description) responseText += ` - ${v.description}`;
-            responseText += `\n`;
-          });
-        } else if (response.spacing && Array.isArray(response.spacing)) {
-          responseText += `## Spacing Variables\n\n`;
-          response.spacing.forEach((v: any) => {
-            responseText += `- **${v.name}**: \`${v.value}\``;
-            if (v.description) responseText += ` - ${v.description}`;
-            responseText += `\n`;
-          });
+        // Add note for custom themes
+        if (response.theme !== "default") {
+          responseText += `\n> **Note:** This is an example theme for reference only. It is not included in the @heroui-native/core package. Use it as inspiration for creating your own custom themes.\n`;
         }
 
-        responseText += `\n## Usage Example\n\n`;
-        responseText += `\`\`\`tsx\nimport {useTheme} from 'heroui-native';\n\n`;
-        responseText += `const MyComponent = () => {\n`;
-        responseText += `  const theme = useTheme();\n`;
-        responseText += `  \n`;
-        responseText += `  return (\n`;
-        responseText += `    <View style={{backgroundColor: theme.colors.background}}>\n`;
-        responseText += `      <Text style={{color: theme.colors.primary}}>Themed Text</Text>\n`;
-        responseText += `    </View>\n`;
-        responseText += `  );\n`;
-        responseText += `};\n\`\`\`\n`;
+        responseText += `\n`;
+
+        // Format colors by mode
+        if (mode === "light" || mode === "both") {
+          if (response.light?.colors || response.colors) {
+            const colors = response.light?.colors || response.colors;
+            responseText += `## Light Mode Colors\n\n`;
+
+            // Group by category
+            const grouped = groupByCategory(colors);
+            for (const [category, tokens] of Object.entries(grouped)) {
+              responseText += `### ${capitalize(category)}\n`;
+              tokens.forEach((c: any) => {
+                responseText += `- **${c.name}**: \`${c.value}\` (HSL)\n`;
+              });
+              responseText += `\n`;
+            }
+          }
+        }
+
+        if (mode === "dark" || mode === "both") {
+          if (response.dark?.colors) {
+            responseText += `## Dark Mode Colors\n\n`;
+
+            // Group by category
+            const grouped = groupByCategory(response.dark.colors);
+            for (const [category, tokens] of Object.entries(grouped)) {
+              responseText += `### ${capitalize(category)}\n`;
+              tokens.forEach((c: any) => {
+                responseText += `- **${c.name}**: \`${c.value}\` (HSL)\n`;
+              });
+              responseText += `\n`;
+            }
+          }
+        }
+
+        // Add utilities if both modes returned
+        if (mode === "both" && response.borderRadius) {
+          responseText += `## Border Radius\n`;
+          Object.entries(response.borderRadius).forEach(([key, value]) => {
+            responseText += `- **${key}**: \`${value}\`\n`;
+          });
+          responseText += `\n`;
+
+          responseText += `## Opacity\n`;
+          responseText += `- **disabled**: \`${response.opacity?.disabled || 0.5}\`\n`;
+        }
 
         return {
           content: [
@@ -109,3 +140,35 @@ Category options help filter to specific design aspects.`,
     server.tool(name, description, inputSchema.shape, handler as any);
   },
 };
+
+/**
+ * Group colors by category
+ */
+function groupByCategory(colors: any[]): Record<string, any[]> {
+  const grouped: Record<string, any[]> = {
+    base: [],
+    semantic: [],
+    status: [],
+    surface: [],
+    utility: [],
+  };
+
+  colors.forEach((color) => {
+    const category = color.category || "semantic";
+    if (grouped[category]) {
+      grouped[category].push(color);
+    } else {
+      grouped.semantic.push(color);
+    }
+  });
+
+  // Remove empty categories
+  return Object.fromEntries(Object.entries(grouped).filter(([, tokens]) => tokens.length > 0));
+}
+
+/**
+ * Capitalize first letter
+ */
+function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}

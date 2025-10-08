@@ -42,44 +42,29 @@ export type NativeComponentDataset = Record<string, NativeComponentDefinition>;
 // Theme Types
 export interface ColorToken {
   name: string;
-  value: string;
-  description?: string;
+  value: string; // HSL format: "211 100% 50%"
+  category: "base" | "semantic" | "status" | "surface" | "utility";
 }
 
-export interface TypographyToken {
+export interface NativeTheme {
   name: string;
-  value: string | number;
-  description?: string;
+  light: {
+    colors: ColorToken[];
+  };
+  dark: {
+    colors: ColorToken[];
+  };
+  borderRadius: {
+    DEFAULT: string;
+    panel: string;
+    "panel-inner": string;
+  };
+  opacity: {
+    disabled: number;
+  };
 }
 
-export interface SpacingToken {
-  name: string;
-  value: string | number;
-  description?: string;
-}
-
-export interface NativeThemeDefinition {
-  colors?: {
-    semantic: ColorToken[];
-    palette: ColorToken[];
-    brand: ColorToken[];
-  };
-  typography?: {
-    fonts: TypographyToken[];
-    sizes: TypographyToken[];
-    weights: TypographyToken[];
-    lineHeights: TypographyToken[];
-  };
-  spacing?: {
-    base: SpacingToken[];
-    padding: SpacingToken[];
-    margin: SpacingToken[];
-    gap: SpacingToken[];
-  };
-  borders?: {
-    radius: Array<{name: string; value: string}>;
-    width: Array<{name: string; value: string}>;
-  };
-  shadows?: Array<{name: string; value: string}>;
-  variables?: Record<string, string>; // Raw CSS variables
+export interface NativeThemeSystem {
+  version: string;
+  themes: Record<string, NativeTheme>; // 'default', 'lavender-dream', etc.
 }
