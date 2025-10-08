@@ -182,4 +182,92 @@ The `native/versions.json` file contains:
 
 ### Theme Data Structure
 
-Theme data in `native/theme/{version}.json` contains design tokens, colors, spacing, typography, and other theme-related values specific to HeroUI Native.
+Theme data in `native/theme/{version}.json` follows this structure:
+
+```typescript
+{
+  version: string;              // HeroUI Native version (e.g., "1.0.0-alpha.14")
+  themes: {
+    [themeName: string]: {      // Theme name (e.g., "default", "lavender-dream")
+      name: string;             // Theme identifier
+      light: {
+        colors: [               // Light mode color tokens
+          {
+            name: string;       // Color name (e.g., "background", "accent")
+            value: string;      // HSL value without wrapper (e.g., "300 50% 100%")
+            category: string;   // Category: "base" | "semantic" | "status" | "surface" | "utility"
+          }
+        ]
+      };
+      dark: {
+        colors: [               // Dark mode color tokens (same structure)
+          {
+            name: string;
+            value: string;
+            category: string;
+          }
+        ]
+      };
+      borderRadius: {
+        DEFAULT: string;        // Default radius (e.g., "8")
+        panel: string;          // Panel radius (e.g., "16")
+        "panel-inner": string;  // Inner panel radius (e.g., "12")
+      };
+      opacity: {
+        disabled: number;       // Disabled state opacity (e.g., 0.5)
+      };
+    }
+  }
+}
+```
+
+### Example Theme Entry
+
+```json
+{
+  "version": "1.0.0-alpha.14",
+  "themes": {
+    "default": {
+      "name": "default",
+      "light": {
+        "colors": [
+          {
+            "name": "background",
+            "value": "300 50% 100%",
+            "category": "base"
+          },
+          {
+            "name": "accent",
+            "value": "300 0% 4%",
+            "category": "semantic"
+          },
+          {
+            "name": "success",
+            "value": "145.56 57% 33%",
+            "category": "status"
+          }
+        ]
+      },
+      "dark": {
+        "colors": [
+          {
+            "name": "background",
+            "value": "0 0% 5%",
+            "category": "base"
+          }
+        ]
+      },
+      "borderRadius": {
+        "DEFAULT": "8",
+        "panel": "16",
+        "panel-inner": "12"
+      },
+      "opacity": {
+        "disabled": 0.5
+      }
+    }
+  }
+}
+```
+
+**Note:** Themes other than "default" (e.g., "lavender-dream", "mint-garden", "sky-dream") are example implementations for reference only and are not included in the package.
