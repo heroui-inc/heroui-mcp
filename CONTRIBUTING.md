@@ -1,6 +1,6 @@
-# Contributing to HeroUI React MCP Server
+# Contributing to HeroUI MCP
 
-Thank you for your interest in contributing to the HeroUI React MCP Server! This guide will help you get started with development.
+Thank you for your interest in contributing to the HeroUI MCP project! This monorepo hosts both `@heroui/react-mcp` and `@heroui/native-mcp` servers. This guide will help you get started with development.
 
 ## 📋 Prerequisites
 
@@ -22,12 +22,12 @@ cp .env.example .env
 # Edit .env with your credentials
 
 # Extract component data to local development R2 bucket
-pnpm extract:all:dev  # Extracts HeroUI
-# Or extract individually:
-pnpm extract:dev:heroui
+pnpm extract:react:dev        # Extract React MCP data
+pnpm extract:native:dev       # Extract Native MCP data
 
-# Start MCP server (stdio transport)
-pnpm mcp:stdio
+# Start development API server
+pnpm dev:react                # React MCP (http://localhost:8787)
+pnpm dev:native               # Native MCP (http://localhost:8788)
 ```
 
 ### Environment Variables Setup
@@ -52,10 +52,15 @@ GITHUB_TOKEN=your_github_personal_access_token
 ### Building for NPM
 
 ```bash
-# Build STDIO client for NPM
+# Build all packages
 pnpm build
 
-# Test the built package locally
+# Build specific package
+pnpm build --filter=@heroui/react-mcp
+pnpm build --filter=@heroui/native-mcp
+
+# Test a built package locally
+cd packages/react-mcp  # or packages/native-mcp
 npm pack
 # This creates a .tgz file you can install locally to test
 ```
@@ -90,8 +95,11 @@ pnpm test:api:production
 The MCP Inspector provides a web UI to test and debug the MCP server functionality:
 
 ```bash
-# Start the MCP Inspector
-pnpm mcp:inspector
+# Start the React MCP Inspector
+pnpm inspect:react
+
+# Start the Native MCP Inspector
+pnpm inspect:native
 ```
 
 This will:
@@ -99,6 +107,7 @@ This will:
 1. Start the MCP server with stdio transport
 2. Launch the Inspector UI in your browser (usually at http://localhost:6274)
 3. Provide a session token for authentication
+4. Allow interactive testing of all MCP tools
 
 ### Testing with Local Build
 
@@ -107,9 +116,13 @@ For development or testing with a local build in your IDE:
 ```json
 {
   "mcpServers": {
-    "heroui-local": {
+    "heroui-react-local": {
       "command": "node",
-      "args": ["/path/to/heroui-mcp/dist/stdio.js"]
+      "args": ["/path/to/heroui-mcp/packages/react-mcp/dist/stdio.js"]
+    },
+    "heroui-native-local": {
+      "command": "node",
+      "args": ["/path/to/heroui-mcp/packages/native-mcp/dist/stdio.js"]
     }
   }
 }
@@ -148,37 +161,88 @@ pnpm format
 
 ## 📋 Available Scripts
 
-### MCP Server Commands
 
-- `pnpm mcp:stdio` - Run MCP server with stdio transport
-- `pnpm mcp:inspector` - Run MCP server with Inspector UI for testing
-- `pnpm build` - Build the project for npm distribution
-- `pnpm clean` - Clean build artifacts
+### 🔨 Build Commands
 
-### Data Extraction Commands
+```bash
+# Build all packages
+pnpm build
 
-#### Development Environment (local R2 bucket)
+# Build specific package
+pnpm build:native      # Build @heroui/native-mcp
+pnpm build:react       # Build @heroui/react-mcp
+```
 
-- `pnpm extract:all:dev` - Extract HeroUI to dev bucket
-- `pnpm extract:dev:heroui` - Extract HeroUI components to dev bucket
-- `pnpm extract:dev both -- --force` - Force re-extraction even if version exists
+### 🚀 Development Commands
 
-#### Direct R2 Upload (requires environment variables)
+```bash
+# Start development server for all packages
+pnpm dev
 
-- `pnpm extract:heroui` - Extract HeroUI to R2 (uses R2_BUCKET_NAME env var)
+# Start development server for specific package
+pnpm dev:native        # Native MCP dev server (API)
+pnpm dev:react         # React MCP dev server (API)
 
-### Cloudflare Workers Commands
+# Start specific transport
+pnpm dev:native:api    # Native MCP API server (http://localhost:8788)
+pnpm dev:native:stdio  # Native MCP stdio transport
+pnpm dev:react:api     # React MCP API server (http://localhost:8787)
+pnpm dev:react:stdio   # React MCP stdio transport
+```
 
-- `pnpm dev` - Start local development server (http://localhost:8787)
-- `pnpm deploy` - Deploy to production environment
-- `pnpm deploy:staging` - Deploy to staging environment
-- `pnpm deploy:production` - Deploy to production environment
+### 🔍 MCP Inspector Commands
 
-### Development Commands
+```bash
+# Launch MCP Inspector web UI for testing tools
+pnpm inspect:native    # Native MCP Inspector
+pnpm inspect:react     # React MCP Inspector
+```
 
-- `pnpm typecheck` - Run TypeScript type checking
-- `pnpm lint` - Run ESLint code linting
-- `pnpm format` - Format code with Prettier
+The Inspector provides a web interface at http://localhost:6274 (or similar) for testing MCP tools interactively.
+
+### 📦 Data Extraction Commands
+
+#### Native MCP Extraction
+
+```bash
+pnpm extract:native:dev            # Extract all to dev bucket
+pnpm extract:native:dev:components # Extract only components
+pnpm extract:native:dev:theme      # Extract only theme
+```
+
+#### React MCP Extraction
+
+```bash
+pnpm extract:react:dev             # Extract all to dev bucket
+pnpm extract:react:dev:heroui      # Extract only HeroUI components
+pnpm extract:react:dev:theme       # Extract only theme
+```
+
+### ✅ Code Quality Commands
+
+```bash
+# Type checking
+pnpm typecheck         # Check all packages
+
+# Linting
+pnpm lint              # Lint all packages
+
+# Formatting
+pnpm format            # Format all TypeScript/JSON files
+
+# Code cleanup
+pnpm clean             # Clean build artifacts
+```
+
+### 🧪 Testing Commands
+
+```bash
+# Run all tests
+pnpm test
+
+# Pre-release checks
+pnpm release:check     # Run lint, typecheck, and build
+```
 
 ## 🏗️ Architecture
 
@@ -202,45 +266,38 @@ The REST API is publicly available at `https://mcp-api.heroui.com`:
 - `GET /api/components/Button/examples` - Get Button examples
 - `GET /api/versions` - Get version information
 
-## 🏗️ Project Structure
+## 🏗️ Monorepo Structure
 
 ```
 .
-├── src/
-│   ├── index.ts              # Hono server entry point (Cloudflare)
-│   ├── stdio.ts              # MCP stdio server entry point (dev)
-│   ├── stdio-npm.ts          # NPM distribution entry point
-│   ├── http-server.ts        # HTTP server implementation
-│   ├── types.ts              # TypeScript type definitions
-│   └── services/
-│       ├── mcp-server-core.ts        # Core MCP server logic
-│       ├── mcp-server-core-npm.ts    # NPM version of core
-│       ├── component-data-service.ts # Component data management
-│       ├── component-data-service-npm.ts # NPM version
-│       ├── data-store.ts             # Data storage (Cloudflare R2)
-│       ├── data-store-file.ts        # File-based data store (NPM)
-│       ├── version-check-service.ts  # Version checking functionality
-│       ├── base-extractor.ts         # Base extraction functionality
-│       └── github-client.ts          # GitHub API client
-├── scripts/
-│   ├── extract-heroui-r2.ts  # HeroUI data extraction to R2
-│   ├── extract-dev.sh        # Development extraction helper
-│   └── check-versions-ci.mjs # CI version checking script
-├── lib/
-│   ├── base-extractor.ts     # Base extraction functionality
-│   ├── github-client.ts      # GitHub API client
-│   ├── r2-uploader.ts        # R2 storage upload client
-│   └── data-store.ts         # Data storage abstraction
-├── data/                     # Local fallback data (npm package)
-│   ├── latest/
-│   │   └── heroui.json
-│   └── versions.json
-├── .env.example         # Environment variables template
-├── dist/                     # Build output (generated)
-├── wrangler.toml             # Cloudflare Workers configuration
-├── tsconfig.json             # TypeScript configuration
-├── tsconfig.build.json       # TypeScript build configuration
-└── package.json              # Dependencies and scripts
+├── packages/
+│   ├── react-mcp/           # @heroui/react-mcp - Web components
+│   │   ├── src/
+│   │   │   ├── index.ts              # Hono server entry (Cloudflare)
+│   │   │   ├── stdio.ts              # MCP stdio server entry (dev)
+│   │   │   ├── stdio-npm.ts          # NPM distribution entry
+│   │   │   ├── http-server.ts        # HTTP server implementation
+│   │   │   ├── types.ts              # TypeScript definitions
+│   │   │   └── services/             # Core services
+│   │   ├── scripts/                  # Extraction scripts
+│   │   ├── data/                     # Local fallback data
+│   │   ├── wrangler.toml             # Cloudflare config
+│   │   ├── README.md                 # Package-specific docs
+│   │   └── package.json
+│   │
+│   └── native-mcp/          # @heroui/native-mcp - React Native
+│       ├── src/                      # Similar structure
+│       ├── README.md
+│       └── package.json
+│
+├── .github/                 # GitHub Actions workflows
+├── CONTRIBUTING.md          # This file
+├── CODE_OF_CONDUCT.md       # Community guidelines
+├── TROUBLESHOOTING.md       # Common issues
+├── README.md                # Monorepo overview
+├── turbo.json               # Turbo configuration
+├── pnpm-workspace.yaml      # pnpm workspace config
+└── package.json             # Root dependencies
 ```
 
 ## 🔧 Environment Configuration
@@ -308,10 +365,12 @@ When deployed as a Cloudflare Worker:
 
 The server extracts component data from GitHub repositories and stores it in Cloudflare R2:
 
-- **HeroUI**: React components from `heroui-inc/heroui` (v3 branch)
+- **React MCP**: React components from `heroui-inc/heroui` (v3 branch)
+- **Native MCP**: React Native components from `heroui-inc/heroui-native` (alpha branch)
 
 ### R2 Storage Structure
 
+**React MCP:**
 ```
 heroui-mcp-data/
 ├── latest/
@@ -322,17 +381,38 @@ heroui-mcp-data/
 └── versions.json             # Version metadata
 ```
 
+**Native MCP:**
+```
+heroui-native-mcp-data/
+├── native/
+│   ├── components/
+│   │   ├── 1.0.0-alpha.1.json
+│   │   └── ...
+│   ├── theme/
+│   │   ├── 1.0.0-alpha.1.json
+│   │   └── ...
+│   └── latest/
+│       ├── components.json
+│       └── theme.json
+└── versions.json
+```
+
 ### Updating Component Data
 
 #### For Development
 
-```bash
-# Set up environment variables in .env
-# Then extract to development bucket
-pnpm extract:all:dev
+Set up environment variables in `.env`, then extract to development bucket:
 
-# Force re-extraction
-pnpm extract:dev:heroui -- --force
+```bash
+# React MCP
+pnpm extract:react:dev             # Extract all React data
+pnpm extract:react:dev:heroui      # Extract only HeroUI components
+pnpm extract:react:dev:theme       # Extract only theme data
+
+# Native MCP
+pnpm extract:native:dev            # Extract all Native data
+pnpm extract:native:dev:components # Extract only components
+pnpm extract:native:dev:theme      # Extract only theme data
 ```
 
 #### For Staging/Production
@@ -436,7 +516,7 @@ export const myService = new MyService();
 
 ### Architecture Notes
 
-The HeroUI React MCP project has two parallel implementations:
+Each MCP package has two parallel implementations:
 
 1. **Cloudflare Workers version** (`src/index.ts`, `src/services/data-store.ts`)
    - Uses Cloudflare R2 for storage
@@ -449,6 +529,27 @@ The HeroUI React MCP project has two parallel implementations:
    - Designed for local usage
 
 Both versions share the same core functionality but use different storage backends.
+
+### Working on Multiple Packages
+
+When working on features that affect multiple packages, you can use the root commands:
+
+```bash
+# Run commands for all packages (via Turbo)
+pnpm build
+pnpm typecheck
+pnpm lint
+
+# Run for specific package (from root)
+pnpm build:react       # Build React MCP
+pnpm build:native      # Build Native MCP
+pnpm dev:react         # Dev server for React MCP
+pnpm dev:native        # Dev server for Native MCP
+
+# Or use pnpm filtering directly
+pnpm --filter @heroui/react-mcp build
+pnpm --filter @heroui/native-mcp typecheck
+```
 
 ## 🤝 Submitting Pull Requests
 

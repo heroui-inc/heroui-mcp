@@ -3,6 +3,8 @@
 Access HeroUI Native component documentation directly in your AI assistant via Model Context Protocol (MCP).
 
 > **Note:** Currently supports **@heroui/native** (React Native components). For **@heroui/react** (web components), use [@heroui/react-mcp](../react-mcp).
+>
+> **Release status:** This package is still in development and has not been published to npm yet. Install instructions will be updated once the first release is available.
 
 ## Features
 
@@ -15,7 +17,7 @@ Access HeroUI Native component documentation directly in your AI assistant via M
 
 ### Cursor
 
-[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://link.heroui.com/mcp-native-cursor-install)
+[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://link.heroui.com/native-mcp-cursor-install)
 
 Or add manually to Cursor Settings → Features → MCP Servers:
 
@@ -101,28 +103,6 @@ Add to your Claude Desktop configuration:
 }
 ```
 
-## IDE Rules Setup (Optional)
-
-For better accuracy when working with HeroUI Native components, add the HeroUI Native rules file to your IDE:
-
-### Cursor / Windsurf / Claude Code
-
-Copy `heroui-native-rules.mdc` to your project's `.cursor/rules/` directory:
-
-```bash
-# Create rules directory if it doesn't exist
-mkdir -p .cursor/rules
-
-# Copy the HeroUI Native rules file
-curl -o .cursor/rules/heroui-native-rules.mdc https://raw.githubusercontent.com/heroui-inc/heroui-mcp/main/heroui-native-rules.mdc
-```
-
-This provides your AI assistant with:
-- Correct HeroUI Native component patterns
-- MCP tool usage guidance
-- Theme customization rules
-- Best practices for React Native implementation
-
 ## Usage
 
 Once configured, you can ask your AI assistant questions like:
@@ -143,14 +123,10 @@ The MCP server provides these tools to AI assistants:
 
 ### `installation`
 
-Get complete installation guide for @heroui/native in your React Native project.
+Get comprehensive installation guide for @heroui/native in your React Native project
 
 ```javascript
-// Parameters
-{
-  framework: "expo" | "bare",  // Required
-  packageManager?: "npm" | "pnpm" | "yarn" | "bun"  // Optional, defaults to npm
-}
+// No parameters required
 ```
 
 ### `list_components`
@@ -163,7 +139,7 @@ List all available HeroUI Native components (always returns latest version).
 
 ### `get_component_info`
 
-Get complete information about HeroUI Native components including description, anatomy, props, and examples.
+Get complete information about HeroUI Native components including description, anatomy, props, subcomponents, and available examples.
 
 ```javascript
 // Parameters
@@ -182,7 +158,7 @@ Get complete information about HeroUI Native components including description, a
 
 ### `get_component_props`
 
-Get detailed props information for HeroUI Native components.
+Get detailed prop definitions for HeroUI Native components.
 
 ```javascript
 // Parameters
@@ -198,73 +174,65 @@ Get detailed props information for HeroUI Native components.
 
 ### `get_component_examples`
 
-Get usage examples for HeroUI Native components.
+Get complete, working code examples for HeroUI Native components.
+
+**Note:** Example files use kebab-case naming (e.g., "dialog", "dialog-native-modal", "drop-shadow-view").
 
 ```javascript
 // Parameters
 {
-  components: ["Button"]  // Required - array of component names
+  examples: ["button"]  // Required - array of example names (kebab-case, without .tsx extension)
 }
 
 // Examples
 {
-  components: ["Card", "Button"]  // Get examples for multiple components
-}
-```
-
-### `get_component_source_code`
-
-Get the React Native/TypeScript source code (.tsx) for HeroUI Native components.
-
-```javascript
-// Parameters
-{
-  components: ["Button"]  // Required - array of component names
-}
-
-// Examples
-{
-  components: ["Button", "TextField"]  // Get source for multiple components
-}
-```
-
-### `get_component_source_styles`
-
-Get the StyleSheet styles for HeroUI Native components.
-
-```javascript
-// Parameters
-{
-  components: ["Button"]  // Required - array of component names
-}
-
-// Examples
-{
-  components: ["Button", "Card"]  // Get styles for multiple components
+  examples: ["dialog", "dialog-native-modal"]  // Get examples for specific components
 }
 ```
 
 ### `get_theme_info`
 
-Get HeroUI Native theme variables with an optimized structure that extracts common variables (base and calculated) shared between light and dark modes.
+Get HeroUI Native theme colors and design tokens.
+
+**Note:** Custom themes (if available) are example implementations for reference only and are not included in the package.
 
 ```javascript
 // Parameters
 {
   theme?: "default",   // Optional, defaults to "default"
-  mode?: "light" | "dark" | "both", // Optional, defaults to "both"
-  category?: "colors" | "typography" | "spacing" | "borders" | "shadows" | "animations" | "all" // Optional
+  mode?: "light" | "dark" | "both"  // Optional, defaults to "both"
+}
+
+// Examples
+{
+  theme: "default",
+  mode: "light"  // Get only light mode colors
+}
+{
+  theme: "default",
+  mode: "both"  // Get both light and dark mode colors (default)
 }
 ```
 
 ### `get_docs`
 
-Get HeroUI Native documentation content for guides, principles, and component docs.
+Get HeroUI Native documentation content for guides and component docs.
 
 ```javascript
 // Parameters
 {
-  path: string  // Required - documentation path (e.g., "/docs/introduction", "/docs/components/button")
+  path: string  // Required - exact documentation path
+}
+
+// Examples
+{
+  path: "/docs/core/provider"  // Core documentation
+}
+{
+  path: "/docs/components/button"  // Component documentation
+}
+{
+  path: "/docs/changelog"  // Changelog
 }
 ```
 
@@ -302,24 +270,19 @@ Ensure you have Node.js 18+ installed. The package will be automatically downloa
 
 If you're behind a corporate firewall, you may need to configure proxy settings or use a custom API URL.
 
-### Need help?
-
-Check our [troubleshooting guide](https://github.com/heroui-inc/heroui-mcp/blob/main/TROUBLESHOOTING.md) or ask in our [Discord community](https://discord.gg/heroui).
-
 ## Contributing
 
-Contributions are always welcome!
+Contributions are always welcome! See [../../CONTRIBUTING.md](../../CONTRIBUTING.md) for ways to get started.
 
-See [CONTRIBUTING.md](https://github.com/heroui-inc/heroui-mcp/blob/main/CONTRIBUTING.md) for ways to get started.
-
-Please adhere to this project's [CODE_OF_CONDUCT](https://github.com/heroui-inc/heroui-mcp/blob/main/CODE_OF_CONDUCT.md).
+Please adhere to our [Code of Conduct](../../CODE_OF_CONDUCT.md).
 
 ## Support
 
-- [X](https://x.com/hero_ui)
-- [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
-- [Discord Community](https://discord.gg/heroui)
-- [Email Us](mailto:support@heroui.com)
+- 📖 [Documentation](https://github.com/heroui-inc/heroui-mcp)
+- 💬 [Discord Community](https://discord.gg/heroui)
+- 🐦 [X (Twitter)](https://x.com/hero_ui)
+- 🐛 [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
+- 📧 [Email Support](mailto:support@heroui.com)
 
 ## License
 
