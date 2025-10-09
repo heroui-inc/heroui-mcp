@@ -21,7 +21,7 @@ Extracts HeroUI theme system from GitHub and uploads to R2
 
 Options:
   --force           Force re-extraction even if data exists
-  --version=VERSION Extract specific version (default: latest from npm)
+  --version=VERSION Extract specific version
 
 Environment variables:
   GITHUB_TOKEN              GitHub personal access token (optional, for rate limits)

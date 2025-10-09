@@ -21,12 +21,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/heroui-inc/heroui-mcp"
+    "url": "https://github.com/heroui-inc/heroui-mcp",
+    "directory": "packages/react-mcp"
   },
   "bugs": {
     "url": "https://github.com/heroui-inc/heroui-mcp/issues"
   },
-  "homepage": "https://github.com/heroui-inc/heroui-mcp",
+  "homepage": "https://github.com/heroui-inc/heroui-mcp/tree/main/packages/react-mcp",
   "scripts": {
     "build": "tsup && chmod +x dist/stdio.js",
     "build:api": "wrangler deploy --dry-run --outdir dist-api",
@@ -54,12 +55,11 @@
     "clean": "rm -rf dist",
     "prepublishOnly": "pnpm build",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
-    "release": "bumpp --execute='pnpm run changelog' --all",
+    "release": "bumpp --execute='pnpm run changelog' --all --tag-name='react-mcp-v%s'",
     "release:check": "pnpm run lint && pnpm run typecheck && pnpm run build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.696.0",
-    "@hono/node-server": "^1.13.7",
     "@modelcontextprotocol/sdk": "^1.18.1",
     "@xmldom/xmldom": "^0.8.11",
     "hono": "^4.9.8",

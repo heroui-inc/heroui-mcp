@@ -2,7 +2,7 @@
 
 Access HeroUI component documentation directly in your AI assistant via Model Context Protocol (MCP).
 
-> **Note:** Currently supports **@heroui/react v3** only. Support for **heroui-native** coming soon.
+> **Note:** Currently supports **@heroui/react v3** only. For **@heroui/native** (React Native components), use [@heroui/native-mcp](../native-mcp).
 
 ## Features
 
@@ -308,18 +308,17 @@ Check our [troubleshooting guide](https://github.com/heroui-inc/heroui-mcp/blob/
 
 ## Contributing
 
-Contributions are always welcome!
+Contributions are always welcome! See [../../CONTRIBUTING.md](../../CONTRIBUTING.md) for ways to get started.
 
-See [CONTRIBUTING.md](https://github.com/heroui-inc/heroui-mcp/blob/main/CONTRIBUTING.md) for ways to get started.
-
-Please adhere to this project's [CODE_OF_CONDUCT](https://github.com/heroui-inc/heroui-mcp/blob/main/CODE_OF_CONDUCT.md).
+Please adhere to our [Code of Conduct](../../CODE_OF_CONDUCT.md).
 
 ## Support
 
-- [X](https://x.com/hero_ui)
-- [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
-- [Discord Community](https://discord.gg/heroui)
-- [Email Us](mailto:support@heroui.com)
+- 📖 [Documentation](https://github.com/heroui-inc/heroui-mcp)
+- 💬 [Discord Community](https://discord.gg/heroui)
+- 🐦 [X (Twitter)](https://x.com/hero_ui)
+- 🐛 [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
+- 📧 [Email Support](mailto:support@heroui.com)
 
 ## License
 

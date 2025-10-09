@@ -44,6 +44,7 @@ export default defineConfig([
       parserOptions: {
         ecmaVersion: "latest",
         project: ["./tsconfig.json", "./mastra/tsconfig.json"],
+        tsconfigRootDir: __dirname,
       },
       sourceType: "module",
     },

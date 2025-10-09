@@ -4,6 +4,14 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'packages/react-mcp/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'turbo.json'
+      - 'pnpm-workspace.yaml'
+      - '.github/actions/**'
+      - '.github/workflows/worker-deploy.yml'
 
 jobs:
   edge-functions:

@@ -7,11 +7,13 @@ Local development agent for testing HeroUI React MCP server tools via Mastra pla
 ## Quick Start
 
 1. **Install dependencies** (from project root):
+
    ```bash
    pnpm install
    ```
 
 2. **Configure environment:**
+
    ```bash
    cd mastra
    cp .env.example .env
@@ -19,6 +21,7 @@ Local development agent for testing HeroUI React MCP server tools via Mastra pla
    ```
 
 3. **Start Mastra playground** (from project root):
+
    ```bash
    pnpm dev:mastra
    ```
@@ -29,11 +32,13 @@ Local development agent for testing HeroUI React MCP server tools via Mastra pla
 ## Environment Variables
 
 **Required** (choose one model provider):
+
 - `ANTHROPIC_API_KEY` - For Claude models
 - `OPENAI_API_KEY` - For GPT models
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` - For Bedrock
 
 **Optional**:
+
 - `ANTHROPIC_MODEL` - Override default Claude model (default: `claude-sonnet-4-20250514`)
 - `OPENAI_MODEL` - Override default OpenAI model (default: `gpt-4o`)
 - `BEDROCK_MODEL` - Override default Bedrock model (default: `us.anthropic.claude-sonnet-4-20250514-v1:0`)
@@ -48,6 +53,7 @@ The agent connects directly to the HeroUI React MCP server via stdio (standard i
 3. Makes them available to the AI agent for testing
 
 When you ask questions in the playground, the agent can:
+
 - List available HeroUI components
 - Search component documentation
 - Get detailed component information
