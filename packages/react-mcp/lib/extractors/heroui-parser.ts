@@ -1,8 +1,5 @@
-#!/usr/bin/env node
-
 /**
- * HeroUI GitHub extraction script with R2 upload
- * Fetches latest component documentation from GitHub and uploads to R2
+ * HeroUI component documentation parser
  */
 
 import type {
@@ -12,13 +9,9 @@ import type {
   ComponentSourceLinks,
   CssClass,
   PropDefinition,
-} from "../lib/base-extractor";
-import type {ComponentDataset} from "../src/types/data";
+} from "./components";
 
 import * as path from "path";
-
-import {BaseGitHubExtractor} from "../lib/base-extractor";
-import {R2Uploader} from "../lib/r2-uploader";
 
 interface DemoItem {
   component: unknown;
@@ -550,157 +543,3 @@ export class HeroUIParser implements ComponentParser {
     return cssClasses.length > 0 ? cssClasses : undefined;
   }
 }
-
-class HeroUIExtractor extends BaseGitHubExtractor {
-  constructor(token?: string) {
-    const parser = new HeroUIParser();
-    super(
-      {
-        owner: "heroui-inc",
-        repo: "heroui",
-        branch: "v3",
-        docsPath: "apps/docs/content/docs/components",
-        outputLibraryName: "heroui-react",
-      },
-      parser,
-      token,
-    );
-  }
-
-  // Override to get version from the correct package.json location in monorepo
-  async extract(): Promise<{data: ComponentDataset; version: string}> {
-    // Get the version from packages/react/package.json instead of root
-    try {
-      const packageJson = await this.github.fetchFile(
-        this.config.owner,
-        this.config.repo,
-        "packages/react/package.json",
-        this.config.branch,
-      );
-      const parsed = JSON.parse(packageJson);
-      const correctVersion = parsed.version;
-
-      // Temporarily override getPackageVersion
-      const originalGetVersion = this.github.getPackageVersion.bind(this.github);
-      this.github.getPackageVersion = async () => correctVersion;
-
-      // Run the extraction with the correct version
-      const result = await super.extract();
-
-      // Restore original method
-      this.github.getPackageVersion = originalGetVersion;
-
-      return result;
-    } catch (error) {
-      console.warn(
-        "Could not fetch version from packages/react/package.json, falling back to root",
-      );
-
-      return super.extract();
-    }
-  }
-}
-
-// Main execution
-async function main() {
-  console.log("🚀 Starting HeroUI component extraction for R2...");
-
-  // Check for required environment variables
-  const r2Config = {
-    accountId: process.env.CLOUDFLARE_ACCOUNT_ID || "",
-    accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
-    bucketName: process.env.R2_BUCKET_NAME || "heroui-mcp-data",
-  };
-
-  if (!r2Config.accountId || !r2Config.accessKeyId || !r2Config.secretAccessKey) {
-    console.error("❌ Missing required R2 credentials in environment variables");
-    console.error("   Required: CLOUDFLARE_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY");
-    process.exit(1);
-  }
-
-  const forceExtract = process.argv.includes("--force");
-  const versionArg = process.argv.find((arg) => arg.startsWith("--version="))?.split("=")[1];
-  // Filter out invalid version values like "true" or "false"
-  const specificVersion =
-    versionArg && versionArg !== "true" && versionArg !== "false" ? versionArg : undefined;
-
-  try {
-    const extractor = new HeroUIExtractor(process.env.GITHUB_TOKEN);
-    const r2Uploader = new R2Uploader(r2Config);
-
-    // Get current metadata from R2
-    const metadata = ((await r2Uploader.getVersionMetadata()) as any) || {};
-
-    // Extract components
-    const startTime = Date.now();
-    const result = await extractor.extract();
-    const extractDuration = Date.now() - startTime;
-
-    if (!result.data || Object.keys(result.data).length === 0) {
-      console.error("❌ No components extracted");
-      process.exit(1);
-    }
-
-    const version = specificVersion || result.version;
-    const versionWithPrefix = version.startsWith("v") ? version : `v${version}`;
-
-    // Check if version already exists (unless forced)
-    if (!forceExtract) {
-      const exists = await r2Uploader.versionExists("heroui-react", versionWithPrefix);
-      if (exists) {
-        console.log(
-          `ℹ️  Version ${versionWithPrefix} already exists in R2. Use --force to overwrite.`,
-        );
-
-        return;
-      }
-    }
-
-    console.log(
-      `📦 Extracted ${Object.keys(result.data).length} components for version ${versionWithPrefix}`,
-    );
-
-    // Upload versioned data
-    await r2Uploader.uploadComponentData("heroui-react", versionWithPrefix, result.data);
-
-    // Upload as latest
-    await r2Uploader.uploadLatestVersion("heroui-react", result.data);
-
-    // Update metadata
-    metadata["heroui-react"] = {
-      current: versionWithPrefix,
-      lastExtracted: new Date().toISOString(),
-      extractDuration,
-    };
-    await r2Uploader.updateVersionMetadata(metadata);
-
-    console.log(`✅ Successfully uploaded HeroUI data to R2 (version: ${versionWithPrefix})`);
-    console.log(`⏱️  Extraction took ${(extractDuration / 1000).toFixed(2)} seconds`);
-  } catch (error) {
-    console.error("❌ Extraction failed:", error);
-    process.exit(1);
-  }
-}
-
-// Handle --help
-if (process.argv.includes("--help")) {
-  console.log(`Usage: extract-heroui-r2 [--force] [--version=VERSION]
-
-Extracts HeroUI component documentation from GitHub and uploads to R2
-
-Options:
-  --force           Force re-extraction even if version exists
-  --version=VERSION Extract specific version
-
-Environment variables:
-  GITHUB_TOKEN              GitHub personal access token (optional, for rate limits)
-  CLOUDFLARE_ACCOUNT_ID     Cloudflare account ID (required)
-  R2_ACCESS_KEY_ID          R2 access key ID (required)
-  R2_SECRET_ACCESS_KEY      R2 secret access key (required)
-  R2_BUCKET_NAME            R2 bucket name (default: heroui-mcp-data)
-`);
-  process.exit(0);
-}
-
-main().catch(console.error);
