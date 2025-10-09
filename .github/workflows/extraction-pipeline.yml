@@ -101,6 +101,7 @@ jobs:
         uses: ./.github/actions/install
 
       - name: Extract HeroUI components
+        working-directory: packages/react-mcp
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -122,7 +123,7 @@ jobs:
           fi
 
           echo "📦 Extracting HeroUI components for react-mcp"
-          ./packages/react-mcp/scripts/extract.sh "$ENV" heroui $FLAGS
+          ./scripts/extract.sh "$ENV" heroui $FLAGS
 
       - name: Notify success
         if: success()
@@ -147,6 +148,7 @@ jobs:
         uses: ./.github/actions/install
 
       - name: Extract HeroUI theme system
+        working-directory: packages/react-mcp
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -168,7 +170,7 @@ jobs:
           fi
 
           echo "🎨 Extracting HeroUI theme system for react-mcp"
-          ./packages/react-mcp/scripts/extract.sh "$ENV" theme $FLAGS
+          ./scripts/extract.sh "$ENV" theme $FLAGS
 
       - name: Notify success
         if: success()
