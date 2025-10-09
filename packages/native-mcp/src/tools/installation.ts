@@ -88,6 +88,13 @@ For complete NativeWind setup, follow: https://www.nativewind.dev/docs/getting-s
 
 **Babel Configuration** - Add to \`babel.config.js\`:
 
+⚠️ **CRITICAL:** \`babel-preset-expo\` must be in your \`dependencies\` (NOT \`devDependencies\`)
+
+\`\`\`bash
+# If not already installed, add babel-preset-expo to dependencies:
+npm install babel-preset-expo
+\`\`\`
+
 \`\`\`javascript
 module.exports = function (api) {
   api.cache(true);
@@ -286,11 +293,12 @@ npm run android
 
 1. **NativeWind v4.2.1 is MANDATORY** - Other versions will NOT work with Reanimated v4
 2. **Reanimated v4.1.0 is REQUIRED** - Must match exactly for proper animations
-3. **Provider is REQUIRED** - Unlike HeroUI v3 React, you MUST wrap with \`HeroUINativeProvider\`
-4. **GestureHandlerRootView is REQUIRED** - Must wrap entire app for gesture support
-5. **Tailwind Content Path is CRITICAL** - Must include \`./node_modules/heroui-native/lib/**/*.{js,ts,jsx,tsx}\`
-6. **Import Plugin Correctly** - Use \`heroui-native/tailwind-plugin\` NOT \`heroui-native\`
-7. **Metro Config is REQUIRED** - Use \`withNativeWind\` in metro.config.js
+3. **babel-preset-expo MUST be in dependencies** - NOT devDependencies, install with \`npm install babel-preset-expo\`
+4. **Provider is REQUIRED** - Unlike HeroUI v3 React, you MUST wrap with \`HeroUINativeProvider\`
+5. **GestureHandlerRootView is REQUIRED** - Must wrap entire app for gesture support
+6. **Tailwind Content Path is CRITICAL** - Must include \`./node_modules/heroui-native/lib/**/*.{js,ts,jsx,tsx}\`
+7. **Import Plugin Correctly** - Use \`heroui-native/tailwind-plugin\` NOT \`heroui-native\`
+8. **Metro Config is REQUIRED** - Use \`withNativeWind\` in metro.config.js
 
 ### 🎨 Theme Customization
 
@@ -347,14 +355,15 @@ See [Theming Documentation](https://github.com/heroui-inc/heroui-native/blob/alp
 When creating HeroUI Native projects:
 
 1. **Always verify exact versions** - reanimated@~4.1.0, nativewind@4.2.1, tailwindcss@^3.4.17
-2. **Check Tailwind config** - Must include node_modules path
-3. **Configure Metro** - Must use \`withNativeWind\` in metro.config.js
-4. **Wrap with GestureHandlerRootView** - Required at app root for gestures
-5. **Wrap with Provider** - Required unlike React version
-6. **Use className** - Not style prop for Tailwind classes
-7. **Import plugin correctly** - From \`/tailwind-plugin\` subpath
-8. **Babel config** - Must include nativewind/babel preset
-9. **Test on device** - Use Expo Go or build for actual testing
+2. **Install babel-preset-expo as dependency** - Run \`npm install babel-preset-expo\` (NOT devDependency)
+3. **Check Tailwind config** - Must include node_modules path
+4. **Configure Metro** - Must use \`withNativeWind\` in metro.config.js
+5. **Wrap with GestureHandlerRootView** - Required at app root for gestures
+6. **Wrap with Provider** - Required unlike React version
+7. **Use className** - Not style prop for Tailwind classes
+8. **Import plugin correctly** - From \`/tailwind-plugin\` subpath
+9. **Babel config** - Must include nativewind/babel preset with babel-preset-expo
+10. **Test on device** - Use Expo Go or build for actual testing
 
 ### 📚 Available Components
 
