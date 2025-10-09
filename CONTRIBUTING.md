@@ -130,16 +130,28 @@ For development or testing with a local build in your IDE:
 
 ### Environment Variables for Testing
 
+When installed via `npx`, the MCP servers connect to these default API endpoints:
+
+- **React MCP** (`@heroui/react-mcp`): `https://mcp-api.heroui.com`
+- **Native MCP** (`@heroui/native-mcp`): `https://native-mcp-api.heroui.com`
+
 You can override the API URL for local development:
 
 ```json
 {
   "mcpServers": {
-    "heroui": {
+    "heroui-react": {
       "command": "npx",
       "args": ["-y", "@heroui/react-mcp"],
       "env": {
         "HEROUI_API_URL": "http://localhost:8787"
+      }
+    },
+    "heroui-native": {
+      "command": "npx",
+      "args": ["-y", "@heroui/native-mcp"],
+      "env": {
+        "HEROUI_NATIVE_API_URL": "http://localhost:8788"
       }
     }
   }
