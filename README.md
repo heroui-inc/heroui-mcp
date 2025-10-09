@@ -45,16 +45,52 @@ git clone https://github.com/heroui-inc/heroui-mcp.git
 cd heroui-mcp
 pnpm install
 
-# Build packages
-pnpm build --filter=@heroui/react-mcp
-pnpm build --filter=@heroui/native-mcp
-
-# Run tests
-pnpm lint
-pnpm typecheck
+# Set up environment variables (required for data extraction)
+cp .env.example .env
+# Edit .env with your Cloudflare R2 and GitHub credentials
 ```
 
-Builds, linting, and other scripts run through Turbo via the workspace root. Each package also exposes its own scripts—see the package-level READMEs for details.
+### Available Scripts
+
+**Build Commands:**
+```bash
+pnpm build                    # Build all packages
+pnpm build:react              # Build React MCP only
+pnpm build:native             # Build Native MCP only
+```
+
+**Development Servers:**
+```bash
+pnpm dev                      # Start all dev servers
+pnpm dev:react                # React MCP API server (http://localhost:8787)
+pnpm dev:native               # Native MCP API server (http://localhost:8788)
+pnpm dev:react:stdio          # React MCP stdio transport
+pnpm dev:native:stdio         # Native MCP stdio transport
+```
+
+**Testing & Inspection:**
+```bash
+pnpm inspect:react            # Launch MCP Inspector for React
+pnpm inspect:native           # Launch MCP Inspector for Native
+pnpm lint                     # Run linting
+pnpm typecheck                # Run type checking
+pnpm test                     # Run tests
+```
+
+**Data Extraction:**
+```bash
+pnpm extract:react:dev        # Extract React component data
+pnpm extract:native:dev       # Extract Native component data
+```
+
+**Code Quality:**
+```bash
+pnpm format                   # Format code with Prettier
+pnpm clean                    # Clean build artifacts
+pnpm release:check            # Pre-release validation
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed development setup and architecture information.
 
 ## Contributing
 
