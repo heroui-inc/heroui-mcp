@@ -6,12 +6,61 @@ permissions:
 on:
   push:
     tags:
-      - 'v*'
+      - 'react-mcp-v*'
+      - 'native-mcp-v*'
   workflow_dispatch:  # Allows manual triggering of the workflow
+    inputs:
+      package:
+        description: 'Package to release (react-mcp or native-mcp)'
+        required: true
+        type: choice
+        options:
+          - react-mcp
+          - native-mcp
 
 jobs:
-  release:
+  determine-package:
+    name: Determine Package to Release
     runs-on: ubuntu-latest
+    outputs:
+      package: ${{ steps.parse.outputs.package }}
+      version: ${{ steps.parse.outputs.version }}
+    steps:
+      - name: Parse tag or input
+        id: parse
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # Manual trigger - use input
+            PACKAGE="${{ inputs.package }}"
+            VERSION="manual"
+            echo "📦 Manual release triggered for: $PACKAGE"
+          else
+            # Tag push - parse tag name
+            TAG="${GITHUB_REF#refs/tags/}"
+            echo "🏷️  Tag detected: $TAG"
+
+            if [[ "$TAG" =~ ^react-mcp-v(.+)$ ]]; then
+              PACKAGE="react-mcp"
+              VERSION="${BASH_REMATCH[1]}"
+              echo "✅ Detected react-mcp release: $VERSION"
+            elif [[ "$TAG" =~ ^native-mcp-v(.+)$ ]]; then
+              PACKAGE="native-mcp"
+              VERSION="${BASH_REMATCH[1]}"
+              echo "✅ Detected native-mcp release: $VERSION"
+            else
+              echo "❌ Invalid tag format: $TAG"
+              echo "Expected: react-mcp-v* or native-mcp-v*"
+              exit 1
+            fi
+          fi
+
+          echo "package=$PACKAGE" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  release:
+    name: Release ${{ needs.determine-package.outputs.package }}
+    runs-on: ubuntu-latest
+    needs: determine-package
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,11 +86,34 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build package
-        run: pnpm build
+        run: pnpm run build --filter=@heroui/${{ needs.determine-package.outputs.package }}
 
-      - name: Publish to npm
+      - name: Publish to npm (react-mcp)
+        if: needs.determine-package.outputs.package == 'react-mcp'
+        working-directory: packages/${{ needs.determine-package.outputs.package }}
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
           npm publish --access public
         env:
           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: Publish to npm (native-mcp - dry-run)
+        if: needs.determine-package.outputs.package == 'native-mcp'
+        working-directory: packages/${{ needs.determine-package.outputs.package }}
+        run: npm publish --access public --dry-run
+
+      - name: Release Summary
+        run: |
+          echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Package**: @heroui/${{ needs.determine-package.outputs.package }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${{ needs.determine-package.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.determine-package.outputs.package }}" == "react-mcp" ]; then
+            echo "✅ **Status**: Published to npm" >> $GITHUB_STEP_SUMMARY
+            echo "🚀 **Link**: https://www.npmjs.com/package/@heroui/${{ needs.determine-package.outputs.package }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🧪 **Status**: Dry-run (not published)" >> $GITHUB_STEP_SUMMARY
+          fi
