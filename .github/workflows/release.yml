@@ -97,10 +97,10 @@ jobs:
         env:
           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
 
-      - name: Publish to npm (native-mcp - dry-run)
+      - name: Publish to npm (native-mcp)
         if: needs.determine-package.outputs.package == 'native-mcp'
         working-directory: packages/${{ needs.determine-package.outputs.package }}
-        run: npm publish --access public --dry-run
+        run: npm publish --access public
 
       - name: Release Summary
         run: |
@@ -115,5 +115,6 @@ jobs:
             echo "✅ **Status**: Published to npm" >> $GITHUB_STEP_SUMMARY
             echo "🚀 **Link**: https://www.npmjs.com/package/@heroui/${{ needs.determine-package.outputs.package }}" >> $GITHUB_STEP_SUMMARY
           else
-            echo "🧪 **Status**: Dry-run (not published)" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **Status**: Published to npm" >> $GITHUB_STEP_SUMMARY
+            echo "🚀 **Link**: https://www.npmjs.com/package/@heroui/${{ needs.determine-package.outputs.package }}" >> $GITHUB_STEP_SUMMARY
           fi
