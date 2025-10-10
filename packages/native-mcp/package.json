@@ -1,6 +1,6 @@
 {
   "name": "@heroui/native-mcp",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.1",
   "type": "module",
   "description": "MCP server for HeroUI Native component documentation via Model Context Protocol",
   "main": "dist/stdio.js",
@@ -57,7 +57,7 @@
     "clean": "rm -rf dist dist-api",
     "prepublishOnly": "pnpm build",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
-    "release": "bumpp --execute='pnpm run changelog' --all --tag-name='native-mcp-v%s'",
+    "release": "bumpp --execute='pnpm run changelog' --all --tag='native-mcp-v%s'",
     "release:check": "pnpm run lint && pnpm run typecheck && pnpm run build"
   },
   "dependencies": {
