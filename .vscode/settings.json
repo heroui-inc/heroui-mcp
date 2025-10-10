@@ -1,0 +1,12 @@
+{
+  "npm.packageManager": "pnpm",
+  "eslint.workingDirectories": [{"mode": "auto"}],
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "[json]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
