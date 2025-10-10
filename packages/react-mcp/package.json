@@ -27,6 +27,9 @@
   "bugs": {
     "url": "https://github.com/heroui-inc/heroui-mcp/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "homepage": "https://github.com/heroui-inc/heroui-mcp/tree/main/packages/react-mcp",
   "scripts": {
     "build": "tsup && chmod +x dist/stdio.js",
