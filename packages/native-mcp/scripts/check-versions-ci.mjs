@@ -33,12 +33,12 @@ async function getStoredVersion(library) {
     const response = await client.send(
       new GetObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME,
-        Key: "metadata/versions.json",
+        Key: "native/versions.json",
       })
     );
     const text = await response.Body.transformToString();
     const metadata = JSON.parse(text);
-    return metadata[library]?.current || null;
+    return metadata.current || null;
   } catch (error) {
     console.log(`No existing metadata for ${library}`);
     return null;
@@ -67,40 +67,41 @@ async function main() {
     theme: {needsUpdate: false, version: null}
   };
 
-  // Check Components
+  // Check Components (heroui-native package)
   if (targetLibrary === 'all' || targetLibrary === 'components') {
-    const storedVersion = await getStoredVersion('heroui');
-    const latestVersion = specificVersion || await getLatestVersion('@heroui/react');
+    const storedVersion = await getStoredVersion('native');
+    const latestVersion = specificVersion || await getLatestVersion('heroui-native');
 
     if (latestVersion) {
       results.components.version = latestVersion;
       results.components.needsUpdate = forceExtract || !storedVersion || storedVersion !== latestVersion;
-      console.log(`HeroUI Components: stored=${storedVersion}, latest=${latestVersion}, needsUpdate=${results.components.needsUpdate}`);
+      console.log(`HeroUI Native Components: stored=${storedVersion}, latest=${latestVersion}, needsUpdate=${results.components.needsUpdate}`);
     }
   }
 
-  // Check Theme
+  // Check Theme (heroui-native package - theme follows component version)
   if (targetLibrary === 'all' || targetLibrary === 'theme') {
-    const storedVersion = await getStoredVersion('heroui-theme');
-    // Theme version follows the HeroUI React package version
-    const latestVersion = specificVersion || await getLatestVersion('@heroui/react');
+    const storedVersion = await getStoredVersion('native');
+    const latestVersion = specificVersion || await getLatestVersion('heroui-native');
 
     if (latestVersion) {
       results.theme.version = latestVersion;
       results.theme.needsUpdate = forceExtract || !storedVersion || storedVersion !== latestVersion;
-      console.log(`Theme: stored=${storedVersion}, latest=${latestVersion}, needsUpdate=${results.theme.needsUpdate}`);
+      console.log(`HeroUI Native Theme: stored=${storedVersion}, latest=${latestVersion}, needsUpdate=${results.theme.needsUpdate}`);
     }
   }
 
   // Set GitHub Actions outputs
   setOutput('components-needs-update', results.components.needsUpdate);
   setOutput('theme-needs-update', results.theme.needsUpdate);
+
   // Only output version if it's a valid string (not undefined/null/boolean)
   if (results.components.version && typeof results.components.version === 'string') {
     setOutput('components-version', results.components.version);
   } else {
     setOutput('components-version', '');
   }
+
   if (results.theme.version && typeof results.theme.version === 'string') {
     setOutput('theme-version', results.theme.version);
   } else {
