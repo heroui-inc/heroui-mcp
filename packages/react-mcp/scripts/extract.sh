@@ -3,7 +3,7 @@
 # Unified extraction script for all environments
 # Usage: extract.sh [environment] [target] [options]
 #   environment: dev | staging | production
-#   target: heroui | theme | both
+#   target: components | theme | both
 #   options: --force | --version=VERSION
 
 set -e
@@ -14,9 +14,31 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Check for help flag
+if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
+    echo "Usage: $0 [environment] [target] [options]"
+    echo ""
+    echo "Arguments:"
+    echo "  environment: dev | staging | production (default: dev)"
+    echo "  target: components | theme | both (default: components)"
+    echo "  options: --force | --version=VERSION"
+    echo ""
+    echo "Examples:"
+    echo "  $0 dev components             # Extract components to dev bucket"
+    echo "  $0 dev theme                  # Extract theme to dev bucket"
+    echo "  $0 dev both                   # Extract both to dev bucket"
+    echo "  $0 dev components --force     # Force re-extraction"
+    echo ""
+    echo "Required environment variables:"
+    echo "  CLOUDFLARE_ACCOUNT_ID"
+    echo "  R2_ACCESS_KEY_ID"
+    echo "  R2_SECRET_ACCESS_KEY"
+    exit 0
+fi
+
 # Parse arguments
 ENVIRONMENT=${1:-dev}
-TARGET=${2:-heroui}
+TARGET=${2:-components}
 shift 2 2>/dev/null || true
 OPTIONS="$@"
 
@@ -25,15 +47,15 @@ if [[ ! "$ENVIRONMENT" =~ ^(dev|staging|production)$ ]]; then
     echo -e "${RED}Error: Invalid environment '$ENVIRONMENT'${NC}"
     echo "Usage: $0 [environment] [target] [options]"
     echo "  environment: dev | staging | production"
-    echo "  target: heroui | theme | both"
+    echo "  target: components | theme | both"
     echo "  options: --force | --version=VERSION"
     exit 1
 fi
 
 # Validate target
-if [[ ! "$TARGET" =~ ^(heroui|both|all|theme|heroui-theme)$ ]]; then
+if [[ ! "$TARGET" =~ ^(components|both|all|theme)$ ]]; then
     echo -e "${RED}Error: Invalid target '$TARGET'${NC}"
-    echo "Valid targets: heroui | theme | both"
+    echo "Valid targets: components | theme | both"
     exit 1
 fi
 
@@ -116,7 +138,7 @@ EXTRACT_FLAGS="$FORCE_FLAG $VERSION_FLAG"
 
 # Execute extraction based on target
 case "$TARGET" in
-    heroui)
+    components)
         echo -e "${GREEN}Extracting HeroUI components...${NC}"
         pnpm exec tsx scripts/extract-components.ts $EXTRACT_FLAGS
         ;;
@@ -130,7 +152,7 @@ case "$TARGET" in
             exit 1
         fi
         ;;
-    theme|heroui-theme)
+    theme)
         echo -e "${GREEN}Extracting HeroUI theme system...${NC}"
         pnpm exec tsx scripts/extract-theme.ts $EXTRACT_FLAGS
         ;;

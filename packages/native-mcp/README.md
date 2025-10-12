@@ -3,8 +3,6 @@
 Access HeroUI Native component documentation directly in your AI assistant via Model Context Protocol (MCP).
 
 > **Note:** Currently supports **@heroui/native** (React Native components). For **@heroui/react** (web components), use [@heroui/react-mcp](../react-mcp).
->
-> **Release status:** This package is still in development and has not been published to npm yet. Install instructions will be updated once the first release is available.
 
 ## Features
 

@@ -40,8 +40,8 @@ export class ThemeServiceR2 {
     try {
       // Use versioned file if version is provided, otherwise use latest
       const key = version
-        ? `heroui-theme/v${version.replace(/^v/, "")}.json`
-        : "heroui-theme/latest.json";
+        ? `react/theme/v${version.replace(/^v/, "")}.json`
+        : "react/latest/theme.json";
 
       const response = await this.client.send(
         new GetObjectCommand({

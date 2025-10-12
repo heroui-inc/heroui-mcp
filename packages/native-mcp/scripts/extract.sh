@@ -106,6 +106,13 @@ if [ -n "$MISSING_VARS" ]; then
     exit 1
 fi
 
+# Check if GitHub token is set (optional but recommended)
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo -e "${YELLOW}⚠️  Warning: GITHUB_TOKEN not set. You may hit GitHub API rate limits.${NC}"
+    echo "   Consider adding GITHUB_TOKEN to your environment."
+    echo ""
+fi
+
 # Parse options to properly handle version and force flags
 FORCE_FLAG=""
 VERSION_FLAG=""
@@ -133,13 +140,13 @@ EXTRACT_FLAGS="$FORCE_FLAG $VERSION_FLAG"
 case "$TARGET" in
     components)
         echo -e "${GREEN}Extracting HeroUI Native components...${NC}"
-        npx tsx scripts/extract-components.ts $EXTRACT_FLAGS
+        pnpm exec tsx scripts/extract-components.ts $EXTRACT_FLAGS
         ;;
     both|all)
         echo -e "${GREEN}Extracting both components and theme...${NC}"
-        npx tsx scripts/extract-components.ts $EXTRACT_FLAGS
+        pnpm exec tsx scripts/extract-components.ts $EXTRACT_FLAGS
         if [ $? -eq 0 ]; then
-            npx tsx scripts/extract-theme.ts $EXTRACT_FLAGS
+            pnpm exec tsx scripts/extract-theme.ts $EXTRACT_FLAGS
         else
             echo -e "${RED}Component extraction failed, skipping theme extraction${NC}"
             exit 1
@@ -147,7 +154,7 @@ case "$TARGET" in
         ;;
     theme)
         echo -e "${GREEN}Extracting HeroUI Native theme system...${NC}"
-        npx tsx scripts/extract-theme.ts $EXTRACT_FLAGS
+        pnpm exec tsx scripts/extract-theme.ts $EXTRACT_FLAGS
         ;;
 esac
 
