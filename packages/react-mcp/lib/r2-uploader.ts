@@ -38,10 +38,10 @@ export class R2Uploader {
 
   /**
    * Upload versioned component data to R2
-   * Stores in: {library}/{version}.json (e.g., heroui/"v3.0.0-alpha.33"1.json)
+   * Stores in: react/components/{version}.json
    */
   async uploadComponentData(library: string, version: string, data: unknown): Promise<void> {
-    const key = `${library}/${version}.json`;
+    const key = `react/components/${version}.json`;
     const body = JSON.stringify(data, null, 2);
 
     try {
@@ -62,10 +62,10 @@ export class R2Uploader {
 
   /**
    * Upload latest version data
-   * Stores in: latest/{library}.json (e.g., latest/heroui-react.json)
+   * Stores in: react/latest/{type}.json
    */
-  async uploadLatestVersion(library: string, data: unknown): Promise<void> {
-    const key = `latest/${library}.json`;
+  async uploadLatestVersion(type: string, data: unknown): Promise<void> {
+    const key = `react/latest/${type}.json`;
     const body = JSON.stringify(data, null, 2);
 
     try {
@@ -86,10 +86,10 @@ export class R2Uploader {
 
   /**
    * Update version metadata
-   * Stores in: versions.json (at root level)
+   * Stores in: react/versions.json
    */
   async updateVersionMetadata(metadata: unknown): Promise<void> {
-    const key = "versions.json";
+    const key = "react/versions.json";
     const body = JSON.stringify(metadata, null, 2);
 
     try {
@@ -110,10 +110,10 @@ export class R2Uploader {
 
   /**
    * Get current version metadata
-   * Reads from: versions.json (at root level)
+   * Reads from: react/versions.json
    */
   async getVersionMetadata(): Promise<unknown> {
-    const key = "versions.json";
+    const key = "react/versions.json";
 
     try {
       const response = await this.client.send(
@@ -164,7 +164,7 @@ export class R2Uploader {
    * List all versions for a library
    */
   async listVersions(library: string): Promise<string[]> {
-    const prefix = `${library}/`;
+    const prefix = `react/${library}/`;
 
     try {
       const response = await this.client.send(
@@ -230,7 +230,7 @@ export class R2Uploader {
    * Check if a version exists
    */
   async versionExists(library: string, version: string): Promise<boolean> {
-    const key = `${library}/${version}.json`;
+    const key = `react/${library}/${version}.json`;
 
     try {
       await this.client.send(

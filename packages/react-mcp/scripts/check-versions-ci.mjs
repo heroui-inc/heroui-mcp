@@ -33,7 +33,7 @@ async function getStoredVersion(library) {
     const response = await client.send(
       new GetObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME,
-        Key: "metadata/versions.json",
+        Key: "react/versions.json",
       })
     );
     const text = await response.Body.transformToString();

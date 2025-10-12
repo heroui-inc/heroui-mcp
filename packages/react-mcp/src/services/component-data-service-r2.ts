@@ -149,7 +149,9 @@ export class ComponentDataServiceR2 {
     try {
       const versionToUse = version || "latest";
       const key =
-        versionToUse === "latest" ? `latest/${library}.json` : `${library}/${versionToUse}.json`;
+        versionToUse === "latest"
+          ? `react/latest/components.json`
+          : `react/components/${versionToUse}.json`;
       const data = await this.getFromR2<ComponentDataset>(key);
 
       if (!data) {
@@ -174,7 +176,9 @@ export class ComponentDataServiceR2 {
     try {
       const versionToUse = version || "latest";
       const key =
-        versionToUse === "latest" ? `latest/${library}.json` : `${library}/${versionToUse}.json`;
+        versionToUse === "latest"
+          ? `react/latest/components.json`
+          : `react/components/${versionToUse}.json`;
       const dataset = await this.getFromR2<ComponentDataset>(key);
 
       if (!dataset) {
@@ -221,7 +225,9 @@ export class ComponentDataServiceR2 {
     try {
       const versionToUse = version || "latest";
       const key =
-        versionToUse === "latest" ? `latest/${library}.json` : `${library}/${versionToUse}.json`;
+        versionToUse === "latest"
+          ? `react/latest/components.json`
+          : `react/components/${versionToUse}.json`;
       const data = await this.getFromR2<ComponentDataset>(key);
 
       return data;
@@ -237,7 +243,7 @@ export class ComponentDataServiceR2 {
    */
   async getVersionInfo(): Promise<Record<string, VersionInfo>> {
     try {
-      const data = await this.getFromR2<Record<string, VersionInfo>>("versions.json");
+      const data = await this.getFromR2<Record<string, VersionInfo>>("react/versions.json");
 
       return data || {};
     } catch (error) {
@@ -267,10 +273,10 @@ export class ComponentDataServiceR2 {
    */
   async listVersions(library: string): Promise<string[]> {
     try {
-      // List all objects in the library directory to get actual versions
+      // List all objects in the react/components directory to get actual versions
       const command = new ListObjectsV2Command({
         Bucket: this.bucketName,
-        Prefix: `${library}/`,
+        Prefix: `react/components/`,
         Delimiter: "/",
       });
 
@@ -292,8 +298,8 @@ export class ComponentDataServiceR2 {
       const versions = response.Contents.map((obj) => obj.Key || "")
         .filter((key) => key.endsWith(".json"))
         .map((key) => {
-          // Extract version from path like "heroui/"v3.0.0-alpha.33"1.json"
-          const match = key.match(new RegExp(`^${library}/(.+)\\.json$`));
+          // Extract version from path like "react/components/v3.0.0-alpha.33.json"
+          const match = key.match(/^react\/components\/(.+)\.json$/);
 
           return match ? match[1] : null;
         })
