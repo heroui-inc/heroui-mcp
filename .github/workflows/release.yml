@@ -100,7 +100,11 @@ jobs:
       - name: Publish to npm (native-mcp)
         if: needs.determine-package.outputs.package == 'native-mcp'
         working-directory: packages/${{ needs.determine-package.outputs.package }}
-        run: npm publish --access public
+        run: |
+          npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          npm publish --access public
+        env:
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: Release Summary
         run: |
