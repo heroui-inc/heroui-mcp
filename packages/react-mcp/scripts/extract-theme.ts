@@ -28,7 +28,7 @@ Environment variables:
   CLOUDFLARE_ACCOUNT_ID     Cloudflare account ID (required)
   R2_ACCESS_KEY_ID          R2 access key ID (required)
   R2_SECRET_ACCESS_KEY      R2 secret access key (required)
-  R2_BUCKET_NAME            R2 bucket name (default: heroui-mcp-data)
+  R2_BUCKET_NAME            R2 bucket name (required)
 `);
     process.exit(0);
   }

@@ -20,7 +20,7 @@ if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
     echo ""
     echo "Arguments:"
     echo "  environment: dev | staging | production (default: dev)"
-    echo "  target: components | theme | both (default: components)"
+    echo "  target: components | theme | both (default: both)"
     echo "  options: --force | --version=VERSION"
     echo ""
     echo "Examples:"
@@ -38,7 +38,7 @@ fi
 
 # Parse arguments
 ENVIRONMENT=${1:-dev}
-TARGET=${2:-components}
+TARGET=${2:-both}
 shift 2 2>/dev/null || true
 OPTIONS="$@"
 

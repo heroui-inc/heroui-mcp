@@ -22,7 +22,7 @@ export abstract class BaseExtractor {
       accountId: process.env.CLOUDFLARE_ACCOUNT_ID!,
       accessKeyId: process.env.R2_ACCESS_KEY_ID!,
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-      bucketName: process.env.R2_BUCKET_NAME || "heroui-mcp-data",
+      bucketName: process.env.R2_BUCKET_NAME!,
     });
   }
 
