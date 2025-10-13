@@ -9,9 +9,8 @@ on:
       - 'packages/native-mcp/scripts/**'
       - 'packages/native-mcp/src/**'
       - '.github/workflows/extraction-pipeline-native.yml'
-  schedule:
-    # Run daily at 3 AM UTC
-    - cron: "0 3 * * *"
+  repository_dispatch:
+    types: [native-version-bump]
   workflow_dispatch:
     inputs:
       library:
