@@ -19,6 +19,10 @@ export class ThemeExtractor extends BaseExtractor {
     return "heroui-theme";
   }
 
+  getStorageType(): "components" | "theme" {
+    return "theme";
+  }
+
   async extract(): Promise<{data: ThemeSystem}> {
     console.log("🎨 Extracting HeroUI theme system...");
 

@@ -56,6 +56,11 @@ export abstract class BaseExtractor {
   abstract getStorageKey(): string;
 
   /**
+   * Get the storage type for R2 uploads
+   */
+  abstract getStorageType(): "components" | "theme";
+
+  /**
    * Run the extraction and upload process
    */
   async run(force: boolean = false, specificVersion?: string): Promise<void> {
@@ -69,12 +74,12 @@ export abstract class BaseExtractor {
 
       console.log(`📍 Target version: ${versionWithPrefix}`);
 
-      const key = this.getStorageKey();
+      const storageType = this.getStorageType();
 
       // Check if version exists in R2 (unless forced)
       if (!force) {
         console.log("🔍 Checking if version exists in R2...");
-        const exists = await this.r2.versionExists(key, versionWithPrefix);
+        const exists = await this.r2.versionExists(storageType, versionWithPrefix);
         if (exists) {
           console.log(
             `ℹ️  Version ${versionWithPrefix} already exists in R2. Use --force to overwrite.`,
@@ -87,7 +92,7 @@ export abstract class BaseExtractor {
         console.log("⚠️  Force flag detected, skipping version check");
       }
 
-      // Extract data (only if version doesn't exist or force is used)
+      // Extract data from GitHub
       console.log("🔄 Starting extraction from GitHub...");
       const {data} = await this.extract();
 
@@ -97,32 +102,39 @@ export abstract class BaseExtractor {
       }
 
       // Log extraction results
-      if (key === "heroui-react" && typeof data === "object") {
+      if (storageType === "components" && typeof data === "object") {
         console.log(
           `📦 Extracted ${Object.keys(data).length} components for version ${versionWithPrefix}`,
         );
-      } else if (key === "heroui-theme") {
+      } else if (storageType === "theme") {
         console.log(`📦 Extracted theme system for version ${versionWithPrefix}`);
       }
 
       // Upload versioned data
-      await this.r2.uploadComponentData(key, versionWithPrefix, data);
+      if (storageType === "components") {
+        await this.r2.uploadComponentData(versionWithPrefix, data);
+      } else {
+        await this.r2.uploadThemeData(versionWithPrefix, data);
+      }
 
       // Upload as latest
-      await this.r2.uploadLatestVersion(key, data);
+      await this.r2.uploadLatestVersion(storageType, data);
 
       // Update metadata
       const metadata = ((await this.r2.getVersionMetadata()) as any) || {};
       const extractDuration = Date.now() - startTime;
+      const storageKey = this.getStorageKey();
 
-      metadata[key] = {
+      metadata[storageKey] = {
         current: versionWithPrefix,
         lastExtracted: new Date().toISOString(),
         extractDuration,
       };
       await this.r2.updateVersionMetadata(metadata);
 
-      console.log(`✅ Successfully uploaded ${key} data to R2 (version: ${versionWithPrefix})`);
+      console.log(
+        `✅ Successfully uploaded ${storageKey} data to R2 (version: ${versionWithPrefix})`,
+      );
       console.log(`⏱️  Extraction took ${(extractDuration / 1000).toFixed(2)} seconds`);
     } catch (error) {
       console.error("❌ Extraction failed:", error);

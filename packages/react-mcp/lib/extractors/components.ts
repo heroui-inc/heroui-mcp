@@ -77,6 +77,10 @@ export class ComponentExtractor extends BaseExtractor {
     return "heroui-react";
   }
 
+  getStorageType(): "components" | "theme" {
+    return "components";
+  }
+
   async extract(): Promise<{data: ComponentDataset}> {
     console.log("🔍 Extracting heroui-react from GitHub...");
     console.log("📍 Repository: heroui-inc/heroui@v3");

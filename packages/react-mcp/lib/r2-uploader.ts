@@ -37,11 +37,35 @@ export class R2Uploader {
   }
 
   /**
-   * Upload versioned component data to R2
+   * Upload component data to R2
    * Stores in: react/components/{version}.json
    */
-  async uploadComponentData(library: string, version: string, data: unknown): Promise<void> {
+  async uploadComponentData(version: string, data: unknown): Promise<void> {
     const key = `react/components/${version}.json`;
+    const body = JSON.stringify(data, null, 2);
+
+    try {
+      await this.client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+          Body: body,
+          ContentType: "application/json",
+        }),
+      );
+      console.log(`✅ Uploaded ${key} to R2`);
+    } catch (error) {
+      console.error(`❌ Failed to upload ${key}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Upload theme data to R2
+   * Stores in: react/theme/{version}.json
+   */
+  async uploadThemeData(version: string, data: unknown): Promise<void> {
+    const key = `react/theme/${version}.json`;
     const body = JSON.stringify(data, null, 2);
 
     try {
@@ -64,7 +88,7 @@ export class R2Uploader {
    * Upload latest version data
    * Stores in: react/latest/{type}.json
    */
-  async uploadLatestVersion(type: string, data: unknown): Promise<void> {
+  async uploadLatestVersion(type: "components" | "theme", data: unknown): Promise<void> {
     const key = `react/latest/${type}.json`;
     const body = JSON.stringify(data, null, 2);
 
@@ -229,8 +253,8 @@ export class R2Uploader {
   /**
    * Check if a version exists
    */
-  async versionExists(library: string, version: string): Promise<boolean> {
-    const key = `react/${library}/${version}.json`;
+  async versionExists(type: "components" | "theme", version: string): Promise<boolean> {
+    const key = `react/${type}/${version}.json`;
 
     try {
       await this.client.send(
