@@ -52,6 +52,11 @@ Study the examples carefully - they show the correct React Native patterns.`),
             content?: string;
             error?: string;
           }>;
+          dependencies?: Array<{
+            name: string;
+            path: string;
+            content: string;
+          }>;
         }>("/components/examples", config.apiBaseUrl, {
           method: "POST",
           body: JSON.stringify({examples}),
@@ -59,6 +64,7 @@ Study the examples carefully - they show the correct React Native patterns.`),
 
         let responseText = "";
 
+        // Render main examples
         response.results.forEach((result, index) => {
           if (index > 0) responseText += "\n\n---\n\n";
 
@@ -69,6 +75,18 @@ Study the examples carefully - they show the correct React Native patterns.`),
             responseText += `// ${result.example} example\n${result.content}`;
           }
         });
+
+        // Add dependencies section if provided by API
+        if (response.dependencies && response.dependencies.length > 0) {
+          responseText += "\n\n---\n\n";
+          responseText += "# Shared Dependencies\n\n";
+          responseText += "The following components are imported by the examples above:\n\n";
+
+          response.dependencies.forEach((dep, index) => {
+            if (index > 0) responseText += "\n\n---\n\n";
+            responseText += `// ${dep.name} (${dep.path})\n${dep.content}`;
+          });
+        }
 
         return {
           content: [

@@ -298,14 +298,27 @@ components.post("/examples", async (c) => {
     });
 
     const latestVersion = (await getDataService(c.env)).getLatestVersion();
-    const baseUrl =
-      "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha/example/src/app/(home)/components";
+    const baseUrl = "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha";
+    const examplesPath = `${baseUrl}/example/src/app/(home)/components`;
+
+    // Helper function to simplify import paths in content
+    const simplifyImportPaths = (content: string): string => {
+      const importRegex = /import\s+((?:{[^}]+}|\*\s+as\s+\w+|\w+))\s+from\s+['"](\.[^'"]+)['"]/g;
+
+      return content.replace(importRegex, (match, importClause, importPath) => {
+        const segments = importPath.split("/").filter(Boolean);
+        const lastSegment = segments[segments.length - 1];
+        const fileName = lastSegment.replace(/^\.+/, "");
+
+        return `import ${importClause} from './${fileName}'`;
+      });
+    };
 
     // Fetch example files from GitHub
     const exampleResults = await Promise.all(
       exampleNames.map(async (exampleName) => {
         try {
-          const url = `${baseUrl}/${exampleName}.tsx`;
+          const url = `${examplesPath}/${exampleName}.tsx`;
           const response = await fetch(url);
 
           if (!response.ok) {
@@ -316,10 +329,11 @@ components.post("/examples", async (c) => {
           }
 
           const content = await response.text();
+          const simplifiedContent = simplifyImportPaths(content);
 
           return {
             example: exampleName,
-            content,
+            content: simplifiedContent,
           };
         } catch (error) {
           return {
@@ -329,6 +343,18 @@ components.post("/examples", async (c) => {
         }
       }),
     );
+
+    // Collect dependencies from the examples
+    let dependencies: Array<{name: string; path: string; content: string}> = [];
+
+    try {
+      const {collectExampleDependencies} = await import("../../lib/dependency-resolver");
+
+      dependencies = await collectExampleDependencies(exampleNames, baseUrl);
+    } catch (depError) {
+      console.warn("Failed to collect dependencies:", depError);
+      // Continue without dependencies
+    }
 
     const responseTime = Date.now() - startTime;
 
@@ -344,6 +370,7 @@ components.post("/examples", async (c) => {
 
     return c.json({
       results: exampleResults,
+      dependencies,
       version: latestVersion || "unknown",
     });
   } catch (error) {
