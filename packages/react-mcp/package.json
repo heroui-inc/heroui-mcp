@@ -81,7 +81,6 @@
     "@mastra/loggers": "^0.10.13",
     "@mastra/mcp": "^0.13.1",
     "@mastra/memory": "^0.15.3",
-    "@modelcontextprotocol/inspector": "^0.16.8",
     "@types/node": "^22.18.6",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
