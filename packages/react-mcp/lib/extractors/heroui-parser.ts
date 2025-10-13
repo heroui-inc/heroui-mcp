@@ -282,7 +282,7 @@ export class HeroUIParser implements ComponentParser {
             const subComponentName = parts[1];
             if (!result.subComponents) result.subComponents = {};
             result.subComponents[subComponentName] = {
-              name: subComponentName,
+              name: fullComponentName,
               props: {},
             };
             currentComponent = subComponentName;

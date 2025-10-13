@@ -182,6 +182,29 @@ components.post("/props", async (c) => {
         propsText += "No props available for this component.\n";
       }
 
+      // Add sub-components if available
+      if (result.data.subComponents && Object.keys(result.data.subComponents).length > 0) {
+        propsText += "\n## Sub-components\n\n";
+        Object.values(result.data.subComponents).forEach((sub: any) => {
+          propsText += `### ${sub.name}\n\n`;
+          if (sub.props && Object.keys(sub.props).length > 0) {
+            Object.entries(sub.props).forEach(([propName, prop]: [string, any]) => {
+              propsText += `- **${propName}**: \`${prop.type}\``;
+              if (prop.default) {
+                propsText += ` = \`${prop.default}\``;
+              }
+              if (prop.description) {
+                propsText += ` - ${prop.description}`;
+              }
+              propsText += "\n";
+            });
+          } else {
+            propsText += "No props documented for this sub-component.\n";
+          }
+          propsText += "\n";
+        });
+      }
+
       return {
         component: result.component,
         props: propsText,

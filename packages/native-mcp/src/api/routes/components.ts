@@ -207,7 +207,22 @@ components.post("/props", async (c) => {
       if (componentData.subComponents && Object.keys(componentData.subComponents).length > 0) {
         propsText += "\n## Sub-components\n\n";
         Object.values(componentData.subComponents).forEach((sub: any) => {
-          propsText += `- **${sub.name}**: ${sub.description || "Sub-component"}\n`;
+          propsText += `### ${sub.name}\n\n`;
+          if (sub.props && Object.keys(sub.props).length > 0) {
+            Object.entries(sub.props).forEach(([propName, prop]: [string, any]) => {
+              propsText += `- **${propName}**: \`${prop.type}\``;
+              if (prop.default) {
+                propsText += ` = \`${prop.default}\``;
+              }
+              if (prop.description) {
+                propsText += ` - ${prop.description}`;
+              }
+              propsText += "\n";
+            });
+          } else {
+            propsText += "No props documented for this sub-component.\n";
+          }
+          propsText += "\n";
         });
       }
 
