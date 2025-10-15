@@ -15,12 +15,17 @@ health.get("/", (c) => {
     endpoints: {
       "/": "API information",
       "/health": "Health check",
-      "/components": "List HeroUI components (latest version)",
-      "/components/:component": "Get component details (latest version)",
-      "/components/:component/props": "Get component props (latest version)",
-      "/components/:component/examples": "Get component examples (latest version)",
-      "/components/:component/source": "Get component source code (latest version)",
-      "/components/:component/styles": "Get component CSS styles (latest version)",
+      "GET /components": "List HeroUI components (latest version)",
+      "POST /components":
+        "Get component details for multiple components (body: {components: string[]})",
+      "POST /components/props":
+        "Get component props for multiple components (body: {components: string[]})",
+      "POST /components/examples":
+        "Get component examples for multiple components (body: {components: string[]})",
+      "POST /components/source":
+        "Get component source code for multiple components (body: {components: string[]})",
+      "POST /components/styles":
+        "Get component CSS styles for multiple components (body: {components: string[]})",
       "/themes": "Get complete theme system (query: version)",
       "/themes/variables": "Get theme variables (query: theme, mode, version)",
       "/themes/colors": "Get theme colors (query: theme, mode, version)",

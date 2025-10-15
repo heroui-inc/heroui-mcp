@@ -1,3 +1,27 @@
+# [1.0.0-alpha.22](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.20...v1.0.0-alpha.22) (2025-10-15)
+
+
+### Bug Fixes
+
+* add subcomponents to get props tools ([b7ef230](https://github.com/heroui-inc/heroui-mcp/commit/b7ef230ff31a93a4c70538c4f4d4f0c057c9a8cb))
+* extract script tsx ([5930d07](https://github.com/heroui-inc/heroui-mcp/commit/5930d07c56b4cb3e84fd9bd670bc3e77c0daae76))
+* github workflows for both react and native (dry run) ([45bac0f](https://github.com/heroui-inc/heroui-mcp/commit/45bac0fdc8bfba3e8bb60493579770bf4426d9cf))
+* minor dev dependency ([7223fff](https://github.com/heroui-inc/heroui-mcp/commit/7223fff5517c4fd4a7b25d5f5bb777fe67436dca))
+* move react-mcp r2 data to own folder ([a117f16](https://github.com/heroui-inc/heroui-mcp/commit/a117f1612e7683c197435b3ab1546d033e1e39ec))
+* native extraction scripts + minor adjustments ([49cb57d](https://github.com/heroui-inc/heroui-mcp/commit/49cb57dde4a6cd13052df992bc2385f5d4548137))
+* npm pkg fix ([0f9e9b4](https://github.com/heroui-inc/heroui-mcp/commit/0f9e9b4ac20598d6ba2581d6e3c53bb4949a458d))
+* react-mcp r2 upload path ([e282b7d](https://github.com/heroui-inc/heroui-mcp/commit/e282b7d5d2a2d6ee5a2d9d6923946b0d5ec64a57))
+* update .md files and scripts ([b056abb](https://github.com/heroui-inc/heroui-mcp/commit/b056abb57ee6e9ae852b74e6497ef797000e941b))
+* update extraction script default env values ([3d22276](https://github.com/heroui-inc/heroui-mcp/commit/3d222768b086207e88440fba364ec479c00e8075))
+* update release commit with package name ([f0b99c2](https://github.com/heroui-inc/heroui-mcp/commit/f0b99c278f1e1aa6d1a5951a50ba9be68ed51ee2))
+
+
+### Features
+
+* native mcp init ([cd3b42e](https://github.com/heroui-inc/heroui-mcp/commit/cd3b42ec62aad9d3567c9a110c1886052c750e62))
+
+
+
 # [1.0.0-alpha.21](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.20...v1.0.0-alpha.21) (2025-10-13)
 
 
