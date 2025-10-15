@@ -1,10 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {Env} from "../types";
 
+import {zValidator} from "@hono/zod-validator";
 import {Hono} from "hono";
+import {z} from "zod";
 
 import {REACT_LIBRARY_NAME} from "../contants";
 import {getAnalytics, getDataService, initAnalytics} from "../services";
+
+/**
+ * Zod schema for validating components request body
+ */
+const ComponentsRequestSchema = z.object({
+  components: z
+    .array(z.string().trim().min(1, "Component name cannot be empty"))
+    .min(1, "Components array cannot be empty")
+    .refine(
+      (components) => components.every((c) => c.trim().length > 0),
+      "All component names must be non-empty strings",
+    ),
+});
 
 const components = new Hono<{Bindings: Env}>();
 
@@ -69,10 +84,9 @@ components.get("/", async (c) => {
 });
 
 // Get component details (multiple components)
-components.post("/", async (c) => {
+components.post("/", zValidator("json", ComponentsRequestSchema), async (c) => {
   const startTime = Date.now();
-  const body = await c.req.json();
-  const components = body.components as string[];
+  const {components: componentNames} = c.req.valid("json");
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
@@ -80,12 +94,12 @@ components.post("/", async (c) => {
   analytics?.trackMcpRequest("api-user", {
     method: "POST",
     toolName: "get-components",
-    requestSize: components.length,
+    requestSize: componentNames.length,
   });
 
   try {
     const service = await getDataService(c.env);
-    const results = await service.getComponents(LIBRARY_NAME, components);
+    const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
     const responseTime = Date.now() - startTime;
@@ -132,10 +146,9 @@ components.post("/", async (c) => {
 });
 
 // Get component props (multiple components)
-components.post("/props", async (c) => {
+components.post("/props", zValidator("json", ComponentsRequestSchema), async (c) => {
   const startTime = Date.now();
-  const body = await c.req.json();
-  const componentNames = body.components as string[];
+  const {components: componentNames} = c.req.valid("json");
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
@@ -254,10 +267,9 @@ components.post("/props", async (c) => {
 });
 
 // Get component examples (multiple components)
-components.post("/examples", async (c) => {
+components.post("/examples", zValidator("json", ComponentsRequestSchema), async (c) => {
   const startTime = Date.now();
-  const body = await c.req.json();
-  const componentNames = body.components as string[];
+  const {components: componentNames} = c.req.valid("json");
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
@@ -354,9 +366,8 @@ components.post("/examples", async (c) => {
 });
 
 // Get component source code (multiple components)
-components.post("/source", async (c) => {
-  const body = await c.req.json();
-  const componentNames = body.components as string[];
+components.post("/source", zValidator("json", ComponentsRequestSchema), async (c) => {
+  const {components: componentNames} = c.req.valid("json");
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
@@ -435,9 +446,8 @@ components.post("/source", async (c) => {
 });
 
 // Get component styles (multiple components)
-components.post("/styles", async (c) => {
-  const body = await c.req.json();
-  const componentNames = body.components as string[];
+components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c) => {
+  const {components: componentNames} = c.req.valid("json");
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
