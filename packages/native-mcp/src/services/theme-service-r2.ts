@@ -111,14 +111,29 @@ export class ThemeServiceR2 {
   }
 
   /**
-   * Get the latest version
+   * Get the latest version from R2 versions.json
    */
-  async getLatestVersion(): Promise<string | null> {
-    const themeSystem = await this.getThemeSystem();
-    if (!themeSystem) {
+  async getLatestVersion(packageName: string = "heroui-native-theme"): Promise<string | null> {
+    try {
+      const response = await this.client.send(
+        new GetObjectCommand({
+          Bucket: this.bucketName,
+          Key: "native/versions.json",
+        }),
+      );
+
+      if (response.Body) {
+        const bodyString = await response.Body.transformToString();
+        const versionInfo = JSON.parse(bodyString);
+
+        return versionInfo?.[packageName]?.current || null;
+      }
+
+      return null;
+    } catch (error) {
+      console.error(`Error fetching latest version for ${packageName}:`, error);
+
       return null;
     }
-
-    return themeSystem.version;
   }
 }
