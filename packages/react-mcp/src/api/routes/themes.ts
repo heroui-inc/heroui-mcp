@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {Env} from "../types";
 
 import {Hono} from "hono";
