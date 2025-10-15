@@ -410,7 +410,10 @@ export class ComponentDataServiceR2 {
   /**
    * Check version status
    */
-  async checkVersion(currentVersion?: string, packageName: string = "heroui-native"): Promise<{message: string}> {
+  async checkVersion(
+    currentVersion?: string,
+    packageName: string = "heroui-native",
+  ): Promise<{message: string}> {
     try {
       const versionInfo = await this.getVersionInfo();
       const packageVersion = versionInfo[packageName];
