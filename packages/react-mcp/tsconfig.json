@@ -6,7 +6,7 @@
     "strict": true,
     "skipLibCheck": true,
     "lib": ["ESNext"],
-    "types": ["@cloudflare/workers-types", "node"],
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-pool-workers", "node"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "baseUrl": ".",
@@ -19,6 +19,6 @@
     "resolveJsonModule": true,
     "allowJs": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts", "lib/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts", "lib/**/*.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist", "mastra", ".mastra"]
 }
