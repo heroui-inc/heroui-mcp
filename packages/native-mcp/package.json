@@ -60,7 +60,7 @@
     "clean": "rm -rf dist dist-api",
     "prepublishOnly": "pnpm build",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
-    "release": "bumpp --execute='pnpm run changelog' --all --tag='native-mcp-v%s'",
+    "release": "bumpp --execute='pnpm run changelog' --all --tag='native-mcp-v%s' --commit='chore(native-mcp): release v%s'",
     "release:check": "pnpm run lint && pnpm run typecheck && pnpm run build"
   },
   "dependencies": {

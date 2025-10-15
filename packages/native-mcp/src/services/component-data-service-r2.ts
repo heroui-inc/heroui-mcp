@@ -276,28 +276,28 @@ export class ComponentDataServiceR2 {
   /**
    * Get version information
    */
-  async getVersionInfo(): Promise<VersionInfo | null> {
+  async getVersionInfo(): Promise<Record<string, VersionInfo>> {
     try {
-      const data = await this.getFromR2<VersionInfo>("native/versions.json");
+      const data = await this.getFromR2<Record<string, VersionInfo>>("native/versions.json");
 
-      return data || null;
+      return data || {};
     } catch (error) {
       console.error("Error getting version info:", error);
 
-      return null;
+      return {};
     }
   }
 
   /**
-   * Get the latest version
+   * Get the latest version for a specific package
    */
-  async getLatestVersion(): Promise<string | null> {
+  async getLatestVersion(packageName: string = "heroui-native"): Promise<string | null> {
     try {
       const versionInfo = await this.getVersionInfo();
 
-      return versionInfo?.current || null;
+      return versionInfo[packageName]?.current || null;
     } catch (error) {
-      console.error(`Error getting latest version:`, error);
+      console.error(`Error getting latest version for ${packageName}:`, error);
 
       return null;
     }
@@ -320,9 +320,10 @@ export class ComponentDataServiceR2 {
       if (!response.Contents || response.Contents.length === 0) {
         // Fallback to metadata if no version files found
         const versionInfo = await this.getVersionInfo();
+        const nativeVersion = versionInfo["heroui-native"];
 
-        if (versionInfo && versionInfo.current) {
-          return [versionInfo.current, "latest"];
+        if (nativeVersion?.current) {
+          return [nativeVersion.current, "latest"];
         }
 
         return ["latest"];
@@ -409,15 +410,16 @@ export class ComponentDataServiceR2 {
   /**
    * Check version status
    */
-  async checkVersion(currentVersion?: string): Promise<{message: string}> {
+  async checkVersion(currentVersion?: string, packageName: string = "heroui-native"): Promise<{message: string}> {
     try {
       const versionInfo = await this.getVersionInfo();
+      const packageVersion = versionInfo[packageName];
 
-      if (!versionInfo) {
-        return {message: `Unable to get version information`};
+      if (!packageVersion) {
+        return {message: `Unable to get version information for ${packageName}`};
       }
 
-      const latestVersion = versionInfo.current;
+      const latestVersion = packageVersion.current;
 
       if (!currentVersion) {
         return {message: `Latest version: ${latestVersion}`};

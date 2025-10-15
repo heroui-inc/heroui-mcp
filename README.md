@@ -7,7 +7,7 @@ Model Context Protocol (MCP) servers for the HeroUI design system. Access HeroUI
 | Package | Description | Status | Docs |
 | --- | --- | --- | --- |
 | `@heroui/react-mcp` | MCP server for web (`@heroui/react`) component docs, examples, and theme data | ✅ Available on npm | [README](packages/react-mcp/README.md) |
-| `@heroui/native-mcp` | MCP server for React Native (`@heroui/native`) component docs and tooling | 🚧 In development | [README](packages/native-mcp/README.md) |
+| `@heroui/native-mcp` | MCP server for React Native (`@heroui/native`) component docs and tooling | ✅ Available on npm | [README](packages/native-mcp/README.md) |
 
 ## Quick Start
 
@@ -23,7 +23,6 @@ npx -y @heroui/react-mcp@latest
 
 **For React Native:**
 ```bash
-# Coming soon
 npx -y @heroui/native-mcp@latest
 ```
 
