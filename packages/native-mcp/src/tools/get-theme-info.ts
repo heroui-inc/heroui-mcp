@@ -89,11 +89,12 @@ Returns color tokens for the specified mode(s).`,
         }
 
         if (mode === "dark" || mode === "both") {
-          if (response.dark?.colors) {
+          if (response.dark?.colors || response.colors) {
+            const colors = response.dark?.colors || response.colors;
             responseText += `## Dark Mode Colors\n\n`;
 
             // Group by category
-            const grouped = groupByCategory(response.dark.colors);
+            const grouped = groupByCategory(colors);
             for (const [category, tokens] of Object.entries(grouped)) {
               responseText += `### ${capitalize(category)}\n`;
               tokens.forEach((c: any) => {

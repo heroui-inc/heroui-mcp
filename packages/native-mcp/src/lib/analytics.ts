@@ -91,14 +91,20 @@ class Analytics {
       project: "react",
     };
 
-    // Always log in non-production for debugging
-    if (this.environment !== "production") {
+    // Always log in non-production for debugging (but not in tests)
+    const isTestMode = process.env.NODE_ENV === "test" || process.env.VITEST === "true";
+    if (this.environment !== "production" && !isTestMode) {
       console.log("[Analytics Event]", {
         event,
         distinctId: distinctId || "anonymous",
         properties: enrichedProperties,
       });
 
+      return;
+    }
+
+    // Skip tracking entirely in test mode
+    if (isTestMode) {
       return;
     }
 
