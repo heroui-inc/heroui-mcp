@@ -4,10 +4,38 @@
 
 import type {Env} from "../types";
 
+import {zValidator} from "@hono/zod-validator";
 import {Hono} from "hono";
+import {z} from "zod";
 
 import {CACHE_CONTROL} from "../constants";
 import {getAnalytics, getDataService, initAnalytics} from "../services";
+
+/**
+ * Zod schema for validating components request body
+ */
+const ComponentsRequestSchema = z.object({
+  components: z
+    .array(z.string().trim().min(1, "Component name cannot be empty"))
+    .min(1, "Components array cannot be empty")
+    .refine(
+      (components) => components.every((c) => c.trim().length > 0),
+      "All component names must be non-empty strings",
+    ),
+});
+
+/**
+ * Zod schema for validating examples request body
+ */
+const ExamplesRequestSchema = z.object({
+  examples: z
+    .array(z.string().trim().min(1, "Example name cannot be empty"))
+    .min(1, "Examples array cannot be empty")
+    .refine(
+      (examples) => examples.every((e) => e.trim().length > 0),
+      "All example names must be non-empty strings",
+    ),
+});
 
 const components = new Hono<{Bindings: Env}>();
 
@@ -72,10 +100,9 @@ components.get("/", async (c) => {
 });
 
 // Get component details (bulk)
-components.post("/", async (c) => {
+components.post("/", zValidator("json", ComponentsRequestSchema), async (c) => {
   const startTime = Date.now();
-  const body = await c.req.json();
-  const componentNames = body.components as string[];
+  const {components: componentNames} = c.req.valid("json");
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
@@ -87,16 +114,6 @@ components.post("/", async (c) => {
   });
 
   try {
-    if (!componentNames || !Array.isArray(componentNames)) {
-      return c.json(
-        {
-          error: "Invalid request",
-          details: "components array is required",
-        },
-        400,
-      );
-    }
-
     const service = await getDataService(c.env);
     const results = await service.getComponents(componentNames);
     const latestVersion = await service.getLatestVersion();
@@ -139,32 +156,20 @@ components.post("/", async (c) => {
 });
 
 // Get component props (bulk)
-components.post("/props", async (c) => {
+components.post("/props", zValidator("json", ComponentsRequestSchema), async (c) => {
   const startTime = Date.now();
+  const {components: componentNames} = c.req.valid("json");
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
+  analytics?.trackMcpRequest("api-user", {
+    method: "POST",
+    toolName: "get-component-props",
+    requestSize: componentNames.length,
+  });
+
   try {
-    const body = await c.req.json();
-    const componentNames = body.components as string[];
-
-    if (!componentNames || !Array.isArray(componentNames)) {
-      return c.json(
-        {
-          error: "Invalid request",
-          details: "components array is required",
-        },
-        400,
-      );
-    }
-
-    analytics?.trackMcpRequest("api-user", {
-      method: "POST",
-      toolName: "get-component-props",
-      requestSize: componentNames.length,
-    });
-
     const service = await getDataService(c.env);
     const results = await service.getComponents(componentNames);
     const latestVersion = await service.getLatestVersion();
@@ -271,32 +276,20 @@ components.post("/props", async (c) => {
 });
 
 // Get component examples (bulk)
-components.post("/examples", async (c) => {
+components.post("/examples", zValidator("json", ExamplesRequestSchema), async (c) => {
   const startTime = Date.now();
+  const {examples: exampleNames} = c.req.valid("json");
 
   initAnalytics(c.env);
   const analytics = getAnalytics();
 
+  analytics?.trackMcpRequest("api-user", {
+    method: "POST",
+    toolName: "get-component-examples",
+    requestSize: exampleNames.length,
+  });
+
   try {
-    const body = await c.req.json();
-    const exampleNames = body.examples as string[];
-
-    if (!exampleNames || !Array.isArray(exampleNames)) {
-      return c.json(
-        {
-          error: "Invalid request",
-          details: "examples array is required",
-        },
-        400,
-      );
-    }
-
-    analytics?.trackMcpRequest("api-user", {
-      method: "POST",
-      toolName: "get-component-examples",
-      requestSize: exampleNames.length,
-    });
-
     const latestVersion = (await getDataService(c.env)).getLatestVersion();
     const baseUrl = "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha";
     const examplesPath = `${baseUrl}/example/src/app/(home)/components`;
