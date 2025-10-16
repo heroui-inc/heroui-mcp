@@ -40,6 +40,9 @@
     "dev:stdio": "NODE_ENV=development tsx --watch src/stdio.ts",
     "dev:mastra": "mastra dev --dir ./mastra",
     "dev": "npm run dev:api",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "test:api": "node test-api.mjs",
     "test:api:staging": "node test-api.mjs --url https://staging-native-mcp-api.heroui.com",
     "test:api:production": "node test-api.mjs --url https://native-mcp-api.heroui.com",
@@ -72,6 +75,7 @@
     "zod": "^3.24.4"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.9.13",
     "@cloudflare/workers-types": "^4.20250920.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.36.0",
@@ -98,6 +102,7 @@
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.44.1",
+    "vitest": "^3.2.4",
     "wrangler": "^4.38.3"
   },
   "engines": {
