@@ -93,7 +93,7 @@ class Analytics {
 
     // Always log in non-production for debugging (but not in tests)
     const isTestMode = process.env.NODE_ENV === "test" || process.env.VITEST === "true";
-    if (this.environment !== "production" && !isTestMode) {
+    if (!isTestMode) {
       console.log("[Analytics Event]", {
         event,
         distinctId: distinctId || "anonymous",
