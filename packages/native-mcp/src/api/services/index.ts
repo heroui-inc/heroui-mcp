@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {getAnalytics, initializeAnalytics} from "../../lib/analytics";
+import {getAnalytics, initializeAnalytics} from "@heroui/analytics";
 import {ComponentDataServiceR2} from "../../services/component-data-service-r2";
 import {ThemeServiceR2} from "../../services/theme-service-r2";
 
@@ -19,6 +19,7 @@ export function initAnalytics(env: Record<string, any>) {
             apiKey: posthogKey,
             host: posthogHost,
             environment,
+            project: "native",
           }
         : null,
     );

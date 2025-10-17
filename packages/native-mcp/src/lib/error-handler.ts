@@ -1,4 +1,4 @@
-import {getAnalytics} from "./analytics";
+import {getAnalytics} from "@heroui/analytics";
 
 export enum ErrorCode {
   // Data errors

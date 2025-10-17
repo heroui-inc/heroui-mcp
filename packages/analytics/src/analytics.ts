@@ -1,64 +1,25 @@
 import {PostHog} from "posthog-node";
 
-export enum AnalyticsEvent {
-  // MCP Request Events
-  MCP_REQUEST = "mcp_request",
-  MCP_REQUEST_SUCCESS = "mcp_request_success",
-  MCP_REQUEST_ERROR = "mcp_request_error",
-
-  // Tool Usage Events
-  TOOL_INVOKED = "tool_invoked",
-  TOOL_SUCCESS = "tool_success",
-  TOOL_ERROR = "tool_error",
-
-  // Component Events
-  COMPONENT_GENERATED = "component_generated",
-  COMPONENT_SEARCH = "component_search",
-  COMPONENT_LIST = "component_list",
-
-  // Performance Events
-  RESPONSE_TIME = "response_time",
-  STREAM_STARTED = "stream_started",
-  STREAM_COMPLETED = "stream_completed",
-
-  // User Behavior Events
-  SESSION_START = "session_start",
-  SESSION_END = "session_end",
-  FEATURE_USED = "feature_used",
-}
-
-interface AnalyticsConfig {
-  apiKey: string;
-  host: string;
-  environment: string;
-}
-
-interface EventProperties {
-  [key: string]:
-    | string
-    | number
-    | boolean
-    | undefined
-    | null
-    | EventProperties
-    | EventProperties[]
-    | unknown;
-}
+import {AnalyticsEvent} from "./events";
+import type {AnalyticsConfig, EventProperties} from "./types";
 
 class Analytics {
   private client: PostHog | null = null;
   private environment: string;
   private sessionId: string | null = null;
+  private project: string;
 
   constructor(config: AnalyticsConfig | null) {
     if (!config || !config.apiKey) {
       console.warn("Analytics: No API key provided, analytics disabled");
       this.environment = "development";
+      this.project = "unknown";
 
       return;
     }
 
     this.environment = config.environment;
+    this.project = config.project;
 
     // Only initialize in production
     if (config.environment === "production") {
@@ -88,7 +49,7 @@ class Analytics {
     const enrichedProperties = {
       ...this.getBaseProperties(),
       ...properties,
-      project: "react",
+      project: this.project,
     };
 
     // Always log in non-production for debugging (but not in tests)
@@ -103,7 +64,7 @@ class Analytics {
       return;
     }
 
-    // Skip tracking entirely in test mode
+    // Skip analytics in test mode
     if (isTestMode) {
       return;
     }

@@ -1,0 +1,29 @@
+{
+  "name": "@heroui/analytics",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared analytics package for HeroUI MCP servers",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "posthog-node": "^5.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.6",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.17.0"
+}
