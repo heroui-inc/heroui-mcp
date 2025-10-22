@@ -448,10 +448,10 @@ class ComponentService {
   }
 }
 
-let dataService: ComponentService | null = null;
+let componentService: ComponentService | null = null;
 
 export const getComponentService = async (env: Record<string, any>): Promise<ComponentService> => {
-  if (!dataService) {
+  if (!componentService) {
     const r2AccountId = env.CLOUDFLARE_ACCOUNT_ID || process.env.CLOUDFLARE_ACCOUNT_ID;
     const r2AccessKeyId = env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID;
     const r2SecretAccessKey = env.R2_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY;
@@ -463,7 +463,7 @@ export const getComponentService = async (env: Record<string, any>): Promise<Com
 
     const r2Endpoint = `https://${r2AccountId}.r2.cloudflarestorage.com`;
 
-    dataService = new ComponentService({
+    componentService = new ComponentService({
       accountId: r2AccountId,
       accessKeyId: r2AccessKeyId,
       secretAccessKey: r2SecretAccessKey,
@@ -472,5 +472,5 @@ export const getComponentService = async (env: Record<string, any>): Promise<Com
     });
   }
 
-  return dataService;
+  return componentService;
 };

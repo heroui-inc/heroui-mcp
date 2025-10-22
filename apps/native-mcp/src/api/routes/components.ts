@@ -6,7 +6,7 @@ import {Hono} from "hono";
 import {z} from "zod";
 
 import {CACHE_CONTROL} from "../constants";
-import {getComponentService} from "../services/components";
+import {getComponentService} from "../services/component";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 
 const ComponentsRequestSchema = z.object({

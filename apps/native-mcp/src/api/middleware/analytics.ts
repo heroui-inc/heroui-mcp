@@ -20,7 +20,6 @@ export const analyticsMiddleware = async (c: Context<HonoContext>, next: Next) =
     metadata.region = cf.region;
     metadata.timezone = cf.timezone;
 
-    // eslint-disable-next-line no-console
     console.log("cf:", metadata);
   }
 

@@ -43,16 +43,15 @@ export class AnalyticsService extends BaseAnalytics<
     event: AnalyticsEvent | AnalyticsErrorEvent;
     properties: AnalyticsProperties;
   }) {
-    properties = {
+    const enrichedProperties: AnalyticsProperties = {
+      ...properties,
       ...(this.metadata ?? {}),
-      ...(properties ?? {}),
       app: ANALYTICS_APP,
     };
-
     super.track({
       distinctId: this.distinctId ?? undefined,
       event,
-      properties,
+      properties: enrichedProperties,
     });
   }
 
@@ -67,9 +66,9 @@ export class AnalyticsService extends BaseAnalytics<
     fallbackMessage?: string;
     properties: AnalyticsProperties;
   }) {
-    properties = {
+    const enrichedProperties: AnalyticsProperties = {
+      ...properties,
       ...(this.metadata ?? {}),
-      ...(properties ?? {}),
       app: ANALYTICS_APP,
     };
 
@@ -78,7 +77,7 @@ export class AnalyticsService extends BaseAnalytics<
       error,
       errorEvent,
       fallbackMessage,
-      properties,
+      properties: enrichedProperties,
     });
   }
 }
