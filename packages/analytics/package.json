@@ -9,16 +9,22 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "prettier": "@heroui/config/prettier",
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
     "posthog-node": "^5.9.1"
   },
+  "dependencies": {
+    "@heroui/config": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^22.18.6",
+    "eslint": "^9.36.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2"
   },

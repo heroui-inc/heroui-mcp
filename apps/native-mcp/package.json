@@ -1,0 +1,101 @@
+{
+  "name": "@heroui/native-mcp",
+  "version": "1.0.0-alpha.7",
+  "type": "module",
+  "description": "MCP server for HeroUI Native component documentation via Model Context Protocol",
+  "main": "dist/stdio.js",
+  "bin": {
+    "heroui-native-mcp": "dist/stdio.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "mcp",
+    "heroui",
+    "heroui-native",
+    "react-native",
+    "model-context-protocol",
+    "ai",
+    "llm"
+  ],
+  "author": "HeroUI <support@heroui.com> (https://github.com/heroui-inc)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heroui-inc/heroui-mcp.git",
+    "directory": "apps/native-mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/heroui-inc/heroui-mcp/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/heroui-inc/heroui-mcp/tree/main/apps/native-mcp",
+  "prettier": "@heroui/config/prettier",
+  "scripts": {
+    "build": "tsup && chmod +x dist/stdio.js",
+    "build:api": "wrangler deploy --dry-run --outdir dist-api",
+    "dev:api": "dotenv -- wrangler dev src/api.ts --env development --port 8788",
+    "dev:stdio": "NODE_ENV=development tsx --watch src/mcp/stdio.ts",
+    "dev:mastra": "mastra dev --dir ./mastra",
+    "dev": "npm run dev:api",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:api": "node test-api.mjs",
+    "test:api:staging": "node test-api.mjs --url https://staging-native-mcp-api.heroui.com",
+    "test:api:production": "node test-api.mjs --url https://native-mcp-api.heroui.com",
+    "deploy:api": "wrangler deploy src/api.ts --minify",
+    "deploy:api:staging": "wrangler deploy src/api.ts --env staging",
+    "deploy:api:production": "wrangler deploy src/api.ts --env production",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
+    "mcp:stdio": "NODE_ENV=development tsx src/mcp/stdio.ts",
+    "mcp:inspector": "NODE_ENV=development CLIENT_PORT=6275 SERVER_PORT=6278 npx @modelcontextprotocol/inspector -e HEROUI_NATIVE_API_URL=http://localhost:8788 tsx src/mcp/stdio.ts",
+    "extract:components": "tsx src/extraction/cli/extract-components.ts",
+    "extract:theme": "tsx src/extraction/cli/extract-theme.ts",
+    "extract:dev": "./scripts/extract-dev.sh",
+    "extract:dev:components": "./scripts/extract-dev.sh components",
+    "extract:dev:theme": "./scripts/extract-dev.sh theme",
+    "clean": "rm -rf dist dist-api",
+    "prepublishOnly": "pnpm build",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
+    "release": "bumpp --execute='pnpm run changelog' --all --tag='native-mcp-v%s' --commit='chore(native-mcp): release v%s'",
+    "release:check": "pnpm run lint && pnpm run typecheck && pnpm run build"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.696.0",
+    "@heroui/analytics": "workspace:*",
+    "@heroui/config": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.18.1",
+    "@xmldom/xmldom": "^0.8.11",
+    "hono": "^4.9.8",
+    "posthog-node": "^5.9.1",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.9.13",
+    "@cloudflare/workers-types": "^4.20250920.0",
+    "@hono/zod-validator": "^0.7.4",
+    "@types/node": "^22.18.6",
+    "bumpp": "10.2.0",
+    "changelogithub": "13.16.0",
+    "conventional-changelog-cli": "5.0.0",
+    "dotenv-cli": "^10.0.0",
+    "eslint": "^9.36.0",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.38.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.17.0"
+}

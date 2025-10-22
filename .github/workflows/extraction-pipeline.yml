@@ -6,8 +6,8 @@ on:
       - main
       - develop
     paths:
-      - 'packages/react-mcp/scripts/**'
-      - 'packages/react-mcp/src/**'
+      - 'apps/react-mcp/scripts/**'
+      - 'apps/react-mcp/src/**'
       - '.github/workflows/extraction-pipeline.yml'
   repository_dispatch:
     types: [react-version-bump]
@@ -116,7 +116,7 @@ jobs:
           R2_BUCKET_NAME: ${{ needs.set-environment.outputs.bucket-name }}
         run: |
           echo "🔍 Checking versions for react-mcp package"
-          node packages/react-mcp/scripts/check-versions-ci.mjs \
+          node apps/react-mcp/scripts/check-versions-ci.mjs \
             --force=${{ inputs.force }} \
             --library=${{ inputs.library || 'all' }} \
             --version=${{ inputs.version }}
@@ -134,7 +134,7 @@ jobs:
         uses: ./.github/actions/install
 
       - name: Extract HeroUI components
-        working-directory: packages/react-mcp
+        working-directory: apps/react-mcp
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -181,7 +181,7 @@ jobs:
         uses: ./.github/actions/install
 
       - name: Extract HeroUI theme system
-        working-directory: packages/react-mcp
+        working-directory: apps/react-mcp
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

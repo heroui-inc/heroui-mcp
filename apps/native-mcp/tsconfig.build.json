@@ -1,0 +1,24 @@
+{
+  "extends": ["./tsconfig.json", "@heroui/config/tsconfig/build.json"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "emitDeclarationOnly": false
+  },
+  "include": [
+    "src/stdio-npm.ts",
+    "src/services/mcp-server-core-npm.ts",
+    "src/services/component-data-service-npm.ts",
+    "src/services/data-store-file.ts",
+    "src/services/version-check-service.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "scripts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/index.ts",
+    "src/http-server.ts",
+    "src/types.ts"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "extends": "@heroui/config/tsconfig/cloudflare-worker.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"],
+      "@shared/*": ["./src/shared/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts", "lib/**/*.ts", "vitest.config.ts"],
+  "exclude": ["node_modules", "dist", "mastra", ".mastra"]
+}

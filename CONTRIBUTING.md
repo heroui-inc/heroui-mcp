@@ -60,7 +60,7 @@ pnpm build --filter=@heroui/react-mcp
 pnpm build --filter=@heroui/native-mcp
 
 # Test a built package locally
-cd packages/react-mcp  # or packages/native-mcp
+cd apps/react-mcp  # or apps/native-mcp
 npm pack
 # This creates a .tgz file you can install locally to test
 ```
@@ -118,11 +118,11 @@ For development or testing with a local build in your IDE:
   "mcpServers": {
     "heroui-react-local": {
       "command": "node",
-      "args": ["/path/to/heroui-mcp/packages/react-mcp/dist/stdio.js"]
+      "args": ["/path/to/heroui-mcp/apps/react-mcp/dist/stdio.js"]
     },
     "heroui-native-local": {
       "command": "node",
-      "args": ["/path/to/heroui-mcp/packages/native-mcp/dist/stdio.js"]
+      "args": ["/path/to/heroui-mcp/apps/native-mcp/dist/stdio.js"]
     }
   }
 }
@@ -319,22 +319,19 @@ The project supports multiple environments with different configurations:
 ### Development
 
 ```bash
-APP_ENV=development
-LOG_LEVEL=debug
+NODE_ENV=development
 ```
 
 ### Staging
 
 ```bash
-APP_ENV=staging
-LOG_LEVEL=info
+NODE_ENV=staging
 ```
 
 ### Production
 
 ```bash
-APP_ENV=production
-LOG_LEVEL=warn
+NODE_ENV=production
 ```
 
 Environment variables are configured in `wrangler.toml`.

@@ -34,7 +34,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean",
-    "format": "prettier --write \"packages/**/*.{ts,tsx,json}\"",
+    "format": "prettier --write \"{apps,packages}/**/*.{ts,tsx,json}\"",
     "test": "turbo run test",
     "release:check": "turbo run release:check",
     "inspect:native": "pnpm --filter @heroui/native-mcp run mcp:inspector",

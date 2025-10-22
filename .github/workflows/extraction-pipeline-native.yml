@@ -6,8 +6,8 @@ on:
       - main
       - develop
     paths:
-      - 'packages/native-mcp/scripts/**'
-      - 'packages/native-mcp/src/**'
+      - 'apps/native-mcp/scripts/**'
+      - 'apps/native-mcp/src/**'
       - '.github/workflows/extraction-pipeline-native.yml'
   repository_dispatch:
     types: [native-version-bump]
@@ -116,7 +116,7 @@ jobs:
           R2_BUCKET_NAME: ${{ needs.set-environment.outputs.bucket-name }}
         run: |
           echo "🔍 Checking versions for native-mcp package"
-          node packages/native-mcp/scripts/check-versions-ci.mjs \
+          node apps/native-mcp/scripts/check-versions-ci.mjs \
             --force=${{ inputs.force }} \
             --library=${{ inputs.library || 'all' }} \
             --version=${{ inputs.version }}
@@ -134,7 +134,7 @@ jobs:
         uses: ./.github/actions/install
 
       - name: Extract HeroUI Native components
-        working-directory: packages/native-mcp
+        working-directory: apps/native-mcp
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -181,7 +181,7 @@ jobs:
         uses: ./.github/actions/install
 
       - name: Extract HeroUI Native theme system
-        working-directory: packages/native-mcp
+        working-directory: apps/native-mcp
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

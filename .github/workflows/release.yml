@@ -90,7 +90,7 @@ jobs:
 
       - name: Publish to npm (react-mcp)
         if: needs.determine-package.outputs.package == 'react-mcp'
-        working-directory: packages/${{ needs.determine-package.outputs.package }}
+        working-directory: apps/${{ needs.determine-package.outputs.package }}
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
           npm publish --access public
@@ -99,7 +99,7 @@ jobs:
 
       - name: Publish to npm (native-mcp)
         if: needs.determine-package.outputs.package == 'native-mcp'
-        working-directory: packages/${{ needs.determine-package.outputs.package }}
+        working-directory: apps/${{ needs.determine-package.outputs.package }}
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
           npm publish --access public
