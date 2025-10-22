@@ -1,24 +1,35 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Env} from "../types";
+import type {HonoContext} from "../types/context";
 
 import {Hono} from "hono";
 
-import {getAnalytics, getThemeService, initAnalytics} from "../services";
+import {getThemeService} from "../services/theme";
+import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 
-const themes = new Hono<{Bindings: Env}>();
+const themes = new Hono<HonoContext>();
 
 // Get themes system
 themes.get("/", async (c) => {
-  const version = c.req.query("version");
+  const endpoint = "get-themes";
   const startTime = Date.now();
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
+  const analytics = c.get("analytics");
 
   try {
+    const version = c.req.query("version");
     const service = await getThemeService(c.env);
     const themeSystem = await service.getThemeSystem(version);
 
     if (!themeSystem) {
+      analytics.trackError({
+        error: "Theme system not found",
+        errorEvent: AnalyticsErrorEvent.GET_THEMES_ERROR,
+        properties: {
+          endpoint,
+          version,
+          responseTime: Date.now() - startTime,
+        },
+      });
+
       return c.json(
         {error: `Theme system not available${version ? ` for version ${version}` : ""}`},
         404,
@@ -29,12 +40,15 @@ themes.get("/", async (c) => {
     const latestVersion = await service.getLatestVersion();
     const actualVersion = version || latestVersion || "latest";
 
-    const responseTime = Date.now() - startTime;
-
-    analytics?.trackFeatureUsage("api-user", "theme-system", {
-      endpoint: "full",
-      version: actualVersion,
-      responseTime,
+    analytics.track({
+      event: AnalyticsEvent.GET_THEMES,
+      properties: {
+        endpoint,
+        version: actualVersion,
+        latestVersion,
+        themesCount: themeSystem.themes ? Object.keys(themeSystem.themes).length : 0,
+        responseTime: Date.now() - startTime,
+      },
     });
 
     return c.json({
@@ -44,7 +58,15 @@ themes.get("/", async (c) => {
       latestVersion,
     });
   } catch (error) {
-    console.error("Error getting theme system:", error);
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_THEMES_ERROR,
+      fallbackMessage: "Failed to get theme system",
+      properties: {
+        endpoint,
+        responseTime: Date.now() - startTime,
+      },
+    });
 
     return c.json(
       {
@@ -58,15 +80,19 @@ themes.get("/", async (c) => {
 
 // Get theme variables
 themes.get("/variables", async (c) => {
-  const themeName = c.req.query("theme");
-  const mode = c.req.query("mode") as "light" | "dark" | undefined;
-  const version = c.req.query("version");
+  const endpoint = "get-theme-variables";
   const startTime = Date.now();
+  const analytics = c.get("analytics");
 
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
+  let themeName: string | undefined;
+  let mode: "light" | "dark" | undefined;
+  let version: string | undefined;
 
   try {
+    themeName = c.req.query("theme");
+    mode = c.req.query("mode") as "light" | "dark" | undefined;
+    version = c.req.query("version");
+
     const service = await getThemeService(c.env);
     const latestVersion = await service.getLatestVersion();
     const actualVersion = version || latestVersion || "latest";
@@ -83,12 +109,16 @@ themes.get("/variables", async (c) => {
           );
         }
 
-        const responseTime = Date.now() - startTime;
-        analytics?.trackFeatureUsage("api-user", "theme-variables", {
-          theme: themeName,
-          mode,
-          version: actualVersion,
-          responseTime,
+        analytics.track({
+          event: AnalyticsEvent.GET_THEME_VARIABLES,
+          properties: {
+            endpoint,
+            theme: themeName,
+            mode,
+            version: actualVersion,
+            latestVersion,
+            responseTime: Date.now() - startTime,
+          },
         });
 
         return c.json({
@@ -108,12 +138,16 @@ themes.get("/variables", async (c) => {
           );
         }
 
-        const responseTime = Date.now() - startTime;
-        analytics?.trackFeatureUsage("api-user", "theme-variables", {
-          theme: themeName,
-          mode: "both",
-          version: actualVersion,
-          responseTime,
+        analytics.track({
+          event: AnalyticsEvent.GET_THEME_VARIABLES,
+          properties: {
+            endpoint,
+            theme: themeName,
+            mode: "both",
+            version: actualVersion,
+            latestVersion,
+            responseTime: Date.now() - startTime,
+          },
         });
 
         // Check if optimized structure exists
@@ -188,13 +222,17 @@ themes.get("/variables", async (c) => {
         }
       }
 
-      const responseTime = Date.now() - startTime;
-      analytics?.trackFeatureUsage("api-user", "theme-variables", {
-        theme: "all",
-        mode: "both",
-        version: actualVersion,
-        responseTime,
-        themesCount: themes.length,
+      analytics.track({
+        event: AnalyticsEvent.GET_THEME_VARIABLES,
+        properties: {
+          endpoint,
+          theme: "all",
+          mode: "both",
+          version: actualVersion,
+          latestVersion,
+          themesCount: themes.length,
+          responseTime: Date.now() - startTime,
+        },
       });
 
       return c.json({
@@ -205,7 +243,18 @@ themes.get("/variables", async (c) => {
       });
     }
   } catch (error) {
-    console.error("Error getting theme variables:", error);
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_THEME_VARIABLES_ERROR,
+      fallbackMessage: "Failed to get theme variables",
+      properties: {
+        endpoint,
+        themeName,
+        mode,
+        version,
+        responseTime: Date.now() - startTime,
+      },
+    });
 
     return c.json(
       {
@@ -219,15 +268,19 @@ themes.get("/variables", async (c) => {
 
 // Get colors
 themes.get("/colors", async (c) => {
-  const themeName = c.req.query("theme");
-  const mode = c.req.query("mode") as "light" | "dark" | undefined;
-  const version = c.req.query("version");
+  const endpoint = "get-theme-colors";
   const startTime = Date.now();
+  const analytics = c.get("analytics");
 
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
+  let themeName: string | undefined;
+  let mode: "light" | "dark" | undefined;
+  let version: string | undefined;
 
   try {
+    themeName = c.req.query("theme");
+    mode = c.req.query("mode") as "light" | "dark" | undefined;
+    version = c.req.query("version");
+
     const service = await getThemeService(c.env);
     const latestVersion = await service.getLatestVersion();
     const actualVersion = version || latestVersion || "latest";
@@ -256,13 +309,17 @@ themes.get("/colors", async (c) => {
             v.name.includes("danger"),
         );
 
-        const responseTime = Date.now() - startTime;
-        analytics?.trackFeatureUsage("api-user", "theme-colors", {
-          theme: themeName,
-          mode,
-          version: actualVersion,
-          responseTime,
-          colorsCount: colorVars.length,
+        analytics.track({
+          event: AnalyticsEvent.GET_THEMES,
+          properties: {
+            endpoint,
+            theme: themeName,
+            mode,
+            version: actualVersion,
+            latestVersion,
+            colorsCount: colorVars.length,
+            responseTime: Date.now() - startTime,
+          },
         });
 
         return c.json({
@@ -305,14 +362,18 @@ themes.get("/colors", async (c) => {
             v.name.includes("danger"),
         );
 
-        const responseTime = Date.now() - startTime;
-        analytics?.trackFeatureUsage("api-user", "theme-colors", {
-          theme: themeName,
-          mode: "both",
-          version: actualVersion,
-          responseTime,
-          lightColorsCount: lightColors.length,
-          darkColorsCount: darkColors.length,
+        analytics.track({
+          event: AnalyticsEvent.GET_THEMES,
+          properties: {
+            endpoint,
+            theme: themeName,
+            mode: "both",
+            version: actualVersion,
+            latestVersion,
+            lightColorsCount: lightColors.length,
+            darkColorsCount: darkColors.length,
+            responseTime: Date.now() - startTime,
+          },
         });
 
         return c.json({
@@ -386,13 +447,17 @@ themes.get("/colors", async (c) => {
         }
       }
 
-      const responseTime = Date.now() - startTime;
-      analytics?.trackFeatureUsage("api-user", "theme-colors", {
-        theme: "all",
-        mode: mode || "both",
-        version: actualVersion,
-        responseTime,
-        themesCount: themes.length,
+      analytics.track({
+        event: AnalyticsEvent.GET_THEMES,
+        properties: {
+          endpoint,
+          theme: "all",
+          mode: mode || "both",
+          version: actualVersion,
+          latestVersion,
+          themesCount: themes.length,
+          responseTime: Date.now() - startTime,
+        },
       });
 
       return c.json({
@@ -403,7 +468,18 @@ themes.get("/colors", async (c) => {
       });
     }
   } catch (error) {
-    console.error("Error getting colors:", error);
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_THEMES_ERROR,
+      fallbackMessage: "Failed to get colors",
+      properties: {
+        endpoint,
+        themeName,
+        mode,
+        version,
+        responseTime: Date.now() - startTime,
+      },
+    });
 
     return c.json(
       {
@@ -417,17 +493,21 @@ themes.get("/colors", async (c) => {
 
 // Get available versions
 themes.get("/versions", async (c) => {
+  const endpoint = "get-theme-versions";
   const startTime = Date.now();
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
+  const analytics = c.get("analytics");
 
   try {
     const service = await getThemeService(c.env);
     const latestVersion = await service.getLatestVersion();
 
-    const responseTime = Date.now() - startTime;
-    analytics?.trackFeatureUsage("api-user", "theme-versions", {
-      responseTime,
+    analytics.track({
+      event: AnalyticsEvent.GET_THEMES,
+      properties: {
+        endpoint,
+        latestVersion,
+        responseTime: Date.now() - startTime,
+      },
     });
 
     // For now, we only return the latest version
@@ -437,7 +517,15 @@ themes.get("/versions", async (c) => {
       versions: [latestVersion],
     });
   } catch (error) {
-    console.error("Error getting theme versions:", error);
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_THEMES_ERROR,
+      fallbackMessage: "Failed to get theme versions",
+      properties: {
+        endpoint,
+        responseTime: Date.now() - startTime,
+      },
+    });
 
     return c.json(
       {
@@ -451,28 +539,45 @@ themes.get("/versions", async (c) => {
 
 // Get animations
 themes.get("/animations", async (c) => {
-  const version = c.req.query("version");
+  const endpoint = "get-theme-animations";
   const startTime = Date.now();
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
+  const analytics = c.get("analytics");
+
+  let version: string | undefined;
 
   try {
+    version = c.req.query("version");
     const service = await getThemeService(c.env);
     const latestVersion = await service.getLatestVersion();
     const actualVersion = version || latestVersion || "latest";
     const animations = await service.getAnimations(version);
 
     if (!animations) {
+      analytics.trackError({
+        error: "Animations not found",
+        errorEvent: AnalyticsErrorEvent.GET_THEMES_ERROR,
+        properties: {
+          endpoint,
+          version: actualVersion,
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+
       return c.json(
         {error: `Animations not available${version ? ` for version ${version}` : ""}`},
         404,
       );
     }
 
-    const responseTime = Date.now() - startTime;
-    analytics?.trackFeatureUsage("api-user", "theme-animations", {
-      version: actualVersion,
-      responseTime,
+    analytics.track({
+      event: AnalyticsEvent.GET_THEMES,
+      properties: {
+        endpoint,
+        version: actualVersion,
+        latestVersion,
+        responseTime: Date.now() - startTime,
+      },
     });
 
     return c.json({
@@ -481,7 +586,16 @@ themes.get("/animations", async (c) => {
       latestVersion,
     });
   } catch (error) {
-    console.error("Error getting animations:", error);
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_THEMES_ERROR,
+      fallbackMessage: "Failed to get animations",
+      properties: {
+        endpoint,
+        version,
+        responseTime: Date.now() - startTime,
+      },
+    });
 
     return c.json(
       {

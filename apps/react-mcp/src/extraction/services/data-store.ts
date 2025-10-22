@@ -1,4 +1,4 @@
-import type {ComponentDataset, VersionInfo} from "../src/types/data";
+import type {ComponentDataset, VersionInfo} from "../../shared/types/data";
 
 /**
  * Data Store Interface

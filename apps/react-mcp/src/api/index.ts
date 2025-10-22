@@ -7,9 +7,6 @@
  * It provides REST API endpoints for the STDIO client to consume
  */
 
-// Import polyfills first - must be before AWS SDK imports
-import "../lib/domparser-polyfill";
-
 import {Hono} from "hono";
 
 import {corsMiddleware} from "./middleware/cors";
@@ -18,12 +15,16 @@ import {docs} from "./routes/docs";
 import {health} from "./routes/health";
 import {themes} from "./routes/themes";
 import {versions} from "./routes/versions";
-import type {Env} from "./types";
+import type {HonoContext} from "./types/context";
+import {analyticsMiddleware} from "./middleware/analytics";
+import {authMiddleware} from "./middleware/auth";
 
-const app = new Hono<{Bindings: Env}>();
+const app = new Hono<HonoContext>();
 
 // Apply CORS middleware globally
 app.use("*", corsMiddleware);
+app.use("*", authMiddleware);
+app.use("*", analyticsMiddleware);
 
 // Mount routes
 app.route("/", health);

@@ -3,7 +3,7 @@ import packageJson from "./package.json";
 
 export default defineConfig({
   // STDIO build for NPM package
-  entry: ["src/stdio.ts"],
+  entry: ["src/mcp/stdio.ts"],
   outDir: "dist",
   format: ["esm"],
   target: "node18",

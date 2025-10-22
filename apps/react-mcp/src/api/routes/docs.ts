@@ -1,10 +1,10 @@
-import type {Env} from "../types";
+import type {HonoContext} from "../types/context";
 
 import {Hono} from "hono";
 
-import {getAnalytics, initAnalytics} from "../services";
+import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 
-const docs = new Hono<{Bindings: Env}>();
+const docs = new Hono<HonoContext>();
 
 // Types for documentation structure
 interface DocSection {
@@ -20,15 +20,27 @@ interface DocCategory {
 
 // Get available documentation paths from v3.heroui.com
 docs.get("/available", async (c) => {
+  const endpoint = "list-docs";
   const startTime = Date.now();
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
+  const analytics = c.get("analytics");
 
   try {
     // Fetch the llms.txt file from HeroUI v3 docs
     const response = await fetch("https://v3.heroui.com/llms.txt");
 
     if (!response.ok) {
+      analytics.trackError({
+        error: "Failed to fetch documentation list",
+        errorEvent: AnalyticsErrorEvent.LIST_DOCS_ERROR,
+        properties: {
+          endpoint,
+          status: response.status,
+          statusText: response.statusText,
+          url: "https://v3.heroui.com/llms.txt",
+          responseTime: Date.now() - startTime,
+        },
+      });
+
       return c.json(
         {
           error: "Failed to fetch documentation list",
@@ -76,19 +88,33 @@ docs.get("/available", async (c) => {
       }
     }
 
-    const responseTime = Date.now() - startTime;
-    analytics?.trackFeatureUsage("api-user", "docs-available", {
-      responseTime,
-      totalDocs: categories.reduce((acc, cat) => acc + cat.docs.length, 0),
+    const total = categories.reduce((acc, cat) => acc + cat.docs.length, 0);
+
+    analytics.track({
+      event: AnalyticsEvent.LIST_DOCS,
+      properties: {
+        endpoint,
+        responseTime: Date.now() - startTime,
+        categories: categories.length,
+        total,
+      },
     });
 
     return c.json({
       baseUrl: "https://v3.heroui.com",
       categories,
-      total: categories.reduce((acc, cat) => acc + cat.docs.length, 0),
+      total,
     });
   } catch (error) {
-    console.error("Error fetching available docs:", error);
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.LIST_DOCS_ERROR,
+      fallbackMessage: "Failed to fetch documentation list",
+      properties: {
+        endpoint,
+        responseTime: Date.now() - startTime,
+      },
+    });
 
     return c.json(
       {
@@ -102,22 +128,34 @@ docs.get("/available", async (c) => {
 
 // Get specific documentation content
 docs.get("/content", async (c) => {
+  const endpoint = "get-docs-content";
   const startTime = Date.now();
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
+  const analytics = c.get("analytics");
 
-  const path = c.req.query("path");
-
-  if (!path) {
-    return c.json(
-      {
-        error: "Missing required query parameter: path",
-      },
-      400,
-    );
-  }
+  let path: string | undefined = undefined;
 
   try {
+    path = c.req.query("path");
+
+    if (!path) {
+      analytics.trackError({
+        error: "Invalid request",
+        errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
+        properties: {
+          endpoint,
+          responseTime: Date.now() - startTime,
+        },
+      });
+
+      return c.json(
+        {
+          error: "Invalid request",
+          details: "path query parameter is required",
+        },
+        400,
+      );
+    }
+
     // Construct the full URL for the documentation page
     let docUrl = path;
 
@@ -141,11 +179,16 @@ docs.get("/content", async (c) => {
 
         if (retryResponse.ok) {
           const content = await retryResponse.text();
-          const responseTime = Date.now() - startTime;
 
-          analytics?.trackFeatureUsage("api-user", "docs-content", {
-            path,
-            responseTime,
+          analytics.track({
+            event: AnalyticsEvent.GET_DOCS_CONTENT,
+            properties: {
+              endpoint,
+              path,
+              url: urlWithoutExt,
+              length: content.length,
+              responseTime: Date.now() - startTime,
+            },
           });
 
           return c.json({
@@ -156,6 +199,19 @@ docs.get("/content", async (c) => {
           });
         }
       }
+
+      analytics.trackError({
+        error: "Failed to fetch documentation from v3.heroui.com",
+        errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
+        properties: {
+          endpoint,
+          path,
+          status: response.status,
+          statusText: response.statusText,
+          url: docUrl,
+          responseTime: Date.now() - startTime,
+        },
+      });
 
       return c.json(
         {
@@ -168,11 +224,16 @@ docs.get("/content", async (c) => {
 
     const content = await response.text();
     const contentType = response.headers.get("content-type") || "text/plain";
-    const responseTime = Date.now() - startTime;
 
-    analytics?.trackFeatureUsage("api-user", "docs-content", {
-      path,
-      responseTime,
+    analytics.track({
+      event: AnalyticsEvent.GET_DOCS_CONTENT,
+      properties: {
+        endpoint,
+        path,
+        url: docUrl,
+        length: content.length,
+        responseTime: Date.now() - startTime,
+      },
     });
 
     return c.json({
@@ -182,7 +243,16 @@ docs.get("/content", async (c) => {
       contentType,
     });
   } catch (error) {
-    console.error("Error fetching documentation content:", error);
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
+      fallbackMessage: "Failed to fetch documentation content",
+      properties: {
+        endpoint,
+        path,
+        responseTime: Date.now() - startTime,
+      },
+    });
 
     return c.json(
       {

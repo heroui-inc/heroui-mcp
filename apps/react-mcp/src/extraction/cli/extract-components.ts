@@ -4,7 +4,7 @@
  * Simplified component extraction script
  */
 
-import {ComponentExtractor} from "../lib/extractors/components";
+import {ComponentExtractor} from "../extractors/components";
 
 async function main() {
   // Parse arguments

@@ -7,13 +7,13 @@
 // Import polyfills first - must be before AWS SDK imports
 import "../lib/domparser-polyfill";
 
-import type {ComponentData, ComponentDataset, VersionInfo} from "../types/data";
+import type {ComponentData, ComponentDataset, VersionInfo} from "../../shared/types/data";
 
 import {GetObjectCommand, ListObjectsV2Command, S3Client} from "@aws-sdk/client-s3";
 
-import {ErrorCode, ErrorMessages, MCPError} from "../lib/error-handler";
+import {ErrorCode, ErrorMessages, MCPError} from "../utils/error-handler";
 
-export interface R2Config {
+interface R2Config {
   accountId: string;
   accessKeyId: string;
   secretAccessKey: string;
@@ -25,7 +25,7 @@ export interface R2Config {
  * Component Data Service - R2 Implementation
  * Fetches component data from R2 bucket
  */
-export class ComponentDataServiceR2 {
+class ComponentService {
   private s3Client: S3Client;
   private bucketName: string;
   private cache: Map<string, {data: unknown; timestamp: number}> = new Map();
@@ -85,7 +85,7 @@ export class ComponentDataServiceR2 {
       let data: T;
       try {
         data = JSON.parse(text) as T;
-      } catch (parseError) {
+      } catch {
         throw new MCPError(
           ErrorMessages[ErrorCode.MALFORMED_JSON]({
             error: `Invalid JSON in R2 object: ${key}`,
@@ -410,7 +410,29 @@ export class ComponentDataServiceR2 {
   }
 }
 
-// Export singleton factory
-export function createComponentDataService(config: R2Config): ComponentDataServiceR2 {
-  return new ComponentDataServiceR2(config);
-}
+let componentService: ComponentService | null = null;
+
+export const getComponentService = async (env: Record<string, any>): Promise<ComponentService> => {
+  if (!componentService) {
+    const r2AccountId = env.CLOUDFLARE_ACCOUNT_ID || process.env.CLOUDFLARE_ACCOUNT_ID;
+    const r2AccessKeyId = env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID;
+    const r2SecretAccessKey = env.R2_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY;
+    const r2Bucket = env.R2_BUCKET_NAME || process.env.R2_BUCKET_NAME;
+
+    if (!r2AccountId || !r2AccessKeyId || !r2SecretAccessKey) {
+      throw new Error("R2 credentials not configured");
+    }
+
+    const r2Endpoint = `https://${r2AccountId}.r2.cloudflarestorage.com`;
+
+    componentService = new ComponentService({
+      accountId: r2AccountId,
+      accessKeyId: r2AccessKeyId,
+      secretAccessKey: r2SecretAccessKey,
+      bucketName: r2Bucket,
+      endpoint: r2Endpoint,
+    });
+  }
+
+  return componentService;
+};

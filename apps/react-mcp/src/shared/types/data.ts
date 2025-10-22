@@ -1,5 +1,5 @@
 // Component Data Types (shared across services and lib)
-export interface ComponentProp {
+interface ComponentProp {
   name: string;
   type: string;
   description?: string;
@@ -7,17 +7,17 @@ export interface ComponentProp {
   required?: boolean;
 }
 
-export interface ComponentExample {
+interface ComponentExample {
   name: string;
   content: string;
 }
 
-export interface CssClass {
+interface CssClass {
   name: string;
   description: string;
 }
 
-export interface ComponentSourceLinks {
+interface ComponentSourceLinks {
   source?: string;
   styles?: string;
   [key: string]: string | undefined | boolean;

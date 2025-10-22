@@ -3,17 +3,6 @@
  * Tests all component endpoints with various scenarios including validation
  */
 
-import type {
-  ApiError,
-  ComponentDetailsResponse,
-  ComponentExamplesResponse,
-  ComponentListResponse,
-  ComponentPropsResponse,
-  ComponentSourceResponse,
-  ComponentStylesResponse,
-  ZodValidationError,
-} from "../types/responses";
-
 import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
@@ -24,7 +13,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as ComponentListResponse;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("components");
       expect(data).toHaveProperty("latestVersion");
       expect(data).toHaveProperty("count");
@@ -49,7 +38,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as ComponentDetailsResponse;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("results");
       expect(Array.isArray(data.results)).toBe(true);
@@ -66,7 +55,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(400);
 
-      const data = (await res.json()) as ZodValidationError;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
       expect(data.error.issues[0].message).toBe("Expected array, received string");
@@ -81,7 +70,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(400);
 
-      const data = (await res.json()) as ZodValidationError;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
       expect(data.error.issues[0].message).toBe("Components array cannot be empty");
@@ -96,7 +85,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(400);
 
-      const data = (await res.json()) as ZodValidationError;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
       expect(data.error.issues[0].message).toBe("Component name cannot be empty");
@@ -111,7 +100,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(400);
 
-      const data = (await res.json()) as ZodValidationError;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
     });
@@ -125,7 +114,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(400);
 
-      const data = (await res.json()) as ZodValidationError;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
     });
@@ -139,7 +128,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(500); // Hono throws 500 for malformed JSON
 
-      const data = (await res.json()) as ApiError;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("error");
     });
 
@@ -152,7 +141,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as ComponentDetailsResponse;
+      const data = (await res.json()) as any;
       expect(data.results).toHaveLength(2);
       expect(data.results[0].component).toBe("Button");
       expect(data.results[1].component).toBe("Card");
@@ -169,7 +158,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as ComponentPropsResponse;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("results");
       expect(Array.isArray(data.results)).toBe(true);
@@ -187,7 +176,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(400);
 
-      const data = (await res.json()) as ZodValidationError;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
       expect(data.error.issues[0].message).toBe("Expected array, received string");
@@ -202,7 +191,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(400);
 
-      const data = (await res.json()) as ZodValidationError;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
       expect(data.error.issues[0].message).toBe("Components array cannot be empty");
@@ -219,7 +208,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as ComponentExamplesResponse;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("results");
       expect(Array.isArray(data.results)).toBe(true);
@@ -246,7 +235,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as ComponentSourceResponse;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("results");
       expect(Array.isArray(data.results)).toBe(true);
@@ -273,7 +262,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as ComponentStylesResponse;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("results");
       expect(Array.isArray(data.results)).toBe(true);
@@ -300,7 +289,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200); // Should return 200 but with error in result
 
-      const data = (await res.json()) as ComponentDetailsResponse;
+      const data = (await res.json()) as any;
       expect(data.results[0]).toHaveProperty("error");
     });
 
@@ -313,7 +302,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as ComponentDetailsResponse;
+      const data = (await res.json()) as any;
       expect(data.results).toHaveLength(2);
       expect(data.results[0].component).toBe("Button");
       expect(data.results[1].component).toBe("NonExistentComponent");
@@ -329,7 +318,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as ComponentDetailsResponse;
+      const data = (await res.json()) as any;
       expect(data.results[0].component).toBe("Button");
       expect(data.results[1].component).toBe("Card");
     });
@@ -345,7 +334,7 @@ describe("Components API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as ComponentDetailsResponse;
+      const data = (await res.json()) as any;
       expect(data.results).toHaveLength(10);
     });
   });

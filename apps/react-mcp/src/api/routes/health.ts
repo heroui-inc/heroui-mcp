@@ -34,7 +34,6 @@ health.get("/", (c) => {
       "/docs/available": "Get all available documentation paths from HeroUI v3 docs",
       "/docs/content": "Get documentation content from a specific path (query: path)",
       "/versions": "Get version information",
-      "/versions/:package": "Check specific package version (heroui or mcp)",
     },
   });
 });

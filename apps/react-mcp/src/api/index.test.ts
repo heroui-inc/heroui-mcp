@@ -3,8 +3,6 @@
  * Tests error handling, 404s, and general app behavior
  */
 
-import type {ApiError} from "./types/responses";
-
 import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
@@ -15,7 +13,7 @@ describe("Main API Application", () => {
 
       expect(res.status).toBe(404);
 
-      const data = (await res.json()) as ApiError & {message: string};
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("error", "Not found");
       expect(data).toHaveProperty("message", "The requested endpoint does not exist");
     });

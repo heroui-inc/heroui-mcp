@@ -2,8 +2,6 @@
  * API Tests for Versions Routes
  */
 
-import type {ApiError, PackageVersionResponse, VersionsResponse} from "../types/responses";
-
 import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
@@ -14,7 +12,7 @@ describe("Versions API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as VersionsResponse;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("heroui");
       expect(data).toHaveProperty("mcp");
       expect(data.heroui).toHaveProperty("latest");
@@ -36,7 +34,7 @@ describe("Versions API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as PackageVersionResponse;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("package", "heroui");
       expect(data).toHaveProperty("currentVersion");
       expect(data).toHaveProperty("latestVersion");
@@ -50,7 +48,7 @@ describe("Versions API", () => {
 
       expect(res.status).toBe(200);
 
-      const data = (await res.json()) as PackageVersionResponse;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("package", "mcp");
       expect(data).toHaveProperty("currentVersion");
       expect(data).toHaveProperty("latestVersion");
@@ -62,7 +60,7 @@ describe("Versions API", () => {
 
       expect(res.status).toBe(400);
 
-      const data = (await res.json()) as ApiError;
+      const data = (await res.json()) as any;
       expect(data).toHaveProperty("error");
       const errorMessage = data.error;
       expect(errorMessage.includes("Invalid package")).toBe(true);

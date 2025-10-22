@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Env} from "../types";
+
+import type {HonoContext} from "../types/context";
 
 import {zValidator} from "@hono/zod-validator";
 import {Hono} from "hono";
 import {z} from "zod";
 
 import {REACT_LIBRARY_NAME} from "../contants";
-import {getAnalytics, getDataService, initAnalytics} from "../services";
+import {getComponentService} from "../services/component";
+import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 
-/**
- * Zod schema for validating components request body
- */
 const ComponentsRequestSchema = z.object({
   components: z
     .array(z.string().trim().min(1, "Component name cannot be empty"))
@@ -21,39 +20,32 @@ const ComponentsRequestSchema = z.object({
     ),
 });
 
-const components = new Hono<{Bindings: Env}>();
+const components = new Hono<HonoContext>();
 
 const LIBRARY_NAME = REACT_LIBRARY_NAME;
 
 // List components
 components.get("/", async (c) => {
+  const endpoint = "list-components";
   const startTime = Date.now();
-
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
+  const analytics = c.get("analytics");
 
   try {
-    const service = await getDataService(c.env);
+    const service = await getComponentService(c.env);
     // Always use latest version
     const componentsList = await service.listComponents(LIBRARY_NAME);
 
     // Get the latest version
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
-    const responseTime = Date.now() - startTime;
-
-    // Track successful request
-    analytics?.trackComponentSearch("api-user", {
-      query: LIBRARY_NAME,
-      resultsCount: componentsList.length,
-      searchTime: responseTime,
-    });
-
-    analytics?.trackMcpSuccess("api-user", {
-      method: "GET",
-      toolName: "list-components",
-      responseTime,
-      responseSize: componentsList.length,
+    analytics.track({
+      event: AnalyticsEvent.LIST_COMPONENTS,
+      properties: {
+        endpoint,
+        componentsCount: componentsList.length,
+        latestVersion,
+        responseTime: Date.now() - startTime,
+      },
     });
 
     return c.json({
@@ -62,15 +54,14 @@ components.get("/", async (c) => {
       count: componentsList.length,
     });
   } catch (error) {
-    const responseTime = Date.now() - startTime;
-    console.error("Error listing components:", error);
-
-    // Track error
-    analytics?.trackMcpError("api-user", {
-      method: "GET",
-      toolName: "list-components",
-      error: error instanceof Error ? error.message : "Unknown error",
-      responseTime,
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.LIST_COMPONENTS_ERROR,
+      fallbackMessage: "Failed to list components",
+      properties: {
+        endpoint,
+        responseTime: Date.now() - startTime,
+      },
     });
 
     return c.json(
@@ -83,56 +74,58 @@ components.get("/", async (c) => {
   }
 });
 
-// Get component details (multiple components)
+// Get component details
 components.post("/", zValidator("json", ComponentsRequestSchema), async (c) => {
+  const endpoint = "get-components";
   const startTime = Date.now();
+  const analytics = c.get("analytics");
   const {components: componentNames} = c.req.valid("json");
 
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
-
-  analytics?.trackMcpRequest("api-user", {
-    method: "POST",
-    toolName: "get-components",
-    requestSize: componentNames.length,
-  });
-
   try {
-    const service = await getDataService(c.env);
+    const service = await getComponentService(c.env);
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
-    const responseTime = Date.now() - startTime;
+    const failedComponents = results.filter((result) => result.error);
 
-    analytics?.trackMcpSuccess("api-user", {
-      method: "POST",
-      toolName: "get-components",
-      responseTime,
-      responseSize: JSON.stringify(results).length,
-    });
-
-    results.forEach((result) => {
-      if (!result.error) {
-        analytics?.trackFeatureUsage("api-user", "component-details", {
-          library: LIBRARY_NAME,
-          component: result.component,
-        });
-      }
-    });
+    if (failedComponents.length > 0) {
+      analytics.trackError({
+        error: failedComponents.map((result) => `${result.component}: ${result.error}`).join(", "),
+        errorEvent: AnalyticsErrorEvent.GET_COMPONENTS_ERROR,
+        properties: {
+          endpoint,
+          components: componentNames,
+          failedComponents: failedComponents.map((result) => result.component),
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+    } else {
+      analytics.track({
+        event: AnalyticsEvent.GET_COMPONENTS,
+        properties: {
+          endpoint,
+          components: componentNames,
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+    }
 
     return c.json({
       version: latestVersion || "unknown",
       results,
     });
   } catch (error) {
-    const responseTime = Date.now() - startTime;
-    console.error("Error getting components:", error);
-
-    analytics?.trackMcpError("api-user", {
-      method: "POST",
-      toolName: "get-components",
-      error: error instanceof Error ? error.message : "Unknown error",
-      responseTime,
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_COMPONENTS_ERROR,
+      fallbackMessage: "Failed to get component data",
+      properties: {
+        endpoint,
+        components: componentNames,
+        responseTime: Date.now() - startTime,
+      },
     });
 
     return c.json(
@@ -145,27 +138,24 @@ components.post("/", zValidator("json", ComponentsRequestSchema), async (c) => {
   }
 });
 
-// Get component props (multiple components)
+// Get component props
 components.post("/props", zValidator("json", ComponentsRequestSchema), async (c) => {
+  const endpoint = "get-component-props";
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
-
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
-
-  analytics?.trackToolInvocation("api-user", {
-    toolName: "get-component-props",
-    parameters: {library: LIBRARY_NAME, components: componentNames},
-    context: "api",
-  });
+  const analytics = c.get("analytics");
 
   try {
-    const service = await getDataService(c.env);
+    const service = await getComponentService(c.env);
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
+    const failedComponents: typeof results = [];
+
     const propsResults = results.map((result) => {
       if (result.error || !result.data) {
+        failedComponents.push(result);
+
         return {
           component: result.component,
           error: result.error || "Component not found",
@@ -225,35 +215,46 @@ components.post("/props", zValidator("json", ComponentsRequestSchema), async (c)
       };
     });
 
-    const responseTime = Date.now() - startTime;
-
-    analytics?.trackToolSuccess("api-user", {
-      toolName: "get-component-props",
-      executionTime: responseTime,
-      resultSize: JSON.stringify(propsResults).length,
-    });
-
-    propsResults.forEach((result) => {
-      if (!result.error) {
-        analytics?.trackFeatureUsage("api-user", "component-props", {
-          library: LIBRARY_NAME,
-          component: result.component,
-        });
-      }
-    });
+    if (failedComponents.length > 0) {
+      analytics.trackError({
+        error: failedComponents
+          .map((component) => `${component.component}: ${component.error}`)
+          .join(", "),
+        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_PROPS_ERROR,
+        properties: {
+          endpoint,
+          components: componentNames,
+          failedComponents: failedComponents.map((component) => component.component),
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+    } else {
+      analytics.track({
+        event: AnalyticsEvent.GET_COMPONENT_PROPS,
+        properties: {
+          endpoint,
+          components: componentNames,
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+    }
 
     return c.json({
       version: latestVersion || "unknown",
       results: propsResults,
     });
   } catch (error) {
-    const responseTime = Date.now() - startTime;
-    console.error("Error getting component props:", error);
-
-    analytics?.trackToolError("api-user", {
-      toolName: "get-component-props",
-      error: error instanceof Error ? error.message : "Unknown error",
-      executionTime: responseTime,
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_PROPS_ERROR,
+      fallbackMessage: "Failed to get component props",
+      properties: {
+        endpoint,
+        components: componentNames,
+        responseTime: Date.now() - startTime,
+      },
     });
 
     return c.json(
@@ -266,27 +267,24 @@ components.post("/props", zValidator("json", ComponentsRequestSchema), async (c)
   }
 });
 
-// Get component examples (multiple components)
+// Get component examples
 components.post("/examples", zValidator("json", ComponentsRequestSchema), async (c) => {
+  const endpoint = "get-component-examples";
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
-
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
-
-  analytics?.trackToolInvocation("api-user", {
-    toolName: "get-component-examples",
-    parameters: {library: LIBRARY_NAME, components: componentNames},
-    context: "api",
-  });
+  const analytics = c.get("analytics");
 
   try {
-    const service = await getDataService(c.env);
+    const service = await getComponentService(c.env);
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
+    const failedComponents: typeof results = [];
+
     const exampleResults = results.map((result) => {
       if (result.error || !result.data) {
+        failedComponents.push(result);
+
         return {
           component: result.component,
           error: result.error || "Component not found",
@@ -322,37 +320,46 @@ components.post("/examples", zValidator("json", ComponentsRequestSchema), async 
       };
     });
 
-    const responseTime = Date.now() - startTime;
-
-    analytics?.trackToolSuccess("api-user", {
-      toolName: "get-component-examples",
-      executionTime: responseTime,
-      resultSize: JSON.stringify(exampleResults).length,
-    });
-
-    exampleResults.forEach((result) => {
-      if (!result.error) {
-        analytics?.trackComponentGenerated("api-user", {
-          componentType: result.component,
-          framework: "react",
-          features: [],
-          generationTime: responseTime,
-        });
-      }
-    });
+    if (failedComponents.length > 0) {
+      analytics.trackError({
+        error: failedComponents
+          .map((component) => `${component.component}: ${component.error}`)
+          .join(", "),
+        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_EXAMPLES_ERROR,
+        properties: {
+          endpoint,
+          components: componentNames,
+          failedComponents: failedComponents.map((component) => component.component),
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+    } else {
+      analytics.track({
+        event: AnalyticsEvent.GET_COMPONENT_EXAMPLES,
+        properties: {
+          endpoint,
+          components: componentNames,
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+    }
 
     return c.json({
       version: latestVersion || "unknown",
       results: exampleResults,
     });
   } catch (error) {
-    const responseTime = Date.now() - startTime;
-    console.error("Error getting component examples:", error);
-
-    analytics?.trackToolError("api-user", {
-      toolName: "get-component-examples",
-      error: error instanceof Error ? error.message : "Unknown error",
-      executionTime: responseTime,
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_EXAMPLES_ERROR,
+      fallbackMessage: "Failed to get component examples",
+      properties: {
+        endpoint,
+        components: componentNames,
+        responseTime: Date.now() - startTime,
+      },
     });
 
     return c.json(
@@ -365,15 +372,15 @@ components.post("/examples", zValidator("json", ComponentsRequestSchema), async 
   }
 });
 
-// Get component source code (multiple components)
+// Get component source code
 components.post("/source", zValidator("json", ComponentsRequestSchema), async (c) => {
+  const endpoint = "get-component-source";
+  const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
-
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
+  const analytics = c.get("analytics");
 
   try {
-    const service = await getDataService(c.env);
+    const service = await getComponentService(c.env);
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
@@ -419,21 +426,47 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
       }),
     );
 
-    sourceResults.forEach((result) => {
-      if (!result.error) {
-        analytics?.trackFeatureUsage("api-user", "component-source", {
-          library: LIBRARY_NAME,
-          component: result.component,
-        });
-      }
-    });
+    const failedComponents = sourceResults.filter((result) => result.error);
+
+    if (failedComponents.length > 0) {
+      analytics.trackError({
+        error: failedComponents.map((result) => `${result.component}: ${result.error}`).join(", "),
+        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_ERROR,
+        properties: {
+          endpoint,
+          components: componentNames,
+          failedComponents: failedComponents.map((result) => result.component),
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+    } else {
+      analytics.track({
+        event: AnalyticsEvent.GET_COMPONENT_SOURCE,
+        properties: {
+          endpoint,
+          components: componentNames,
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+    }
 
     return c.json({
       version: latestVersion || "unknown",
       results: sourceResults,
     });
   } catch (error) {
-    console.error("Error getting component source:", error);
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_ERROR,
+      fallbackMessage: "Failed to get component source code",
+      properties: {
+        endpoint,
+        components: componentNames,
+        responseTime: Date.now() - startTime,
+      },
+    });
 
     return c.json(
       {
@@ -445,15 +478,15 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
   }
 });
 
-// Get component styles (multiple components)
+// Get component styles
 components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c) => {
+  const endpoint = "get-component-styles";
+  const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
-
-  initAnalytics(c.env);
-  const analytics = getAnalytics();
+  const analytics = c.get("analytics");
 
   try {
-    const service = await getDataService(c.env);
+    const service = await getComponentService(c.env);
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
@@ -499,21 +532,47 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
       }),
     );
 
-    styleResults.forEach((result) => {
-      if (!result.error) {
-        analytics?.trackFeatureUsage("api-user", "component-styles", {
-          library: LIBRARY_NAME,
-          component: result.component,
-        });
-      }
-    });
+    const failedComponents = styleResults.filter((result) => result.error);
+
+    if (failedComponents.length > 0) {
+      analytics.trackError({
+        error: failedComponents.map((result) => `${result.component}: ${result.error}`).join(", "),
+        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_STYLES_ERROR,
+        properties: {
+          endpoint,
+          components: componentNames,
+          failedComponents: failedComponents.map((result) => result.component),
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+    } else {
+      analytics.track({
+        event: AnalyticsEvent.GET_COMPONENT_STYLES,
+        properties: {
+          endpoint,
+          components: componentNames,
+          latestVersion,
+          responseTime: Date.now() - startTime,
+        },
+      });
+    }
 
     return c.json({
       version: latestVersion || "unknown",
       results: styleResults,
     });
   } catch (error) {
-    console.error("Error getting component styles:", error);
+    analytics.trackError({
+      error,
+      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_STYLES_ERROR,
+      fallbackMessage: "Failed to get component styles",
+      properties: {
+        endpoint,
+        components: componentNames,
+        responseTime: Date.now() - startTime,
+      },
+    });
 
     return c.json(
       {

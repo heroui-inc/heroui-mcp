@@ -3,10 +3,10 @@
  * Self-contained with all component extraction logic
  */
 
-import type {ComponentDataset} from "../../src/types/data";
-import type {GitHubClient} from "../github-client";
+import type {ComponentDataset} from "../../shared/types/data";
+import type {GitHubClient} from "../services/github-client";
 
-import {SimpleGitHubClient} from "../github-client";
+import {SimpleGitHubClient} from "../services/github-client";
 
 import {BaseExtractor} from "./base";
 import {HeroUIParser} from "./heroui-parser";

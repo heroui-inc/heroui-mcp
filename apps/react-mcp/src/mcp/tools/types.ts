@@ -1,10 +1,8 @@
-import type {ComponentDataServiceR2} from "../services/component-data-service-r2";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export interface ToolConfig {
   apiKey?: string;
   apiBaseUrl?: string;
-  dataService?: ComponentDataServiceR2;
 }
 
 export interface ComponentContext {

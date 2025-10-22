@@ -10,7 +10,7 @@ import type {
   ThemeDefinition,
   ThemeSystem,
   ThemeVariables,
-} from "../../src/types/theme";
+} from "../../shared/types/theme";
 
 import {BaseExtractor} from "./base";
 

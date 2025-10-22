@@ -4,7 +4,7 @@
  * Simplified theme extraction script
  */
 
-import {ThemeExtractor} from "../lib/extractors/theme";
+import {ThemeExtractor} from "../extractors/theme";
 
 async function main() {
   // Parse arguments
