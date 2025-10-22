@@ -9,20 +9,40 @@ import {MCPClient} from "@mastra/mcp";
 import {Memory} from "@mastra/memory";
 import {config} from "dotenv";
 
-config({path: resolve(__dirname, ".env")});
+config({path: resolve(__dirname, "../.env")});
 
 const memory = new Memory({
   storage: new LibSQLStore({
-    url: "file:../../memory.db",
+    url: "file:../memory.db",
   }),
 });
 
+const SERVER_CONFIG = {
+  react: {
+    name: "heroui-react",
+    path: "../../apps/react-mcp/src/stdio.ts",
+    description: "HeroUI React MCP Server",
+  },
+  native: {
+    name: "heroui-native",
+    path: "../../apps/native-mcp/src/stdio.ts",
+    description: "HeroUI React Native MCP Server",
+  },
+};
+
+const targetServer = (process.env.MCP_SERVER || "react") as keyof typeof SERVER_CONFIG;
+const serverConfig = SERVER_CONFIG[targetServer];
+
+if (!serverConfig) {
+  throw new Error(`Invalid MCP_SERVER: ${targetServer}. Must be 'react' or 'native'`);
+}
+
 const mcpClient = new MCPClient({
   servers: {
-    "heroui-react": {
+    [serverConfig.name]: {
       command: "tsx",
       // Playground runs in the .mastra/output directory
-      args: [resolve(__dirname, "../../src/stdio.ts")],
+      args: [resolve(__dirname, serverConfig.path)],
       env: {
         NODE_ENV: "development",
         HEROUI_API_URL: process.env.HEROUI_API_URL ?? "http://localhost:8787",
@@ -66,11 +86,10 @@ const getModel = () => {
 };
 
 export const agent = new Agent({
-  instructions:
-    "You are a HeroUI testing assistant. Help test MCP tools by querying component information and documentation. Use the available tools to search for components, get documentation, and explore the HeroUI component library.",
+  instructions: `You are a HeroUI testing assistant for the ${serverConfig.description}. Help test MCP tools by querying component information and documentation. Use the available tools to search for components, get documentation, and explore the HeroUI component library.`,
   memory,
   model: getModel(),
-  name: "HeroUI MCP Test Agent",
+  name: `HeroUI ${targetServer.toUpperCase()} MCP Test Agent`,
   tools: async () => {
     return await mcpClient.getTools();
   },
