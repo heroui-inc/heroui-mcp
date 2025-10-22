@@ -3,9 +3,9 @@
   "version": "1.0.0-alpha.22",
   "type": "module",
   "description": "MCP server for HeroUI component documentation via Model Context Protocol",
-  "main": "dist/mcp/stdio.js",
+  "main": "dist/stdio.js",
   "bin": {
-    "heroui-react-mcp": "dist/mcp/stdio.js"
+    "heroui-react-mcp": "dist/stdio.js"
   },
   "files": [
     "dist"
@@ -33,7 +33,7 @@
   "homepage": "https://github.com/heroui-inc/heroui-mcp/tree/main/apps/react-mcp",
   "prettier": "@heroui/config/prettier",
   "scripts": {
-    "build": "tsup && chmod +x dist/mcp/stdio.js",
+    "build": "tsup && chmod +x dist/stdio.js",
     "build:api": "wrangler deploy --dry-run --outdir dist-api",
     "dev:api": "dotenv -- wrangler dev src/api.ts --env development --port 8787",
     "dev:stdio": "NODE_ENV=development tsx --watch src/mcp/stdio.ts",
