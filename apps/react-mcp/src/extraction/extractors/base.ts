@@ -2,7 +2,7 @@
  * Base extractor with shared logic for all extraction types
  */
 
-import {R2Uploader} from "../r2-uploader";
+import {R2Uploader} from "../services/r2-uploader";
 
 export abstract class BaseExtractor {
   protected r2: R2Uploader;
