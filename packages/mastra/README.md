@@ -46,9 +46,9 @@ Two simple test agents for local MCP server testing:
 
 **Optional**:
 
-- `ANTHROPIC_MODEL` - Override default Claude model (default: `claude-sonnet-4-20250514`)
+- `ANTHROPIC_MODEL` - Override default Claude model (default: `claude-sonnet-4-5-20250929`)
 - `OPENAI_MODEL` - Override default OpenAI model (default: `gpt-4o`)
-- `BEDROCK_MODEL` - Override default Bedrock model (default: `us.anthropic.claude-sonnet-4-20250514-v1:0`)
+- `BEDROCK_MODEL` - Override default Bedrock model (default: `us.anthropic.claude-sonnet-4-5-20250929-v1:0`)
 - `HEROUI_API_URL` - Override MCP server API URL (default: `http://localhost:8787`)
 
 ## How It Works

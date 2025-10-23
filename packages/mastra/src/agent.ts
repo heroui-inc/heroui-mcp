@@ -31,7 +31,7 @@ const getModel = () => {
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     });
 
-    return bedrock(process.env.BEDROCK_MODEL ?? "us.anthropic.claude-sonnet-4-20250514-v1:0");
+    return bedrock(process.env.BEDROCK_MODEL ?? "us.anthropic.claude-sonnet-4-5-20250929-v1:0");
   }
 
   if (process.env.OPENAI_API_KEY) {
@@ -47,7 +47,7 @@ const getModel = () => {
       apiKey: process.env.ANTHROPIC_API_KEY,
     });
 
-    return anthropic(process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514");
+    return anthropic(process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5-20250929");
   }
 
   throw new Error("No model provider found");
