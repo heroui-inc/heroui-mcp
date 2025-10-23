@@ -249,35 +249,38 @@ importers:
   packages/mastra:
     dependencies:
       '@ai-sdk/amazon-bedrock':
-        specifier: ^3.0.29
-        version: 3.0.43(zod@4.1.12)
+        specifier: 3.0.47
+        version: 3.0.47(zod@3.25.76)
       '@ai-sdk/anthropic':
-        specifier: ^2.0.22
-        version: 2.0.33(zod@4.1.12)
+        specifier: 2.0.37
+        version: 2.0.37(zod@3.25.76)
       '@ai-sdk/openai':
-        specifier: ^2.0.42
-        version: 2.0.53(zod@4.1.12)
+        specifier: 2.0.53
+        version: 2.0.53(zod@3.25.76)
       '@mastra/core':
-        specifier: ^0.19.0
-        version: 0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12)
+        specifier: 0.22.2
+        version: 0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)
       '@mastra/libsql':
-        specifier: ^0.14.3
-        version: 0.14.3(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))
+        specifier: 0.16.0
+        version: 0.16.0(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))
       '@mastra/loggers':
-        specifier: ^0.10.13
-        version: 0.10.16(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))
+        specifier: 0.10.17
+        version: 0.10.17(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))
       '@mastra/mcp':
-        specifier: ^0.13.1
-        version: 0.13.5(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(@types/json-schema@7.0.15)(zod@4.1.12)
+        specifier: 0.14.0
+        version: 0.14.0(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(@types/json-schema@7.0.15)(zod@3.25.76)
       '@mastra/memory':
-        specifier: ^0.15.3
-        version: 0.15.7(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(react@19.2.0)(zod@4.1.12)
+        specifier: 0.15.8
+        version: 0.15.8(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(react@19.2.0)(zod@3.25.76)
       dotenv:
-        specifier: ^17.2.3
+        specifier: 17.2.3
         version: 17.2.3
       mastra:
-        specifier: ^0.13.2
-        version: 0.13.4(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(@opentelemetry/api@1.9.0)(@types/json-schema@7.0.15)(typescript@5.9.3)(zod@4.1.12)
+        specifier: 0.17.3
+        version: 0.17.3(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(@opentelemetry/api@1.9.0)(typescript@5.9.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.25.0
+        version: 3.25.76
     devDependencies:
       '@heroui/config':
         specifier: workspace:*
@@ -304,8 +307,8 @@ packages:
     resolution: {integrity: sha512-VTDuRS5V0ATbJ/LkaQlisMnTAeYKXAK6scMguVBstf+KIBQ7HIuKhiXLv+G/hvejkV+THoXzoNifInAkU81P1g==}
     engines: {node: '>=18'}
 
-  '@ai-sdk/amazon-bedrock@3.0.43':
-    resolution: {integrity: sha512-/l+6iF/rQ8CRtkj4gsnHXdN5sG1VcqnqdbtvUzGUHnS2KUhRIxvzLojUQ/jt5H0ZQ8OaXj1Im/T5eL+3jeFmVg==}
+  '@ai-sdk/amazon-bedrock@3.0.47':
+    resolution: {integrity: sha512-oTAxTU4k1+EIKP41nvLGN7dWwoK7dg1JptrX6csn7abmSfQSsygDrfeMf8/7Mdnr+frt9i5ogvpQkp1ak0916Q==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -316,14 +319,32 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/gateway@1.0.23':
-    resolution: {integrity: sha512-ynV7WxpRK2zWLGkdOtrU2hW22mBVkEYVS3iMg1+ZGmAYSgzCqzC74bfOJZ2GU1UdcrFWUsFI9qAYjsPkd+AebA==}
+  '@ai-sdk/anthropic@2.0.37':
+    resolution: {integrity: sha512-r2e9BWoobisH9B5b7x3yYG/k9WlsZqa4D94o7gkwktReqrjjv83zNMop4KmlJsh/zBhbsaP8S8SUfiwK+ESxgg==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.25.76 || ^4
+      zod: ^3.25.76 || ^4.1.8
 
   '@ai-sdk/gateway@1.0.33':
     resolution: {integrity: sha512-v9i3GPEo4t3fGcSkQkc07xM6KJN75VUv7C1Mqmmsu2xD8lQwnQfsrgAXyNuWe20yGY0eHuheSPDZhiqsGKtH1g==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/gateway@2.0.0':
+    resolution: {integrity: sha512-Gj0PuawK7NkZuyYgO/h5kDK/l6hFOjhLdTq3/Lli1FTl47iGmwhH1IZQpAL3Z09BeFYWakcwUmn02ovIm2wy9g==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/google@2.0.23':
+    resolution: {integrity: sha512-VbCnKR+6aWUVLkAiSW5gUEtST7KueEmlt+d6qwDikxlLnFG9pzy59je8MiDVeM5G2tuSXbvZQF78PGIfXDBmow==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/openai-compatible@1.0.22':
+    resolution: {integrity: sha512-Q+lwBIeMprc/iM+vg1yGjvzRrp74l316wDpqWdbmd4VXXlllblzGsUgBLTeKvcEapFTgqk0FRETvSb58Y6dsfA==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -352,12 +373,6 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/provider-utils@3.0.9':
-    resolution: {integrity: sha512-Pm571x5efqaI4hf9yW4KsVlDBDme8++UepZRnq+kqVBWWjgvGhQlzU8glaFq0YJEB9kkxZHbRRyVeHoV2sRYaQ==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
-
   '@ai-sdk/provider@1.1.3':
     resolution: {integrity: sha512-qZMxYJ0qqX/RfnuIaab+zp8UAeJn/ygXXAffR5I4N0n1IrvA6qBsjc8hXLmBiMV2zoXlifkacF7sEFnYnjBcqg==}
     engines: {node: '>=18'}
@@ -381,6 +396,12 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.23.8
+
+  '@ai-sdk/xai@2.0.26':
+    resolution: {integrity: sha512-+VtaLZSxmoKnNeJGM9bbtbZ3QMkPFlBB4N8prngbrSnvU/hG8cNdvvSBW/rIk6/DHrc2R8nFntNIBQoIRuBdQw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
 
   '@apidevtools/json-schema-ref-parser@11.9.3':
     resolution: {integrity: sha512-60vepv88RwcJtSHrD6MjIL6Ta3SOYbgfnkHb+ppAVK+o9mXprRtulx7VlRl3lN3bbvysAfCS7WMVfhUYemB0IQ==}
@@ -1352,38 +1373,38 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@mastra/core@0.19.1':
-    resolution: {integrity: sha512-b8a/U1qfse9H4ecX+o3hDoCReuhCyWzQf5qNZo08BkgVb/WzgMmffPmid0jxDZ7nWkaFJAmig7+92rhdommNoQ==}
+  '@mastra/core@0.22.2':
+    resolution: {integrity: sha512-BaE6J3/DPy4QbVS64r1El53zMYzp0HoMFUOtL5EdudohqeUWNCVpbHpF03K+OfKO9UbB9CbW6jDOpjTOxWB/xw==}
     engines: {node: '>=20'}
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
 
-  '@mastra/deployer@0.19.1':
-    resolution: {integrity: sha512-J1jC+BnR7VPEodraHO7IWswhAxbDOX/TPuO3+0kOM5efS95nHdTx2P6HwoensRdpyOmoimN3nHG8ApeP1VePOA==}
+  '@mastra/deployer@0.22.2':
+    resolution: {integrity: sha512-U4lwwsqhESa8UaWQVw1Azwg2jhN5cDF7Xbb1Cf/YUio7M5/S2qDxTVfnDtlbTXfg/9+S0UpZACzHlqLYOeS2Cw==}
     peerDependencies:
-      '@mastra/core': '>=0.19.1-0 <0.20.0-0'
+      '@mastra/core': '>=0.22.0-0 <0.23.0-0'
       zod: ^3.25.0 || ^4.0.0
 
-  '@mastra/libsql@0.14.3':
-    resolution: {integrity: sha512-2GjbaBdBbm0FeOE/FUgnHArigPW2K/zJTH7jqLFIJNYCcIHOk7Lrh1rot7zXzEAtrOY5DU5MgjYDUF9AnFb+7Q==}
+  '@mastra/libsql@0.16.0':
+    resolution: {integrity: sha512-uzck9hzARdbhk50ZWjHVi7o6eIlGagyVnoh3gn/HUCF7QNZ6JLPFG7qbScudaETC5Uazvuc0kK6W+rhy7MbJ8g==}
     peerDependencies:
-      '@mastra/core': '>=0.17.0-0 <0.19.0-0'
+      '@mastra/core': '>=0.21.2-0 <0.23.0-0'
 
-  '@mastra/loggers@0.10.16':
-    resolution: {integrity: sha512-zZiaz/kfChdA9L8ks0F73pn/kh6gU8FkS8VMigKH5uc7Ez8gvWsaC9Orgg5k7Og4bkXrZ3j2fN5RewtjI8appA==}
+  '@mastra/loggers@0.10.17':
+    resolution: {integrity: sha512-2tBMiIG/StgdO+3xIo9jK867XFzMHL/yLH1uj3tfIl0jED25Z2u6K3RXXjPXQdSyJh7p5HhXgRo93XJcuaBtRw==}
     peerDependencies:
-      '@mastra/core': '>=0.18.1-0 <0.22.0-0'
+      '@mastra/core': '>=0.18.1-0 <0.23.0-0'
 
-  '@mastra/mcp@0.13.5':
-    resolution: {integrity: sha512-GFHOHTbUY8PuEwzObIVCaHF855M4S4xIOnNJE1WJeEsPvWOllyL+y1Wz3HGjusrAfZIDrZ8j8Z5Diqxf3KTW/A==}
+  '@mastra/mcp@0.14.0':
+    resolution: {integrity: sha512-JaohfrzT3aUMnYzoEiX78hp/GoplLCqR6nkz61oU2ZqShBJ5NK7+GyLSOlGVQLBsJQeqzR8yxVzsPyHFjGIrBw==}
     peerDependencies:
-      '@mastra/core': '>=0.20.1-0 <0.22.0-0'
+      '@mastra/core': '>=0.20.1-0 <0.23.0-0'
       zod: ^3.25.0 || ^4.0.0
 
-  '@mastra/memory@0.15.7':
-    resolution: {integrity: sha512-7UzIQBM0RePgAfKK7IuhE6UEy6TWy3CTrKSEpybGfI3JtuifCpSbu4VfvWK0iW3B3KLd/6Lq+mWlm13P6k8ZrQ==}
+  '@mastra/memory@0.15.8':
+    resolution: {integrity: sha512-5+MH1aegYdzRRp4BE3/g2Ibi3gMiZm5W26NWCEyL0uoulgLZjQGtbBunrZGb1sxi2zr59qsr0vhrcgeRduXWXg==}
     peerDependencies:
-      '@mastra/core': '>=0.20.1-0 <0.22.0-0'
+      '@mastra/core': '>=0.20.1-0 <0.23.0-0'
       zod: ^3.25.0 || ^4.0.0
 
   '@mastra/schema-compat@0.11.4':
@@ -1392,10 +1413,10 @@ packages:
       ai: ^4.0.0 || ^5.0.0
       zod: ^3.25.0 || ^4.0.0
 
-  '@mastra/server@0.19.1':
-    resolution: {integrity: sha512-JN1CyUf8C+MjpCuGVaRA2RMpUOsl2Cum2oNm5NZlwa9CIKdiU4pO2mF3Fa7/I7xsx3rQSBoaFv9ItvFXOob+MQ==}
+  '@mastra/server@0.22.2':
+    resolution: {integrity: sha512-u8sQt5oVtqQ1gFzr/WJc6smPxwmCUEBreCfjJ2Lqaj8hJdNqmJ058dFz6kZhNYJtVVMdMB60FuG48+ZajLElxQ==}
     peerDependencies:
-      '@mastra/core': '>=0.19.1-0 <0.20.0-0'
+      '@mastra/core': '>=0.22.0-0 <0.23.0-0'
       zod: ^3.25.0 || ^4.0.0
 
   '@modelcontextprotocol/sdk@1.20.1':
@@ -1422,6 +1443,13 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@openrouter/ai-sdk-provider@1.2.0':
+    resolution: {integrity: sha512-stuIwq7Yb7DNmk3GuCtz+oS3nZOY4TXEV3V5KsknDGQN7Fpu3KRMQVWRc1J073xKdf0FC9EHOctSyzsACmp5Ag==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      ai: ^5.0.0
+      zod: ^3.24.1 || ^v4
 
   '@opentelemetry/api-logs@0.203.0':
     resolution: {integrity: sha512-9B9RU0H7Ya1Dx/Rkyc4stuBZSGVQF27WigitInx2QQoj6KUpEFYPKoWjdFTunJYxmXmh17HeBvbMa1EhGyPmqQ==}
@@ -2008,8 +2036,8 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/plugin-commonjs@28.0.8':
-    resolution: {integrity: sha512-o1Ug9PxYsF61R7/NXO/GgMZZproLd/WH2XA53Tp9ppf6bU1lMlTtC/gUM6zM3mesi2E0rypk+PNtVrELREyWEQ==}
+  '@rollup/plugin-commonjs@28.0.6':
+    resolution: {integrity: sha512-XSQB1K7FUU5QP+3lOQmVCE3I0FcbbNvmNT4VJSj93iUjayaARrTQeoRdiYQoftAJBLrR9t2agwAd3ekaTgHNlw==}
     engines: {node: '>=16.0.0 || 14 >= 14.17'}
     peerDependencies:
       rollup: ^2.68.0||^3.0.0||^4.0.0
@@ -2035,8 +2063,8 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/plugin-node-resolve@16.0.3':
-    resolution: {integrity: sha512-lUYM3UBGuM93CnMPG1YocWu7X802BrNF3jW2zny5gQyLQgRFJhV1Sq0Zi74+dh/6NBx1DxFC4b4GXg9wUCG5Qg==}
+  '@rollup/plugin-node-resolve@16.0.2':
+    resolution: {integrity: sha512-tCtHJ2BlhSoK4cCs25NMXfV7EALKr0jyasmqVCq3y9cBrKdmJhtsy1iTz36Xhk/O+pDJbzawxF4K6ZblqCnITQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.78.0||^3.0.0||^4.0.0
@@ -2868,14 +2896,14 @@ packages:
       react:
         optional: true
 
-  ai@5.0.44:
-    resolution: {integrity: sha512-l/rdoM4LcRpsRBVvZQBwSU73oNoFGlWj+PcH86QRzxDGJgZqgGItWO0QcKjBNcLDmUjGN1VYd/8J0TAXHJleRQ==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
-
   ai@5.0.60:
     resolution: {integrity: sha512-80U/3kmdBW6g+JkLXpz/P2EwkyEaWlPlYtuLUpx/JYK9F7WZh9NnkYoh1KvUi1Sbpo0NyurBTvX0a2AG9mmbDA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  ai@5.0.76:
+    resolution: {integrity: sha512-ZCxi1vrpyCUnDbtYrO/W8GLvyacV9689f00yshTIQ3mFFphbD7eIv40a2AOZBv3GGRA7SSRYIDnr56wcS/gyQg==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -4227,6 +4255,10 @@ packages:
     resolution: {integrity: sha512-5KoIu2Ngpyek75jXodFvnafB6DJgr3u8uuK0LEZJjrU19DrMD3EVERaR8sjz8CCGgpZvxPl9SuE1GMVPFHx1mw==}
     engines: {node: '>= 0.4'}
 
+  is-network-error@1.3.0:
+    resolution: {integrity: sha512-6oIwpsgRfnDiyEDLMay/GqCl3HoAtH5+RUKW29gYkL0QA+ipzpDLA16yQs7/RHCSu+BwgbJaOUqa4A99qNVQVw==}
+    engines: {node: '>=16'}
+
   is-number-object@1.1.1:
     resolution: {integrity: sha512-lZhclumE1G6VYD8VHe35wFaIif+CTy5SJIi5+3y4psDgWu4wPDoBhF8NxUOinEc7pHgiTsT6MaBb92rKhhD+Xw==}
     engines: {node: '>= 0.4'}
@@ -4460,11 +4492,11 @@ packages:
   magic-string@0.30.19:
     resolution: {integrity: sha512-2N21sPY9Ws53PZvsEpVtNuSW+ScYbQdp4b9qUaL+9QkHUrGFKo56Lg9Emg5s9V/qrtNBmiR01sYhUOwu3H+VOw==}
 
-  mastra@0.13.4:
-    resolution: {integrity: sha512-p9abBTH65OgmZwQVDLkegikeuEg7kruKHOs9IKc2slrv83FcCXGevQDNMWa533iuAjEOE2ev85jcsZ+7ZSpKLA==}
+  mastra@0.17.3:
+    resolution: {integrity: sha512-OTrw0XvTMRXWvyR6qyRqqwCByGsKSQed1mqsByhx4a5NnfLJj8Y4YEWUm/k9MeFTtS06XOUmnXCgZHUApMV/oA==}
     hasBin: true
     peerDependencies:
-      '@mastra/core': '>=0.17.0-0 <0.20.0-0'
+      '@mastra/core': '>=0.21.0-0 <0.23.0-0'
       zod: ^3.25.0 || ^4.0.0
 
   math-intrinsics@1.1.0:
@@ -4737,6 +4769,10 @@ packages:
   p-map@7.0.3:
     resolution: {integrity: sha512-VkndIv2fIB99swvQoA65bm+fsmt6UNdGeIB0oxBs+WhAhdh08QA04JXpI7rbB9r08/nkbysKoya9rtDERYOYMA==}
     engines: {node: '>=18'}
+
+  p-retry@7.1.0:
+    resolution: {integrity: sha512-xL4PiFRQa/f9L9ZvR4/gUCRNus4N8YX80ku8kv9Jqz+ZokkiZLM0bcvX0gm1F3PDi9SPRsww1BDsTWgE6Y1GLQ==}
+    engines: {node: '>=20'}
 
   package-json-from-dist@1.0.1:
     resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
@@ -5070,6 +5106,10 @@ packages:
 
   resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
+
+  resolve.exports@2.0.3:
+    resolution: {integrity: sha512-OcXjMsGdhL4XnbShKpAcSqPMzQoYkYyhbEaeSko47MjRP9NfEQMhZkXL1DoFlt9LWQn4YttrdnV6X2OiyzBi+A==}
+    engines: {node: '>=10'}
 
   resolve@1.22.10:
     resolution: {integrity: sha512-NPRy+/ncIMeDlTAsuqwKIiferiawhefFJtkNSW0qZJEqMEb+qBt/77B/jGeeek+F0uOeN05CDa6HXbbIgtVX4w==}
@@ -5902,68 +5942,80 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@ai-sdk/amazon-bedrock@3.0.43(zod@4.1.12)':
+  '@ai-sdk/amazon-bedrock@3.0.47(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/anthropic': 2.0.33(zod@4.1.12)
+      '@ai-sdk/anthropic': 2.0.37(zod@3.25.76)
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.12(zod@4.1.12)
+      '@ai-sdk/provider-utils': 3.0.12(zod@3.25.76)
       '@smithy/eventstream-codec': 4.2.3
       '@smithy/util-utf8': 4.2.0
       aws4fetch: 1.0.20
-      zod: 4.1.12
+      zod: 3.25.76
 
-  '@ai-sdk/anthropic@2.0.33(zod@4.1.12)':
+  '@ai-sdk/anthropic@2.0.33(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.12(zod@4.1.12)
-      zod: 4.1.12
+      '@ai-sdk/provider-utils': 3.0.12(zod@3.25.76)
+      zod: 3.25.76
 
-  '@ai-sdk/gateway@1.0.23(zod@4.1.12)':
+  '@ai-sdk/anthropic@2.0.37(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.9(zod@4.1.12)
-      zod: 4.1.12
+      '@ai-sdk/provider-utils': 3.0.12(zod@3.25.76)
+      zod: 3.25.76
 
-  '@ai-sdk/gateway@1.0.33(zod@4.1.12)':
+  '@ai-sdk/gateway@1.0.33(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.10(zod@4.1.12)
+      '@ai-sdk/provider-utils': 3.0.10(zod@3.25.76)
       '@vercel/oidc': 3.0.3
-      zod: 4.1.12
+      zod: 3.25.76
 
-  '@ai-sdk/openai@2.0.53(zod@4.1.12)':
+  '@ai-sdk/gateway@2.0.0(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.12(zod@4.1.12)
-      zod: 4.1.12
+      '@ai-sdk/provider-utils': 3.0.12(zod@3.25.76)
+      '@vercel/oidc': 3.0.3
+      zod: 3.25.76
 
-  '@ai-sdk/provider-utils@2.2.8(zod@4.1.12)':
+  '@ai-sdk/google@2.0.23(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.12(zod@3.25.76)
+      zod: 3.25.76
+
+  '@ai-sdk/openai-compatible@1.0.22(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.12(zod@3.25.76)
+      zod: 3.25.76
+
+  '@ai-sdk/openai@2.0.53(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.12(zod@3.25.76)
+      zod: 3.25.76
+
+  '@ai-sdk/provider-utils@2.2.8(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
       nanoid: 3.3.11
       secure-json-parse: 2.7.0
-      zod: 4.1.12
+      zod: 3.25.76
 
-  '@ai-sdk/provider-utils@3.0.10(zod@4.1.12)':
+  '@ai-sdk/provider-utils@3.0.10(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
       eventsource-parser: 3.0.6
-      zod: 4.1.12
+      zod: 3.25.76
 
-  '@ai-sdk/provider-utils@3.0.12(zod@4.1.12)':
+  '@ai-sdk/provider-utils@3.0.12(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
       eventsource-parser: 3.0.6
-      zod: 4.1.12
-
-  '@ai-sdk/provider-utils@3.0.9(zod@4.1.12)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@standard-schema/spec': 1.0.0
-      eventsource-parser: 3.0.6
-      zod: 4.1.12
+      zod: 3.25.76
 
   '@ai-sdk/provider@1.1.3':
     dependencies:
@@ -5973,22 +6025,29 @@ snapshots:
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@1.2.12(react@19.2.0)(zod@4.1.12)':
+  '@ai-sdk/react@1.2.12(react@19.2.0)(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider-utils': 2.2.8(zod@4.1.12)
-      '@ai-sdk/ui-utils': 1.2.11(zod@4.1.12)
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.76)
       react: 19.2.0
       swr: 2.3.6(react@19.2.0)
       throttleit: 2.1.0
     optionalDependencies:
-      zod: 4.1.12
+      zod: 3.25.76
 
-  '@ai-sdk/ui-utils@1.2.11(zod@4.1.12)':
+  '@ai-sdk/ui-utils@1.2.11(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@4.1.12)
-      zod: 4.1.12
-      zod-to-json-schema: 3.24.6(zod@4.1.12)
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.6(zod@3.25.76)
+
+  '@ai-sdk/xai@2.0.26(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/openai-compatible': 1.0.22(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.12(zod@3.25.76)
+      zod: 3.25.76
 
   '@apidevtools/json-schema-ref-parser@11.9.3':
     dependencies:
@@ -7159,16 +7218,22 @@ snapshots:
   '@libsql/win32-x64-msvc@0.5.22':
     optional: true
 
-  '@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12)':
+  '@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)':
     dependencies:
       '@a2a-js/sdk': 0.2.5
+      '@ai-sdk/anthropic-v5': '@ai-sdk/anthropic@2.0.33(zod@3.25.76)'
+      '@ai-sdk/google-v5': '@ai-sdk/google@2.0.23(zod@3.25.76)'
+      '@ai-sdk/openai-compatible-v5': '@ai-sdk/openai-compatible@1.0.22(zod@3.25.76)'
+      '@ai-sdk/openai-v5': '@ai-sdk/openai@2.0.53(zod@3.25.76)'
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@4.1.12)
-      '@ai-sdk/provider-utils-v5': '@ai-sdk/provider-utils@3.0.9(zod@4.1.12)'
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/provider-utils-v5': '@ai-sdk/provider-utils@3.0.12(zod@3.25.76)'
       '@ai-sdk/provider-v5': '@ai-sdk/provider@2.0.0'
-      '@ai-sdk/ui-utils': 1.2.11(zod@4.1.12)
+      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.76)
+      '@ai-sdk/xai-v5': '@ai-sdk/xai@2.0.26(zod@3.25.76)'
       '@isaacs/ttlcache': 1.4.1
-      '@mastra/schema-compat': 0.11.4(ai@4.3.19(react@19.2.0)(zod@4.1.12))(zod@4.1.12)
+      '@mastra/schema-compat': 0.11.4(ai@4.3.19(react@19.2.0)(zod@3.25.76))(zod@3.25.76)
+      '@openrouter/ai-sdk-provider-v5': '@openrouter/ai-sdk-provider@1.2.0(ai@4.3.19(react@19.2.0)(zod@3.25.76))(zod@3.25.76)'
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/auto-instrumentations-node': 0.62.2(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
       '@opentelemetry/core': 2.1.0(@opentelemetry/api@1.9.0)
@@ -7183,23 +7248,24 @@ snapshots:
       '@opentelemetry/sdk-trace-node': 2.1.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.37.0
       '@sindresorhus/slugify': 2.2.1
-      ai: 4.3.19(react@19.2.0)(zod@4.1.12)
-      ai-v5: ai@5.0.44(zod@4.1.12)
+      ai: 4.3.19(react@19.2.0)(zod@3.25.76)
+      ai-v5: ai@5.0.76(zod@3.25.76)
       date-fns: 3.6.0
       dotenv: 16.6.1
       hono: 4.10.1
-      hono-openapi: 0.4.8(hono@4.10.1)(openapi-types@12.1.3)(zod@4.1.12)
+      hono-openapi: 0.4.8(hono@4.10.1)(openapi-types@12.1.3)(zod@3.25.76)
       js-tiktoken: 1.0.21
       json-schema: 0.4.0
       json-schema-to-zod: 2.6.1
       p-map: 7.0.3
+      p-retry: 7.1.0
       pino: 9.14.0
       pino-pretty: 13.1.2
       radash: 12.1.1
       sift: 17.1.3
       xstate: 5.23.0
-      zod: 4.1.12
-      zod-to-json-schema: 3.24.6(zod@4.1.12)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.6(zod@3.25.76)
     transitivePeerDependencies:
       - '@hono/arktype-validator'
       - '@hono/effect-validator'
@@ -7217,20 +7283,20 @@ snapshots:
       - valibot
       - zod-openapi
 
-  '@mastra/deployer@0.19.1(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(typescript@5.9.3)(zod@4.1.12)':
+  '@mastra/deployer@0.22.2(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(typescript@5.9.3)(zod@3.25.76)':
     dependencies:
       '@babel/core': 7.28.4
       '@babel/helper-module-imports': 7.27.1
       '@babel/preset-typescript': 7.27.1(@babel/core@7.28.4)
-      '@mastra/core': 0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12)
-      '@mastra/server': 0.19.1(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(zod@4.1.12)
+      '@mastra/core': 0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)
+      '@mastra/server': 0.22.2(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(zod@3.25.76)
       '@neon-rs/load': 0.1.82
       '@optimize-lodash/rollup-plugin': 5.0.2(rollup@4.50.2)
       '@rollup/plugin-alias': 5.1.1(rollup@4.50.2)
-      '@rollup/plugin-commonjs': 28.0.8(rollup@4.50.2)
+      '@rollup/plugin-commonjs': 28.0.6(rollup@4.50.2)
       '@rollup/plugin-esm-shim': 0.1.8(rollup@4.50.2)
       '@rollup/plugin-json': 6.1.0(rollup@4.50.2)
-      '@rollup/plugin-node-resolve': 16.0.3(rollup@4.50.2)
+      '@rollup/plugin-node-resolve': 16.0.2(rollup@4.50.2)
       '@rollup/plugin-virtual': 3.0.2(rollup@4.50.2)
       '@sindresorhus/slugify': 2.2.1
       builtins: 5.1.0
@@ -7243,53 +7309,54 @@ snapshots:
       hono: 4.10.1
       local-pkg: 1.1.2
       resolve-from: 5.0.0
+      resolve.exports: 2.0.3
       rollup: 4.50.2
       rollup-plugin-esbuild: 6.2.1(esbuild@0.25.11)(rollup@4.50.2)
       rollup-plugin-node-externals: 8.1.1(rollup@4.50.2)
       tinyglobby: 0.2.15
       typescript-paths: 1.5.1(typescript@5.9.3)
-      zod: 4.1.12
+      zod: 3.25.76
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  '@mastra/libsql@0.14.3(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))':
+  '@mastra/libsql@0.16.0(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))':
     dependencies:
       '@libsql/client': 0.15.15
-      '@mastra/core': 0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12)
+      '@mastra/core': 0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@mastra/loggers@0.10.16(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))':
+  '@mastra/loggers@0.10.17(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))':
     dependencies:
-      '@mastra/core': 0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12)
+      '@mastra/core': 0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)
       pino: 9.14.0
       pino-pretty: 13.1.2
 
-  '@mastra/mcp@0.13.5(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(@types/json-schema@7.0.15)(zod@4.1.12)':
+  '@mastra/mcp@0.14.0(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(@types/json-schema@7.0.15)(zod@3.25.76)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 14.2.1(@types/json-schema@7.0.15)
-      '@mastra/core': 0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12)
+      '@mastra/core': 0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)
       '@modelcontextprotocol/sdk': 1.20.1
       date-fns: 4.1.0
       exit-hook: 4.0.0
       fast-deep-equal: 3.1.3
       uuid: 11.1.0
-      zod: 4.1.12
+      zod: 3.25.76
       zod-from-json-schema: 0.5.0
       zod-from-json-schema-v3: zod-from-json-schema@0.0.5
     transitivePeerDependencies:
       - '@types/json-schema'
       - supports-color
 
-  '@mastra/memory@0.15.7(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(react@19.2.0)(zod@4.1.12)':
+  '@mastra/memory@0.15.8(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(react@19.2.0)(zod@3.25.76)':
     dependencies:
-      '@mastra/core': 0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12)
-      '@mastra/schema-compat': 0.11.4(ai@4.3.19(react@19.2.0)(zod@4.1.12))(zod@4.1.12)
+      '@mastra/core': 0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)
+      '@mastra/schema-compat': 0.11.4(ai@4.3.19(react@19.2.0)(zod@3.25.76))(zod@3.25.76)
       '@upstash/redis': 1.35.6
-      ai: 4.3.19(react@19.2.0)(zod@4.1.12)
-      ai-v5: ai@5.0.60(zod@4.1.12)
+      ai: 4.3.19(react@19.2.0)(zod@3.25.76)
+      ai-v5: ai@5.0.60(zod@3.25.76)
       async-mutex: 0.5.0
       js-tiktoken: 1.0.21
       json-schema: 0.4.0
@@ -7298,25 +7365,25 @@ snapshots:
       postgres: 3.4.7
       redis: 5.8.3
       xxhash-wasm: 1.1.0
-      zod: 4.1.12
-      zod-to-json-schema: 3.24.6(zod@4.1.12)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.6(zod@3.25.76)
     transitivePeerDependencies:
       - pg-native
       - react
 
-  '@mastra/schema-compat@0.11.4(ai@4.3.19(react@19.2.0)(zod@4.1.12))(zod@4.1.12)':
+  '@mastra/schema-compat@0.11.4(ai@4.3.19(react@19.2.0)(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      ai: 4.3.19(react@19.2.0)(zod@4.1.12)
+      ai: 4.3.19(react@19.2.0)(zod@3.25.76)
       json-schema: 0.4.0
-      zod: 4.1.12
+      zod: 3.25.76
       zod-from-json-schema: 0.5.0
       zod-from-json-schema-v3: zod-from-json-schema@0.0.5
-      zod-to-json-schema: 3.24.6(zod@4.1.12)
+      zod-to-json-schema: 3.24.6(zod@3.25.76)
 
-  '@mastra/server@0.19.1(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(zod@4.1.12)':
+  '@mastra/server@0.22.2(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      '@mastra/core': 0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12)
-      zod: 4.1.12
+      '@mastra/core': 0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)
+      zod: 3.25.76
 
   '@modelcontextprotocol/sdk@1.20.1':
     dependencies:
@@ -7357,6 +7424,11 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
+
+  '@openrouter/ai-sdk-provider@1.2.0(ai@4.3.19(react@19.2.0)(zod@3.25.76))(zod@3.25.76)':
+    dependencies:
+      ai: 4.3.19(react@19.2.0)(zod@3.25.76)
+      zod: 3.25.76
 
   '@opentelemetry/api-logs@0.203.0':
     dependencies:
@@ -8139,7 +8211,7 @@ snapshots:
     optionalDependencies:
       rollup: 4.50.2
 
-  '@rollup/plugin-commonjs@28.0.8(rollup@4.50.2)':
+  '@rollup/plugin-commonjs@28.0.6(rollup@4.50.2)':
     dependencies:
       '@rollup/pluginutils': 5.3.0(rollup@4.50.2)
       commondir: 1.0.1
@@ -8164,7 +8236,7 @@ snapshots:
     optionalDependencies:
       rollup: 4.50.2
 
-  '@rollup/plugin-node-resolve@16.0.3(rollup@4.50.2)':
+  '@rollup/plugin-node-resolve@16.0.2(rollup@4.50.2)':
     dependencies:
       '@rollup/pluginutils': 5.3.0(rollup@4.50.2)
       '@types/resolve': 1.20.2
@@ -9026,33 +9098,33 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  ai@4.3.19(react@19.2.0)(zod@4.1.12):
+  ai@4.3.19(react@19.2.0)(zod@3.25.76):
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@4.1.12)
-      '@ai-sdk/react': 1.2.12(react@19.2.0)(zod@4.1.12)
-      '@ai-sdk/ui-utils': 1.2.11(zod@4.1.12)
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/react': 1.2.12(react@19.2.0)(zod@3.25.76)
+      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.76)
       '@opentelemetry/api': 1.9.0
       jsondiffpatch: 0.6.0
-      zod: 4.1.12
+      zod: 3.25.76
     optionalDependencies:
       react: 19.2.0
 
-  ai@5.0.44(zod@4.1.12):
+  ai@5.0.60(zod@3.25.76):
     dependencies:
-      '@ai-sdk/gateway': 1.0.23(zod@4.1.12)
+      '@ai-sdk/gateway': 1.0.33(zod@3.25.76)
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.9(zod@4.1.12)
+      '@ai-sdk/provider-utils': 3.0.10(zod@3.25.76)
       '@opentelemetry/api': 1.9.0
-      zod: 4.1.12
+      zod: 3.25.76
 
-  ai@5.0.60(zod@4.1.12):
+  ai@5.0.76(zod@3.25.76):
     dependencies:
-      '@ai-sdk/gateway': 1.0.33(zod@4.1.12)
+      '@ai-sdk/gateway': 2.0.0(zod@3.25.76)
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.10(zod@4.1.12)
+      '@ai-sdk/provider-utils': 3.0.12(zod@3.25.76)
       '@opentelemetry/api': 1.9.0
-      zod: 4.1.12
+      zod: 3.25.76
 
   ajv@6.12.6:
     dependencies:
@@ -10461,13 +10533,13 @@ snapshots:
 
   help-me@5.0.0: {}
 
-  hono-openapi@0.4.8(hono@4.10.1)(openapi-types@12.1.3)(zod@4.1.12):
+  hono-openapi@0.4.8(hono@4.10.1)(openapi-types@12.1.3)(zod@3.25.76):
     dependencies:
       json-schema-walker: 2.0.0
       openapi-types: 12.1.3
     optionalDependencies:
       hono: 4.10.1
-      zod: 4.1.12
+      zod: 3.25.76
 
   hono@4.10.1: {}
 
@@ -10617,6 +10689,8 @@ snapshots:
   is-module@1.0.0: {}
 
   is-negative-zero@2.0.3: {}
+
+  is-network-error@1.3.0: {}
 
   is-number-object@1.1.1:
     dependencies:
@@ -10831,14 +10905,13 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  mastra@0.13.4(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(@opentelemetry/api@1.9.0)(@types/json-schema@7.0.15)(typescript@5.9.3)(zod@4.1.12):
+  mastra@0.17.3(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(@opentelemetry/api@1.9.0)(typescript@5.9.3)(zod@3.25.76):
     dependencies:
       '@clack/prompts': 0.11.0
       '@expo/devcert': 1.2.0
-      '@mastra/core': 0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12)
-      '@mastra/deployer': 0.19.1(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(typescript@5.9.3)(zod@4.1.12)
-      '@mastra/loggers': 0.10.16(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))
-      '@mastra/mcp': 0.13.5(@mastra/core@0.19.1(openapi-types@12.1.3)(react@19.2.0)(zod@4.1.12))(@types/json-schema@7.0.15)(zod@4.1.12)
+      '@mastra/core': 0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)
+      '@mastra/deployer': 0.22.2(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(typescript@5.9.3)(zod@3.25.76)
+      '@mastra/loggers': 0.10.17(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))
       '@opentelemetry/auto-instrumentations-node': 0.62.2(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
       '@opentelemetry/core': 2.1.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/exporter-trace-otlp-grpc': 0.203.0(@opentelemetry/api@1.9.0)
@@ -10862,11 +10935,9 @@ snapshots:
       strip-json-comments: 5.0.3
       tcp-port-used: 1.0.2
       yocto-spinner: 0.2.3
-      zod: 4.1.12
-      zod-to-json-schema: 3.24.6(zod@4.1.12)
+      zod: 3.25.76
     transitivePeerDependencies:
       - '@opentelemetry/api'
-      - '@types/json-schema'
       - debug
       - encoding
       - supports-color
@@ -11127,6 +11198,10 @@ snapshots:
       p-limit: 3.1.0
 
   p-map@7.0.3: {}
+
+  p-retry@7.1.0:
+    dependencies:
+      is-network-error: 1.3.0
 
   package-json-from-dist@1.0.1: {}
 
@@ -11463,6 +11538,8 @@ snapshots:
   resolve-from@5.0.0: {}
 
   resolve-pkg-maps@1.0.0: {}
+
+  resolve.exports@2.0.3: {}
 
   resolve@1.22.10:
     dependencies:
@@ -12427,10 +12504,6 @@ snapshots:
   zod-to-json-schema@3.24.6(zod@3.25.76):
     dependencies:
       zod: 3.25.76
-
-  zod-to-json-schema@3.24.6(zod@4.1.12):
-    dependencies:
-      zod: 4.1.12
 
   zod@3.22.3: {}
 

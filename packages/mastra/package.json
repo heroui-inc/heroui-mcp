@@ -13,17 +13,17 @@
     "clean": "rm -rf .mastra"
   },
   "dependencies": {
-    "@ai-sdk/amazon-bedrock": "^3.0.29",
-    "@ai-sdk/anthropic": "^2.0.22",
-    "@ai-sdk/openai": "^2.0.42",
-    "@mastra/core": "^0.19.0",
-    "@mastra/libsql": "^0.14.3",
-    "@mastra/loggers": "^0.10.13",
-    "@mastra/mcp": "^0.13.1",
-    "@mastra/memory": "^0.15.3",
-    "dotenv": "^17.2.3",
-    "mastra": "^0.13.2",
-    "zod": "^4.1.12"
+    "@ai-sdk/amazon-bedrock": "3.0.47",
+    "@ai-sdk/anthropic": "2.0.37",
+    "@ai-sdk/openai": "2.0.53",
+    "@mastra/core": "0.22.2",
+    "@mastra/libsql": "0.16.0",
+    "@mastra/loggers": "0.10.17",
+    "@mastra/mcp": "0.14.0",
+    "@mastra/memory": "0.15.8",
+    "dotenv": "17.2.3",
+    "mastra": "0.17.3",
+    "zod": "^3.25.0"
   },
   "devDependencies": {
     "@heroui/config": "workspace:*",
