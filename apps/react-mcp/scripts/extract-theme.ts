@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Theme extraction script for HeroUI Native
+ * Simplified theme extraction script
  */
 
-import {ThemeExtractor} from "../extractors/theme";
+import {ThemeExtractor} from "../src/extraction/extractors/theme";
 
 async function main() {
   // Parse arguments
@@ -17,10 +17,10 @@ async function main() {
   if (process.argv.includes("--help")) {
     console.log(`Usage: extract-theme [--force] [--version=VERSION]
 
-Extracts HeroUI Native theme documentation and uploads to R2
+Extracts HeroUI theme system from GitHub and uploads to R2
 
 Options:
-  --force           Force re-extraction even if version exists
+  --force           Force re-extraction even if data exists
   --version=VERSION Extract specific version
 
 Environment variables:

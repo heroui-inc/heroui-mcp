@@ -140,13 +140,13 @@ EXTRACT_FLAGS="$FORCE_FLAG $VERSION_FLAG"
 case "$TARGET" in
     components)
         echo -e "${GREEN}Extracting HeroUI components...${NC}"
-        pnpm exec tsx src/extraction/cli/extract-components.ts $EXTRACT_FLAGS
+        pnpm exec tsx scripts/extract-components.ts $EXTRACT_FLAGS
         ;;
     both|all)
         echo -e "${GREEN}Extracting both HeroUI components and theme...${NC}"
-        pnpm exec tsx src/extraction/cli/extract-components.ts $EXTRACT_FLAGS
+        pnpm exec tsx scripts/extract-components.ts $EXTRACT_FLAGS
         if [ $? -eq 0 ]; then
-            pnpm exec tsx src/extraction/cli/extract-theme.ts $EXTRACT_FLAGS
+            pnpm exec tsx scripts/extract-theme.ts $EXTRACT_FLAGS
         else
             echo -e "${RED}Component extraction failed, skipping theme extraction${NC}"
             exit 1
@@ -154,7 +154,7 @@ case "$TARGET" in
         ;;
     theme)
         echo -e "${GREEN}Extracting HeroUI theme system...${NC}"
-        pnpm exec tsx src/extraction/cli/extract-theme.ts $EXTRACT_FLAGS
+        pnpm exec tsx scripts/extract-theme.ts $EXTRACT_FLAGS
         ;;
 esac
 
