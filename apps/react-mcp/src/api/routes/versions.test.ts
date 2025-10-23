@@ -27,43 +27,4 @@ describe("Versions API", () => {
       expect(res.headers.get("access-control-allow-origin")).toBe("*");
     });
   });
-
-  describe("GET /versions/:package", () => {
-    it("should return heroui package version info", async () => {
-      const res = await SELF.fetch("http://localhost:8787/versions/heroui");
-
-      expect(res.status).toBe(200);
-
-      const data = (await res.json()) as any;
-      expect(data).toHaveProperty("package", "heroui");
-      expect(data).toHaveProperty("currentVersion");
-      expect(data).toHaveProperty("latestVersion");
-      expect(data).toHaveProperty("isLatest");
-      expect(data).toHaveProperty("availableVersions");
-      expect(Array.isArray(data.availableVersions)).toBe(true);
-    });
-
-    it("should return mcp package version info", async () => {
-      const res = await SELF.fetch("http://localhost:8787/versions/mcp");
-
-      expect(res.status).toBe(200);
-
-      const data = (await res.json()) as any;
-      expect(data).toHaveProperty("package", "mcp");
-      expect(data).toHaveProperty("currentVersion");
-      expect(data).toHaveProperty("latestVersion");
-      expect(data).toHaveProperty("isLatest", true);
-    });
-
-    it("should return 400 for invalid package names", async () => {
-      const res = await SELF.fetch("http://localhost:8787/versions/invalid-package");
-
-      expect(res.status).toBe(400);
-
-      const data = (await res.json()) as any;
-      expect(data).toHaveProperty("error");
-      const errorMessage = data.error;
-      expect(errorMessage.includes("Invalid package")).toBe(true);
-    });
-  });
 });

@@ -75,17 +75,4 @@ describe("Themes API", () => {
       expect(validStatuses.includes(res.status)).toBe(true);
     });
   });
-
-  describe("GET /themes/versions", () => {
-    it("should return available theme versions", async () => {
-      const res = await SELF.fetch("http://localhost:8788/themes/versions");
-
-      expect(res.status).toBe(200);
-
-      const data = (await res.json()) as any;
-      expect(data).toHaveProperty("latest");
-      expect(data).toHaveProperty("versions");
-      expect(Array.isArray(data.versions)).toBe(true);
-    });
-  });
 });

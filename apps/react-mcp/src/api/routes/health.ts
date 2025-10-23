@@ -30,7 +30,6 @@ health.get("/", (c) => {
       "/themes/variables": "Get theme variables (query: theme, mode, version)",
       "/themes/colors": "Get theme colors (query: theme, mode, version)",
       "/themes/animations": "Get animation definitions (query: version)",
-      "/themes/versions": "Get available theme versions",
       "/docs/available": "Get all available documentation paths from HeroUI v3 docs",
       "/docs/content": "Get documentation content from a specific path (query: path)",
       "/versions": "Get version information",

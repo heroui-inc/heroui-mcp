@@ -139,7 +139,7 @@ docs.get("/content", async (c) => {
 
     if (!path) {
       analytics.trackError({
-        error: "Invalid request",
+        error: "Missing required query parameter: path",
         errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
         properties: {
           endpoint,
@@ -149,8 +149,7 @@ docs.get("/content", async (c) => {
 
       return c.json(
         {
-          error: "Invalid request",
-          details: "path query parameter is required",
+          error: "Missing required query parameter: path",
         },
         400,
       );
