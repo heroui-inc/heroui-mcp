@@ -109,9 +109,6 @@ Once configured, you can ask your AI assistant questions like:
 - "Show me all HeroUI Native components"
 - "What props does the Button component have?"
 - "Give me an example of using the Card component in React Native"
-- "Check if I'm using the latest version of HeroUI Native"
-- "Get the source code for the Button component"
-- "Show me the CSS styles for Card"
 - "What are the theme variables for dark mode?"
 - "Explain HeroUI Native's color customization guide"
 
@@ -234,35 +231,11 @@ Get HeroUI Native documentation content for guides and component docs.
 }
 ```
 
-## Development
-
-### Local Testing with Mastra Playground
-
-For local development and testing of MCP tools, you can use the built-in Mastra playground:
-
-```bash
-# Install dependencies
-pnpm install
-
-# Configure environment (one-time setup)
-cd mastra
-cp .env.example .env
-# Edit .env and add your AI model API key
-
-# Start the playground
-cd ..
-pnpm dev:mastra
-```
-
-Then open http://localhost:4111 in your browser to test MCP tools interactively with an AI agent.
-
-See [mastra/README.md](./mastra/README.md) for detailed setup instructions.
-
 ## Troubleshooting
 
 ### MCP server not found
 
-Ensure you have Node.js 18+ installed. The package will be automatically downloaded when using `npx`.
+Ensure you have Node.js 22+ installed. The package will be automatically downloaded when using `npx`.
 
 ### Connection issues
 

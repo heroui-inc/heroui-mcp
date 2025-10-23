@@ -55,7 +55,7 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
     "mcp:stdio": "NODE_ENV=development tsx src/mcp/stdio.ts",
-    "mcp:inspector": "NODE_ENV=development CLIENT_PORT=6275 SERVER_PORT=6278 npx @modelcontextprotocol/inspector -e HEROUI_NATIVE_API_URL=http://localhost:8788 tsx src/mcp/stdio.ts",
+    "inspect": "NODE_ENV=development CLIENT_PORT=6275 SERVER_PORT=6278 npx @modelcontextprotocol/inspector -e HEROUI_NATIVE_API_URL=http://localhost:8788 tsx src/mcp/stdio.ts",
     "extract:components": "tsx src/extraction/cli/extract-components.ts",
     "extract:theme": "tsx src/extraction/cli/extract-theme.ts",
     "extract:dev": "./scripts/extract-dev.sh",

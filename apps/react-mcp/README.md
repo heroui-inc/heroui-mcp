@@ -268,35 +268,12 @@ Get HeroUI v3 documentation content for guides, principles, and component docs.
 }
 ```
 
-## Development
-
-### Local Testing with Mastra Playground
-
-For local development and testing of MCP tools, you can use the built-in Mastra playground:
-
-```bash
-# Install dependencies
-pnpm install
-
-# Configure environment (one-time setup)
-cd mastra
-cp .env.example .env
-# Edit .env and add your AI model API key
-
-# Start the playground
-cd ..
-pnpm dev:mastra
-```
-
-Then open http://localhost:4111 in your browser to test MCP tools interactively with an AI agent.
-
-See [mastra/README.md](./mastra/README.md) for detailed setup instructions.
 
 ## Troubleshooting
 
 ### MCP server not found
 
-Ensure you have Node.js 18+ installed. The package will be automatically downloaded when using `npx`.
+Ensure you have Node.js 22+ installed. The package will be automatically downloaded when using `npx`.
 
 ### Connection issues
 
