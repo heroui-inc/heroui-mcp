@@ -8,7 +8,7 @@ export class Analytics<
   Properties extends Record<string, unknown> = Record<string, unknown>,
 > {
   private posthog: PostHog | null = null;
-  private log: boolean = true;
+  private log: boolean;
 
   constructor({
     host,
@@ -21,14 +21,17 @@ export class Analytics<
     dryRun?: boolean;
     log?: boolean;
   }) {
-    if (dryRun) return;
+    this.log = log ?? true;
+
+    if (dryRun) {
+      return;
+    }
 
     if (!key || !host) {
       throw new Error("PostHog key and host are required");
     }
 
     this.posthog = new PostHog(key, {host});
-    this.log = log ?? true;
   }
 
   track({

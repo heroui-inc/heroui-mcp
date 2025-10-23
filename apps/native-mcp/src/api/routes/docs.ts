@@ -167,7 +167,7 @@ docs.get("/available", async (c) => {
       properties: {
         endpoint,
         responseTime: Date.now() - startTime,
-        categories,
+        categories: categories.length,
         total,
       },
     });

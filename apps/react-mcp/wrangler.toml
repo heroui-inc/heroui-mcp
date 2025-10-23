@@ -8,6 +8,20 @@ compatibility_date = "2025-01-18"
 compatibility_flags = ["nodejs_compat"]
 
 # ------------------------------------------------------------
+# -- Test Environment
+# ------------------------------------------------------------
+[env.test]
+# Test environment configuration for Vitest
+
+[[env.test.r2_buckets]]
+binding = 'COMPONENT_DATA'
+bucket_name = 'heroui-mcp-data-dev'
+
+[env.test.vars]
+NODE_ENV = "test"
+R2_BUCKET_NAME = "heroui-mcp-data-dev"
+
+# ------------------------------------------------------------
 # -- Development Environment
 # ------------------------------------------------------------
 [env.development]
