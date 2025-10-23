@@ -21,7 +21,7 @@
     "@mastra/loggers": "0.10.17",
     "@mastra/mcp": "0.14.0",
     "@mastra/memory": "0.15.8",
-    "dotenv": "17.2.3",
+    "dotenv": "^17.2.3",
     "mastra": "0.17.3",
     "zod": "^3.25.0"
   },
