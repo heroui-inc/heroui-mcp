@@ -110,4 +110,4 @@ Please adhere to our [Code of Conduct](CODE_OF_CONDUCT.md) in all interactions.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://choosealicense.com/licenses/mit/)
