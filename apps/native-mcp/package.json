@@ -73,7 +73,7 @@
     "@heroui/config": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.18.1",
     "@xmldom/xmldom": "^0.8.11",
-    "hono": "^4.9.8",
+    "hono": "^4.10.2",
     "posthog-node": "^5.9.1",
     "zod": "^3.24.4"
   },
