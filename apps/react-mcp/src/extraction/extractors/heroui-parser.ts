@@ -89,7 +89,14 @@ export class HeroUIParser implements ComponentParser {
     // Extract props tables
     const propsData = this.extractPropsData(lines, componentName);
 
-    if (!propsData.props || Object.keys(propsData.props).length === 0) {
+    // Allow components with only sub-component props (compound components)
+    const hasMainProps = propsData.props && Object.keys(propsData.props).length > 0;
+    const hasSubComponentProps =
+      propsData.subComponents && Object.keys(propsData.subComponents).length > 0;
+
+    if (!hasMainProps && !hasSubComponentProps) {
+      console.warn(`   ⚠️  No props found for ${componentName} (neither main nor sub-components)`);
+
       return null;
     }
 
@@ -104,6 +111,19 @@ export class HeroUIParser implements ComponentParser {
 
     // Extract source links from frontmatter
     const links = this.extractSourceLinks(frontmatter);
+
+    // Log extraction results
+    if (hasMainProps && hasSubComponentProps) {
+      console.log(
+        `   ✓ ${componentName} (${Object.keys(propsData.props).length} props + ${Object.keys(propsData.subComponents || {}).length} sub-components)`,
+      );
+    } else if (hasMainProps) {
+      console.log(`   ✓ ${componentName} (${Object.keys(propsData.props).length} props)`);
+    } else if (hasSubComponentProps) {
+      console.log(
+        `   ✓ ${componentName} (${Object.keys(propsData.subComponents || {}).length} sub-components only)`,
+      );
+    }
 
     return {
       description,
@@ -280,12 +300,18 @@ export class HeroUIParser implements ComponentParser {
             // Handle sub-components like Accordion.Item
             const parts = fullComponentName.split(".");
             const subComponentName = parts[1];
-            if (!result.subComponents) result.subComponents = {};
-            result.subComponents[subComponentName] = {
-              name: fullComponentName,
-              props: {},
-            };
-            currentComponent = subComponentName;
+
+            // Special handling for .Root - treat as main component props
+            if (subComponentName.toLowerCase() === "root") {
+              currentComponent = componentName;
+            } else {
+              if (!result.subComponents) result.subComponents = {};
+              result.subComponents[subComponentName] = {
+                name: fullComponentName,
+                props: {},
+              };
+              currentComponent = subComponentName;
+            }
           } else if (fullComponentName.toLowerCase() === componentName.toLowerCase()) {
             // Main component props
             currentComponent = componentName;
