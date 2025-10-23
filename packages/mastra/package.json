@@ -22,7 +22,8 @@
     "@mastra/mcp": "^0.13.1",
     "@mastra/memory": "^0.15.3",
     "dotenv": "^17.2.3",
-    "mastra": "^0.13.2"
+    "mastra": "^0.13.2",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@heroui/config": "workspace:*",

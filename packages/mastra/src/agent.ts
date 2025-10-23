@@ -11,46 +11,14 @@ import {config} from "dotenv";
 
 config({path: resolve(__dirname, "../.env")});
 
+// Shared memory storage
 const memory = new Memory({
   storage: new LibSQLStore({
-    url: "file:../memory.db",
+    url: "file:../../memory.db",
   }),
 });
 
-const SERVER_CONFIG = {
-  react: {
-    name: "heroui-react",
-    path: "../../apps/react-mcp/src/stdio.ts",
-    description: "HeroUI React MCP Server",
-  },
-  native: {
-    name: "heroui-native",
-    path: "../../apps/native-mcp/src/stdio.ts",
-    description: "HeroUI React Native MCP Server",
-  },
-};
-
-const targetServer = (process.env.MCP_SERVER || "react") as keyof typeof SERVER_CONFIG;
-const serverConfig = SERVER_CONFIG[targetServer];
-
-if (!serverConfig) {
-  throw new Error(`Invalid MCP_SERVER: ${targetServer}. Must be 'react' or 'native'`);
-}
-
-const mcpClient = new MCPClient({
-  servers: {
-    [serverConfig.name]: {
-      command: "tsx",
-      // Playground runs in the .mastra/output directory
-      args: [resolve(__dirname, serverConfig.path)],
-      env: {
-        NODE_ENV: "development",
-        HEROUI_API_URL: process.env.HEROUI_API_URL ?? "http://localhost:8787",
-      },
-    },
-  },
-});
-
+// Model provider
 const getModel = () => {
   if (
     process.env.AWS_ACCESS_KEY_ID &&
@@ -85,12 +53,52 @@ const getModel = () => {
   throw new Error("No model provider found");
 };
 
-export const agent = new Agent({
-  instructions: `You are a HeroUI testing assistant for the ${serverConfig.description}. Help test MCP tools by querying component information and documentation. Use the available tools to search for components, get documentation, and explore the HeroUI component library.`,
+// React MCP Client
+const reactMcpClient = new MCPClient({
+  servers: {
+    "heroui-react": {
+      command: "tsx",
+      args: [resolve(__dirname, "../../../../apps/react-mcp/src/mcp/stdio.ts")],
+      env: {
+        NODE_ENV: "development",
+        HEROUI_API_URL: process.env.HEROUI_API_URL ?? "http://localhost:8787",
+      },
+    },
+  },
+});
+
+// Native MCP Client
+const nativeMcpClient = new MCPClient({
+  servers: {
+    "heroui-native": {
+      command: "tsx",
+      args: [resolve(__dirname, "../../../../apps/native-mcp/src/mcp/stdio.ts")],
+      env: {
+        NODE_ENV: "development",
+        HEROUI_NATIVE_API_URL: process.env.HEROUI_NATIVE_API_URL ?? "http://localhost:8788",
+      },
+    },
+  },
+});
+
+// React Agent
+export const reactAgent = new Agent({
+  instructions: `You are a HeroUI React testing assistant. Help test MCP tools by querying component information and documentation for the React component library.`,
   memory,
   model: getModel(),
-  name: `HeroUI ${targetServer.toUpperCase()} MCP Test Agent`,
+  name: "HeroUI React MCP Test Agent",
   tools: async () => {
-    return await mcpClient.getTools();
+    return await reactMcpClient.getTools();
+  },
+});
+
+// Native Agent
+export const nativeAgent = new Agent({
+  instructions: `You are a HeroUI React Native testing assistant. Help test MCP tools by querying component information and documentation for the React Native component library.`,
+  memory,
+  model: getModel(),
+  name: "HeroUI Native MCP Test Agent",
+  tools: async () => {
+    return await nativeMcpClient.getTools();
   },
 });

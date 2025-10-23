@@ -1,11 +1,14 @@
 import {Mastra} from "@mastra/core/mastra";
 import {PinoLogger} from "@mastra/loggers";
 
-import {agent} from "./agent";
+import {nativeAgent, reactAgent} from "./agent";
+
+export {nativeAgent, reactAgent} from "./agent";
 
 export const mastra = new Mastra({
   agents: {
-    herouiMcpTestAgent: agent,
+    herouiReactAgent: reactAgent,
+    herouiNativeAgent: nativeAgent,
   },
   logger: new PinoLogger({
     level: "info",
