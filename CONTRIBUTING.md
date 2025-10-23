@@ -22,8 +22,8 @@ cp .env.example .env
 # Edit .env with your credentials
 
 # Extract component data to local development R2 bucket
-pnpm extract:react:dev        # Extract React MCP data
-pnpm extract:native:dev       # Extract Native MCP data
+pnpm extract:react            # Extract React MCP data
+pnpm extract:native           # Extract Native MCP data
 
 # Start development API server
 pnpm dev:react                # React MCP (http://localhost:8787)
@@ -188,18 +188,13 @@ pnpm build:react       # Build @heroui/react-mcp
 ### 🚀 Development Commands
 
 ```bash
-# Start development server for all packages
+# Start development server for all packages (excludes mastra)
 pnpm dev
 
 # Start development server for specific package
-pnpm dev:native        # Native MCP dev server (API)
-pnpm dev:react         # React MCP dev server (API)
-
-# Start specific transport
-pnpm dev:native:api    # Native MCP API server (http://localhost:8788)
-pnpm dev:native:stdio  # Native MCP stdio transport
-pnpm dev:react:api     # React MCP API server (http://localhost:8787)
-pnpm dev:react:stdio   # React MCP stdio transport
+pnpm dev:native        # Native MCP API server (http://localhost:8788)
+pnpm dev:react         # React MCP API server (http://localhost:8787)
+pnpm dev:mastra        # Mastra playground (http://localhost:4111)
 ```
 
 ### 🔍 MCP Inspector Commands
@@ -217,17 +212,17 @@ The Inspector provides a web interface at http://localhost:6274 (or similar) for
 #### Native MCP Extraction
 
 ```bash
-pnpm extract:native:dev            # Extract all to dev bucket
-pnpm extract:native:dev:components # Extract only components
-pnpm extract:native:dev:theme      # Extract only theme
+pnpm extract:native            # Extract all to dev bucket
+pnpm extract:native:components # Extract only components
+pnpm extract:native:theme      # Extract only theme
 ```
 
 #### React MCP Extraction
 
 ```bash
-pnpm extract:react:dev             # Extract all to dev bucket
-pnpm extract:react:dev:heroui      # Extract only HeroUI components
-pnpm extract:react:dev:theme       # Extract only theme
+pnpm extract:react            # Extract all to dev bucket
+pnpm extract:react:components # Extract only components
+pnpm extract:react:theme      # Extract only theme
 ```
 
 ### ✅ Code Quality Commands
@@ -270,35 +265,90 @@ AI Assistant → STDIO Client → REST API → R2 Storage
 
 ### API Endpoints
 
-The REST API is publicly available at `https://mcp-api.heroui.com`:
+**React MCP API** (`https://mcp-api.heroui.com`):
 
-- `GET /api/components` - List HeroUI components
-- `GET /api/components/Button` - Get Button component details
-- `GET /api/components/Button/props` - Get Button props
-- `GET /api/components/Button/examples` - Get Button examples
-- `GET /api/versions` - Get version information
+```
+GET  /                         - Health check and API info
+GET  /health                   - Health status
+GET  /components               - List all components
+POST /components               - Get component info (batch)
+POST /components/props         - Get component props (batch)
+POST /components/examples      - Get component examples (batch)
+POST /components/source        - Get component source code (batch)
+POST /components/styles        - Get component styles (batch)
+GET  /themes                   - Get theme information
+GET  /themes/variables         - Get theme CSS variables
+GET  /themes/colors            - Get theme colors
+GET  /themes/animations        - Get theme animations
+GET  /themes/versions          - Get available theme versions
+GET  /versions                 - Get version information
+GET  /docs/available           - Get available documentation paths
+GET  /docs/content?path={path} - Get documentation content
+```
+
+**Native MCP API** (`https://native-mcp-api.heroui.com`):
+
+```
+GET  /                         - Health check and API info
+GET  /components               - List all components
+POST /components               - Get component info (batch)
+POST /components/props         - Get component props (batch)
+POST /components/examples      - Get component examples (batch)
+GET  /themes                   - Get theme information
+GET  /themes/variables         - Get theme CSS variables
+GET  /docs/available           - Get available documentation paths
+GET  /docs/content?path={path} - Get documentation content
+```
 
 ## 🏗️ Monorepo Structure
 
 ```
 .
-├── packages/
+├── apps/
 │   ├── react-mcp/           # @heroui/react-mcp - Web components
 │   │   ├── src/
-│   │   │   ├── index.ts              # Hono server entry (Cloudflare)
-│   │   │   ├── stdio.ts              # MCP stdio server entry (dev)
-│   │   │   ├── stdio-npm.ts          # NPM distribution entry
-│   │   │   ├── http-server.ts        # HTTP server implementation
-│   │   │   ├── types.ts              # TypeScript definitions
-│   │   │   └── services/             # Core services
-│   │   ├── scripts/                  # Extraction scripts
-│   │   ├── data/                     # Local fallback data
+│   │   │   ├── api/                  # Cloudflare Worker API
+│   │   │   │   ├── index.ts          # API entry point
+│   │   │   │   ├── routes/           # API route handlers
+│   │   │   │   ├── services/         # Business logic
+│   │   │   │   ├── middleware/       # Analytics, auth, CORS
+│   │   │   │   └── types/            # TypeScript definitions
+│   │   │   ├── mcp/                  # MCP server implementation
+│   │   │   │   ├── stdio.ts          # STDIO transport (NPM)
+│   │   │   │   ├── tools/            # MCP tool handlers
+│   │   │   │   └── types/            # MCP type definitions
+│   │   │   └── extraction/           # Data extraction scripts
+│   │   │       ├── cli/              # CLI scripts
+│   │   │       ├── lib/              # Extraction utilities
+│   │   │       └── strategies/       # Extraction strategies
+│   │   ├── scripts/                  # Shell scripts
 │   │   ├── wrangler.toml             # Cloudflare config
-│   │   ├── README.md                 # Package-specific docs
+│   │   ├── README.md                 # Package docs
 │   │   └── package.json
 │   │
 │   └── native-mcp/          # @heroui/native-mcp - React Native
-│       ├── src/                      # Similar structure
+│       ├── src/                      # Similar structure to react-mcp
+│       │   ├── api/                  # Cloudflare Worker API
+│       │   ├── mcp/                  # MCP server implementation
+│       │   └── extraction/           # Data extraction scripts
+│       ├── scripts/                  # Shell scripts
+│       ├── wrangler.toml             # Cloudflare config
+│       ├── README.md                 # Package docs
+│       └── package.json
+│
+├── packages/
+│   ├── analytics/           # Shared analytics utilities
+│   │   ├── src/
+│   │   └── package.json
+│   ├── config/              # Shared configuration (ESLint, Prettier, TS)
+│   │   ├── eslint/
+│   │   ├── prettier/
+│   │   ├── typescript/
+│   │   └── package.json
+│   └── mastra/              # Local testing harness (dev only)
+│       ├── src/
+│       │   ├── agent.ts              # Test agents
+│       │   └── index.ts              # Mastra instance
 │       ├── README.md
 │       └── package.json
 │
@@ -379,31 +429,38 @@ The server extracts component data from GitHub repositories and stores it in Clo
 
 ### R2 Storage Structure
 
-**React MCP:**
+**React MCP:** (stored in `heroui-mcp-data` bucket)
 ```
-heroui-mcp-data/
-├── latest/
-│   └── heroui.json           # Latest HeroUI data
-├── heroui/
-│   ├── v3.0.0-alpha.33.json  # Versioned HeroUI data
+react/
+├── components/
+│   ├── 3.0.0-alpha.33.json   # Versioned component data
+│   ├── 3.0.0-alpha.34.json
 │   └── ...
+├── theme/
+│   ├── 3.0.0-alpha.33.json   # Versioned theme data
+│   ├── 3.0.0-alpha.34.json
+│   └── ...
+├── latest/
+│   ├── components.json       # Latest component data
+│   └── theme.json            # Latest theme data
 └── versions.json             # Version metadata
 ```
 
-**Native MCP:**
+**Native MCP:** (stored in `heroui-native-mcp-data` bucket)
 ```
-heroui-native-mcp-data/
-├── native/
-│   ├── components/
-│   │   ├── 1.0.0-alpha.1.json
-│   │   └── ...
-│   ├── theme/
-│   │   ├── 1.0.0-alpha.1.json
-│   │   └── ...
-│   └── latest/
-│       ├── components.json
-│       └── theme.json
-└── versions.json
+native/
+├── components/
+│   ├── 1.0.0-alpha.14.json   # Versioned component data
+│   ├── 1.0.0-alpha.15.json
+│   └── ...
+├── theme/
+│   ├── 1.0.0-alpha.14.json   # Versioned theme data
+│   ├── 1.0.0-alpha.15.json
+│   └── ...
+├── latest/
+│   ├── components.json       # Latest component data
+│   └── theme.json            # Latest theme data
+└── versions.json             # Version metadata
 ```
 
 ### Updating Component Data
@@ -414,14 +471,14 @@ Set up environment variables in `.env`, then extract to development bucket:
 
 ```bash
 # React MCP
-pnpm extract:react:dev             # Extract all React data
-pnpm extract:react:dev:heroui      # Extract only HeroUI components
-pnpm extract:react:dev:theme       # Extract only theme data
+pnpm extract:react            # Extract all React data
+pnpm extract:react:components # Extract only components
+pnpm extract:react:theme      # Extract only theme data
 
 # Native MCP
-pnpm extract:native:dev            # Extract all Native data
-pnpm extract:native:dev:components # Extract only components
-pnpm extract:native:dev:theme      # Extract only theme data
+pnpm extract:native           # Extract all Native data
+pnpm extract:native:components # Extract only components
+pnpm extract:native:theme     # Extract only theme data
 ```
 
 #### For Staging/Production

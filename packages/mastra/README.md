@@ -27,8 +27,14 @@ Two simple test agents for local MCP server testing:
    # Edit .env and add your API key (choose one provider)
    ```
 
-3. **Start Mastra playground** (from monorepo root):
+3. **Start Mastra playground**:
 
+   From monorepo root:
+   ```bash
+   pnpm dev:mastra
+   ```
+
+   Or from `packages/mastra` directory:
    ```bash
    pnpm dev
    ```

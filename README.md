@@ -60,11 +60,10 @@ pnpm build:native             # Build Native MCP only
 
 **Development Servers:**
 ```bash
-pnpm dev                      # Start all dev servers
+pnpm dev                      # Start all dev servers (excludes mastra)
 pnpm dev:react                # React MCP API server (http://localhost:8787)
 pnpm dev:native               # Native MCP API server (http://localhost:8788)
-pnpm dev:react:stdio          # React MCP stdio transport
-pnpm dev:native:stdio         # Native MCP stdio transport
+pnpm dev:mastra               # Mastra playground server (http://localhost:4111)
 ```
 
 **Testing & Inspection:**
@@ -78,8 +77,12 @@ pnpm test                     # Run tests
 
 **Data Extraction:**
 ```bash
-pnpm extract:react:dev        # Extract React component data
-pnpm extract:native:dev       # Extract Native component data
+pnpm extract:react            # Extract React component data
+pnpm extract:native           # Extract Native component data
+pnpm extract:react:components # Extract React components only
+pnpm extract:react:theme      # Extract React theme only
+pnpm extract:native:components # Extract Native components only
+pnpm extract:native:theme     # Extract Native theme only
 ```
 
 **Code Quality:**
