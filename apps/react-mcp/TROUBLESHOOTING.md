@@ -285,7 +285,7 @@ source ~/.bashrc
 If you're still experiencing problems:
 
 1. **Check existing issues**: [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
-2. **Ask the community**: [Discord Server](https://discord.gg/heroui)
+2. **Ask the community**: [Discord Server](https://discord.gg/9b6yyZKmH4)
 3. **Report a bug**: [Create an issue](https://github.com/heroui-inc/heroui-mcp/issues/new)
 
 When reporting issues, please include:

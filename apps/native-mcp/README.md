@@ -250,7 +250,7 @@ Please adhere to our [Code of Conduct](../../CODE_OF_CONDUCT.md).
 ## Support
 
 - 📖 [Documentation](https://github.com/heroui-inc/heroui-mcp)
-- 💬 [Discord Community](https://discord.gg/heroui)
+- 💬 [Discord Community](https://discord.gg/9b6yyZKmH4)
 - 🐦 [X (Twitter)](https://x.com/hero_ui)
 - 🐛 [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
 - 📧 [Email Support](mailto:support@heroui.com)

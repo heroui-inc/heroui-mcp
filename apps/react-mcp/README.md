@@ -281,7 +281,7 @@ If you're behind a corporate firewall, you may need to configure proxy settings 
 
 ### Need help?
 
-Check our [troubleshooting guide](https://github.com/heroui-inc/heroui-mcp/blob/main/TROUBLESHOOTING.md) or ask in our [Discord community](https://discord.gg/heroui).
+Check our [troubleshooting guide](https://github.com/heroui-inc/heroui-mcp/blob/main/TROUBLESHOOTING.md) or ask in our [Discord community](https://discord.gg/9b6yyZKmH4).
 
 ## Contributing
 
@@ -292,7 +292,7 @@ Please adhere to our [Code of Conduct](../../CODE_OF_CONDUCT.md).
 ## Support
 
 - 📖 [Documentation](https://github.com/heroui-inc/heroui-mcp)
-- 💬 [Discord Community](https://discord.gg/heroui)
+- 💬 [Discord Community](https://discord.gg/9b6yyZKmH4)
 - 🐦 [X (Twitter)](https://x.com/hero_ui)
 - 🐛 [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
 - 📧 [Email Support](mailto:support@heroui.com)
