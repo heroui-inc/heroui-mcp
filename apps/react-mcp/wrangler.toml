@@ -1,0 +1,85 @@
+name = "heroui-mcp-api"
+
+# ------------------------------------------------------------
+# -- General
+# ------------------------------------------------------------
+main = "src/api.ts"
+compatibility_date = "2025-01-18"
+compatibility_flags = ["nodejs_compat"]
+
+# ------------------------------------------------------------
+# -- Test Environment
+# ------------------------------------------------------------
+[env.test]
+# Test environment configuration for Vitest
+
+[[env.test.r2_buckets]]
+binding = 'COMPONENT_DATA'
+bucket_name = 'heroui-mcp-data-dev'
+
+[env.test.vars]
+NODE_ENV = "test"
+R2_BUCKET_NAME = "heroui-mcp-data-dev"
+
+# ------------------------------------------------------------
+# -- Development Environment
+# ------------------------------------------------------------
+[env.development]
+# Local development configuration
+
+[[env.development.r2_buckets]]
+binding = 'COMPONENT_DATA'
+bucket_name = 'heroui-mcp-data-dev'
+
+[env.development.vars]
+NODE_ENV = "development"
+POSTHOG_HOST = "https://us.i.posthog.com"
+R2_BUCKET_NAME = "heroui-mcp-data-dev"
+
+# ------------------------------------------------------------
+# -- Staging Environment
+# ------------------------------------------------------------
+[env.staging]
+routes = [
+  { pattern = "staging-mcp-api.heroui.com", custom_domain = true }
+]
+
+[[env.staging.r2_buckets]]
+binding = 'COMPONENT_DATA'
+bucket_name = 'heroui-mcp-data-staging'
+
+[env.staging.vars]
+NODE_ENV = "staging"
+POSTHOG_HOST = "https://us.i.posthog.com"
+R2_BUCKET_NAME = "heroui-mcp-data-staging"
+
+# ------------------------------------------------------------
+# -- Production Environment
+# ------------------------------------------------------------
+[env.production]
+routes = [
+  { pattern = "mcp-api.heroui.com", custom_domain = true }
+]
+
+[[env.production.r2_buckets]]
+binding = 'COMPONENT_DATA'
+bucket_name = 'heroui-mcp-data'
+
+[env.production.vars]
+NODE_ENV = "production"
+POSTHOG_HOST = "https://us.i.posthog.com"
+R2_BUCKET_NAME = "heroui-mcp-data"
+
+# ------------------------------------------------------------
+# -- Worker Settings
+# ------------------------------------------------------------
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[placement]
+mode = "smart"
+
+[limits]
+# 60 second timeout for MCP operations
+cpu_ms = 60000

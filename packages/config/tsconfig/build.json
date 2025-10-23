@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "moduleResolution": "Node",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": false,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
+  }
+}

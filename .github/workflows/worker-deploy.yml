@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'packages/react-mcp/**'
+      - 'apps/react-mcp/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'turbo.json'
@@ -45,7 +45,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
           environment: production
-          workingDirectory: "packages/react-mcp"
+          workingDirectory: "apps/react-mcp"
           secrets: |
             CLOUDFLARE_ACCOUNT_ID
             POSTHOG_API_KEY
