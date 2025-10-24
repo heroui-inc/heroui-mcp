@@ -52,7 +52,8 @@ IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
         // Build query parameters
         const params = new URLSearchParams();
         if (theme) params.append("theme", theme);
-        if (mode && theme) params.append("mode", mode); // Only add mode if theme is specified
+        // Only add mode if theme is specified AND mode is not "both" (API doesn't support "both")
+        if (mode && mode !== "both" && theme) params.append("mode", mode);
         if (category && category !== "all") params.append("category", category);
 
         const endpoint = `/themes/variables${params.toString() ? `?${params.toString()}` : ""}`;
@@ -115,7 +116,18 @@ IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
           };
         } catch (error: any) {
           if (error.status === 404) {
-            throw new Error(`Theme "${theme}" not found. Available themes: default`);
+            // Fetch available themes dynamically
+            try {
+              const themesResponse = await fetchApi<any>("/themes", config.apiBaseUrl);
+              const availableThemes = themesResponse.themes
+                ? Object.keys(themesResponse.themes).join(", ")
+                : "none";
+              throw new Error(`Theme "${theme}" not found. Available themes: ${availableThemes}`);
+            } catch (error: any) {
+              console.error(error);
+              // Fallback if fetching themes fails
+              throw new Error(`Theme "${theme}" not found. Unable to fetch available themes.`);
+            }
           }
           throw error;
         }
