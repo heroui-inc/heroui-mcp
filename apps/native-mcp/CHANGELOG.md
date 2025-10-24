@@ -1,3 +1,16 @@
+# [1.0.0-alpha.9](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.20...v1.0.0-alpha.9) (2025-10-24)
+
+
+### Bug Fixes
+
+* bump hono ([e6fa776](https://github.com/heroui-inc/heroui-mcp/commit/e6fa776572c1e487b411982bebe980e6dab0c75d))
+* minor readme changes ([4fa3402](https://github.com/heroui-inc/heroui-mcp/commit/4fa34027770555c96dfe8ce72b2d1c80328c9355))
+* **native-mcp:** add versions endpoint ([162ea5e](https://github.com/heroui-inc/heroui-mcp/commit/162ea5e9f779481ab24b22d373b7acff78efd987))
+* **native-mcp:** release bundle workspace deps ([bdc2cb1](https://github.com/heroui-inc/heroui-mcp/commit/bdc2cb170a603a0888758baef006a1175368ff79))
+* vitest config + wrangler test env ([877f9b6](https://github.com/heroui-inc/heroui-mcp/commit/877f9b6023a8c0ea23393e24ea946f8d79be6d69))
+
+
+
 # [1.0.0-alpha.8](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.20...v1.0.0-alpha.8) (2025-10-24)
 
 
