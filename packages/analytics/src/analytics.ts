@@ -27,11 +27,12 @@ export class Analytics<
       return;
     }
 
-    if (!key || !host) {
-      throw new Error("PostHog key and host are required");
+    // Only initialize PostHog if both key and host are provided
+    if (key && host) {
+      this.posthog = new PostHog(key, {host});
+    } else {
+      console.warn("PostHog key or host not provided, analytics will not be initialized");
     }
-
-    this.posthog = new PostHog(key, {host});
   }
 
   track({
