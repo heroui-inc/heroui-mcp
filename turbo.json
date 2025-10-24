@@ -14,7 +14,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "build/**", ".vercel/**"],
+      "outputs": ["dist/**", "dist-api/**", ".mastra/**"],
       "inputs": ["$TURBO_DEFAULT$"]
     },
     "dev": {

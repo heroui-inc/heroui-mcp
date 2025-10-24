@@ -2,12 +2,12 @@
 
 Model Context Protocol (MCP) servers for the HeroUI design system. Access HeroUI component documentation directly in your AI assistant.
 
-## Packages
+## MCPs
 
-| Package | Description | Status | Docs |
-| --- | --- | --- | --- |
-| `@heroui/react-mcp` | MCP server for web (`@heroui/react`) component docs, examples, and theme data | ✅ Available on npm | [README](packages/react-mcp/README.md) |
-| `@heroui/native-mcp` | MCP server for React Native (`@heroui/native`) component docs and tooling | ✅ Available on npm | [README](packages/native-mcp/README.md) |
+| MCP | Description | Docs |
+| --- | --- | --- |
+| `@heroui/react-mcp` | MCP server for web (`@heroui/react`) component docs, examples, and theme data | [README](apps/react-mcp/README.md) |
+| `@heroui/native-mcp` | MCP server for React Native (`@heroui/native`) component docs, examples, and theme data |  [README](apps/native-mcp/README.md) |
 
 ## Quick Start
 
@@ -60,11 +60,10 @@ pnpm build:native             # Build Native MCP only
 
 **Development Servers:**
 ```bash
-pnpm dev                      # Start all dev servers
+pnpm dev                      # Start all dev servers (excludes mastra)
 pnpm dev:react                # React MCP API server (http://localhost:8787)
 pnpm dev:native               # Native MCP API server (http://localhost:8788)
-pnpm dev:react:stdio          # React MCP stdio transport
-pnpm dev:native:stdio         # Native MCP stdio transport
+pnpm dev:mastra               # Mastra playground server (http://localhost:4111)
 ```
 
 **Testing & Inspection:**
@@ -78,8 +77,12 @@ pnpm test                     # Run tests
 
 **Data Extraction:**
 ```bash
-pnpm extract:react:dev        # Extract React component data
-pnpm extract:native:dev       # Extract Native component data
+pnpm extract:react            # Extract React component data
+pnpm extract:native           # Extract Native component data
+pnpm extract:react:components # Extract React components only
+pnpm extract:react:theme      # Extract React theme only
+pnpm extract:native:components # Extract Native components only
+pnpm extract:native:theme     # Extract Native theme only
 ```
 
 **Code Quality:**
@@ -100,11 +103,11 @@ Please adhere to our [Code of Conduct](CODE_OF_CONDUCT.md) in all interactions.
 ## Support
 
 - 📖 [Documentation](https://heroui.com)
-- 💬 [Discord Community](https://discord.gg/heroui)
+- 💬 [Discord Community](https://discord.gg/9b6yyZKmH4)
 - 🐦 [X (Twitter)](https://x.com/hero_ui)
 - 🐛 [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues)
 - 📧 [Email Support](mailto:support@heroui.com)
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://choosealicense.com/licenses/mit/)

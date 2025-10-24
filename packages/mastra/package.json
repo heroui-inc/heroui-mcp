@@ -1,0 +1,40 @@
+{
+  "name": "@heroui/mastra",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local testing harness for HeroUI MCP servers via Mastra",
+  "main": "./src/index.ts",
+  "prettier": "@heroui/config/prettier",
+  "scripts": {
+    "dev": "mastra dev --dir ./src",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "clean": "rm -rf .mastra"
+  },
+  "dependencies": {
+    "@ai-sdk/amazon-bedrock": "3.0.47",
+    "@ai-sdk/anthropic": "2.0.37",
+    "@ai-sdk/openai": "2.0.53",
+    "@mastra/core": "0.22.2",
+    "@mastra/libsql": "0.16.0",
+    "@mastra/loggers": "0.10.17",
+    "@mastra/mcp": "0.14.0",
+    "@mastra/memory": "0.15.8",
+    "dotenv": "^17.2.3",
+    "mastra": "0.17.3",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@heroui/config": "workspace:*",
+    "@types/node": "^22.18.6",
+    "eslint": "^9.36.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.17.0"
+}
