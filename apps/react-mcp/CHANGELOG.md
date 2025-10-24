@@ -1,3 +1,18 @@
+# [1.0.0-alpha.24](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.20...v1.0.0-alpha.24) (2025-10-24)
+
+
+### Bug Fixes
+
+* bump hono ([e6fa776](https://github.com/heroui-inc/heroui-mcp/commit/e6fa776572c1e487b411982bebe980e6dab0c75d))
+* minor readme changes ([4fa3402](https://github.com/heroui-inc/heroui-mcp/commit/4fa34027770555c96dfe8ce72b2d1c80328c9355))
+* **react-mcp:** extraction errors ([0b1f344](https://github.com/heroui-inc/heroui-mcp/commit/0b1f344c54976f84e5c6cb269b7d8dabcc2e0de5))
+* **react-mcp:** extractor import ([5bc3af3](https://github.com/heroui-inc/heroui-mcp/commit/5bc3af3246be5c9a8dae456a018275baedd47b96))
+* **react-mcp:** release bundle workspace deps ([9225d08](https://github.com/heroui-inc/heroui-mcp/commit/9225d087b34e0ad4d3d504cab7ce8d409ae0c78a))
+* **react-mcp:** update dist dir ([b79ee8d](https://github.com/heroui-inc/heroui-mcp/commit/b79ee8d479d117fbf41facfd3623276c4a3d0dcd))
+* vitest config + wrangler test env ([877f9b6](https://github.com/heroui-inc/heroui-mcp/commit/877f9b6023a8c0ea23393e24ea946f8d79be6d69))
+
+
+
 # [1.0.0-alpha.23](https://github.com/heroui-inc/heroui-mcp/compare/v1.0.0-alpha.20...v1.0.0-alpha.23) (2025-10-24)
 
 
