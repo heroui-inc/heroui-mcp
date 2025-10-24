@@ -37,6 +37,10 @@ coverage/
 tmp/
 temp/
 
+# Package artifacts
+*.tgz
+package.json.backup
+
 # Wrangler
 .wrangler/
 .mf/

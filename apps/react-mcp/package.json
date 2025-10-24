@@ -1,6 +1,6 @@
 {
   "name": "@heroui/react-mcp",
-  "version": "1.0.0-alpha.23",
+  "version": "1.0.0-alpha.26",
   "type": "module",
   "description": "MCP server for HeroUI component documentation via Model Context Protocol",
   "main": "dist/stdio.js",
@@ -59,7 +59,8 @@
     "extract:dev:components": "./scripts/extract-dev.sh components",
     "extract:dev:theme": "./scripts/extract-dev.sh theme",
     "clean": "rm -rf dist",
-    "prepublishOnly": "pnpm build",
+    "prepublishOnly": "pnpm build && node scripts/resolve-workspace-deps.mjs",
+    "postpublish": "node scripts/restore-package.mjs",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
     "release": "bumpp --execute='pnpm run changelog' --all --tag='react-mcp-v%s' --commit='chore(react-mcp): release v%s'",
     "release:check": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build"

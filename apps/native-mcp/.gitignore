@@ -30,3 +30,7 @@ Thumbs.db
 # Testing
 coverage/
 .nyc_output/
+
+# Package artifacts
+*.tgz
+package.json.backup

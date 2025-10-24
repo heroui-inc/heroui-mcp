@@ -9,6 +9,9 @@ const __dirname = dirname(__filename);
 export default [
   ...cloudflareWorkerConfig,
   {
+    ignores: ["scripts/**/*"],
+  },
+  {
     languageOptions: {
       parserOptions: {
         project: ["./tsconfig.json"],

@@ -1,6 +1,6 @@
 {
   "name": "@heroui/native-mcp",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "type": "module",
   "description": "MCP server for HeroUI Native component documentation via Model Context Protocol",
   "main": "dist/stdio.js",
@@ -61,15 +61,16 @@
     "extract:dev:components": "./scripts/extract-dev.sh components",
     "extract:dev:theme": "./scripts/extract-dev.sh theme",
     "clean": "rm -rf dist dist-api",
-    "prepublishOnly": "pnpm build",
+    "prepublishOnly": "pnpm build && node scripts/resolve-workspace-deps.mjs",
+    "postpublish": "node scripts/restore-package.mjs",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
     "release": "bumpp --execute='pnpm run changelog' --all --tag='native-mcp-v%s' --commit='chore(native-mcp): release v%s'",
     "release:check": "pnpm run lint && pnpm run typecheck && pnpm run build"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.696.0",
     "@heroui/analytics": "workspace:*",
     "@heroui/config": "workspace:*",
+    "@aws-sdk/client-s3": "^3.696.0",
     "@modelcontextprotocol/sdk": "^1.18.1",
     "@xmldom/xmldom": "^0.8.11",
     "hono": "^4.10.2",
