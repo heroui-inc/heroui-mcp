@@ -102,12 +102,6 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.696.0
         version: 3.913.0
-      '@heroui/analytics':
-        specifier: workspace:*
-        version: link:../../packages/analytics
-      '@heroui/config':
-        specifier: workspace:*
-        version: link:../../packages/config
       '@hono/zod-validator':
         specifier: ^0.7.4
         version: 0.7.4(hono@4.10.2)(zod@3.25.76)
