@@ -47,38 +47,24 @@ Example paths: /docs/introduction, /docs/components/button, /docs/handbook/themi
 Returns MDX content which may include code examples and explanations.
 This is v3 alpha documentation - ensure you're working with HeroUI v3, not v2.`,
 
-  async ctx() {
-    try {
-      // Fetch available documentation paths
-      const data = await fetchApi<DocsListResponse>("/docs/available");
+  async ctx(shared) {
+    const pathsList = shared?.docPaths || [];
+    let availablePaths = "Available documentation paths:\n\n";
 
-      const pathsList: string[] = [];
-      let availablePaths = "Available documentation paths:\n\n";
-
-      // Format available paths for display
-      data.categories.forEach((category) => {
-        availablePaths += `${category.name.toUpperCase()}:\n`;
-        category.docs.forEach((doc) => {
-          pathsList.push(doc.path);
-          availablePaths += `  - ${doc.path}: ${doc.description}\n`;
-        });
-        availablePaths += "\n";
+    if (pathsList.length > 0) {
+      // Simple list format since we have paths from shared context
+      pathsList.forEach((path) => {
+        availablePaths += `  - ${path}\n`;
       });
-
-      return {
-        availablePaths,
-        pathsList,
-      };
-    } catch (error) {
-      console.error("Failed to fetch available documentation paths:", error);
-
-      // Return fallback with basic paths
-      return {
-        availablePaths:
-          "Documentation paths available (examples):\n  - /docs/introduction\n  - /docs/components/button\n  - /docs/handbook/theming",
-        pathsList: [],
-      };
+    } else {
+      availablePaths =
+        "Documentation paths available (examples):\n  - /docs/introduction\n  - /docs/components/button\n  - /docs/handbook/theming";
     }
+
+    return {
+      availablePaths,
+      pathsList,
+    };
   },
   exec(server, {config, name, description, ctx}) {
     // Create input schema with available paths in description

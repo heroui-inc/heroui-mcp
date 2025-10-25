@@ -1,6 +1,8 @@
 import type {Tool, ToolConfig} from "./types";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
+import {getSharedContext} from "../lib/shared-context";
+
 import {getComponentExamplesTool} from "./get-component-examples";
 import {getComponentInfoTool} from "./get-component-info";
 import {getComponentPropsTool} from "./get-component-props";
@@ -30,11 +32,15 @@ export async function initializeTools(server: McpServer, config: ToolConfig = {}
     ...config,
   };
 
+  // Fetch shared context once for all tools
+  const sharedContext = await getSharedContext(finalConfig.apiBaseUrl);
+
   const enabledTools = tools.filter((tool) => !tool.disabled?.(finalConfig));
 
   await Promise.all(
     enabledTools.map(async (tool) => {
-      const toolCtx = await tool.ctx?.();
+      // Pass shared context to tool ctx() function
+      const toolCtx = await tool.ctx?.(sharedContext);
 
       tool.exec(server, {
         ctx: toolCtx,

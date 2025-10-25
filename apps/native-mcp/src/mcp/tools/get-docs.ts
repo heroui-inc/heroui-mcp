@@ -40,38 +40,50 @@ IMPORTANT: Always use exact paths shown in the available paths list - DO NOT gue
 Example paths: /docs/core/provider, /docs/components/button, /docs/changelog.
 Returns markdown content which may include code examples and API references.`,
 
-  async ctx() {
-    try {
-      // Fetch available documentation paths
-      const data = await fetchApi<DocsListResponse>("/docs/available");
+  async ctx(shared) {
+    const pathsList = shared?.docPaths || [];
+    let availablePaths = "Available documentation paths:\n\n";
 
-      const pathsList: string[] = [];
-      let availablePaths = "Available documentation paths:\n\n";
+    if (pathsList.length > 0) {
+      // Group paths by category based on URL structure
+      const categories: Record<string, string[]> = {
+        CORE: [],
+        COMPONENTS: [],
+        CHANGELOG: [],
+        OTHER: [],
+      };
 
-      // Format available paths for display
-      data.categories.forEach((category) => {
-        availablePaths += `${category.name.toUpperCase()}:\n`;
-        category.docs.forEach((doc) => {
-          pathsList.push(doc.path);
-          availablePaths += `  - ${doc.path}: ${doc.description}\n`;
-        });
-        availablePaths += "\n";
+      pathsList.forEach((path) => {
+        if (path.includes("/core/")) {
+          categories.CORE.push(path);
+        } else if (path.includes("/components/")) {
+          categories.COMPONENTS.push(path);
+        } else if (path.includes("/changelog")) {
+          categories.CHANGELOG.push(path);
+        } else {
+          categories.OTHER.push(path);
+        }
       });
 
-      return {
-        availablePaths,
-        pathsList,
-      };
-    } catch (error) {
-      console.error("Failed to fetch available documentation paths:", error);
-
-      // Return fallback with basic paths
-      return {
-        availablePaths:
-          "Documentation paths available (examples):\n  - /docs/core/provider\n  - /docs/components/button\n  - /docs/changelog",
-        pathsList: [],
-      };
+      // Format available paths for display
+      Object.entries(categories).forEach(([category, paths]) => {
+        if (paths.length > 0) {
+          availablePaths += `${category}:\n`;
+          paths.forEach((path) => {
+            availablePaths += `  - ${path}\n`;
+          });
+          availablePaths += "\n";
+        }
+      });
+    } else {
+      availablePaths +=
+        "Documentation paths available (examples):\n  - /docs/core/provider\n  - /docs/components/button\n  - /docs/changelog\n";
     }
+
+    return {
+      availablePaths,
+      pathsList,
+    };
   },
 
   exec(server, {config, name, description, ctx}) {

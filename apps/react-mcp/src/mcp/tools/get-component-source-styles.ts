@@ -19,21 +19,10 @@ BEM classes provide styling only - no JavaScript behavior or accessibility.
 For production use, prefer @heroui/react components for full functionality.
 GitHub links are provided for viewing styles in context.`,
 
-  async ctx() {
-    try {
-      const data = await fetchApi<{components: string[]}>("/components");
-
-      return {
-        componentList: data.components || [],
-      };
-    } catch (error) {
-      console.error("Failed to fetch component list:", error);
-
-      // Return empty list as fallback
-      return {
-        componentList: [],
-      };
-    }
+  async ctx(shared) {
+    return {
+      componentList: shared?.componentList || [],
+    };
   },
 
   exec(server, {config, name, description, ctx}) {

@@ -19,21 +19,10 @@ If implementing a component, ALWAYS check examples first to avoid mistakes.
 Common mistakes to avoid: Using onClick instead of onPress, flat props instead of compound components.
 Workflow: get_component_info → get_component_props → get_component_examples.`,
 
-  async ctx() {
-    try {
-      const data = await fetchApi<{components: string[]}>("/components");
-
-      return {
-        componentList: data.components || [],
-      };
-    } catch (error) {
-      console.error("Failed to fetch component list:", error);
-
-      // Return empty list as fallback
-      return {
-        componentList: [],
-      };
-    }
+  async ctx(shared) {
+    return {
+      componentList: shared?.componentList || [],
+    };
   },
 
   exec(server, {config, name, description, ctx}) {
