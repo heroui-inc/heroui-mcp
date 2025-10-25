@@ -16,22 +16,11 @@ If implementing a component, ALWAYS check examples first to avoid mistakes.
 Common patterns include styling, event handling, and state management.
 Note: Example files use kebab-case naming (e.g., "dialog", "dialog-native-modal", "drop-shadow-view").`,
 
-  async ctx() {
-    try {
-      const data = await fetchApi<{components: string[]; examples: string[]}>("/components");
-
-      return {
-        componentList: data.components || [],
-        exampleList: data.examples || [],
-      };
-    } catch (error) {
-      console.error("Failed to fetch component list:", error);
-
-      return {
-        componentList: [],
-        exampleList: [],
-      };
-    }
+  async ctx(shared) {
+    return {
+      componentList: shared?.componentList || [],
+      exampleList: shared?.exampleList || [],
+    };
   },
 
   exec(server, {config, name, description, ctx}) {

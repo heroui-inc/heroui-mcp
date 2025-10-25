@@ -13,6 +13,7 @@ import {analyticsMiddleware} from "./middleware/analytics";
 import {authMiddleware} from "./middleware/auth";
 import {corsMiddleware} from "./middleware/cors";
 import {components} from "./routes/components";
+import {ctx} from "./routes/ctx";
 import {docs} from "./routes/docs";
 import {health} from "./routes/health";
 import {themes} from "./routes/themes";
@@ -26,6 +27,7 @@ app.use("*", analyticsMiddleware);
 
 // Mount routes
 app.route("/", health);
+app.route("/ctx", ctx);
 app.route("/components", components);
 app.route("/themes", themes);
 app.route("/docs", docs);

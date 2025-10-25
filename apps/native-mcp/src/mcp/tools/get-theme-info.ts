@@ -12,20 +12,10 @@ Returns theme colors in HSL format for light and dark modes.
 Custom themes (if any) are example implementations for reference only - they demonstrate how to create custom themes but are not included in the package.
 Use this tool to understand theme structure and color token organization.`,
 
-  async ctx() {
-    try {
-      const data = await fetchApi<{themes: string[]}>("/themes");
-
-      return {
-        themeList: data.themes || ["default"],
-      };
-    } catch (error) {
-      console.error("Failed to fetch theme list:", error);
-
-      return {
-        themeList: ["default"],
-      };
-    }
+  async ctx(shared) {
+    return {
+      themeList: shared?.themeList || ["default"],
+    };
   },
 
   exec(server, {config, name, description, ctx}) {

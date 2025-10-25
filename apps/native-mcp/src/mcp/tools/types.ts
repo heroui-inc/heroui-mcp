@@ -5,6 +5,15 @@ export interface ToolConfig {
   apiBaseUrl?: string;
 }
 
+export interface SharedContext {
+  componentList: string[];
+  exampleList: string[];
+  themeList: string[];
+  docPaths: string[];
+  version: string;
+  timestamp: number;
+}
+
 export interface ComponentContext {
   componentList: string[];
   exampleList: string[];
@@ -18,8 +27,8 @@ export interface Tool<T = unknown> {
   name: string;
   description: string;
   inputSchema?: Record<string, unknown>;
-  // Optional context initialization
-  ctx?(): Promise<T> | T | void;
+  // Optional context initialization - receives shared context if available
+  ctx?(shared?: SharedContext): Promise<T> | T | void;
   // Check if tool should be disabled
   disabled?(config: ToolConfig): boolean;
   // Execute the tool

@@ -16,22 +16,11 @@ Common props include: style, onPress, disabled, testID.
 Use after get_component_info to understand specific prop types.
 Workflow: get_component_info → get_component_props → get_component_examples.`,
 
-  async ctx() {
-    try {
-      const data = await fetchApi<{components: string[]; examples: string[]}>("/components");
-
-      return {
-        componentList: data.components || [],
-        exampleList: data.examples || [],
-      };
-    } catch (error) {
-      console.error("Failed to fetch component list:", error);
-
-      return {
-        componentList: [],
-        exampleList: [],
-      };
-    }
+  async ctx(shared) {
+    return {
+      componentList: shared?.componentList || [],
+      exampleList: shared?.exampleList || [],
+    };
   },
 
   exec(server, {config, name, description, ctx}) {
