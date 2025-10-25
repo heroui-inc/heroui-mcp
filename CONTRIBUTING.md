@@ -244,8 +244,11 @@ pnpm clean             # Clean build artifacts
 ### 🧪 Testing Commands
 
 ```bash
-# Run all tests
+# Run all tests with coverage
 pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
 
 # Pre-release checks
 pnpm release:check     # Run lint, typecheck, and build

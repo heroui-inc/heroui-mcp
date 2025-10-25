@@ -126,7 +126,7 @@ export const baseConfig = [
     },
   },
   {
-    files: [".*.js", ".*.cjs", ".*.mjs", "test-mcp-local.js", "test-api.mjs"],
+    files: [".*.js", ".*.cjs", ".*.mjs"],
     ...tseslint.configs.disableTypeChecked,
   },
   {

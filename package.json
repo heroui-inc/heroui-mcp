@@ -37,6 +37,7 @@
     "clean": "turbo run clean",
     "format": "prettier --write \"{apps,packages}/**/*.{ts,tsx,json}\"",
     "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
     "release:check": "turbo run release:check",
     "inspect:native": "pnpm --filter @heroui/native-mcp run inspect",
     "inspect:react": "pnpm --filter @heroui/react-mcp run inspect",
@@ -49,6 +50,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.18.6",
+    "@vitest/coverage-istanbul": "^3.2.4",
     "prettier": "^3.6.2",
     "tsup": "^8.5.0",
     "turbo": "^2.3.3",

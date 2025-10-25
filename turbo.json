@@ -29,7 +29,7 @@
       "dependsOn": ["^build"]
     },
     "test": {
-      "dependsOn": [],
+      "dependsOn": ["^test"],
       "outputs": ["coverage/**"]
     },
     "clean": {
