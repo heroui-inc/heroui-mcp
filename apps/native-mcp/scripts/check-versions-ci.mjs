@@ -38,7 +38,7 @@ async function getStoredVersion(library) {
     );
     const text = await response.Body.transformToString();
     const metadata = JSON.parse(text);
-    return metadata.current || null;
+    return metadata[library]?.current || null;
   } catch (error) {
     console.log(`No existing metadata for ${library}`);
     return null;
