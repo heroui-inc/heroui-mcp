@@ -69,7 +69,7 @@ async function main() {
 
   // Check Components
   if (targetLibrary === 'all' || targetLibrary === 'components') {
-    const storedVersion = await getStoredVersion('native');
+    const storedVersion = await getStoredVersion('heroui-native');
     const latestVersion = specificVersion || await getLatestVersion('heroui-native');
 
     if (latestVersion) {
@@ -81,7 +81,7 @@ async function main() {
 
   // Check Theme
   if (targetLibrary === 'all' || targetLibrary === 'theme') {
-    const storedVersion = await getStoredVersion('native');
+    const storedVersion = await getStoredVersion('heroui-native-theme');
     const latestVersion = specificVersion || await getLatestVersion('heroui-native');
 
     if (latestVersion) {

@@ -69,7 +69,7 @@ async function main() {
 
   // Check Components
   if (targetLibrary === 'all' || targetLibrary === 'components') {
-    const storedVersion = await getStoredVersion('heroui');
+    const storedVersion = await getStoredVersion('heroui-react');
     const latestVersion = specificVersion || await getLatestVersion('@heroui/react');
 
     if (latestVersion) {
