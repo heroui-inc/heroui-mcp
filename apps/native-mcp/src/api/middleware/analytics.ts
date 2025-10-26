@@ -1,6 +1,7 @@
 import type {HonoContext} from "../types/context";
 import type {Context, Next} from "hono";
 
+import packageJson from "../../../package.json";
 import {AnalyticsService} from "../services/analytics";
 
 export const analyticsMiddleware = async (c: Context<HonoContext>, next: Next) => {
@@ -22,6 +23,12 @@ export const analyticsMiddleware = async (c: Context<HonoContext>, next: Next) =
 
     console.log("cf:", metadata);
   }
+
+  // Add package version to metadata
+  metadata = {
+    ...(metadata || {}),
+    version: packageJson.version,
+  };
 
   const analytics = new AnalyticsService({bindings: c.env, metadata, distinctId});
 

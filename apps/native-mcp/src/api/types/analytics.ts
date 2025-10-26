@@ -1,4 +1,6 @@
 export enum AnalyticsEvent {
+  // Context
+  GET_CTX = "GET_CTX",
   // Component
   LIST_COMPONENTS = "LIST_COMPONENTS",
   GET_COMPONENTS = "GET_COMPONENTS",
@@ -15,6 +17,8 @@ export enum AnalyticsEvent {
 }
 
 export enum AnalyticsErrorEvent {
+  // Context
+  GET_CTX_ERROR = "GET_CTX_ERROR",
   // Component
   LIST_COMPONENTS_ERROR = "LIST_COMPONENTS_ERROR",
   GET_COMPONENTS_ERROR = "GET_COMPONENTS_ERROR",

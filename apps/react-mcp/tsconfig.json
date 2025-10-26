@@ -7,6 +7,6 @@
       "~/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts", "lib/**/*.ts", "vitest.config.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts", "lib/**/*.ts", "vitest.config.ts", "package.json"],
   "exclude": ["node_modules", "dist", "mastra", ".mastra"]
 }

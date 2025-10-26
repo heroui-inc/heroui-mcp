@@ -17,21 +17,10 @@ Note: For using components, refer to examples via get_component_examples.
 IMPORTANT: Do NOT copy this code directly - use the component via @heroui/react imports.
 This shows v3 alpha implementation which uses React Aria Components as foundation.
 GitHub links are provided for viewing the source in context.`,
-  async ctx() {
-    try {
-      const data = await fetchApi<{components: string[]}>("/components");
-
-      return {
-        componentList: data.components || [],
-      };
-    } catch (error) {
-      console.error("Failed to fetch component list:", error);
-
-      // Return empty list as fallback
-      return {
-        componentList: [],
-      };
-    }
+  async ctx(shared) {
+    return {
+      componentList: shared?.componentList || [],
+    };
   },
   exec(server, {config, name, description, ctx}) {
     // Create input schema with dynamic component enum

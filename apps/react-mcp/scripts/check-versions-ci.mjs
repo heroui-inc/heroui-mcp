@@ -1,10 +1,6 @@
 #!/usr/bin/env node
 
 import {S3Client, GetObjectCommand} from "@aws-sdk/client-s3";
-import {exec} from 'child_process';
-import {promisify} from 'util';
-
-const execAsync = promisify(exec);
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -16,7 +12,7 @@ args.forEach(arg => {
 
 const forceExtract = argMap.force === 'true';
 const targetLibrary = argMap.library || 'all';
-const specificVersion = argMap.version;
+const specificVersion = typeof argMap.version === 'string' && argMap.version !== '' ? argMap.version : undefined;
 
 // Configure S3 client for R2
 const client = new S3Client({
@@ -45,13 +41,19 @@ async function getStoredVersion(library) {
   }
 }
 
-async function getLatestVersion(packageName) {
+async function getLatestVersion() {
   try {
-    const {stdout} = await execAsync(`npm view ${packageName} version`);
-    const version = stdout.trim();
+    // Fetch version from GitHub v3 branch package.json (same as extractor)
+    const url = 'https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/packages/react/package.json';
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch package.json: ${response.status}`);
+    }
+    const packageJson = await response.json();
+    const version = packageJson.version;
     return version.startsWith('v') ? version : `v${version}`;
   } catch (error) {
-    console.error(`Failed to get version for ${packageName}:`, error);
+    console.error('Failed to get version from GitHub:', error);
     return null;
   }
 }
@@ -69,8 +71,8 @@ async function main() {
 
   // Check Components
   if (targetLibrary === 'all' || targetLibrary === 'components') {
-    const storedVersion = await getStoredVersion('heroui');
-    const latestVersion = specificVersion || await getLatestVersion('@heroui/react');
+    const storedVersion = await getStoredVersion('heroui-react');
+    const latestVersion = specificVersion || await getLatestVersion();
 
     if (latestVersion) {
       results.components.version = latestVersion;
@@ -82,8 +84,8 @@ async function main() {
   // Check Theme
   if (targetLibrary === 'all' || targetLibrary === 'theme') {
     const storedVersion = await getStoredVersion('heroui-theme');
-    // Theme version follows the HeroUI React package version
-    const latestVersion = specificVersion || await getLatestVersion('@heroui/react');
+    // Theme version follows the HeroUI React package version from v3 branch
+    const latestVersion = specificVersion || await getLatestVersion();
 
     if (latestVersion) {
       results.theme.version = latestVersion;
