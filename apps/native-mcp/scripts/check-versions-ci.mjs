@@ -16,7 +16,7 @@ args.forEach(arg => {
 
 const forceExtract = argMap.force === 'true';
 const targetLibrary = argMap.library || 'all';
-const specificVersion = argMap.version;
+const specificVersion = typeof argMap.version === 'string' && argMap.version !== '' ? argMap.version : undefined;
 
 // Configure S3 client for R2
 const client = new S3Client({
