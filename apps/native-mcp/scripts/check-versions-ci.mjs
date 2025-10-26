@@ -1,10 +1,6 @@
 #!/usr/bin/env node
 
 import {S3Client, GetObjectCommand} from "@aws-sdk/client-s3";
-import {exec} from 'child_process';
-import {promisify} from 'util';
-
-const execAsync = promisify(exec);
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -45,13 +41,19 @@ async function getStoredVersion(library) {
   }
 }
 
-async function getLatestVersion(packageName) {
+async function getLatestVersion() {
   try {
-    const {stdout} = await execAsync(`npm view ${packageName} version`);
-    const version = stdout.trim();
+    // Fetch version from GitHub alpha branch package.json (same as extractor)
+    const url = 'https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha/package.json';
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch package.json: ${response.status}`);
+    }
+    const packageJson = await response.json();
+    const version = packageJson.version;
     return version.startsWith('v') ? version : `v${version}`;
   } catch (error) {
-    console.error(`Failed to get version for ${packageName}:`, error);
+    console.error('Failed to get version from GitHub:', error);
     return null;
   }
 }
@@ -70,7 +72,7 @@ async function main() {
   // Check Components
   if (targetLibrary === 'all' || targetLibrary === 'components') {
     const storedVersion = await getStoredVersion('heroui-native');
-    const latestVersion = specificVersion || await getLatestVersion('heroui-native');
+    const latestVersion = specificVersion || await getLatestVersion();
 
     if (latestVersion) {
       results.components.version = latestVersion;
@@ -82,7 +84,7 @@ async function main() {
   // Check Theme
   if (targetLibrary === 'all' || targetLibrary === 'theme') {
     const storedVersion = await getStoredVersion('heroui-native-theme');
-    const latestVersion = specificVersion || await getLatestVersion('heroui-native');
+    const latestVersion = specificVersion || await getLatestVersion();
 
     if (latestVersion) {
       results.theme.version = latestVersion;
