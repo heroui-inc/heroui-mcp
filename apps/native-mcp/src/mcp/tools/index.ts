@@ -1,4 +1,4 @@
-import type {Tool, ToolConfig} from "./types";
+import type {Tool, ToolConfig} from "../types";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import {getSharedContext} from "../lib/shared-context";
