@@ -30,6 +30,7 @@ export function buildApiUrl(endpoint: string, configUrl?: string): string {
 
 /**
  * Make a JSON API request with standard headers
+ * Automatically includes X-API-Key header if HEROUI_API_KEY environment variable is set
  */
 export async function fetchApi<T = any>(
   endpoint: string,
@@ -38,12 +39,22 @@ export async function fetchApi<T = any>(
 ): Promise<T> {
   const url = buildApiUrl(endpoint, configUrl);
 
+  // Read API key from environment
+  const apiKey = process.env.HEROUI_API_KEY;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...((options?.headers as Record<string, string>) || {}),
+  };
+
+  // Automatically add API key if present
+  if (apiKey) {
+    headers["X-API-Key"] = apiKey;
+  }
+
   const response = await fetch(url, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {

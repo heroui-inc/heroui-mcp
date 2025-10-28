@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {ComponentContext, Tool} from "./types";
+import type {ComponentContext, Tool} from "../types";
 
 import {z} from "zod";
 
