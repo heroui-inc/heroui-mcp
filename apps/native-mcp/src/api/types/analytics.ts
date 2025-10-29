@@ -1,4 +1,6 @@
 export enum AnalyticsEvent {
+  // Auth
+  AUTH_SUCCESS = "AUTH_SUCCESS",
   // Context
   GET_CTX = "GET_CTX",
   // Component
@@ -17,6 +19,9 @@ export enum AnalyticsEvent {
 }
 
 export enum AnalyticsErrorEvent {
+  // Auth
+  AUTH_FAILED = "AUTH_FAILED",
+  AUTH_ERROR = "AUTH_ERROR",
   // Context
   GET_CTX_ERROR = "GET_CTX_ERROR",
   // Component

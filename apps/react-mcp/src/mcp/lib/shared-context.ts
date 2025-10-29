@@ -1,12 +1,6 @@
-import {fetchApi} from "./fetch";
+import type {SharedContext} from "../types";
 
-export interface SharedContext {
-  componentList: string[];
-  themeList: string[];
-  docPaths: string[];
-  version: string;
-  timestamp: number;
-}
+import {fetchApi} from "./fetch";
 
 let cachedContext: SharedContext | null = null;
 

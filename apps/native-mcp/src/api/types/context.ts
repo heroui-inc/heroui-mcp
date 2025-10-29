@@ -1,4 +1,5 @@
 import type {AnalyticsService} from "../services/analytics";
+import type {Fetcher} from "@cloudflare/workers-types";
 
 interface Bindings {
   CLOUDFLARE_ACCOUNT_ID: string;
@@ -9,11 +10,13 @@ interface Bindings {
   NODE_ENV: "test" | "development" | "staging" | "production";
   POSTHOG_HOST?: string;
   POSTHOG_KEY?: string;
+  SERVICE_AUTH_TOKEN?: string;
+  INTERNAL_SERVICES?: Fetcher;
 }
 
 interface Variables {
   analytics: AnalyticsService;
-  user?: {id: string};
+  userId?: string;
 }
 
 export interface HonoContext {
