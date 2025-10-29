@@ -7,7 +7,7 @@ import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 /**
  * Hybrid auth middleware for all environments
  * - Local dev: HTTP to localhost:8789
- * - Staging/Production: Service binding to internal-services
+ * - Staging/Production: Service binding to api
  *
  * Uses analytics service from context (set by analytics middleware)
  */
@@ -48,7 +48,7 @@ export const authMiddleware = async (c: Context<HonoContext>, next: Next) => {
       });
     } else if (internalServices) {
       // Production: Service binding
-      response = await internalServices.fetch("https://internal-services/verify", {
+      response = await internalServices.fetch("https://api/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

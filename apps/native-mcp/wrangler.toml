@@ -39,7 +39,7 @@ SERVICE_AUTH_TOKEN = ""
 
 [[env.development.services]]
 binding = "INTERNAL_SERVICES"
-service = "heroui-platform-internal-services"
+service = "heroui-platform-api"
 environment = "development"
 
 # ------------------------------------------------------------
@@ -62,7 +62,7 @@ SERVICE_AUTH_TOKEN = ""
 
 [[env.staging.services]]
 binding = "INTERNAL_SERVICES"
-service = "heroui-platform-internal-services"
+service = "heroui-platform-api"
 environment = "staging"
 
 # ------------------------------------------------------------
@@ -85,7 +85,7 @@ SERVICE_AUTH_TOKEN = ""
 
 [[env.production.services]]
 binding = "INTERNAL_SERVICES"
-service = "heroui-platform-internal-services"
+service = "heroui-platform-api"
 environment = "production"
 
 # ------------------------------------------------------------
