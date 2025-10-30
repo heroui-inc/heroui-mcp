@@ -40,6 +40,7 @@ jobs:
           POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          SERVICE_AUTH_TOKEN: ${{ secrets.SERVICE_AUTH_TOKEN }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -51,6 +52,7 @@ jobs:
             POSTHOG_KEY
             R2_ACCESS_KEY_ID
             R2_SECRET_ACCESS_KEY
+            SERVICE_AUTH_TOKEN
       - name: Show outputs
         env:
           CMD_OUTPUT: ${{ steps.deploy.outputs.command-output }}
