@@ -32,7 +32,7 @@ export const authMiddleware = async (c: Context<HonoContext>, next: Next) => {
   try {
     // Determine environment and connection method
     const isDevelopment = c.env.NODE_ENV === "development";
-    const internalServices = c.env.INTERNAL_SERVICES;
+    const platformApi = c.env.PLATFORM_API;
 
     let response;
 
@@ -46,9 +46,9 @@ export const authMiddleware = async (c: Context<HonoContext>, next: Next) => {
         },
         body: JSON.stringify({apiKey}),
       });
-    } else if (internalServices) {
+    } else if (platformApi) {
       // Production: Service binding
-      response = await internalServices.fetch("https://api/verify", {
+      response = await platformApi.fetch("https://api/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

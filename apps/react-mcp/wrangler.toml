@@ -14,7 +14,7 @@ compatibility_flags = ["nodejs_compat"]
 # Test environment configuration for Vitest
 
 [[env.test.r2_buckets]]
-binding = 'COMPONENT_DATA'
+binding = 'R2'
 bucket_name = 'heroui-mcp-data-dev'
 
 [env.test.vars]
@@ -28,7 +28,7 @@ R2_BUCKET_NAME = "heroui-mcp-data-dev"
 # Local development configuration
 
 [[env.development.r2_buckets]]
-binding = 'COMPONENT_DATA'
+binding = 'R2'
 bucket_name = 'heroui-mcp-data-dev'
 
 [env.development.vars]
@@ -37,9 +37,8 @@ POSTHOG_HOST = "https://us.i.posthog.com"
 R2_BUCKET_NAME = "heroui-mcp-data-dev"
 
 [[env.development.services]]
-binding = "INTERNAL_SERVICES"
-service = "heroui-platform-api"
-environment = "development"
+binding = "PLATFORM_API"
+service = "heroui-platform-api-development"
 
 # ------------------------------------------------------------
 # -- Staging Environment
@@ -50,7 +49,7 @@ routes = [
 ]
 
 [[env.staging.r2_buckets]]
-binding = 'COMPONENT_DATA'
+binding = 'R2'
 bucket_name = 'heroui-mcp-data-staging'
 
 [env.staging.vars]
@@ -60,9 +59,8 @@ R2_BUCKET_NAME = "heroui-mcp-data-staging"
 
 
 [[env.staging.services]]
-binding = "INTERNAL_SERVICES"
-service = "heroui-platform-api"
-environment = "staging"
+binding = "PLATFORM_API"
+service = "heroui-platform-api-staging"
 
 # ------------------------------------------------------------
 # -- Production Environment
@@ -73,7 +71,7 @@ routes = [
 ]
 
 [[env.production.r2_buckets]]
-binding = 'COMPONENT_DATA'
+binding = 'R2'
 bucket_name = 'heroui-mcp-data'
 
 [env.production.vars]
@@ -82,9 +80,8 @@ POSTHOG_HOST = "https://us.i.posthog.com"
 R2_BUCKET_NAME = "heroui-mcp-data"
 
 [[env.production.services]]
-binding = "INTERNAL_SERVICES"
-service = "heroui-platform-api"
-environment = "production"
+binding = "PLATFORM_API"
+service = "heroui-platform-api-production"
 
 # ------------------------------------------------------------
 # -- Worker Settings

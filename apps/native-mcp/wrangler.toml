@@ -35,12 +35,10 @@ bucket_name = 'heroui-mcp-data-dev'
 NODE_ENV = "development"
 POSTHOG_HOST = "https://us.i.posthog.com"
 R2_BUCKET_NAME = "heroui-mcp-data-dev"
-SERVICE_AUTH_TOKEN = ""
 
 [[env.development.services]]
-binding = "INTERNAL_SERVICES"
-service = "heroui-platform-api"
-environment = "development"
+binding = "PLATFORM_API"
+service = "heroui-platform-api-development"
 
 # ------------------------------------------------------------
 # -- Staging Environment
@@ -58,12 +56,10 @@ bucket_name = 'heroui-mcp-data-staging'
 NODE_ENV = "staging"
 POSTHOG_HOST = "https://us.i.posthog.com"
 R2_BUCKET_NAME = "heroui-mcp-data-staging"
-SERVICE_AUTH_TOKEN = ""
 
 [[env.staging.services]]
-binding = "INTERNAL_SERVICES"
-service = "heroui-platform-api"
-environment = "staging"
+binding = "PLATFORM_API"
+service = "heroui-platform-api-staging"
 
 # ------------------------------------------------------------
 # -- Production Environment
@@ -81,12 +77,10 @@ bucket_name = 'heroui-mcp-data'
 NODE_ENV = "production"
 POSTHOG_HOST = "https://us.i.posthog.com"
 R2_BUCKET_NAME = "heroui-mcp-data"
-SERVICE_AUTH_TOKEN = ""
 
 [[env.production.services]]
-binding = "INTERNAL_SERVICES"
-service = "heroui-platform-api"
-environment = "production"
+binding = "PLATFORM_API"
+service = "heroui-platform-api-production"
 
 # ------------------------------------------------------------
 # -- Worker Settings
