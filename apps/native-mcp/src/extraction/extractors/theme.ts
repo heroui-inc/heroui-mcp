@@ -67,9 +67,37 @@ export class ThemeExtractor extends BaseExtractor {
   }
 
   /**
-   * Extract default theme from colors.ts
+   * Extract default theme from colors.ts (alpha) or variables.css (beta)
    */
   private async extractDefaultTheme(): Promise<Theme> {
+    // Try beta format first: src/styles/variables.css
+    try {
+      const cssUrl = `${this.githubBase}/src/styles/variables.css`;
+      const cssResponse = await fetch(cssUrl);
+
+      if (cssResponse.ok) {
+        const cssContent = await cssResponse.text();
+        const {light, dark} = this.parser.parseCssVariables(cssContent);
+
+        return {
+          name: "default",
+          light: {colors: light},
+          dark: {colors: dark},
+          borderRadius: {
+            DEFAULT: "8",
+            panel: "16",
+            "panel-inner": "12",
+          },
+          opacity: {
+            disabled: 0.5,
+          },
+        };
+      }
+    } catch {
+      // Fall through to try alpha format
+    }
+
+    // Fallback to alpha format: src/providers/theme/colors.ts
     const url = `${this.githubBase}/src/providers/theme/colors.ts`;
     const response = await fetch(url);
 

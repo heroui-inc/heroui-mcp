@@ -6,6 +6,96 @@ import type {ColorToken, Theme, ThemeSystem} from "@shared/types/theme";
 
 export class ThemeParser {
   /**
+   * Parse CSS variables from variables.css (beta format)
+   */
+  parseCssVariables(cssContent: string): {light: ColorToken[]; dark: ColorToken[]} {
+    const lightColors = this.parseCssVariant(cssContent, "light");
+    const darkColors = this.parseCssVariant(cssContent, "dark");
+
+    return {light: lightColors, dark: darkColors};
+  }
+
+  /**
+   * Parse a specific variant (@variant light or @variant dark) from CSS
+   */
+  private parseCssVariant(cssContent: string, variant: "light" | "dark"): ColorToken[] {
+    const colors: ColorToken[] = [];
+
+    // Match @variant light { ... } or @variant dark { ... }
+    const variantRegex = new RegExp(
+      `@variant\\s+${variant}\\s*\\{([\\s\\S]*?)\\}(?=\\s*@variant|\\s*\\})`,
+      "i",
+    );
+    const match = cssContent.match(variantRegex);
+
+    if (!match) {
+      return colors;
+    }
+
+    const variantContent = match[1];
+
+    // Extract CSS custom properties: --color-name: value;
+    // Match: --background: oklch(...); or --background: var(--something);
+    const cssVarRegex = /--([\w-]+):\s*([^;]+);/g;
+    let varMatch;
+
+    const colorNames = [
+      "background",
+      "foreground",
+      "surface",
+      "surface-foreground",
+      "overlay",
+      "overlay-foreground",
+      "muted",
+      "default",
+      "default-foreground",
+      "accent",
+      "accent-foreground",
+      "success",
+      "success-foreground",
+      "warning",
+      "warning-foreground",
+      "danger",
+      "danger-foreground",
+      "segment",
+      "segment-foreground",
+      "border",
+      "divider",
+      "link",
+    ];
+
+    while ((varMatch = cssVarRegex.exec(variantContent)) !== null) {
+      const [, name, value] = varMatch;
+      const cleanName = name.replace(/^color-/, ""); // Remove 'color-' prefix if present
+
+      // Only include known color properties
+      if (!colorNames.includes(cleanName) && !colorNames.some((cn) => cleanName.startsWith(cn))) {
+        continue;
+      }
+
+      // Convert CSS value to HSL format if needed
+      const hslValue = value.trim();
+
+      // If it's a var() reference, skip it (we want actual color values)
+      if (hslValue.startsWith("var(")) {
+        continue;
+      }
+
+      // Convert oklch() to HSL format if needed
+      // For now, keep oklch format but could convert if needed
+      // oklch(0.9702 0 0) -> keep as is or convert
+
+      colors.push({
+        name: cleanName,
+        value: hslValue,
+        category: this.categorizeColor(cleanName),
+      });
+    }
+
+    return colors;
+  }
+
+  /**
    * Parse colors.ts TypeScript source for default theme
    */
   parseColorSource(tsContent: string): {light: ColorToken[]; dark: ColorToken[]} {
