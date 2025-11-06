@@ -32,7 +32,7 @@ Welcome to HeroUI Native MCP! These tools provide documentation for **HeroUI Nat
 ### Getting Started
 Use the \`installation\` tool for setting up HeroUI Native in your project:
 \`\`\`javascript
-installation({ framework: "expo", packageManager: "npm" })
+installation()
 \`\`\`
 
 ### Essential Workflow
