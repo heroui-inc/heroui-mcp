@@ -23,7 +23,7 @@ export class ComponentExtractor extends BaseExtractor {
   constructor() {
     super();
     this.github = new SimpleGitHubClient(process.env.GITHUB_TOKEN);
-    this.parser = new NativeParser();
+    this.parser = new NativeParser("beta");
   }
 
   getStorageKey(): string {
@@ -34,16 +34,19 @@ export class ComponentExtractor extends BaseExtractor {
     return "components";
   }
 
-  async extract(): Promise<{data: NativeComponentDataset}> {
+  async extract(ref: string = "beta"): Promise<{data: NativeComponentDataset}> {
     console.log("🔍 Extracting heroui-native from GitHub...");
-    console.log("📍 Repository: heroui-inc/heroui-native@alpha");
+    console.log(`📍 Repository: heroui-inc/heroui-native@${ref}`);
+
+    // Update parser with the correct ref
+    this.parser = new NativeParser(ref);
 
     // Get component documentation files
     const docFiles = await this.github.getComponentFiles(
       "heroui-inc",
       "heroui-native",
       "src/components",
-      "alpha",
+      ref,
     );
 
     console.log(`📄 Found ${docFiles.length} documentation files`);
@@ -61,12 +64,7 @@ export class ComponentExtractor extends BaseExtractor {
 
         await delay(DELAY_MS);
 
-        const content = await this.github.fetchFile(
-          "heroui-inc",
-          "heroui-native",
-          filePath,
-          "alpha",
-        );
+        const content = await this.github.fetchFile("heroui-inc", "heroui-native", filePath, ref);
 
         const component = await this.parser.parseContent(content, filePath);
 
