@@ -1,6 +1,6 @@
 {
   "name": "@heroui/native-mcp",
-  "version": "1.0.0-alpha.11",
+  "version": "1.0.0-alpha.12",
   "type": "module",
   "description": "MCP server for HeroUI Native component documentation via Model Context Protocol",
   "main": "dist/stdio.js",
