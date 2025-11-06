@@ -38,7 +38,7 @@ interface ExampleItem {
 
 export class NativeParser {
   private static readonly GITHUB_RAW_BASE_URL =
-    "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha";
+    "https://raw.githubusercontent.com/heroui-inc/heroui-native/alpha";
   private exampleRegistry: Record<string, ExampleItem> | null = null;
 
   /**

@@ -23,9 +23,9 @@ ctx.get("/", async (c) => {
       componentService.listComponents(),
       componentService.listExamples(),
       themeService.getAvailableThemes(),
-      fetch(
-        "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha/README.md",
-      ).then((res) => res.text()),
+      fetch("https://raw.githubusercontent.com/heroui-inc/heroui-native/alpha/README.md").then(
+        (res) => res.text(),
+      ),
       componentService.getLatestVersion(),
     ]);
 

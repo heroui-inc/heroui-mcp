@@ -6,8 +6,7 @@ import {R2Uploader} from "../services/r2-uploader";
 
 export abstract class BaseExtractor {
   protected r2: R2Uploader;
-  protected githubBase =
-    "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha";
+  protected githubBase = "https://raw.githubusercontent.com/heroui-inc/heroui-native/alpha";
 
   constructor() {
     // Validate environment variables
