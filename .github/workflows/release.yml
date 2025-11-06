@@ -93,7 +93,7 @@ jobs:
         working-directory: apps/${{ needs.determine-package.outputs.package }}
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          npm publish --access public
+          npm publish --access public --tag alpha
         env:
           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
 
@@ -102,7 +102,7 @@ jobs:
         working-directory: apps/${{ needs.determine-package.outputs.package }}
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          npm publish --access public
+          npm publish --access public --tag alpha
         env:
           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
 
