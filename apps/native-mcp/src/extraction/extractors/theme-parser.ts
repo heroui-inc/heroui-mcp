@@ -6,6 +6,159 @@ import type {ColorToken, Theme, ThemeSystem} from "@shared/types/theme";
 
 export class ThemeParser {
   /**
+   * Parse CSS variables from variables.css (beta format)
+   */
+  parseCssVariables(cssContent: string): {light: ColorToken[]; dark: ColorToken[]} {
+    // First, extract primitive colors that are referenced by var()
+    const primitives = this.extractPrimitiveColors(cssContent);
+
+    // Then parse variants, resolving var() references
+    const lightColors = this.parseCssVariant(cssContent, "light", primitives);
+    const darkColors = this.parseCssVariant(cssContent, "dark", primitives);
+
+    return {light: lightColors, dark: darkColors};
+  }
+
+  /**
+   * Extract primitive colors from @theme block
+   */
+  private extractPrimitiveColors(cssContent: string): Record<string, string> {
+    const primitives: Record<string, string> = {};
+
+    // Match @theme { ... } block
+    const themeBlockMatch = cssContent.match(/@theme\s*\{([\s\S]*?)\}(?=\s*@layer|$)/i);
+    if (!themeBlockMatch) {
+      return primitives;
+    }
+
+    const themeContent = themeBlockMatch[1];
+    const cssVarRegex = /--([\w-]+):\s*([^;]+);/g;
+    let varMatch;
+
+    while ((varMatch = cssVarRegex.exec(themeContent)) !== null) {
+      const [, name, value] = varMatch;
+      const cleanValue = value.trim().replace(/\s+/g, " "); // Normalize whitespace
+
+      // Only extract primitive color variables
+      if (["white", "black", "snow", "eclipse"].includes(name)) {
+        primitives[name] = cleanValue;
+      }
+    }
+
+    return primitives;
+  }
+
+  /**
+   * Resolve var() references to actual values
+   */
+  private resolveVarReference(value: string, primitives: Record<string, string>): string | null {
+    const varMatch = value.match(/var\(--([\w-]+)\)/);
+    if (!varMatch) {
+      return null;
+    }
+
+    const varName = varMatch[1];
+
+    return primitives[varName] || null;
+  }
+
+  /**
+   * Parse a specific variant (@variant light or @variant dark) from CSS
+   */
+  private parseCssVariant(
+    cssContent: string,
+    variant: "light" | "dark",
+    primitives: Record<string, string>,
+  ): ColorToken[] {
+    // Match @variant light { ... } or @variant dark { ... }
+    const variantRegex = new RegExp(
+      `@variant\\s+${variant}\\s*\\{([\\s\\S]*?)\\}(?=\\s*@variant|\\s*\\})`,
+      "i",
+    );
+    const match = cssContent.match(variantRegex);
+
+    if (!match) {
+      return [];
+    }
+
+    const variantContent = match[1];
+
+    // First pass: extract all variables into a map
+    const variables: Record<string, string> = {};
+    const cssVarRegex = /--([\w-]+):\s*([^;]+?)(?=\s*;)/gs;
+    let varMatch;
+
+    while ((varMatch = cssVarRegex.exec(variantContent)) !== null) {
+      const [, name, value] = varMatch;
+      const cleanValue = value.trim().replace(/\s+/g, " ");
+      variables[name] = cleanValue;
+    }
+
+    // Second pass: resolve var() references and build color tokens
+    const colors: ColorToken[] = [];
+    const colorNames = [
+      "background",
+      "foreground",
+      "surface",
+      "surface-foreground",
+      "overlay",
+      "overlay-foreground",
+      "muted",
+      "default",
+      "default-foreground",
+      "accent",
+      "accent-foreground",
+      "success",
+      "success-foreground",
+      "warning",
+      "warning-foreground",
+      "danger",
+      "danger-foreground",
+      "segment",
+      "segment-foreground",
+      "border",
+      "divider",
+      "link",
+      "field-background",
+      "field-foreground",
+      "field-placeholder",
+      "field-border",
+    ];
+
+    for (const [name, value] of Object.entries(variables)) {
+      const cleanName = name.replace(/^color-/, ""); // Remove 'color-' prefix if present
+
+      // Only include known color properties
+      if (!colorNames.includes(cleanName) && !colorNames.some((cn) => cleanName.startsWith(cn))) {
+        continue;
+      }
+
+      // Resolve var() references (first try primitives, then variant variables)
+      let resolvedValue = value;
+      if (value.startsWith("var(")) {
+        const varRef = this.resolveVarReference(value, primitives);
+        if (varRef) {
+          resolvedValue = varRef;
+        } else {
+          // Try to resolve from variant variables
+          const variantVarRef = this.resolveVarReference(value, variables);
+          if (variantVarRef) {
+            resolvedValue = variantVarRef;
+          }
+        }
+      }
+
+      colors.push({
+        name: cleanName,
+        value: resolvedValue,
+        category: this.categorizeColor(cleanName),
+      });
+    }
+
+    return colors;
+  }
+
+  /**
    * Parse colors.ts TypeScript source for default theme
    */
   parseColorSource(tsContent: string): {light: ColorToken[]; dark: ColorToken[]} {

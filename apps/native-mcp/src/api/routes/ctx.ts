@@ -23,9 +23,9 @@ ctx.get("/", async (c) => {
       componentService.listComponents(),
       componentService.listExamples(),
       themeService.getAvailableThemes(),
-      fetch(
-        "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha/README.md",
-      ).then((res) => res.text()),
+      fetch("https://raw.githubusercontent.com/heroui-inc/heroui-native/alpha/README.md").then(
+        (res) => res.text(),
+      ),
       componentService.getLatestVersion(),
     ]);
 
@@ -96,7 +96,7 @@ ctx.get("/", async (c) => {
       },
     });
 
-    return c.json({
+    const response: Record<string, unknown> = {
       components: componentList,
       examples: exampleList,
       themes: themeList,
@@ -105,7 +105,15 @@ ctx.get("/", async (c) => {
       },
       version: latestVersion || "unknown",
       timestamp: Date.now(),
-    });
+    };
+
+    // Add user ID if authenticated (from auth middleware)
+    const userId = c.get("userId");
+    if (userId) {
+      response.userId = userId;
+    }
+
+    return c.json(response);
   } catch (error) {
     analytics.trackError({
       error,

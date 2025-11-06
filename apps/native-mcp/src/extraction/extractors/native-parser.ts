@@ -37,9 +37,14 @@ interface ExampleItem {
 }
 
 export class NativeParser {
-  private static readonly GITHUB_RAW_BASE_URL =
-    "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha";
+  private readonly githubRawBaseUrl: string;
+  private readonly githubRef: string;
   private exampleRegistry: Record<string, ExampleItem> | null = null;
+
+  constructor(ref: string = "beta") {
+    this.githubRef = ref;
+    this.githubRawBaseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${ref}`;
+  }
 
   /**
    * Parse a markdown file and extract component definition
@@ -52,7 +57,7 @@ export class NativeParser {
       const anatomy = this.extractAnatomy(content);
       const props = this.extractProps(content, componentName);
       const subComponents = this.extractSubComponents(content, componentName);
-      const examples = await this.extractExamples(componentName);
+      const examples = await this.extractExamples(componentName, this.githubRef);
 
       return {
         name: componentName,
@@ -73,12 +78,12 @@ export class NativeParser {
   /**
    * Fetch example registry from GitHub API
    */
-  async fetchExampleRegistry(): Promise<Record<string, ExampleItem>> {
+  async fetchExampleRegistry(ref: string = "beta"): Promise<Record<string, ExampleItem>> {
     if (this.exampleRegistry) return this.exampleRegistry;
 
     try {
       const response = await fetch(
-        "https://api.github.com/repos/heroui-inc/heroui-native/contents/example/src/app/(home)/components?ref=alpha",
+        `https://api.github.com/repos/heroui-inc/heroui-native/contents/example/src/app/(home)/components?ref=${ref}`,
       );
       const files = (await response.json()) as Array<{
         type: string;
@@ -111,7 +116,7 @@ export class NativeParser {
    */
   async fetchExampleContent(filePath: string): Promise<string | null> {
     try {
-      const url = `${NativeParser.GITHUB_RAW_BASE_URL}/example/src/app/(home)/components/${filePath}`;
+      const url = `${this.githubRawBaseUrl}/example/src/app/(home)/components/${filePath}`;
       const response = await fetch(url);
       if (!response.ok) return null;
 
@@ -324,9 +329,12 @@ export class NativeParser {
   /**
    * Extract examples from registry with fuzzy matching
    */
-  private async extractExamples(componentName: string): Promise<ComponentExample[]> {
+  private async extractExamples(
+    componentName: string,
+    ref: string = "beta",
+  ): Promise<ComponentExample[]> {
     const examples: ComponentExample[] = [];
-    const registry = await this.fetchExampleRegistry();
+    const registry = await this.fetchExampleRegistry(ref);
     const kebabName = this.toKebabCase(componentName);
 
     // Find all matching example files

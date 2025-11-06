@@ -109,10 +109,14 @@ async function main() {
     await server.connect(transport);
 
     // Log to stderr to avoid interfering with STDIO
+    // eslint-disable-next-line no-console
     console.error("HeroUI Native MCP Server running on STDIO");
+    // eslint-disable-next-line no-console
     console.error(`API URL: ${API_BASE_URL}`);
+    // eslint-disable-next-line no-console
     console.error(`Version: ${packageInfo.version}`);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Fatal error:", error);
     process.exit(1);
   }
@@ -120,6 +124,7 @@ async function main() {
 
 // Run the server
 main().catch((error) => {
+  // eslint-disable-next-line no-console
   console.error("Failed to start server:", error);
   process.exit(1);
 });

@@ -1,26 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Tool} from "./types";
+import type {Tool} from "../types";
 
 import {z} from "zod";
 
 import {fetchApi} from "../lib/fetch";
-
-interface DocSection {
-  title: string;
-  path: string;
-  description: string;
-}
-
-interface DocCategory {
-  name: string;
-  docs: DocSection[];
-}
-
-interface DocsListResponse {
-  baseUrl: string;
-  categories: DocCategory[];
-  total: number;
-}
 
 interface DocContentResponse {
   path: string;

@@ -34,7 +34,7 @@ docs.get("/available", async (c) => {
   try {
     // Fetch README.md from heroui-native repository
     const branch = "alpha";
-    const readmeUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/${branch}/README.md`;
+    const readmeUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${branch}/README.md`;
     const response = await fetch(readmeUrl);
 
     if (!response.ok) {
@@ -279,7 +279,7 @@ docs.get("/content", async (c) => {
 
     // Fetch from GitHub
     const branch = "alpha";
-    const githubUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/${branch}/${githubPath}`;
+    const githubUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${branch}/${githubPath}`;
 
     const response = await fetch(githubUrl);
 
@@ -326,7 +326,7 @@ docs.get("/content", async (c) => {
       path,
       url: githubUrl
         .replace("raw.githubusercontent.com", "github.com")
-        .replace("/refs/heads/", "/blob/"),
+        .replace(`/${branch}/`, `/blob/${branch}/`),
       content,
       contentType: "markdown",
     });

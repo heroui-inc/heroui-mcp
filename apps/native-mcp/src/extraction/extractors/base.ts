@@ -6,8 +6,8 @@ import {R2Uploader} from "../services/r2-uploader";
 
 export abstract class BaseExtractor {
   protected r2: R2Uploader;
-  protected githubBase =
-    "https://raw.githubusercontent.com/heroui-inc/heroui-native/refs/heads/alpha";
+  protected githubBase = "https://raw.githubusercontent.com/heroui-inc/heroui-native/beta";
+  protected githubRef = "beta";
 
   constructor() {
     // Validate environment variables
@@ -27,11 +27,20 @@ export abstract class BaseExtractor {
   }
 
   /**
+   * Set the GitHub ref to use for extraction
+   */
+  protected setGitHubRef(ref: string): void {
+    this.githubRef = ref;
+    this.githubBase = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${ref}`;
+  }
+
+  /**
    * Get version from GitHub package.json - single source of truth
    */
-  protected async getVersionFromGitHub(): Promise<string> {
+  protected async getVersionFromGitHub(ref?: string): Promise<string> {
     try {
-      const url = `${this.githubBase}/package.json`;
+      const refToUse = ref || this.githubRef;
+      const url = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${refToUse}/package.json`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to fetch package.json: ${response.status}`);
@@ -49,7 +58,7 @@ export abstract class BaseExtractor {
   /**
    * Extract data from source
    */
-  abstract extract(): Promise<{data: any}>;
+  abstract extract(ref?: string): Promise<{data: any}>;
 
   /**
    * Get the storage key for this extraction type
@@ -69,11 +78,23 @@ export abstract class BaseExtractor {
     console.log(`🚀 Starting ${this.getStorageKey()} extraction...`);
 
     try {
+      // Determine GitHub ref to use
+      // If specificVersion is provided and looks like a tag (starts with 'v'), use it as ref
+      // Otherwise, use 'beta' as default
+      let githubRef = "beta";
+      if (specificVersion && specificVersion.startsWith("v")) {
+        githubRef = specificVersion;
+      }
+
+      // Set the ref for this extraction
+      this.setGitHubRef(githubRef);
+
       // Get version from GitHub first (or use specific version if provided)
-      const githubVersion = specificVersion || (await this.getVersionFromGitHub());
+      const githubVersion = specificVersion || (await this.getVersionFromGitHub(githubRef));
       const versionWithPrefix = githubVersion.startsWith("v") ? githubVersion : `v${githubVersion}`;
 
       console.log(`📍 Target version: ${versionWithPrefix}`);
+      console.log(`📍 Using GitHub ref: ${githubRef}`);
 
       const storageType = this.getStorageType();
 
@@ -95,7 +116,7 @@ export abstract class BaseExtractor {
 
       // Extract data from GitHub
       console.log("🔄 Starting extraction from GitHub...");
-      const {data} = await this.extract();
+      const {data} = await this.extract(githubRef);
 
       if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
         console.error("❌ No data extracted");

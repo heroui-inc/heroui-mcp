@@ -1,7 +1,8 @@
-import type {Tool, ToolConfig} from "./types";
+import type {Tool, ToolConfig} from "../types";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import {getSharedContext} from "../lib/shared-context";
+
 import {getComponentExamplesTool} from "./get-component-examples";
 import {getComponentInfoTool} from "./get-component-info";
 import {getComponentPropsTool} from "./get-component-props";
@@ -30,13 +31,15 @@ const tools: Tool[] = [
  * Fetches shared context once and passes it to all tools
  */
 export async function initializeTools(server: McpServer, config: ToolConfig = {}): Promise<void> {
+  // Fetch shared context once for all tools
+  const sharedContext = await getSharedContext(
+    config.apiBaseUrl || process.env.HEROUI_API_URL || "https://mcp-api.heroui.com",
+  );
+
   const finalConfig: ToolConfig = {
     apiBaseUrl: config.apiBaseUrl || process.env.HEROUI_API_URL || "https://mcp-api.heroui.com",
     ...config,
   };
-
-  // Fetch shared context once for all tools
-  const sharedContext = await getSharedContext(finalConfig.apiBaseUrl);
 
   const enabledTools = tools.filter((tool) => !tool.disabled?.(finalConfig));
 

@@ -22,10 +22,13 @@ import {authMiddleware} from "./middleware/auth";
 
 const app = new Hono<HonoContext>();
 
-// Apply CORS middleware globally
+// Apply middleware globally
 app.use("*", corsMiddleware);
-app.use("*", authMiddleware);
 app.use("*", analyticsMiddleware);
+// Hybrid auth middleware:
+// - Local dev: HTTP to localhost:8789
+// - Deployed: Service binding to api
+app.use("*", authMiddleware);
 
 // Mount routes
 app.route("/", health);
@@ -48,6 +51,7 @@ app.notFound((c) => {
 
 // Error handler
 app.onError((err, c) => {
+  // eslint-disable-next-line no-console
   console.error("Unhandled error:", err);
 
   return c.json(

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {ThemeContext, Tool} from "./types";
+import type {ThemeContext, Tool} from "../types";
 
 import {z} from "zod";
 
@@ -9,7 +9,6 @@ export const getThemeInfoTool: Tool<ThemeContext> = {
   name: "get_theme_info",
   description: `Get HeroUI Native theme colors and design tokens.
 Returns theme colors in HSL format for light and dark modes.
-Custom themes (if any) are example implementations for reference only - they demonstrate how to create custom themes but are not included in the package.
 Use this tool to understand theme structure and color token organization.`,
 
   async ctx(shared) {
@@ -18,16 +17,14 @@ Use this tool to understand theme structure and color token organization.`,
     };
   },
 
-  exec(server, {config, name, description, ctx}) {
+  exec(server, {config, name, description}) {
     // Create input schema with dynamic theme enum
     const inputSchema = z.object({
       theme: z
-        .enum(ctx.themeList as [string, ...string[]])
+        .enum(["default"] as [string, ...string[]])
         .optional()
         .describe(
-          `Theme name. Defaults to "default".
-${ctx.themeList.length > 1 ? `Additional themes available: ${ctx.themeList.filter((t) => t !== "default").join(", ")} (example implementations for reference only).` : ""}
-Leave empty to use default theme.`,
+          `Theme name. Only "default" theme is supported. Defaults to "default" if not specified.`,
         ),
       mode: z
         .enum(["light", "dark", "both"])
@@ -50,15 +47,8 @@ Returns color tokens for the specified mode(s).`,
 
         // Format the response as structured text
         let responseText = `# HeroUI Native Theme\n\n`;
-        responseText += `**Theme:** ${response.theme}\n`;
-        responseText += `**Version:** ${response.version || "unknown"}\n`;
-
-        // Add note for custom themes
-        if (response.theme !== "default") {
-          responseText += `\n> **Note:** This is an example theme for reference only. It is not included in the @heroui-native/core package. Use it as inspiration for creating your own custom themes.\n`;
-        }
-
-        responseText += `\n`;
+        responseText += `**Theme:** ${response.theme || "default"}\n`;
+        responseText += `**Version:** ${response.version || "unknown"}\n\n`;
 
         // Format colors by mode
         if (mode === "light" || mode === "both") {

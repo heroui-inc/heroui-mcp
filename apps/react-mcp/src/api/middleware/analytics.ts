@@ -6,8 +6,6 @@ import {AnalyticsService} from "../services/analytics";
 
 export const analyticsMiddleware = async (c: Context<HonoContext>, next: Next) => {
   const cf = c.req.raw.cf;
-  const user = c.get("user");
-  const distinctId = user?.id;
 
   let metadata: Record<string, unknown> | undefined = undefined;
 
@@ -20,8 +18,6 @@ export const analyticsMiddleware = async (c: Context<HonoContext>, next: Next) =
     metadata.country = cf.country;
     metadata.region = cf.region;
     metadata.timezone = cf.timezone;
-
-    console.log("cf:", metadata);
   }
 
   // Add package version to metadata
@@ -30,7 +26,7 @@ export const analyticsMiddleware = async (c: Context<HonoContext>, next: Next) =
     version: packageJson.version,
   };
 
-  const analytics = new AnalyticsService({bindings: c.env, metadata, distinctId});
+  const analytics = new AnalyticsService({bindings: c.env, metadata});
 
   c.set("analytics", analytics);
 
