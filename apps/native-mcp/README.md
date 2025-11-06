@@ -53,6 +53,26 @@ Or manually add to your Claude Code configuration:
 }
 ```
 
+### Codex
+
+**Quick Install (CLI)**:
+```bash
+codex mcp add heroui-native -- npx -y @heroui/native-mcp@latest
+```
+
+Or manually add to your Codex configuration file:
+
+**macOS/Linux**: `~/.codex/config.toml`
+**Windows**: `%USERPROFILE%\.codex\config.toml`
+
+```toml
+[mcp_servers.heroui-native]
+command = "npx"
+args = ["-y", "@heroui/native-mcp@latest"]
+```
+
+For more configuration options, see the [Codex MCP documentation](https://developers.openai.com/codex/mcp/).
+
 ### Windsurf
 
 Add to Windsurf configuration → MCP Servers:
