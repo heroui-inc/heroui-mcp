@@ -27,12 +27,12 @@ export class ThemeExtractor extends BaseExtractor {
     return "theme";
   }
 
-  async extract(): Promise<{data: ThemeSystem}> {
+  async extract(ref: string = "beta"): Promise<{data: ThemeSystem}> {
     console.log("🎨 Extracting HeroUI Native theme system...");
-    console.log("📍 Repository: heroui-inc/heroui-native@alpha");
+    console.log(`📍 Repository: heroui-inc/heroui-native@${ref}`);
 
     // Step 1: Get version from package.json
-    const version = await this.getVersionFromGitHub();
+    const version = await this.getVersionFromGitHub(ref);
     console.log(`   Version: ${version}`);
 
     const themes: Record<string, Theme> = {};
@@ -45,7 +45,7 @@ export class ThemeExtractor extends BaseExtractor {
 
     // Step 3: Extract custom themes from example/src/themes/
     console.log("   Fetching custom themes from example/src/themes/...");
-    const customThemes = await this.extractCustomThemes();
+    const customThemes = await this.extractCustomThemes(ref);
     Object.assign(themes, customThemes);
     console.log(`   ✓ Extracted ${Object.keys(customThemes).length} custom themes`);
 
@@ -98,12 +98,12 @@ export class ThemeExtractor extends BaseExtractor {
   /**
    * Extract custom themes from example/src/themes/
    */
-  private async extractCustomThemes(): Promise<Record<string, Theme>> {
+  private async extractCustomThemes(ref: string): Promise<Record<string, Theme>> {
     const allThemes: Record<string, Theme> = {};
 
     try {
       // List files in example/src/themes/
-      const themeFiles = await this.listThemeFiles();
+      const themeFiles = await this.listThemeFiles(ref);
 
       // Extract each theme file
       for (const file of themeFiles) {
@@ -136,8 +136,8 @@ export class ThemeExtractor extends BaseExtractor {
   /**
    * List all .ts files in example/src/themes/
    */
-  private async listThemeFiles(): Promise<string[]> {
-    const apiUrl = `https://api.github.com/repos/heroui-inc/heroui-native/contents/example/src/themes?ref=alpha`;
+  private async listThemeFiles(ref: string): Promise<string[]> {
+    const apiUrl = `https://api.github.com/repos/heroui-inc/heroui-native/contents/example/src/themes?ref=${ref}`;
     const response = await fetch(apiUrl);
 
     if (!response.ok) {
