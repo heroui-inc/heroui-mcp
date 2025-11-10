@@ -1,10 +1,11 @@
 import type {Resource, ResourceConfig} from "../types";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
+import {heroUIThemeRulesResource} from "./heroui-theme-rules";
 import {heroUIWebRulesResource} from "./heroui-web-rules";
 
 // All available resources
-const resources: Resource[] = [heroUIWebRulesResource];
+const resources: Resource[] = [heroUIWebRulesResource, heroUIThemeRulesResource];
 
 /**
  * Initialize all resources with the server

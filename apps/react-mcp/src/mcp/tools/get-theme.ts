@@ -24,7 +24,7 @@ Use this tool to:
 
 After viewing, you can modify and save again using save_theme.
 
-**Note**: This tool only works with user saved themes. For default theme values and guidelines, use \`get_theme_rules\` (free).`,
+**Note**: This tool only works with user saved themes. For default theme values and guidelines, use the \`heroui://theme-rules\` resource (free).`,
 
   /**
    * Extract theme list from shared context
@@ -63,11 +63,11 @@ After viewing, you can modify and save again using save_theme.
               text: `❌ No saved themes found.
 
 **To use this tool:**
-1. Create a theme using the default values from \`get_theme_rules\` (free)
+1. Create a theme using the default values from the \`heroui://theme-rules\` resource (free)
 2. Save it using \`save_theme\` (premium)
 3. Then use \`get_theme\` to retrieve your saved theme
 
-**Note**: This tool only works with user saved themes. For default theme values and guidelines, use \`get_theme_rules\` (free).`,
+**Note**: This tool only works with user saved themes. For default theme values and guidelines, use the \`heroui://theme-rules\` resource (free).`,
             },
           ],
         };
@@ -85,7 +85,7 @@ After viewing, you can modify and save again using save_theme.
 Available themes: ${ctx.themeList.join(", ")}.
 
 Use \`list_themes\` to see all available themes.
-For default theme values, use \`get_theme_rules\` (free).`,
+For default theme values, use the \`heroui://theme-rules\` resource (free).`,
       ),
       mode: z
         .enum(["light", "dark", "both"])

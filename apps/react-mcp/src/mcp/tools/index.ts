@@ -12,7 +12,6 @@ import {getComponentSourceCodeTool} from "./get-component-source-code";
 import {getComponentSourceStylesTool} from "./get-component-source-styles";
 import {getDocsTool} from "./get-docs";
 import {getThemeTool} from "./get-theme";
-import {getThemeRulesTool} from "./get-theme-rules";
 import {installationTool} from "./installation";
 import {listComponentsTool} from "./list-components";
 import {listThemesTool} from "./list-themes";
@@ -27,8 +26,7 @@ const freeTools: Tool[] = [
   getComponentExamplesTool,
   getComponentSourceCodeTool,
   getComponentSourceStylesTool,
-  getThemeRulesTool, // New: theme guidelines and default values
-  getThemeInfoTool, // Deprecated: kept for backwards compatibility
+  getThemeInfoTool, // Deprecated: kept for backwards compatibility (in production)
   getDocsTool,
 ];
 

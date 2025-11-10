@@ -52,8 +52,8 @@ Always follow this order when implementing HeroUI v3 components:
 
 ### Custom Themes Workflow
 When users create or modify custom themes:
-1. Use \`get_theme_info(theme="default")\` to see the structure template
-2. Help users create their custom theme data
+1. Reference the \`heroui://theme-rules\` resource for default values and structure
+2. Help users create their custom theme data based on the default values
 3. **ALWAYS proactively suggest saving** after creating/modifying themes - ask the user if they'd like to save it
 4. Use \`save_theme\` tool if user agrees to save
 5. After successful save, confirm with the user that their theme has been saved
@@ -90,13 +90,13 @@ get_component_info({ component: "Card" })
 ### Available Documentation
 • Components: Use tools to explore v3 components
 • Guides: Use get_docs({ path: "/docs/introduction" })
-• Theme: Use get_theme_info() for v3 theming
+• Theme: Use get_theme() for user saved themes, or heroui://theme-rules resource for default values
 
-### 📚 Development Guidelines
-A comprehensive development guide is available as a resource:
-• Resource name: "heroui-web-rules"
-• Contains: Best practices, common patterns, troubleshooting, MCP tool workflows
-• Include this in context for optimal results
+### 📚 Resources
+Resources are automatically available and provide comprehensive documentation:
+• **heroui-web-rules**: Development guidelines, best practices, common patterns, troubleshooting, MCP tool workflows
+• **heroui://theme-rules**: Theme guidelines, structure documentation, default theme variable values, and guides
+• Include these resources in context for optimal results
 
 ### Pro Tips
 • This MCP is for v3 ONLY - v2 docs are at https://heroui.com

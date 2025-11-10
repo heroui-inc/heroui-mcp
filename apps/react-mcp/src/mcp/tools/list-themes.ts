@@ -18,7 +18,7 @@ export const listThemesTool: Tool = {
 - User saved themes (themes you've saved to your account)
 
 Use this tool to see all available themes before using \`get_theme\` to view theme details.
-For default theme values and guidelines, use \`get_theme_rules\` (free).`,
+For default theme values and guidelines, use the \`heroui://theme-rules\` resource (free).`,
 
   // Disable if no API key is configured (premium tool)
   disabled(config) {
@@ -87,7 +87,7 @@ For default theme values and guidelines, use \`get_theme_rules\` (free).`,
           stockThemes.forEach((theme) => {
             text += `- **${theme}** (default theme values)\n`;
           });
-          text += `\n💡 **Tip**: Use \`get_theme_rules\` (free) to see all default theme variable values and guidelines.\n`;
+          text += `\n💡 **Tip**: Use the \`heroui://theme-rules\` resource (free) to see all default theme variable values and guidelines.\n`;
         } else {
           text += `- No default theme available\n`;
         }
@@ -112,7 +112,7 @@ For default theme values and guidelines, use \`get_theme_rules\` (free).`,
 
         text += `\n---\n\n`;
         text += `**Total Themes:** ${stockThemes.length + customThemes.length}\n\n`;
-        text += `- Use \`get_theme_rules\` (free) for default theme values and guidelines\n`;
+        text += `- Use the \`heroui://theme-rules\` resource (free) for default theme values and guidelines\n`;
         text += `- Use \`get_theme\` (premium) to view your saved themes\n`;
 
         return {

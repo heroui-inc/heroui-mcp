@@ -14,7 +14,7 @@ export const saveThemeTool: Tool = {
   name: "save_theme",
   description: `Save a HeroUI theme to your account.
 
-⚠️ **IMPORTANT:** Use get_theme_rules to see the exact expected structure and default values.
+⚠️ **IMPORTANT:** Reference the \`heroui://theme-rules\` resource to see the exact expected structure and default values.
 
 **When to use this tool:**
 - User explicitly asks to save a theme
@@ -50,7 +50,7 @@ Each variable in the arrays needs:
 - category: "colors"|"typography"|"spacing"|"borders"|"shadows"|"animations" (optional)
 
 🎯 Recommended workflow:
-1. Call get_theme_rules to see complete structure and default values
+1. Reference the \`heroui://theme-rules\` resource to see complete structure and default values
 2. Copy the structure from default theme, modify values for your theme
 3. Proactively suggest saving: "Would you like to save this theme to your account?"
 4. If user agrees, call save_theme with your data
@@ -116,7 +116,7 @@ Minimal example:
   }
 }
 
-💡 Pro tip: Call get_theme_rules and copy the default theme structure directly.`),
+💡 Pro tip: Reference the \`heroui://theme-rules\` resource and copy the default theme structure directly.`),
     });
 
     const handler = async ({name, library, themeData}: z.infer<typeof inputSchema>) => {

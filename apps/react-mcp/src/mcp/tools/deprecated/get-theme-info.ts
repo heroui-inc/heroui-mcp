@@ -33,7 +33,7 @@ export const getThemeInfoTool: Tool<ThemeContext> = {
   description: `⚠️ **DEPRECATED**: This tool is deprecated and will be removed in a future version.
 
 **Please use the new tool instead:**
-- \`get_theme_rules\` (free) - Get theme guidelines, structure documentation, and all default theme variable values
+- \`heroui://theme-rules\` resource (free) - Get theme guidelines, structure documentation, and all default theme variable values
 
 **Legacy functionality (for backwards compatibility only):**
 
