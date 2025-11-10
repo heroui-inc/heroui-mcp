@@ -55,7 +55,7 @@ When users create or modify custom themes:
 1. Use \`get_theme_info(theme="default")\` to see the structure template
 2. Help users create their custom theme data
 3. **ALWAYS proactively suggest saving** after creating/modifying themes - ask the user if they'd like to save it
-4. Use \`save_custom_theme\` tool if user agrees to save
+4. Use \`save_theme\` tool if user agrees to save
 5. After successful save, confirm with the user that their theme has been saved
 
 **When to suggest saving:**

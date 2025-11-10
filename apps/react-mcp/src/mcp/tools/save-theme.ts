@@ -7,22 +7,22 @@ import {ThemeDataInputSchema} from "../../shared/schemas/theme";
 import {fetchApi} from "../lib/fetch";
 
 /**
- * Tool to save a custom theme to the user's account
+ * Tool to save a theme to the user's account
  * Requires authentication via HEROUI_API_KEY environment variable
  */
-export const saveCustomThemeTool: Tool = {
-  name: "save_custom_theme",
-  description: `Save a custom HeroUI theme to your account.
+export const saveThemeTool: Tool = {
+  name: "save_theme",
+  description: `Save a HeroUI theme to your account.
 
-⚠️ **IMPORTANT:** Use get_theme_info on "default" theme first to see the exact expected structure.
+⚠️ **IMPORTANT:** Use get_theme_rules to see the exact expected structure and default values.
 
 **When to use this tool:**
 - User explicitly asks to save a theme
 - User agrees when you proactively suggest saving
-- User has created a custom theme they want to keep permanently
+- User has created a theme they want to keep permanently
 
 **After saving:**
-- Confirm with the user: "✅ Your theme has been saved! You can access it later using get_theme_info with the theme name."
+- Confirm with the user: "✅ Your theme has been saved! You can access it later using get_theme with the theme name."
 
 Required fields:
 - name: string (1-100 chars) - Theme display name
@@ -50,15 +50,14 @@ Each variable in the arrays needs:
 - category: "colors"|"typography"|"spacing"|"borders"|"shadows"|"animations" (optional)
 
 🎯 Recommended workflow:
-1. Call get_theme_info(theme="default") to see complete example
-2. Copy the structure from themeData field
-3. Modify values for your custom theme
-4. Proactively suggest saving: "Would you like to save this theme to your account?"
-5. If user agrees, call save_custom_theme with your data
-6. After successful save, confirm: "✅ Your theme has been saved!"
+1. Call get_theme_rules to see complete structure and default values
+2. Copy the structure from default theme, modify values for your theme
+3. Proactively suggest saving: "Would you like to save this theme to your account?"
+4. If user agrees, call save_theme with your data
+5. After successful save, confirm: "✅ Your theme has been saved!"
 
 Requires authentication - set HEROUI_API_KEY environment variable.
-After saving, your theme will be available in get_theme_info tool.`,
+After saving, your theme will be available in get_theme tool.`,
 
   // Disable if no API key is configured
   disabled(config) {
@@ -117,7 +116,7 @@ Minimal example:
   }
 }
 
-💡 Pro tip: Call get_theme_info(theme="default") and copy the themeData structure directly.`),
+💡 Pro tip: Call get_theme_rules and copy the default theme structure directly.`),
     });
 
     const handler = async ({name, library, themeData}: z.infer<typeof inputSchema>) => {
@@ -148,7 +147,7 @@ Minimal example:
 **Library:** ${theme.library}
 **Created:** ${new Date(theme.createdAt).toISOString()}
 
-Your custom theme is now available! You can access it using the \`get_theme_info\` tool by specifying the theme name "${theme.name}".`,
+Your theme is now available! You can access it using the \`get_theme\` tool by specifying the theme name "${theme.name}".`,
             },
           ],
         };

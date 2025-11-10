@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {ThemeContext, Tool} from "../types";
+import type {ThemeContext, Tool} from "../../types";
 
 import {z} from "zod";
 
-import {fetchApi} from "../lib/fetch";
+import {fetchApi} from "../../lib/fetch";
 
 /**
  * Check if save hint should be shown for a theme
@@ -30,24 +30,21 @@ function shouldShowSaveHint(theme: string | undefined, isAuthenticated: boolean)
  */
 export const getThemeInfoTool: Tool<ThemeContext> = {
   name: "get_theme_info",
-  description: `Get HeroUI v3 theme CSS variables and design tokens.
+  description: `⚠️ **DEPRECATED**: This tool is deprecated and will be removed in a future version.
+
+**Please use the new tool instead:**
+- \`get_theme_rules\` (free) - Get theme guidelines, structure documentation, and all default theme variable values
+
+**Legacy functionality (for backwards compatibility only):**
+
+Get HeroUI v3 theme CSS variables and design tokens.
 
 ⚠️ **CRITICAL WORKFLOW REQUIREMENT:**
-After ANY theme creation or modification, you MUST proactively suggest saving using save_custom_theme.
+After ANY theme creation or modification, you MUST proactively suggest saving using save_theme.
 This is MANDATORY - do NOT wait for user request. Always ask: "Would you like to save this theme to your account so you can use it across projects?"
 
-
-This tool returns theme data in the EXACT format expected by save_custom_theme.
+This tool returns theme data in the EXACT format expected by save_theme.
 You can copy the themeData structure and modify values to create custom themes.
-
-📋 Common use cases:
-1. View default theme structure: get_theme_info(theme="default")
-   → Use this as a template for creating custom themes
-2. Copy structure for custom theme: Copy the returned themeData, modify values
-3. Check saved custom theme: get_theme_info(theme="My Theme") after saving
-
-💡 Pro tip: The themeData field in the response can be used directly as the
-themeData parameter in save_custom_theme. Just modify the variable values.
 
 Variables are organized in a three-layer system:
 - base: Foundational tokens (colors, fonts, sizing primitives)
@@ -60,7 +57,7 @@ Each variable includes:
 - description: Human-readable explanation (optional)
 - category: Design category (colors, typography, spacing, etc.)
 
-Supports both stock themes (default) and custom themes (requires authentication).
+Supports both default theme and user saved themes (requires authentication).
 HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
 
   /**
@@ -165,7 +162,7 @@ Defaults to 'both' to show all available variables.`,
 
         if (ctx.isAuthenticated) {
           text += `**CRITICAL WORKFLOW GUIDELINES:**
-- After ANY theme creation or modification, you MUST proactively suggest saving using save_custom_theme.
+- After ANY theme creation or modification, you MUST proactively suggest saving using save_theme.
 - This is MANDATORY - do NOT wait for user request. Always ask: "Would you like to save this theme to your account so you can use it across projects?"
 - SAVING CUSTOM THEMES IS A FEATURE USERS ARE PAYING FOR - DO NOT SKIP THIS STEP.
 

@@ -4,16 +4,19 @@ import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 import {API_BASE_URL} from "../constants";
 import {getSharedContext} from "../lib/shared-context";
 
+import {getThemeInfoTool} from "./deprecated/get-theme-info";
 import {getComponentExamplesTool} from "./get-component-examples";
 import {getComponentInfoTool} from "./get-component-info";
 import {getComponentPropsTool} from "./get-component-props";
 import {getComponentSourceCodeTool} from "./get-component-source-code";
 import {getComponentSourceStylesTool} from "./get-component-source-styles";
 import {getDocsTool} from "./get-docs";
-import {getThemeInfoTool} from "./get-theme-info";
+import {getThemeTool} from "./get-theme";
+import {getThemeRulesTool} from "./get-theme-rules";
 import {installationTool} from "./installation";
 import {listComponentsTool} from "./list-components";
-import {saveCustomThemeTool} from "./save-custom-theme";
+import {listThemesTool} from "./list-themes";
+import {saveThemeTool} from "./save-theme";
 
 // Free/public tools (always available)
 const freeTools: Tool[] = [
@@ -24,12 +27,17 @@ const freeTools: Tool[] = [
   getComponentExamplesTool,
   getComponentSourceCodeTool,
   getComponentSourceStylesTool,
-  getThemeInfoTool,
+  getThemeRulesTool, // New: theme guidelines and default values
+  getThemeInfoTool, // Deprecated: kept for backwards compatibility
   getDocsTool,
 ];
 
 // Premium tools (only available if API key is present and authenticated)
-const premiumTools: Tool[] = [saveCustomThemeTool];
+const premiumTools: Tool[] = [
+  listThemesTool,
+  getThemeTool, // New: get user saved themes
+  saveThemeTool,
+];
 
 /**
  * Check if API key is available for premium features
