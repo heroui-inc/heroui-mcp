@@ -12,6 +12,7 @@ import {Hono} from "hono";
 import {corsMiddleware} from "./middleware/cors";
 import {components} from "./routes/components";
 import {ctx} from "./routes/ctx";
+import {customThemes} from "./routes/custom-themes";
 import {docs} from "./routes/docs";
 import {health} from "./routes/health";
 import {themes} from "./routes/themes";
@@ -35,6 +36,7 @@ app.route("/", health);
 app.route("/ctx", ctx);
 app.route("/components", components);
 app.route("/themes", themes);
+app.route("/custom-themes", customThemes);
 app.route("/versions", versions);
 app.route("/docs", docs);
 

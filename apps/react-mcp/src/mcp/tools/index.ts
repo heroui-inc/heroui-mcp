@@ -1,6 +1,7 @@
 import type {Tool, ToolConfig} from "../types";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
+import {API_BASE_URL} from "../constants";
 import {getSharedContext} from "../lib/shared-context";
 
 import {getComponentExamplesTool} from "./get-component-examples";
@@ -12,9 +13,10 @@ import {getDocsTool} from "./get-docs";
 import {getThemeInfoTool} from "./get-theme-info";
 import {installationTool} from "./installation";
 import {listComponentsTool} from "./list-components";
+import {saveCustomThemeTool} from "./save-custom-theme";
 
-// All available tools
-const tools: Tool[] = [
+// Free/public tools (always available)
+const freeTools: Tool[] = [
   installationTool,
   listComponentsTool,
   getComponentInfoTool,
@@ -26,22 +28,50 @@ const tools: Tool[] = [
   getDocsTool,
 ];
 
+// Premium tools (only available if API key is present and authenticated)
+const premiumTools: Tool[] = [saveCustomThemeTool];
+
+/**
+ * Check if API key is available for premium features
+ */
+function hasApiKey(config: ToolConfig): boolean {
+  return !!(config.apiKey || process.env.HEROUI_API_KEY);
+}
+
 /**
  * Initialize all tools with the server
  * Fetches shared context once and passes it to all tools
+ * Premium tools are only registered if API key is present AND valid
+ * Uses /ctx endpoint response to determine authentication status (optimized - no extra network call)
  */
 export async function initializeTools(server: McpServer, config: ToolConfig = {}): Promise<void> {
+  const apiBaseUrl = API_BASE_URL;
+
   // Fetch shared context once for all tools
-  const sharedContext = await getSharedContext(
-    config.apiBaseUrl || process.env.HEROUI_API_URL || "https://mcp-api.heroui.com",
-  );
+  // This also validates API key via auth middleware on /ctx endpoint
+  const {context: sharedContext, isAuthenticated} = await getSharedContext(apiBaseUrl);
 
   const finalConfig: ToolConfig = {
-    apiBaseUrl: config.apiBaseUrl || process.env.HEROUI_API_URL || "https://mcp-api.heroui.com",
+    apiBaseUrl,
     ...config,
   };
 
-  const enabledTools = tools.filter((tool) => !tool.disabled?.(finalConfig));
+  // Always include free tools
+  const allTools: Tool[] = [...freeTools];
+
+  // Only include premium tools if API key exists AND is authenticated
+  // isAuthenticated comes from /ctx endpoint which validates via auth middleware
+  if (hasApiKey(finalConfig) && isAuthenticated) {
+    allTools.push(...premiumTools);
+    // eslint-disable-next-line no-console
+    console.error("[MCP] Premium tools enabled (valid API key authenticated via /ctx)");
+  } else if (hasApiKey(finalConfig)) {
+    // eslint-disable-next-line no-console
+    console.error("[MCP] Premium tools disabled (invalid or missing API key)");
+  }
+
+  // Filter out any disabled tools
+  const enabledTools = allTools.filter((tool) => !tool.disabled?.(finalConfig));
 
   await Promise.all(
     enabledTools.map(async (tool) => {

@@ -6,6 +6,7 @@ import {REACT_LIBRARY_NAME} from "../contants";
 import {getComponentService} from "../services/component";
 import {getThemeService} from "../services/theme";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
+import {callPlatformApi} from "../utils/call-platform-api";
 
 const ctx = new Hono<HonoContext>();
 
@@ -33,6 +34,8 @@ ctx.get("/", async (c) => {
     const componentService = await getComponentService(c.env);
     const themeService = await getThemeService(c.env);
 
+    const userId = c.get("userId");
+
     // Fetch all context data in parallel
     const [components, themes, docsResponse, version] = await Promise.allSettled([
       componentService.listComponents(LIBRARY_NAME),
@@ -44,8 +47,50 @@ ctx.get("/", async (c) => {
     // Extract component list
     const componentList = components.status === "fulfilled" ? components.value : [];
 
-    // Extract theme list
-    const themeList = themes.status === "fulfilled" ? themes.value : ["default"];
+    // Extract theme list (stock themes from R2)
+    let themeList = themes.status === "fulfilled" ? themes.value : ["default"];
+
+    // If user is authenticated, fetch their custom themes and merge with stock themes
+    if (userId) {
+      try {
+        const apiKey = c.req.header("X-API-Key");
+        if (apiKey) {
+          const {response: customThemesResponse, json: customThemesResult} = await callPlatformApi(
+            c.env,
+            "/themes?library=react",
+            {
+              method: "GET",
+              headers: {
+                "X-API-Key": apiKey,
+              },
+            },
+          );
+
+          if (
+            customThemesResponse.ok &&
+            customThemesResult.success &&
+            Array.isArray(customThemesResult.data)
+          ) {
+            // Extract custom theme names and merge with stock themes
+            const customThemeNames = customThemesResult.data.map(
+              (theme: {id: string; name: string; library: string}) => theme.name,
+            );
+            themeList = [...themeList, ...customThemeNames];
+          }
+        }
+      } catch (error) {
+        analytics.trackError({
+          error,
+          errorEvent: AnalyticsErrorEvent.GET_THEMES_ERROR,
+          properties: {
+            endpoint,
+            responseTime: Date.now() - startTime,
+          },
+        });
+        // Continue with just stock themes
+        themeList = ["default"];
+      }
+    }
 
     // Parse documentation paths
     let docPaths: string[] = [];
@@ -119,7 +164,6 @@ ctx.get("/", async (c) => {
     };
 
     // Add user ID if authenticated (from auth middleware)
-    const userId = c.get("userId");
     if (userId) {
       response.userId = userId;
     }

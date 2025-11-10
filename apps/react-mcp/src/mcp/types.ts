@@ -11,10 +11,24 @@ export interface SharedContext {
   docPaths: string[];
   version: string;
   timestamp: number;
+  isAuthenticated?: boolean;
 }
 
 export interface ComponentContext {
   componentList: string[];
+}
+
+/**
+ * Context for theme-related tools
+ */
+export interface ThemeContext {
+  /**
+   * List of available theme names from R2 storage
+   * Populated from /ctx endpoint at initialization
+   * Always includes at least ["default"] as fallback
+   */
+  themeList: string[];
+  isAuthenticated: boolean;
 }
 
 export interface Tool<T = unknown> {

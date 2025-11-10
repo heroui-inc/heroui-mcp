@@ -3,8 +3,10 @@ import type {HonoContext} from "../types/context";
 
 import {Hono} from "hono";
 
+import {ThemeDefinitionSchema} from "../../shared/schemas/theme";
 import {getThemeService} from "../services/theme";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
+import {callPlatformApi} from "../utils/call-platform-api";
 
 const themes = new Hono<HonoContext>();
 
@@ -78,6 +80,67 @@ themes.get("/", async (c) => {
   }
 });
 
+/**
+ * Helper function to fetch custom theme by name
+ * Fetches all themes and finds the one matching the name
+ */
+async function fetchCustomThemeByName(
+  env: HonoContext["Bindings"],
+  themeName: string,
+  apiKey: string,
+): Promise<{id: string; themeData: string} | null> {
+  try {
+    // First, fetch all themes to find the one with matching name
+    const {response: listResponse, json: listResult} = await callPlatformApi(
+      env,
+      "/themes?library=react",
+      {
+        method: "GET",
+        headers: {
+          "X-API-Key": apiKey,
+        },
+      },
+    );
+
+    if (!listResponse.ok || !listResult.success || !Array.isArray(listResult.data)) {
+      return null;
+    }
+
+    // Find theme with matching name
+    const theme = listResult.data.find((t: {name: string; id: string}) => t.name === themeName);
+
+    if (!theme) {
+      return null;
+    }
+
+    // Fetch the full theme data by ID
+    const {response: themeResponse, json: themeResult} = await callPlatformApi(
+      env,
+      `/themes/${theme.id}`,
+      {
+        method: "GET",
+        headers: {
+          "X-API-Key": apiKey,
+        },
+      },
+    );
+
+    if (!themeResponse.ok || !themeResult.success || !themeResult.data) {
+      return null;
+    }
+
+    return {
+      id: themeResult.data.id,
+      themeData: themeResult.data.themeData,
+    };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to fetch custom theme by name:", error);
+
+    return null;
+  }
+}
+
 // Get theme variables
 themes.get("/variables", async (c) => {
   const endpoint = "get-theme-variables";
@@ -101,12 +164,44 @@ themes.get("/variables", async (c) => {
     if (themeName) {
       if (mode) {
         // Get specific mode variables
-        const variables = await service.getThemeVariables(themeName, mode, version);
+        let variables = await service.getThemeVariables(themeName, mode, version);
+
+        // If not found in stock themes, try custom themes
         if (!variables) {
-          return c.json(
-            {error: `Theme ${themeName} not found${version ? ` for version ${version}` : ""}`},
-            404,
-          );
+          const userId = c.get("userId");
+          const apiKey = c.req.header("X-API-Key");
+
+          if (userId && apiKey) {
+            const customTheme = await fetchCustomThemeByName(c.env, themeName, apiKey);
+
+            if (customTheme) {
+              try {
+                // Parse themeData if it's a string
+                const themeDataJson =
+                  typeof customTheme.themeData === "string"
+                    ? JSON.parse(customTheme.themeData)
+                    : customTheme.themeData;
+
+                // Validate theme structure
+                const validatedTheme = ThemeDefinitionSchema.parse(themeDataJson);
+
+                // Extract variables for requested mode
+                if (validatedTheme && validatedTheme[mode]) {
+                  variables = validatedTheme[mode];
+                }
+              } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error("Failed to parse custom theme data:", error);
+              }
+            }
+          }
+
+          if (!variables) {
+            return c.json(
+              {error: `Theme ${themeName} not found${version ? ` for version ${version}` : ""}`},
+              404,
+            );
+          }
         }
 
         analytics.track({
@@ -130,12 +225,42 @@ themes.get("/variables", async (c) => {
         });
       } else {
         // Get both light and dark for specific theme
-        const themeData = await service.getTheme(themeName, version);
+        let themeData: Awaited<ReturnType<typeof service.getTheme>> = await service.getTheme(
+          themeName,
+          version,
+        );
+
+        // If not found in stock themes, try custom themes
         if (!themeData) {
-          return c.json(
-            {error: `Theme ${themeName} not found${version ? ` for version ${version}` : ""}`},
-            404,
-          );
+          const userId = c.get("userId");
+          const apiKey = c.req.header("X-API-Key");
+
+          if (userId && apiKey) {
+            const customTheme = await fetchCustomThemeByName(c.env, themeName, apiKey);
+
+            if (customTheme) {
+              try {
+                // Parse themeData if it's a string
+                const themeDataJson =
+                  typeof customTheme.themeData === "string"
+                    ? JSON.parse(customTheme.themeData)
+                    : customTheme.themeData;
+
+                // Validate theme structure
+                themeData = ThemeDefinitionSchema.parse(themeDataJson);
+              } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error("Failed to parse custom theme data:", error);
+              }
+            }
+          }
+
+          if (!themeData) {
+            return c.json(
+              {error: `Theme ${themeName} not found${version ? ` for version ${version}` : ""}`},
+              404,
+            );
+          }
         }
 
         analytics.track({

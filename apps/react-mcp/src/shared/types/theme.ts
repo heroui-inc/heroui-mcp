@@ -17,7 +17,6 @@ export interface ThemeVariables {
 }
 
 export interface ThemeDefinition {
-  name: string; // Theme name (e.g., "default")
   light: ThemeVariables; // Light mode variables
   dark: ThemeVariables; // Dark mode variables
   components?: string; // Optional component-specific CSS overrides

@@ -50,6 +50,22 @@ Always follow this order when implementing HeroUI v3 components:
 4. **get_component_props** - Review TypeScript types
 5. **get_component_examples** - See usage patterns
 
+### Custom Themes Workflow
+When users create or modify custom themes:
+1. Use \`get_theme_info(theme="default")\` to see the structure template
+2. Help users create their custom theme data
+3. **ALWAYS proactively suggest saving** after creating/modifying themes - ask the user if they'd like to save it
+4. Use \`save_custom_theme\` tool if user agrees to save
+5. After successful save, confirm with the user that their theme has been saved
+
+**When to suggest saving:**
+- User requests a theme implementation or modification
+- User expresses satisfaction (e.g., "perfect", "looks great", "that's what I wanted")
+- User has made multiple theme modifications in the conversation
+- You've just created a custom theme structure for the user
+
+**Important:** Do NOT wait for the user to ask - proactively suggest saving custom themes to prevent work loss. Simply ask: "Would you like to save this theme to your account so you can use it across projects?"
+
 ### Key Differences in v3
 • Compound components pattern (e.g., Card.Header, Card.Content)
 • Requires Tailwind CSS v4 (NOT v3)
