@@ -13,12 +13,12 @@ describe("Versions API", () => {
       expect(res.status).toBe(200);
 
       const data = (await res.json()) as any;
-      expect(data).toHaveProperty("heroui");
+      expect(data).toHaveProperty("herouiReact");
       expect(data).toHaveProperty("mcp");
-      expect(data.heroui).toHaveProperty("latest");
-      expect(data.heroui).toHaveProperty("versions");
+      expect(data.herouiReact).toHaveProperty("latest");
+      expect(data.herouiReact).toHaveProperty("versions");
       expect(data.mcp).toHaveProperty("current");
-      expect(Array.isArray(data.heroui.versions)).toBe(true);
+      expect(Array.isArray(data.herouiReact.versions)).toBe(true);
     });
 
     it("should have proper CORS headers", async () => {
