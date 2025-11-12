@@ -1,8 +1,8 @@
 import type {Resource} from "../types";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
-import {readFile} from "fs/promises";
-import {dirname, join} from "path";
+import {access, readFile} from "fs/promises";
+import {dirname, join, resolve} from "path";
 import {fileURLToPath} from "url";
 
 /**
@@ -29,10 +29,31 @@ export const heroUIWebRulesResource: Resource = {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
 
-    // Resolve path relative to the built dist directory
-    // The built file is at dist/stdio.js, and heroui-web-rules.mdc is copied to dist/ during build
-    // So both files are in the same directory
-    const rulesPath = join(__dirname, "heroui-web-rules.mdc");
+    // Resolve path: try dist first (production), then project root (development)
+    // In production: built file is at dist/stdio.js, and heroui-web-rules.mdc is in dist/
+    // In development: source file is at src/mcp/resources/, and heroui-web-rules.mdc is at project root
+    const getRulesPath = async (): Promise<string> => {
+      // Try dist directory first (production build)
+      const distPath = join(__dirname, "heroui-web-rules.mdc");
+      try {
+        await access(distPath);
+
+        return distPath;
+      } catch {
+        // If not in dist, try project root (development)
+        // Go up from src/mcp/resources/ to project root
+        const projectRoot = resolve(__dirname, "../../..");
+        const rootPath = join(projectRoot, "heroui-web-rules.mdc");
+        try {
+          await access(rootPath);
+
+          return rootPath;
+        } catch {
+          // Fallback to dist path (will throw error with better context)
+          return distPath;
+        }
+      }
+    };
 
     server.resource(
       "heroui-web-rules",
@@ -46,6 +67,7 @@ export const heroUIWebRulesResource: Resource = {
       },
       async (uri) => {
         try {
+          const rulesPath = await getRulesPath();
           const rulesContent = await readFile(rulesPath, "utf-8");
 
           return {
@@ -67,7 +89,7 @@ export const heroUIWebRulesResource: Resource = {
               {
                 uri: uri.toString(),
                 mimeType: "text/plain",
-                text: "Error: HeroUI development guidelines could not be loaded. Please check the MCP installation.",
+                text: `Error: ${error instanceof Error ? error.message : String(error)}`,
               },
             ],
           };
