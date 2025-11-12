@@ -20,15 +20,15 @@ async function createServer(): Promise<McpServer> {
   const server = new McpServer({
     name: packageInfo.name,
     version: packageInfo.version,
-    instructions: `## HeroUI React MCP Tools - v3 Alpha Documentation
+    instructions: `## HeroUI React MCP Tools - v3 Beta Documentation
 
-These tools provide documentation for **HeroUI v3 (Alpha)** React components.
+These tools provide documentation for **HeroUI v3 (Beta)** React components.
 
 ### ⚠️ IMPORTANT: Version Information
-• **Current Support:** HeroUI v3 (Alpha) ONLY
+• **Current Support:** HeroUI v3 (Beta) ONLY
 • **HeroUI v2:** NOT supported by this MCP
 • **Migration from v2 to v3:** NOT available yet (coming when v3 is stable)
-• **Status:** v3 is in ALPHA - expect breaking changes
+• **Status:** v3 is in BETA - expect breaking changes
 
 ### 🚫 Migration Notice
 **Migration from HeroUI v2 to v3 is NOT supported yet.**
@@ -84,7 +84,7 @@ A comprehensive development guide is available as a resource:
 
 ### Pro Tips
 • This MCP is for v3 ONLY - v2 docs are at https://heroui.com
-• v3 is ALPHA - use for experimentation and new projects
+• v3 is BETA - use for experimentation and new projects
 • Migration guide will come with stable v3 release
 • Report v3 issues at: https://github.com/heroui-inc/heroui/issues
 

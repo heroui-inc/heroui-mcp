@@ -35,15 +35,15 @@ interface VersionsResponse {
 
 export const installationTool: Tool = {
   name: "installation",
-  description: `Get installation guide for NEW HeroUI v3 (Alpha) projects - NOT for migrating from v2.
+  description: `Get installation guide for NEW HeroUI v3 (Beta) projects - NOT for migrating from v2.
 ⚠️ IMPORTANT: This is for NEW projects only - Migration from v2 to v3 is NOT supported yet.
 Migration tool will be available when v3 reaches stable release.
 CRITICAL: HeroUI v3 requires Tailwind CSS v4 (NOT v3) - this is mandatory.
-Automatically fetches the latest HeroUI v3 alpha version.
+Automatically fetches the latest HeroUI v3 beta version.
 Provides framework-specific setup for Next.js App Router, Pages Router, Vite, or general React.
 Unlike v2, HeroUI v3 does NOT require a Provider component - it works directly.
 Includes all required dependencies: @heroui/react, @heroui/styles, and tailwind-variants.
-v3 Status: ALPHA - expect breaking changes, use for new projects only.
+v3 Status: BETA - expect breaking changes, use for new projects only.
 For v2 projects: Continue using v2 until migration tool is available with v3 stable.`,
 
   exec(server, {config, name, description}) {
@@ -64,14 +64,14 @@ For v2 projects: Continue using v2 until migration tool is available with v3 sta
     const handler = async ({framework, packageManager = "npm"}: z.infer<typeof inputSchema>) => {
       try {
         // Fetch latest version from API
-        let latestVersion = "alpha"; // fallback
+        let latestVersion = "beta"; // fallback
         try {
           const versionData = await fetchApi<VersionsResponse>("/versions", config.apiBaseUrl);
           if (versionData?.heroui?.latest) {
             latestVersion = versionData.heroui.latest;
           }
         } catch (error) {
-          console.warn("Could not fetch latest version, using alpha tag", error);
+          console.warn("Could not fetch latest version, using beta tag", error);
         }
 
         // Package manager specific commands
@@ -93,7 +93,7 @@ For v2 projects: Continue using v2 until migration tool is available with v3 sta
         const baseInstallStep: InstallationStep = {
           title: "Install HeroUI v3 packages",
           description: `Install HeroUI v3 (${latestVersion}) with required dependencies`,
-          command: `${installCmd} @heroui/react@alpha @heroui/styles@alpha tailwind-variants`,
+          command: `${installCmd} @heroui/react@beta @heroui/styles@beta tailwind-variants`,
           packageManager,
         };
 
@@ -690,7 +690,7 @@ root.render(
         output += `## ⚠️ IMPORTANT: No Migration Support Yet\n\n`;
         output += `This guide is for **NEW projects only**. Migration from HeroUI v2 to v3 is **NOT supported yet**.\n`;
         output += `- **v2 Projects:** Continue using v2 until migration tool is available\n`;
-        output += `- **v3 Status:** ALPHA - expect breaking changes\n`;
+        output += `- **v3 Status:** BETA - expect breaking changes\n`;
         output += `- **Migration Tool:** Will be available when v3 reaches stable release\n\n`;
         output += `## Framework: ${guide.framework}\n\n`;
         output += `### Requirements\n`;
@@ -768,7 +768,7 @@ root.render(
               type: "text",
               text: `Error generating installation guide: ${error instanceof Error ? error.message : "Unknown error"}
 
-Fallback: Install with: npm install @heroui/react@alpha @heroui/styles@alpha tailwind-variants tailwindcss@next
+Fallback: Install with: npm install @heroui/react@beta @heroui/styles@beta tailwind-variants tailwindcss@next
 
 Remember: HeroUI v3 requires Tailwind CSS v4, not v3!`,
             },

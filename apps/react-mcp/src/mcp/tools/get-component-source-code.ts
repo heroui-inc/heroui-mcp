@@ -15,7 +15,7 @@ Use this to understand component internals, not for copying implementation.
 The source shows accessibility features, keyboard handling, and ARIA attributes.
 Note: For using components, refer to examples via get_component_examples.
 IMPORTANT: Do NOT copy this code directly - use the component via @heroui/react imports.
-This shows v3 alpha implementation which uses React Aria Components as foundation.
+This shows v3 beta implementation which uses React Aria Components as foundation.
 GitHub links are provided for viewing the source in context.`,
   async ctx(shared) {
     return {

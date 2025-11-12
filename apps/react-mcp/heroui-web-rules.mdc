@@ -33,10 +33,10 @@ This guide enables AI agents to work effectively with HeroUI v3, a modern React 
 
 ```bash
 # React with full accessibility
-npm install @heroui/react@alpha
+npm install @heroui/react@beta
 
 # Framework-agnostic styles only
-npm install @heroui/styles@alpha
+npm install @heroui/styles@beta
 ```
 
 ### Basic Imports
