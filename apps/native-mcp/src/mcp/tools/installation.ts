@@ -323,7 +323,7 @@ export default function App() {
 }
 \`\`\`
 
-See [Theming Documentation](https://github.com/heroui-inc/heroui-native/blob/alpha/src/providers/theme/theme.md) for complete customization options.
+See [Theming Documentation](https://github.com/heroui-inc/heroui-native/blob/beta/src/styles/theme.md) for complete customization options.
 
 ### 🔍 Troubleshooting Common Issues
 
@@ -347,8 +347,8 @@ See [Theming Documentation](https://github.com/heroui-inc/heroui-native/blob/alp
 - Check out the [Example Repository](https://github.com/heroui-inc/heroui-native-example) for complete project setup
 - Read component documentation in the [Components](#components) section
 - Join our [Discord community](https://discord.gg/9b6yyZKmH4) for support
-- Review [Provider Configuration](https://github.com/heroui-inc/heroui-native/blob/alpha/src/providers/hero-ui-native/provider.md) for advanced setup
-- Learn about [Custom Fonts](https://github.com/heroui-inc/heroui-native/blob/alpha/src/providers/theme/theme.md#custom-fonts) integration
+- Review [Provider Configuration](https://github.com/heroui-inc/heroui-native/blob/beta/src/providers/hero-ui-native/provider.md) for advanced setup
+- Learn about [Custom Fonts](https://github.com/heroui-inc/heroui-native/blob/beta/src/styles/theme.md#custom-fonts) integration
 
 ### 🤖 AI Agent Quick Reference
 
@@ -367,7 +367,7 @@ When creating HeroUI Native projects:
 
 ### 📚 Available Components
 
-See README.md [Components section](https://github.com/heroui-inc/heroui-native/blob/alpha/README.md#components) for full list of available components with documentation links.`;
+See README.md [Components section](https://github.com/heroui-inc/heroui-native/blob/beta/README.md#components) for full list of available components with documentation links.`;
 
       return {
         content: [
