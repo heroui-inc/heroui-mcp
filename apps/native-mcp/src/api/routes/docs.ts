@@ -33,7 +33,7 @@ docs.get("/available", async (c) => {
 
   try {
     // Fetch README.md from heroui-native repository
-    const branch = "alpha";
+    const branch = "beta";
     const readmeUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${branch}/README.md`;
     const response = await fetch(readmeUrl);
 
@@ -205,8 +205,8 @@ docs.get("/available", async (c) => {
 function getGithubPath(docPath: string): string | null {
   const pathMap: Record<string, string> = {
     "/docs/core/provider": "src/providers/hero-ui-native/provider.md",
-    "/docs/core/theming": "src/providers/theme/theme.md",
-    "/docs/core/custom-fonts": "src/providers/theme/theme.md",
+    "/docs/core/theming": "src/styles/theme.md",
+    "/docs/core/custom-fonts": "src/styles/theme.md",
     "/docs/changelog": "CHANGELOG.md",
   };
 
@@ -278,7 +278,7 @@ docs.get("/content", async (c) => {
     }
 
     // Fetch from GitHub
-    const branch = "alpha";
+    const branch = "beta";
     const githubUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${branch}/${githubPath}`;
 
     const response = await fetch(githubUrl);

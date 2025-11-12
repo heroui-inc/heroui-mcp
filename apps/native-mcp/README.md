@@ -209,12 +209,10 @@ Get complete, working code examples for HeroUI Native components.
 
 Get HeroUI Native theme colors and design tokens.
 
-**Note:** Custom themes (if available) are example implementations for reference only and are not included in the package.
-
 ```javascript
 // Parameters
 {
-  theme?: "default",   // Optional, defaults to "default"
+  theme?: "default",   // Optional, defaults to "default" (only default theme is supported)
   mode?: "light" | "dark" | "both"  // Optional, defaults to "both"
 }
 

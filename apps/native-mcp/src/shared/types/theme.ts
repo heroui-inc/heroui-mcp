@@ -24,5 +24,5 @@ export interface Theme {
 
 export interface ThemeSystem {
   version: string;
-  themes: Record<string, Theme>; // 'default', 'lavender-dream', etc.
+  themes: Record<string, Theme>; // Only 'default' theme is supported
 }

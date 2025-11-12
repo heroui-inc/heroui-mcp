@@ -7,8 +7,8 @@ import {fetchApi} from "../lib/fetch";
 
 export const getComponentInfoTool: Tool<ComponentContext> = {
   name: "get_component_info",
-  description: `Get complete information about HeroUI v3 (Alpha) components - v2 API NOT supported.
-⚠️ This returns v3 ALPHA component info - APIs may differ from v2 and may change before stable.
+  description: `Get complete information about HeroUI v3 (Beta) components - v2 API NOT supported.
+⚠️ This returns v3 BETA component info - APIs may differ from v2 and may change before stable.
 CRITICAL: Always use this before implementing ANY component to understand its v3 anatomy.
 Accepts an array of component names and returns information for each component.
 Returns: description, import statement, anatomy (compound structure), props, subcomponents, examples count, and CSS classes.
@@ -65,7 +65,7 @@ DO NOT guess names - always verify with list_components first.`),
 
         if (components.length > 1) {
           responseText = `# Component Information (${components.length} components)\n\n`;
-          responseText += `⚠️ **v3 ALPHA Notice:** This is v3 documentation - NOT compatible with v2\n\n`;
+          responseText += `⚠️ **v3 BETA Notice:** This is v3 documentation - NOT compatible with v2\n\n`;
         }
 
         response.results.forEach((result, index) => {
@@ -78,15 +78,15 @@ DO NOT guess names - always verify with list_components first.`),
             return;
           }
 
-          responseText += `# ${result.component} Component (v3 Alpha)\n\n`;
+          responseText += `# ${result.component} Component (v3 Beta)\n\n`;
 
           if (components.length === 1) {
-            responseText += `⚠️ **v3 ALPHA Notice:** This is v3 documentation - NOT compatible with v2\n`;
+            responseText += `⚠️ **v3 BETA Notice:** This is v3 documentation - NOT compatible with v2\n`;
             responseText += `Migration from v2 is not supported yet. APIs may change before stable release.\n\n`;
           }
 
           responseText += `**Library:** HeroUI v3\n`;
-          responseText += `**Version:** ${response.version} (Alpha)\n\n`;
+          responseText += `**Version:** ${response.version} (Beta)\n\n`;
 
           if (result.data.description) {
             responseText += `## Description\n${result.data.description}\n\n`;

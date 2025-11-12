@@ -295,7 +295,7 @@ components.post("/examples", zValidator("json", ExamplesRequestSchema), async (c
 
   try {
     const latestVersion = (await getComponentService(c.env)).getLatestVersion();
-    const baseUrl = "https://raw.githubusercontent.com/heroui-inc/heroui-native/alpha";
+    const baseUrl = "https://raw.githubusercontent.com/heroui-inc/heroui-native/beta";
     const examplesPath = `${baseUrl}/example/src/app/(home)/components`;
 
     // Helper function to simplify import paths in content

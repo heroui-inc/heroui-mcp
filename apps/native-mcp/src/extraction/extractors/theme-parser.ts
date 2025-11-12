@@ -169,112 +169,15 @@ export class ThemeParser {
   }
 
   /**
-   * Parse theme file from example/src/themes/*.ts
-   */
-  parseThemeFile(tsContent: string): Record<string, Theme> {
-    const themes: Record<string, Theme> = {};
-
-    // Match exported theme constants: export const themeName: ThemeConfig = { ... }
-    const themeExportRegex = /export\s+const\s+(\w+Theme):\s*ThemeConfig\s*=\s*\{([\s\S]*?)\n\};/g;
-    let match;
-
-    while ((match = themeExportRegex.exec(tsContent)) !== null) {
-      const themeVarName = match[1]; // e.g., 'lavenderDreamTheme'
-      const themeContent = match[2];
-
-      try {
-        // Parse light and dark colors
-        const lightColors = this.parseColorObject(themeContent, "light");
-        const darkColors = this.parseColorObject(themeContent, "dark");
-
-        // Extract borderRadius and opacity values
-        const borderRadius = this.extractBorderRadius(themeContent);
-        const opacity = this.extractOpacity(themeContent);
-
-        // Convert variable name to theme ID: lavenderDreamTheme -> lavender-dream
-        const themeId = this.themeVarNameToId(themeVarName);
-
-        themes[themeId] = {
-          name: themeId,
-          light: {colors: lightColors},
-          dark: {colors: darkColors},
-          borderRadius,
-          opacity,
-        };
-      } catch (error) {
-        console.warn(`Failed to parse theme ${themeVarName}:`, error);
-      }
-    }
-
-    return themes;
-  }
-
-  /**
-   * Convert theme variable name to theme ID
-   * lavenderDreamTheme -> lavender-dream
-   */
-  private themeVarNameToId(varName: string): string {
-    // Remove 'Theme' suffix and convert camelCase to kebab-case
-    const withoutTheme = varName.replace(/Theme$/, "");
-
-    return withoutTheme.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-  }
-
-  /**
-   * Extract borderRadius values from theme content
-   */
-  private extractBorderRadius(content: string): Theme["borderRadius"] {
-    const borderRadiusMatch = content.match(/borderRadius:\s*\{([^}]+)\}/s);
-    if (!borderRadiusMatch) {
-      return {DEFAULT: "8", panel: "16", "panel-inner": "12"};
-    }
-
-    const borderRadiusContent = borderRadiusMatch[1];
-    const values: Record<string, string> = {};
-
-    // Match: 'DEFAULT': '18px' or DEFAULT: '18px'
-    const valueRegex = /['"]?(\w+(?:-\w+)?)['"]?\s*:\s*['"]([^'"]+)['"]/g;
-    let match;
-
-    while ((match = valueRegex.exec(borderRadiusContent)) !== null) {
-      const [, key, value] = match;
-      values[key] = value.replace(/px$/, ""); // Remove 'px' suffix
-    }
-
-    return {
-      DEFAULT: values.DEFAULT || "8",
-      panel: values.panel || "16",
-      "panel-inner": values["panel-inner"] || "12",
-    };
-  }
-
-  /**
-   * Extract opacity values from theme content
-   */
-  private extractOpacity(content: string): Theme["opacity"] {
-    const opacityMatch = content.match(/opacity:\s*\{([^}]+)\}/s);
-    if (!opacityMatch) {
-      return {disabled: 0.5};
-    }
-
-    const opacityContent = opacityMatch[1];
-    const disabledMatch = opacityContent.match(/disabled:\s*([\d.]+)/);
-
-    return {
-      disabled: disabledMatch ? parseFloat(disabledMatch[1]) : 0.5,
-    };
-  }
-
-  /**
    * Parse color object from TypeScript source
-   * Handles two patterns:
+   * Handles two patterns (for alpha format compatibility):
    * 1. Default theme: light: { background: 'hsl(...)', ... }
-   * 2. Custom theme: light: { colors: { background: 'hsl(...)', ... } }
+   * 2. Nested colors: light: { colors: { background: 'hsl(...)', ... } }
    */
   private parseColorObject(content: string, mode: "light" | "dark"): ColorToken[] {
     const colors: ColorToken[] = [];
 
-    // Try Pattern 1: mode: { colors: { ... } } (custom themes)
+    // Try Pattern 1: mode: { colors: { ... } } (nested structure)
     let modeRegex = new RegExp(
       `${mode}:\\s*\\{[^}]*colors:\\s*\\{([\\s\\S]*?)\\}[\\s\\S]*?\\}(?:\\s*,|\\s*\\})`,
       "s",

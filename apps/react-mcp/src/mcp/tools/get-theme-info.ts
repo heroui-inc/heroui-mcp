@@ -11,7 +11,7 @@ const inputSchema = z.object({
     .optional()
     .describe(
       `Theme name (default: "default").
-Currently only "default" theme is available in HeroUI v3 alpha.
+Currently only "default" theme is available in HeroUI v3 beta.
 Leave empty to see all available themes.`,
     ),
   mode: z.enum(["light", "dark", "both"]).optional()
