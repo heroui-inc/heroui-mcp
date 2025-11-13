@@ -93,7 +93,7 @@ jobs:
         working-directory: apps/${{ needs.determine-package.outputs.package }}
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          npm publish --access public
+          npm publish --access public --tag latest
           if [ "${{ needs.determine-package.outputs.version }}" != "manual" ]; then
             npm dist-tag add @heroui/react-mcp@${{ needs.determine-package.outputs.version }} alpha
           fi
@@ -105,7 +105,7 @@ jobs:
         working-directory: apps/${{ needs.determine-package.outputs.package }}
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          npm publish --access public
+          npm publish --access public --tag latest
           if [ "${{ needs.determine-package.outputs.version }}" != "manual" ]; then
             npm dist-tag add @heroui/native-mcp@${{ needs.determine-package.outputs.version }} alpha
           fi
