@@ -10,6 +10,7 @@ import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
 
 import {API_BASE_URL} from "./constants";
 import {packageInfo} from "./lib/package-info";
+import {initializeResources} from "./resources";
 import {initializeTools} from "./tools";
 
 /**
@@ -19,15 +20,15 @@ async function createServer(): Promise<McpServer> {
   const server = new McpServer({
     name: packageInfo.name,
     version: packageInfo.version,
-    instructions: `## HeroUI React MCP Tools - v3 Alpha Documentation
+    instructions: `## HeroUI React MCP Tools - v3 Beta Documentation
 
-Welcome to HeroUI React MCP! These tools provide documentation for **HeroUI v3 (Alpha)** React components.
+These tools provide documentation for **HeroUI v3 (Beta)** React components.
 
 ### ⚠️ IMPORTANT: Version Information
-• **Current Support:** HeroUI v3 (Alpha) ONLY
+• **Current Support:** HeroUI v3 (Beta) ONLY
 • **HeroUI v2:** NOT supported by this MCP
 • **Migration from v2 to v3:** NOT available yet (coming when v3 is stable)
-• **Status:** v3 is in ALPHA - expect breaking changes
+• **Status:** v3 is in BETA - expect breaking changes
 
 ### 🚫 Migration Notice
 **Migration from HeroUI v2 to v3 is NOT supported yet.**
@@ -75,9 +76,15 @@ get_component_info({ component: "Card" })
 • Guides: Use get_docs({ path: "/docs/introduction" })
 • Theme: Use get_theme_info() for v3 theming
 
+### 📚 Development Guidelines
+A comprehensive development guide is available as a resource:
+• Resource name: "heroui-web-rules"
+• Contains: Best practices, common patterns, troubleshooting, MCP tool workflows
+• Include this in context for optimal results
+
 ### Pro Tips
 • This MCP is for v3 ONLY - v2 docs are at https://heroui.com
-• v3 is ALPHA - use for experimentation and new projects
+• v3 is BETA - use for experimentation and new projects
 • Migration guide will come with stable v3 release
 • Report v3 issues at: https://github.com/heroui-inc/heroui/issues
 
@@ -87,11 +94,17 @@ For v2 documentation: https://heroui.com (not supported by this MCP)`,
       tools: {
         listChanged: true,
       },
+      resources: {},
     },
   });
 
   // Initialize tools from the tools directory
   await initializeTools(server, {
+    apiBaseUrl: API_BASE_URL,
+  });
+
+  // Initialize resources (development guidelines, etc.)
+  await initializeResources(server, {
     apiBaseUrl: API_BASE_URL,
   });
 

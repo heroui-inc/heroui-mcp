@@ -200,7 +200,7 @@ describe("Components API", () => {
       expect(data).toHaveProperty("dependencies");
       expect(Array.isArray(data.results)).toBe(true);
       expect(Array.isArray(data.dependencies)).toBe(true);
-    });
+    }, 10000);
 
     it("should validate request body", async () => {
       const res = await SELF.fetch("http://localhost:8788/components/examples", {

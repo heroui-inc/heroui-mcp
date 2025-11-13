@@ -53,6 +53,26 @@ Or manually add to your Claude Code configuration:
 }
 ```
 
+### Codex
+
+**Quick Install (CLI)**:
+```bash
+codex mcp add heroui-react -- npx -y @heroui/react-mcp@latest
+```
+
+Or manually add to your Codex configuration file:
+
+**macOS/Linux**: `~/.codex/config.toml`
+**Windows**: `%USERPROFILE%\.codex\config.toml`
+
+```toml
+[mcp_servers.heroui-react]
+command = "npx"
+args = ["-y", "@heroui/react-mcp@latest"]
+```
+
+For more configuration options, see the [Codex MCP documentation](https://developers.openai.com/codex/mcp/).
+
 ### Windsurf
 
 Add to Windsurf configuration → MCP Servers:

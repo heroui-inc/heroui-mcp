@@ -295,7 +295,7 @@ components.post("/examples", zValidator("json", ExamplesRequestSchema), async (c
 
   try {
     const latestVersion = (await getComponentService(c.env)).getLatestVersion();
-    const baseUrl = "https://raw.githubusercontent.com/heroui-inc/heroui-native/alpha";
+    const baseUrl = "https://raw.githubusercontent.com/heroui-inc/heroui-native/beta";
     const examplesPath = `${baseUrl}/example/src/app/(home)/components`;
 
     // Helper function to simplify import paths in content
@@ -344,13 +344,25 @@ components.post("/examples", zValidator("json", ExamplesRequestSchema), async (c
     const failedExamples = exampleResults.filter((result) => result.error);
 
     // Collect dependencies from the examples
+    // Use a timeout to prevent dependency collection from blocking the response
     let dependencies: Array<{name: string; path: string; content: string}> = [];
 
     try {
       const {collectExampleDependencies} = await import("../lib/dependency-resolver");
 
-      dependencies = await collectExampleDependencies(exampleNames, baseUrl);
+      // Set a timeout for dependency collection (15 seconds max)
+      const dependencyTimeout = new Promise<Array<{name: string; path: string; content: string}>>(
+        (_, reject) => {
+          setTimeout(() => reject(new Error("Dependency collection timeout")), 15000);
+        },
+      );
+
+      dependencies = await Promise.race([
+        collectExampleDependencies(exampleNames, baseUrl),
+        dependencyTimeout,
+      ]);
     } catch (error) {
+      // Log warning but don't fail the request - examples are more important than dependencies
       analytics.trackError({
         error,
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_EXAMPLES_DEPENDENCIES_WARNING,

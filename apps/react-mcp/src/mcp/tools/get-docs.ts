@@ -28,7 +28,7 @@ Documentation covers: design principles, quick start, components, handbook (them
 IMPORTANT: Always use exact paths shown in the available paths list - DO NOT guess paths.
 Example paths: /docs/introduction, /docs/components/button, /docs/handbook/theming.
 Returns MDX content which may include code examples and explanations.
-This is v3 alpha documentation - ensure you're working with HeroUI v3, not v2.`,
+This is v3 beta documentation - ensure you're working with HeroUI v3, not v2.`,
 
   async ctx(shared) {
     const pathsList = shared?.docPaths || [];

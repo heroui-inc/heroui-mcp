@@ -53,6 +53,26 @@ Or manually add to your Claude Code configuration:
 }
 ```
 
+### Codex
+
+**Quick Install (CLI)**:
+```bash
+codex mcp add heroui-native -- npx -y @heroui/native-mcp@latest
+```
+
+Or manually add to your Codex configuration file:
+
+**macOS/Linux**: `~/.codex/config.toml`
+**Windows**: `%USERPROFILE%\.codex\config.toml`
+
+```toml
+[mcp_servers.heroui-native]
+command = "npx"
+args = ["-y", "@heroui/native-mcp@latest"]
+```
+
+For more configuration options, see the [Codex MCP documentation](https://developers.openai.com/codex/mcp/).
+
 ### Windsurf
 
 Add to Windsurf configuration → MCP Servers:
@@ -189,12 +209,10 @@ Get complete, working code examples for HeroUI Native components.
 
 Get HeroUI Native theme colors and design tokens.
 
-**Note:** Custom themes (if available) are example implementations for reference only and are not included in the package.
-
 ```javascript
 // Parameters
 {
-  theme?: "default",   // Optional, defaults to "default"
+  theme?: "default",   // Optional, defaults to "default" (only default theme is supported)
   mode?: "light" | "dark" | "both"  // Optional, defaults to "both"
 }
 

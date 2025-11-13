@@ -36,3 +36,22 @@ export interface Tool<T = unknown> {
     },
   ): Promise<void> | void;
 }
+
+export interface ResourceConfig {
+  apiKey?: string;
+  apiBaseUrl?: string;
+}
+
+export interface Resource {
+  name: string;
+  description: string;
+  // Check if resource should be disabled
+  disabled?(config: ResourceConfig): boolean;
+  // Register the resource with the server
+  exec(
+    server: McpServer,
+    opts: {
+      config?: ResourceConfig;
+    },
+  ): Promise<void> | void;
+}

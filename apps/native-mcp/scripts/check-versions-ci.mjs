@@ -43,8 +43,8 @@ async function getStoredVersion(library) {
 
 async function getLatestVersion() {
   try {
-    // Fetch version from GitHub alpha branch package.json (same as extractor)
-    const url = 'https://raw.githubusercontent.com/heroui-inc/heroui-native/alpha/package.json';
+    // Fetch version from GitHub beta branch package.json (same as extractor)
+    const url = 'https://raw.githubusercontent.com/heroui-inc/heroui-native/beta/package.json';
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch package.json: ${response.status}`);

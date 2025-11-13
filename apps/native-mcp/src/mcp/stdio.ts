@@ -78,7 +78,7 @@ get_component_info({ components: ["Button"] })
 • Components are fully typed with TypeScript
 • Report issues at: https://github.com/heroui-inc/heroui-native/issues
 
-For complete guidelines: https://github.com/heroui-inc/heroui-native/blob/alpha/README.md`,
+For complete guidelines: https://github.com/heroui-inc/heroui-native/blob/beta/README.md`,
     capabilities: {
       tools: {
         listChanged: true,
