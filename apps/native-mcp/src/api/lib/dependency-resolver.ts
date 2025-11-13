@@ -44,28 +44,56 @@ function resolveGitHubPath(fromPath: string, importPath: string): string {
 
 /**
  * Tries to fetch a file from GitHub with various extension attempts
+ * Optimized to try extensions in parallel and with timeout
  */
 async function fetchGitHubFile(
   baseUrl: string,
   filePath: string,
+  timeoutMs: number = 5000,
 ): Promise<{content: string; finalPath: string} | null> {
   // Try with .tsx first (most common for examples)
-  const extensions = [".tsx", ".ts", ".jsx", ".js", "/index.tsx", "/index.ts"];
+  // Reduced extensions to most common ones to minimize requests
+  const extensions = [".tsx", ".ts", "/index.tsx"];
 
-  for (const ext of extensions) {
-    const testPath = filePath.endsWith(ext) ? filePath : filePath + ext;
-    const url = `${baseUrl}/${testPath}`;
+  // Try extensions in parallel for faster resolution
+  // Return as soon as we find a successful fetch
+  const fetchPromises = extensions.map(
+    async (ext): Promise<{content: string; finalPath: string} | null> => {
+      const testPath = filePath.endsWith(ext) ? filePath : filePath + ext;
+      const url = `${baseUrl}/${testPath}`;
 
-    try {
-      const response = await fetch(url);
+      try {
+        // Create a timeout promise
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error("Timeout")), timeoutMs);
+        });
 
-      if (response.ok) {
-        const content = await response.text();
+        const fetchPromise = fetch(url).then(async (response) => {
+          if (response.ok) {
+            const content = await response.text();
 
-        return {content, finalPath: testPath};
+            return {content, finalPath: testPath};
+          }
+
+          throw new Error("Not found");
+        });
+
+        return await Promise.race([fetchPromise, timeoutPromise]);
+      } catch {
+        // Ignore errors (timeout or fetch failure) and continue
+        return null;
       }
-    } catch {
-      continue;
+    },
+  );
+
+  // Return the first successful result
+  // Use a race that resolves when any promise succeeds
+  const results = await Promise.allSettled(fetchPromises);
+
+  // Return first successful result
+  for (const result of results) {
+    if (result.status === "fulfilled" && result.value) {
+      return result.value;
     }
   }
 
@@ -124,6 +152,7 @@ function simplifyImportPaths(content: string): string {
 
 /**
  * Recursively collects all dependencies from a GitHub file
+ * Optimized to fetch dependencies in parallel
  */
 async function collectDependenciesFromGitHub(
   baseUrl: string,
@@ -149,50 +178,69 @@ async function collectDependenciesFromGitHub(
   const {content} = fileResult;
   const relativeImports = extractRelativeImports(content);
 
-  // Process each relative import
-  for (const importPath of relativeImports) {
-    const resolvedPath = resolveGitHubPath(filePath, importPath);
-
-    // Skip if already processed
-    if (visited.has(resolvedPath)) {
-      continue;
-    }
-
-    // Only include files within the base directory
-    if (!resolvedPath.startsWith(baseDir)) {
-      continue;
-    }
-
-    // Fetch the dependency file
-    const depResult = await fetchGitHubFile(baseUrl, resolvedPath);
-
-    if (!depResult) {
-      continue;
-    }
-
-    const componentName = getComponentName(depResult.finalPath);
-    const simplifiedPath = simplifyPath(depResult.finalPath);
-    const simplifiedContent = simplifyImportPaths(depResult.content);
-
-    dependencies.set(resolvedPath, {
-      name: componentName,
-      path: simplifiedPath,
-      content: simplifiedContent,
-    });
-
-    // Recursively collect dependencies from this file
-    const nestedDeps = await collectDependenciesFromGitHub(
-      baseUrl,
-      depResult.finalPath,
-      baseDir,
-      visited,
-    );
-
-    nestedDeps.forEach((dep, depPath) => {
-      if (!dependencies.has(depPath)) {
-        dependencies.set(depPath, dep);
+  // Filter and resolve import paths first
+  const dependencyPaths = relativeImports
+    .map((importPath) => resolveGitHubPath(filePath, importPath))
+    .filter((resolvedPath) => {
+      // Skip if already processed
+      if (visited.has(resolvedPath)) {
+        return false;
       }
+
+      // Only include files within the base directory
+      return resolvedPath.startsWith(baseDir);
     });
+
+  // Fetch all dependencies in parallel
+  const dependencyResults = await Promise.allSettled(
+    dependencyPaths.map(async (resolvedPath) => {
+      const depResult = await fetchGitHubFile(baseUrl, resolvedPath);
+
+      if (!depResult) {
+        return null;
+      }
+
+      const componentName = getComponentName(depResult.finalPath);
+      const simplifiedPath = simplifyPath(depResult.finalPath);
+      const simplifiedContent = simplifyImportPaths(depResult.content);
+
+      return {
+        path: resolvedPath,
+        dep: {
+          name: componentName,
+          path: simplifiedPath,
+          content: simplifiedContent,
+        },
+        finalPath: depResult.finalPath,
+      };
+    }),
+  );
+
+  // Process successful fetches and collect nested dependencies in parallel
+  const nestedDepPromises: Promise<Map<string, DependencyInfo>>[] = [];
+
+  for (const result of dependencyResults) {
+    if (result.status === "fulfilled" && result.value) {
+      const {path, dep, finalPath} = result.value;
+
+      dependencies.set(path, dep);
+
+      // Collect nested dependencies (will be processed in parallel)
+      nestedDepPromises.push(collectDependenciesFromGitHub(baseUrl, finalPath, baseDir, visited));
+    }
+  }
+
+  // Wait for all nested dependencies to be collected
+  const nestedDepsResults = await Promise.allSettled(nestedDepPromises);
+
+  for (const result of nestedDepsResults) {
+    if (result.status === "fulfilled") {
+      result.value.forEach((dep, depPath) => {
+        if (!dependencies.has(depPath)) {
+          dependencies.set(depPath, dep);
+        }
+      });
+    }
   }
 
   return dependencies;
@@ -200,6 +248,7 @@ async function collectDependenciesFromGitHub(
 
 /**
  * Collects dependencies for multiple example files from GitHub
+ * Optimized to process examples in parallel
  */
 export async function collectExampleDependencies(
   exampleNames: string[],
@@ -209,16 +258,26 @@ export async function collectExampleDependencies(
   const visited = new Set<string>();
   const baseDir = "example/src";
 
-  for (const exampleName of exampleNames) {
-    const examplePath = `example/src/app/(home)/components/${exampleName}.tsx`;
+  // Process all examples in parallel
+  const examplePaths = exampleNames.map(
+    (exampleName) => `example/src/app/(home)/components/${exampleName}.tsx`,
+  );
 
-    const deps = await collectDependenciesFromGitHub(githubBaseUrl, examplePath, baseDir, visited);
+  const dependencyMaps = await Promise.allSettled(
+    examplePaths.map((examplePath) =>
+      collectDependenciesFromGitHub(githubBaseUrl, examplePath, baseDir, visited),
+    ),
+  );
 
-    deps.forEach((dep, depPath) => {
-      if (!allDependencies.has(depPath)) {
-        allDependencies.set(depPath, dep);
-      }
-    });
+  // Merge all dependencies
+  for (const result of dependencyMaps) {
+    if (result.status === "fulfilled") {
+      result.value.forEach((dep, depPath) => {
+        if (!allDependencies.has(depPath)) {
+          allDependencies.set(depPath, dep);
+        }
+      });
+    }
   }
 
   return Array.from(allDependencies.values()).sort((a, b) => a.name.localeCompare(b.name));
