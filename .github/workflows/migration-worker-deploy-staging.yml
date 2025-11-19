@@ -1,0 +1,57 @@
+name: Migration Worker Deploy - Staging
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - 'apps/heroui-v3-migration-mcp/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'turbo.json'
+      - 'pnpm-workspace.yaml'
+      - '.github/actions/**'
+      - '.github/workflows/migration-worker-deploy-staging.yml'
+
+jobs:
+  edge-functions:
+    name: deploy
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
+      - name: Setup node and pnpm
+        uses: ./.github/actions/install
+
+      - name: Build package
+        run: pnpm run build --filter=@heroui/heroui-v3-migration-mcp
+
+      - name: Install wrangler
+        run: pnpm add -g wrangler@latest
+
+      - name: Deploy
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        timeout-minutes: 5
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
+          environment: staging
+          workingDirectory: "apps/heroui-v3-migration-mcp"
+          secrets: |
+            CLOUDFLARE_ACCOUNT_ID
+      - name: Show outputs
+        env:
+          CMD_OUTPUT: ${{ steps.deploy.outputs.command-output }}
+        run: echo $CMD_OUTPUT
+
+      - name: Show deployment url
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: echo $DEPLOYMENT_URL
+

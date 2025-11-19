@@ -1,0 +1,62 @@
+{
+  "name": "@heroui/heroui-v3-migration-mcp",
+  "version": "1.0.0-alpha.1",
+  "type": "module",
+  "description": "MCP server for HeroUI v2 to v3 migration instructions via Streamable HTTP",
+  "keywords": [
+    "mcp",
+    "heroui",
+    "heroui-v3",
+    "migration",
+    "model-context-protocol",
+    "ai",
+    "llm"
+  ],
+  "author": "HeroUI <support@heroui.com> (https://github.com/heroui-inc)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heroui-inc/heroui-mcp.git",
+    "directory": "apps/heroui-v3-migration-mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/heroui-inc/heroui-mcp/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/heroui-inc/heroui-mcp/tree/main/apps/heroui-v3-migration-mcp",
+  "prettier": "@heroui/config/prettier",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "dev": "dotenv -- wrangler dev src/api.ts --env development --port 8790",
+    "deploy": "wrangler deploy src/api.ts --minify",
+    "deploy:staging": "wrangler deploy src/api.ts --env staging",
+    "deploy:production": "wrangler deploy src/api.ts --env production",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
+    "clean": "rm -rf dist dist-api"
+  },
+  "dependencies": {
+    "@heroui/config": "workspace:*",
+    "@hono/mcp": "^0.1.5",
+    "@modelcontextprotocol/sdk": "^1.18.1",
+    "hono": "^4.10.2",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250920.0",
+    "@types/node": "^22.18.6",
+    "dotenv-cli": "^10.0.0",
+    "eslint": "^9.36.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "wrangler": "^4.38.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.17.0"
+}

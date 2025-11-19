@@ -1,0 +1,54 @@
+name = "heroui-v3-migration-mcp"
+
+# ------------------------------------------------------------
+# -- General
+# ------------------------------------------------------------
+main = "src/api.ts"
+compatibility_date = "2025-01-18"
+compatibility_flags = ["nodejs_compat"]
+
+# ------------------------------------------------------------
+# -- Development Environment
+# ------------------------------------------------------------
+[env.development]
+# Local development configuration
+
+[env.development.vars]
+NODE_ENV = "development"
+
+# ------------------------------------------------------------
+# -- Staging Environment
+# ------------------------------------------------------------
+[env.staging]
+routes = [
+  { pattern = "staging-heroui-v3-migration-mcp.heroui.com", custom_domain = true }
+]
+
+[env.staging.vars]
+NODE_ENV = "staging"
+
+# ------------------------------------------------------------
+# -- Production Environment
+# ------------------------------------------------------------
+[env.production]
+routes = [
+  { pattern = "heroui-v3-migration-mcp.heroui.com", custom_domain = true }
+]
+
+[env.production.vars]
+NODE_ENV = "production"
+
+# ------------------------------------------------------------
+# -- Worker Settings
+# ------------------------------------------------------------
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[placement]
+mode = "smart"
+
+[limits]
+# 60 second timeout for MCP operations
+cpu_ms = 60000
+
