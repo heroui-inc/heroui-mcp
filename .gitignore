@@ -45,7 +45,3 @@ temp/
 # Wrangler
 .wrangler/
 .mf/
-
-# Claude
-.claude
-.workflows
