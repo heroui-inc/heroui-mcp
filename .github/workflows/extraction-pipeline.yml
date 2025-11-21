@@ -38,33 +38,78 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'repository_dispatch'
     steps:
+      - name: Extract version from payload
+        id: extract-version
+        run: |
+          # Extract version from repository_dispatch payload if available
+          VERSION="${{ github.event.client_payload.version }}"
+          FORCE="${{ github.event.client_payload.force }}"
+          
+          # If version is provided, use it; otherwise force extraction
+          if [ -n "$VERSION" ] && [ "$VERSION" != "" ]; then
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "force=false" >> $GITHUB_OUTPUT
+            echo "📦 Version from payload: $VERSION"
+          else
+            # Force extraction if no version specified (assume new version available)
+            echo "version=" >> $GITHUB_OUTPUT
+            echo "force=true" >> $GITHUB_OUTPUT
+            echo "🔄 No version specified, forcing extraction"
+          fi
+
       - name: Trigger workflow on main branch
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const inputs = {};
+            const version = '${{ steps.extract-version.outputs.version }}';
+            const force = '${{ steps.extract-version.outputs.force }}';
+            
+            if (version && version.trim() !== '') {
+              inputs.version = version;
+            }
+            // GitHub Actions API expects boolean inputs as strings "true"/"false"
+            if (force === 'true') {
+              inputs.force = 'true';
+            }
+            
+            console.log(`📤 Dispatching workflow with inputs: ${JSON.stringify(inputs)}`);
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'extraction-pipeline.yml',
               ref: 'main',
-              inputs: {}
+              inputs: inputs
             });
-            console.log('✅ Triggered extraction workflow on main branch');
+            console.log(`✅ Triggered extraction workflow on main branch`);
 
       - name: Trigger workflow on develop branch
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const inputs = {};
+            const version = '${{ steps.extract-version.outputs.version }}';
+            const force = '${{ steps.extract-version.outputs.force }}';
+            
+            if (version && version.trim() !== '') {
+              inputs.version = version;
+            }
+            // GitHub Actions API expects boolean inputs as strings "true"/"false"
+            if (force === 'true') {
+              inputs.force = 'true';
+            }
+            
+            console.log(`📤 Dispatching workflow with inputs: ${JSON.stringify(inputs)}`);
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'extraction-pipeline.yml',
               ref: 'develop',
-              inputs: {}
+              inputs: inputs
             });
-            console.log('✅ Triggered extraction workflow on develop branch');
+            console.log(`✅ Triggered extraction workflow on develop branch`);
 
   # Determine environment based on branch
   set-environment:
@@ -116,10 +161,18 @@ jobs:
           R2_BUCKET_NAME: ${{ needs.set-environment.outputs.bucket-name }}
         run: |
           echo "🔍 Checking versions for react-mcp package"
+          FORCE_FLAG="false"
+          if [ "${{ inputs.force }}" == "true" ] || [ "${{ inputs.force }}" == "True" ]; then
+            FORCE_FLAG="true"
+          fi
+          VERSION_ARGS=""
+          if [ -n "${{ inputs.version }}" ] && [ "${{ inputs.version }}" != "" ]; then
+            VERSION_ARGS="--version=${{ inputs.version }}"
+          fi
           node apps/react-mcp/scripts/check-versions-ci.mjs \
-            --force=${{ inputs.force }} \
+            --force=$FORCE_FLAG \
             --library=${{ inputs.library || 'all' }} \
-            --version=${{ inputs.version }}
+            $VERSION_ARGS
 
   extract-components:
     name: Extract HeroUI Components (React MCP)

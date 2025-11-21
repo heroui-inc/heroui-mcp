@@ -61,7 +61,7 @@
     "clean": "rm -rf dist",
     "prepublishOnly": "pnpm build && node scripts/resolve-workspace-deps.mjs",
     "postpublish": "node scripts/restore-package.mjs",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . --tag-prefix react-mcp-v",
     "release": "bumpp --execute='pnpm run changelog' --all --tag='react-mcp-v%s' --commit='chore(react-mcp): release v%s'",
     "release:check": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build"
   },
