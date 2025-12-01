@@ -1,5 +1,5 @@
 {
-  "name": "@heroui/heroui-v3-migration-mcp",
+  "name": "@heroui/v3-migration-mcp",
   "version": "1.0.0-alpha.1",
   "type": "module",
   "description": "MCP server for HeroUI v2 to v3 migration instructions via Streamable HTTP",
@@ -33,6 +33,7 @@
     "deploy": "wrangler deploy src/api.ts --minify",
     "deploy:staging": "wrangler deploy src/api.ts --env staging",
     "deploy:production": "wrangler deploy src/api.ts --env production",
+    "inspect": "npx @modelcontextprotocol/inspector --transport http --server-url http://localhost:8790/",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",

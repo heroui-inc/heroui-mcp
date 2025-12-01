@@ -8,17 +8,19 @@ interface ToolConfig {
   apiBaseUrl?: string;
 }
 
-export interface Tool {
+export interface Tool<T = unknown> {
   name: string;
   description: string;
   disabled?: (config: ToolConfig) => boolean;
+  // Optional context initialization
+  ctx?: () => Promise<T> | T | void;
   exec: (
     server: McpServer,
     options: {
       name: string;
       description: string;
       config: ToolConfig;
-      ctx?: any;
+      ctx?: T;
     },
   ) => void;
 }

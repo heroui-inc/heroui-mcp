@@ -26,8 +26,24 @@ This MCP server provides comprehensive migration instructions for upgrading from
 - **onPress Instead of onClick**: Use onPress for better accessibility
 - **React 19+ Features**: Built on modern React features
 
-### Usage
-Use the \`get_migration_guide\` tool to get step-by-step migration instructions for your specific framework and use case.`,
+### Available Tools
+
+1. **get_migration_guide**: Get the comprehensive main migration guide covering overview, steps, dependencies, configuration, and migration checklist.
+
+2. **list_migration_guides**: List all available component-specific migration guides. Use this to discover which components have migration documentation.
+
+3. **get_comp_guide**: Get migration guide for a specific component. Includes component-specific API changes, prop migrations, code examples, and breaking changes.
+
+### Usage Workflow
+
+1. Start with \`get_migration_guide\` to get the complete migration overview
+2. Use \`list_migration_guides\` to see all available component guides
+3. Use \`get_comp_guide\` with a component name for specific migration instructions
+
+Example:
+- \`get_migration_guide()\` - Get main guide
+- \`list_migration_guides()\` - List all components
+- \`get_comp_guide({ component: "button" })\` - Get button migration guide`,
   });
 
   // Initialize tools
