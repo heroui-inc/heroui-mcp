@@ -1,4 +1,4 @@
-name = "heroui-v3-migration-mcp"
+name = "migration-mcp"
 
 # ------------------------------------------------------------
 # -- General
@@ -21,7 +21,7 @@ NODE_ENV = "development"
 # ------------------------------------------------------------
 [env.staging]
 routes = [
-  { pattern = "staging-heroui-v3-migration-mcp.heroui.com", custom_domain = true }
+  { pattern = "staging-migration-mcp.heroui.com", custom_domain = true }
 ]
 
 [env.staging.vars]
@@ -32,7 +32,7 @@ NODE_ENV = "staging"
 # ------------------------------------------------------------
 [env.production]
 routes = [
-  { pattern = "heroui-v3-migration-mcp.heroui.com", custom_domain = true }
+  { pattern = "migration-mcp.heroui.com", custom_domain = true }
 ]
 
 [env.production.vars]

@@ -1,5 +1,5 @@
 /**
- * HeroUI v3 Migration MCP API Server
+ * HeroUI Migration MCP API Server
  *
  * Streamable HTTP transport implementation for MCP
  * Supports POST for JSON-RPC messages and GET for SSE streams
@@ -38,7 +38,7 @@ app.all("/", mcpHandler);
 
 // Health check endpoint
 app.get("/health", (c) => {
-  return c.json({status: "ok", service: "heroui-v3-migration-mcp"});
+  return c.json({status: "ok", service: "migration-mcp"});
 });
 
 // 404 handler

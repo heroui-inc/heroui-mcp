@@ -1,4 +1,4 @@
-# HeroUI v3 Migration MCP
+# HeroUI Migration MCP
 
 MCP server providing migration instructions for upgrading from HeroUI v2 to v3.
 
@@ -16,8 +16,8 @@ Add to your MCP client configuration:
 ```json
 {
   "mcpServers": {
-    "heroui-v3-migration": {
-      "url": "https://heroui-v3-migration-mcp.heroui.com"
+    "heroui-migration": {
+      "url": "https://migration-mcp.heroui.com"
     }
   }
 }

@@ -24,7 +24,7 @@ importers:
         specifier: ^5.9.2
         version: 5.9.3
 
-  apps/heroui-v3-migration-mcp:
+  apps/migration-mcp:
     dependencies:
       '@heroui/config':
         specifier: workspace:*

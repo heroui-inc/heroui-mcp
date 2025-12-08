@@ -5,7 +5,7 @@ on:
     branches:
       - develop
     paths:
-      - 'apps/heroui-v3-migration-mcp/**'
+      - 'apps/migration-mcp/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'turbo.json'
@@ -26,7 +26,7 @@ jobs:
         uses: ./.github/actions/install
 
       - name: Build package
-        run: pnpm run build --filter=@heroui/heroui-v3-migration-mcp
+        run: pnpm run build --filter=@heroui/migration-mcp
 
       - name: Install wrangler
         run: pnpm add -g wrangler@latest
@@ -42,7 +42,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
           environment: staging
-          workingDirectory: "apps/heroui-v3-migration-mcp"
+          workingDirectory: "apps/migration-mcp"
           secrets: |
             CLOUDFLARE_ACCOUNT_ID
       - name: Show outputs

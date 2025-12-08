@@ -1,5 +1,5 @@
 {
-  "name": "@heroui/v3-migration-mcp",
+  "name": "@heroui/migration-mcp",
   "version": "1.0.0-alpha.1",
   "type": "module",
   "description": "MCP server for HeroUI v2 to v3 migration instructions via Streamable HTTP",
@@ -17,7 +17,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/heroui-inc/heroui-mcp.git",
-    "directory": "apps/heroui-v3-migration-mcp"
+    "directory": "apps/migration-mcp"
   },
   "bugs": {
     "url": "https://github.com/heroui-inc/heroui-mcp/issues"
@@ -25,7 +25,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "https://github.com/heroui-inc/heroui-mcp/tree/main/apps/heroui-v3-migration-mcp",
+  "homepage": "https://github.com/heroui-inc/heroui-mcp/tree/main/apps/migration-mcp",
   "prettier": "@heroui/config/prettier",
   "scripts": {
     "build": "tsc --noEmit",
