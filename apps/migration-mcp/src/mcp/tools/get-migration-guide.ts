@@ -22,7 +22,7 @@ This guide covers:
 - Component migration reference table
 - Migration checklist
 
-Use this tool to get the complete migration overview. For specific component migration guides, use get_comp_guide.`,
+Use this tool to get the complete migration overview. For specific component migration guides, use get_component_guides.`,
 
   exec(server, {name, description}) {
     const inputSchema = z.object({});

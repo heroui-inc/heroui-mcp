@@ -53,7 +53,7 @@ export const listMigrationGuidesTool: Tool = {
   description: `List all available component migration guides for HeroUI v2 to v3 migration.
 Returns a list of component names that have migration guides available.
 Use this tool to discover which components have migration documentation.
-Then use get_comp_guide with a component name to get the specific migration guide.`,
+Then use get_component_guides with a components array to get the specific migration guides.`,
 
   exec(server, {name, description}) {
     const inputSchema = z.object({});
@@ -79,7 +79,7 @@ Then use get_comp_guide with a component name to get the specific migration guid
           content: [
             {
               type: "text",
-              text: `# Available Component Migration Guides\n\nFound ${components.length} component migration guides:\n\n${componentsList}\n\nUse \`get_comp_guide\` with a component name to get the specific migration guide.\n\nExample: \`get_comp_guide({ component: "button" })\``,
+              text: `# Available Component Migration Guides\n\nFound ${components.length} component migration guides:\n\n${componentsList}\n\nUse \`get_component_guides\` with a components array to get the specific migration guides.\n\nExample: \`get_component_guides({ components: ["button"] })\``,
             },
           ],
         };
@@ -91,7 +91,7 @@ Then use get_comp_guide with a component name to get the specific migration guid
           content: [
             {
               type: "text",
-              text: `# Available Component Migration Guides\n\nFound ${AVAILABLE_COMPONENTS.length} component migration guides:\n\n${componentsList}\n\nUse \`get_comp_guide\` with a component name to get the specific migration guide.\n\nNote: Unable to fetch latest list from repository, showing cached list.`,
+              text: `# Available Component Migration Guides\n\nFound ${AVAILABLE_COMPONENTS.length} component migration guides:\n\n${componentsList}\n\nUse \`get_component_guides\` with a components array to get the specific migration guides.\n\nExample: \`get_component_guides({ components: ["button"] })\`\n\nNote: Unable to fetch latest list from repository, showing cached list.`,
             },
           ],
         };

@@ -34,18 +34,19 @@ This MCP server provides comprehensive migration instructions for upgrading from
 
 2. **list_migration_guides**: List all available component-specific migration guides. Use this to discover which components have migration documentation.
 
-3. **get_comp_guide**: Get migration guide for a specific component. Includes component-specific API changes, prop migrations, code examples, and breaking changes.
+3. **get_component_guides**: Get migration guides for one or more components. Includes component-specific API changes, prop migrations, code examples, and breaking changes. Accepts a components array parameter.
 
 ### Usage Workflow
 
 1. Start with \`get_migration_guide\` to get the complete migration overview
 2. Use \`list_migration_guides\` to see all available component guides
-3. Use \`get_comp_guide\` with a component name for specific migration instructions
+3. Use \`get_component_guides\` with a components array for specific migration instructions
 
 Example:
 - \`get_migration_guide()\` - Get main guide
 - \`list_migration_guides()\` - List all components
-- \`get_comp_guide({ component: "button" })\` - Get button migration guide`,
+- \`get_component_guides({ components: ["button"] })\` - Get button migration guide
+- \`get_component_guides({ components: ["button", "card", "modal"] })\` - Get multiple component guides`,
   });
 
   // Initialize tools with config
