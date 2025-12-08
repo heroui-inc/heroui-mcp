@@ -4,7 +4,7 @@ name = "heroui-v3-migration-mcp"
 # -- General
 # ------------------------------------------------------------
 main = "src/api.ts"
-compatibility_date = "2025-01-18"
+compatibility_date = "2025-10-08"
 compatibility_flags = ["nodejs_compat"]
 
 # ------------------------------------------------------------

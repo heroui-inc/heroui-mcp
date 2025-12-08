@@ -8,13 +8,7 @@ import type {Tool} from "../types";
 
 import {z} from "zod";
 
-const GITHUB_BRANCH = "docs/migration";
-const GITHUB_REPO = "heroui-inc/heroui";
-const MIGRATION_DOCS_PATH = "apps/docs/content/docs/v2-to-v3-migration";
-
-function getGitHubRawUrl(filename: string): string {
-  return `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${MIGRATION_DOCS_PATH}/${filename}`;
-}
+import {getMigrationDocSourceUrl, readMigrationDoc} from "../lib/migration-docs";
 
 export const getMigrationGuideTool: Tool = {
   name: "get_migration_guide",
@@ -35,32 +29,8 @@ Use this tool to get the complete migration overview. For specific component mig
 
     const handler = async () => {
       try {
-        const docUrl = getGitHubRawUrl("index.mdx");
-        const response = await fetch(docUrl);
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `Migration guide not yet available.\n\nThe documentation is being prepared and will be available soon. Please check https://v3.heroui.com for the latest migration information.`,
-                },
-              ],
-            };
-          }
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Error fetching migration guide: ${response.status} ${response.statusText}\n\nURL: ${docUrl}`,
-              },
-            ],
-          };
-        }
-
-        const content = await response.text();
+        const docUrl = getMigrationDocSourceUrl("index.mdx");
+        const content = await readMigrationDoc("index.mdx");
 
         return {
           content: [
@@ -71,11 +41,24 @@ Use this tool to get the complete migration overview. For specific component mig
           ],
         };
       } catch (error) {
+        const docUrl = getMigrationDocSourceUrl("index.mdx");
+
+        if (error instanceof Error && error.message.includes("404")) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Migration guide not yet available.\n\nThe documentation is being prepared and will be available soon. Please check https://v3.heroui.com for the latest migration information.`,
+              },
+            ],
+          };
+        }
+
         return {
           content: [
             {
               type: "text",
-              text: `Error fetching migration guide: ${error instanceof Error ? error.message : "Unknown error"}\n\nURL: ${getGitHubRawUrl("index.mdx")}`,
+              text: `Error fetching migration guide: ${error instanceof Error ? error.message : "Unknown error"}\n\nURL: ${docUrl}`,
             },
           ],
         };

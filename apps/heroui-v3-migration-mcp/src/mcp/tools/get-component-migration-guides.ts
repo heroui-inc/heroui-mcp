@@ -8,13 +8,7 @@ import type {Tool} from "../types";
 
 import {z} from "zod";
 
-const GITHUB_BRANCH = "docs/migration";
-const GITHUB_REPO = "heroui-inc/heroui";
-const MIGRATION_DOCS_PATH = "apps/docs/content/docs/v2-to-v3-migration";
-
-function getGitHubRawUrl(filename: string): string {
-  return `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${MIGRATION_DOCS_PATH}/${filename}`;
-}
+import {getMigrationDocSourceUrl, readMigrationDoc} from "../lib/migration-docs";
 
 // Component migration guides available (from meta.json)
 const AVAILABLE_COMPONENTS = [
@@ -110,38 +104,25 @@ Use list_migration_guides to see all available component migration guides.`,
           const normalizedName = componentName.toLowerCase().trim();
 
           try {
-            const docUrl = getGitHubRawUrl(`${normalizedName}.mdx`);
-            const response = await fetch(docUrl);
-
-            if (!response.ok) {
-              if (response.status === 404) {
-                results.push({
-                  component: componentName,
-                  error: `Migration guide not found for component "${componentName}"`,
-                });
-
-                return;
-              }
-
-              results.push({
-                component: componentName,
-                error: `Error fetching migration guide: ${response.status} ${response.statusText}`,
-              });
-
-              return;
-            }
-
-            const content = await response.text();
+            const docUrl = getMigrationDocSourceUrl(`${normalizedName}.mdx`);
+            const content = await readMigrationDoc(`${normalizedName}.mdx`);
 
             results.push({
               component: componentName,
               content: `# ${componentName.charAt(0).toUpperCase() + componentName.slice(1)} Migration Guide\n\n**Component:** ${componentName}\n**Source:** ${docUrl}\n\n---\n\n${content}`,
             });
           } catch (error) {
-            results.push({
-              component: componentName,
-              error: `Error fetching migration guide: ${error instanceof Error ? error.message : "Unknown error"}`,
-            });
+            if (error instanceof Error && error.message.includes("404")) {
+              results.push({
+                component: componentName,
+                error: `Migration guide not found for component "${componentName}"`,
+              });
+            } else {
+              results.push({
+                component: componentName,
+                error: `Error fetching migration guide: ${error instanceof Error ? error.message : "Unknown error"}`,
+              });
+            }
           }
         }),
       );

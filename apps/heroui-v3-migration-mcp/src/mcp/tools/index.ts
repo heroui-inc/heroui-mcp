@@ -2,32 +2,40 @@
  * Initialize all tools with the server
  */
 
+import type {ToolConfig} from "../types";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import {getComponentMigrationGuidesTool} from "./get-component-migration-guides";
 import {getMigrationGuideTool} from "./get-migration-guide";
+import {getStylingMigrationGuideTool} from "./get-styling-migration-guide";
 import {listMigrationGuidesTool} from "./list-migration-guides";
 
 /**
  * Initialize all tools with the server
  */
-export async function initializeTools(server: McpServer): Promise<void> {
-  // Register all tools
+export async function initializeTools(server: McpServer, config: ToolConfig = {}): Promise<void> {
+  // Register all tools with config
   getMigrationGuideTool.exec(server, {
     name: getMigrationGuideTool.name,
     description: getMigrationGuideTool.description,
-    config: {},
+    config,
   });
 
   listMigrationGuidesTool.exec(server, {
     name: listMigrationGuidesTool.name,
     description: listMigrationGuidesTool.description,
-    config: {},
+    config,
   });
 
   getComponentMigrationGuidesTool.exec(server, {
     name: getComponentMigrationGuidesTool.name,
     description: getComponentMigrationGuidesTool.description,
-    config: {},
+    config,
+  });
+
+  getStylingMigrationGuideTool.exec(server, {
+    name: getStylingMigrationGuideTool.name,
+    description: getStylingMigrationGuideTool.description,
+    config,
   });
 }

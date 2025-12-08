@@ -23,6 +23,8 @@ Add to your MCP client configuration:
 }
 ```
 
+> **⚠️ Important:** Do not use the Migration MCP alongside the `heroui-react` MCP server. Having both configured simultaneously may confuse AI assistants about which set of component documentation to use. For migration purposes, connect only to the Migration MCP. Once migration is complete, you can switch to using the `heroui-react` MCP for v3 component documentation.
+
 ## Available Tools
 
 ### `get_migration_guide`

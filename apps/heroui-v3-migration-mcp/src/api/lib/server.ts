@@ -2,6 +2,8 @@
  * Create and configure the MCP server
  */
 
+import type {ToolConfig} from "../../mcp/types";
+
 import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import {initializeTools} from "../../mcp/tools";
@@ -11,7 +13,7 @@ import {packageInfo} from "./package-info";
 /**
  * Create and configure the MCP server
  */
-export async function createMcpServer(): Promise<McpServer> {
+export async function createMcpServer(config: ToolConfig = {}): Promise<McpServer> {
   const server = new McpServer({
     name: packageInfo.name,
     version: packageInfo.version,
@@ -46,8 +48,8 @@ Example:
 - \`get_comp_guide({ component: "button" })\` - Get button migration guide`,
   });
 
-  // Initialize tools
-  await initializeTools(server);
+  // Initialize tools with config
+  await initializeTools(server, config);
 
   return server;
 }

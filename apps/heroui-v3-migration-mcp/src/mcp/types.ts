@@ -4,8 +4,9 @@
 
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
-interface ToolConfig {
+export interface ToolConfig {
   apiBaseUrl?: string;
+  nodeEnv?: string;
 }
 
 export interface Tool<T = unknown> {

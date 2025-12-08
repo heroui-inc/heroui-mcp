@@ -21,8 +21,13 @@ import {createMcpServer} from "../lib/server";
  */
 export async function mcpHandler(c: Context) {
   try {
+    // Get environment variables from Cloudflare Worker bindings
+    const config = {
+      nodeEnv: c.env?.NODE_ENV,
+    };
+
     // Create a new server instance for each request (stateless)
-    const server = await createMcpServer();
+    const server = await createMcpServer(config);
 
     // Create transport instance (stateless - no session management)
     const transport = new StreamableHTTPTransport({

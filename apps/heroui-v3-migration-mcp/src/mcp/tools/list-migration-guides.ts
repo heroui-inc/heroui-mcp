@@ -8,13 +8,7 @@ import type {Tool} from "../types";
 
 import {z} from "zod";
 
-const GITHUB_BRANCH = "docs/migration";
-const GITHUB_REPO = "heroui-inc/heroui";
-const MIGRATION_DOCS_PATH = "apps/docs/content/docs/v2-to-v3-migration";
-
-function getGitHubRawUrl(filename: string): string {
-  return `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${MIGRATION_DOCS_PATH}/${filename}`;
-}
+import {readMigrationDoc} from "../lib/migration-docs";
 
 // Component migration guides available (from meta.json)
 const AVAILABLE_COMPONENTS = [
@@ -67,22 +61,15 @@ Then use get_comp_guide with a component name to get the specific migration guid
     const handler = async () => {
       try {
         // Fetch meta.json to get the list of pages
-        const metaUrl = getGitHubRawUrl("meta.json");
-        const metaResponse = await fetch(metaUrl);
-
+        const metaContent = await readMigrationDoc("meta.json");
         let components: string[] = [];
 
-        if (metaResponse.ok) {
-          try {
-            const meta = (await metaResponse.json()) as {pages?: string[]};
-            // Extract component names from pages array (skip "v2-to-v3-migration" which is the index)
-            components = (meta.pages || []).filter((page: string) => page !== "v2-to-v3-migration");
-          } catch {
-            // If meta.json parsing fails, fall back to hardcoded list
-            components = [...AVAILABLE_COMPONENTS];
-          }
-        } else {
-          // Fall back to hardcoded list if meta.json is not available
+        try {
+          const meta = JSON.parse(metaContent) as {pages?: string[]};
+          // Extract component names from pages array (skip "v2-to-v3-migration" which is the index)
+          components = (meta.pages || []).filter((page: string) => page !== "v2-to-v3-migration");
+        } catch {
+          // If meta.json parsing fails, fall back to hardcoded list
           components = [...AVAILABLE_COMPONENTS];
         }
 
