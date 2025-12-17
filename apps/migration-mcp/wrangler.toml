@@ -15,6 +15,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [env.development.vars]
 NODE_ENV = "development"
+POSTHOG_HOST = "https://us.i.posthog.com"
 
 # ------------------------------------------------------------
 # -- Staging Environment
@@ -26,6 +27,7 @@ routes = [
 
 [env.staging.vars]
 NODE_ENV = "staging"
+POSTHOG_HOST = "https://us.i.posthog.com"
 
 # ------------------------------------------------------------
 # -- Production Environment
@@ -37,6 +39,7 @@ routes = [
 
 [env.production.vars]
 NODE_ENV = "production"
+POSTHOG_HOST = "https://us.i.posthog.com"
 
 # ------------------------------------------------------------
 # -- Worker Settings

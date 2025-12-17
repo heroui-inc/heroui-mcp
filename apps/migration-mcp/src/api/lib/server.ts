@@ -3,6 +3,7 @@
  */
 
 import type {ToolConfig} from "../../mcp/types";
+import type {AnalyticsService} from "../services/analytics";
 
 import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
@@ -14,7 +15,9 @@ import {packageInfo} from "./package-info";
 /**
  * Create and configure the MCP server
  */
-export async function createMcpServer(config: ToolConfig = {}): Promise<McpServer> {
+export async function createMcpServer(
+  config: ToolConfig & {analytics?: AnalyticsService} = {},
+): Promise<McpServer> {
   const server = new McpServer({
     name: packageInfo.name,
     version: packageInfo.version,
@@ -101,7 +104,7 @@ Example:
   // Initialize tools with config
   await initializeTools(server, config);
 
-  // Initialize prompts
+  // Initialize prompts (no analytics needed - prompts just return static templates)
   await initializePrompts(server);
 
   return server;

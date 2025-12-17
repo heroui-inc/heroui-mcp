@@ -17,7 +17,11 @@ export async function initializePrompts(server: McpServer): Promise<void> {
   });
 
   // Register implement-migration prompt (no arguments)
-  server.prompt(implementMigrationPrompt.name, implementMigrationPrompt.description ?? "", async () => {
-    return getImplementMigrationPrompt();
-  });
+  server.prompt(
+    implementMigrationPrompt.name,
+    implementMigrationPrompt.description ?? "",
+    async () => {
+      return getImplementMigrationPrompt();
+    },
+  );
 }

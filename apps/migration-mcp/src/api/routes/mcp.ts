@@ -6,6 +6,7 @@
  * Reference: https://github.com/honojs/middleware/tree/main/packages/mcp
  */
 
+import type {HonoContext} from "../types/context";
 import type {Context} from "hono";
 
 import {StreamableHTTPTransport} from "@hono/mcp";
@@ -19,11 +20,15 @@ import {createMcpServer} from "../lib/server";
  * StreamableHTTPTransport to handle all JSON-RPC protocol details,
  * including initialize, tools/list, tools/call, SSE streaming, etc.
  */
-export async function mcpHandler(c: Context) {
+export async function mcpHandler(c: Context<HonoContext>) {
   try {
+    // Get analytics from context (set by analytics middleware)
+    const analytics = c.get("analytics");
+
     // Get environment variables from Cloudflare Worker bindings
     const config = {
       nodeEnv: c.env?.NODE_ENV,
+      analytics,
     };
 
     // Create a new server instance for each request (stateless)

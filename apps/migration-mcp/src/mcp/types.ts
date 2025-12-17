@@ -2,11 +2,13 @@
  * MCP tool types
  */
 
+import type {AnalyticsService} from "../api/services/analytics";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export interface ToolConfig {
   apiBaseUrl?: string;
   nodeEnv?: string;
+  analytics?: AnalyticsService;
 }
 
 export interface Tool<T = unknown> {

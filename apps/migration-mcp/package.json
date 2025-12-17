@@ -41,10 +41,12 @@
     "clean": "rm -rf dist dist-api"
   },
   "dependencies": {
+    "@heroui/analytics": "workspace:*",
     "@heroui/config": "workspace:*",
     "@hono/mcp": "^0.1.5",
     "@modelcontextprotocol/sdk": "^1.18.1",
     "hono": "^4.10.2",
+    "posthog-node": "^5.9.1",
     "zod": "^3.25.0"
   },
   "devDependencies": {

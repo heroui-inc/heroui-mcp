@@ -26,6 +26,9 @@ importers:
 
   apps/migration-mcp:
     dependencies:
+      '@heroui/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@heroui/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -38,6 +41,9 @@ importers:
       hono:
         specifier: ^4.10.2
         version: 4.10.2
+      posthog-node:
+        specifier: ^5.9.1
+        version: 5.10.0
       zod:
         specifier: ^3.25.0
         version: 3.25.76

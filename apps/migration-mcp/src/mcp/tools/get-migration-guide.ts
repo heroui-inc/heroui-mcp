@@ -8,6 +8,7 @@ import type {Tool} from "../types";
 
 import {z} from "zod";
 
+import {AnalyticsErrorEvent, AnalyticsEvent} from "../../api/types/analytics";
 import {getMigrationDocSourceUrl, readMigrationDoc} from "../lib/migration-docs";
 
 export const getMigrationGuideTool: Tool = {
@@ -23,13 +24,26 @@ This guide covers:
 - Migration checklist
 
 Use this tool to get the complete migration overview. For specific component migration guides, use get_component_guides.`,
-  exec(server, {name, description}) {
+  exec(server, {name, description, config}) {
     const inputSchema = z.object({});
 
     const handler = async () => {
+      const startTime = Date.now();
+      const analytics = config.analytics;
+
       try {
         const docUrl = getMigrationDocSourceUrl("agent-guide.mdx");
         const content = await readMigrationDoc("agent-guide.mdx");
+
+        if (analytics) {
+          analytics.track({
+            event: AnalyticsEvent.GET_MIGRATION_GUIDE,
+            properties: {
+              endpoint: "get_migration_guide",
+              responseTime: Date.now() - startTime,
+            },
+          });
+        }
 
         return {
           content: [
@@ -41,6 +55,18 @@ Use this tool to get the complete migration overview. For specific component mig
         };
       } catch (error) {
         const docUrl = getMigrationDocSourceUrl("agent-guide.mdx");
+
+        if (analytics) {
+          analytics.trackError({
+            error,
+            errorEvent: AnalyticsErrorEvent.GET_MIGRATION_GUIDE_ERROR,
+            fallbackMessage: "Failed to fetch migration guide",
+            properties: {
+              endpoint: "get_migration_guide",
+              responseTime: Date.now() - startTime,
+            },
+          });
+        }
 
         if (error instanceof Error && error.message.includes("404")) {
           return {

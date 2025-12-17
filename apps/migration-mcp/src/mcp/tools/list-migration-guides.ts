@@ -8,6 +8,7 @@ import type {Tool} from "../types";
 
 import {z} from "zod";
 
+import {AnalyticsErrorEvent, AnalyticsEvent} from "../../api/types/analytics";
 import {readMigrationDoc} from "../lib/migration-docs";
 
 // Component migration guides available (from meta.json)
@@ -55,10 +56,13 @@ Returns a list of component names that have migration guides available.
 Use this tool to discover which components have migration documentation.
 Then use get_component_guides with a components array to get the specific migration guides.`,
 
-  exec(server, {name, description}) {
+  exec(server, {name, description, config}) {
     const inputSchema = z.object({});
 
     const handler = async () => {
+      const startTime = Date.now();
+      const analytics = config.analytics;
+
       try {
         // Fetch meta.json to get the list of pages
         const metaContent = await readMigrationDoc("meta.json");
@@ -75,6 +79,17 @@ Then use get_component_guides with a components array to get the specific migrat
 
         const componentsList = components.map((name) => `  - ${name}`).join("\n");
 
+        if (analytics) {
+          analytics.track({
+            event: AnalyticsEvent.LIST_MIGRATION_GUIDES,
+            properties: {
+              endpoint: "list_migration_guides",
+              responseTime: Date.now() - startTime,
+              componentsCount: components.length,
+            },
+          });
+        }
+
         return {
           content: [
             {
@@ -83,7 +98,19 @@ Then use get_component_guides with a components array to get the specific migrat
             },
           ],
         };
-      } catch {
+      } catch (error) {
+        if (analytics) {
+          analytics.trackError({
+            error,
+            errorEvent: AnalyticsErrorEvent.LIST_MIGRATION_GUIDES_ERROR,
+            fallbackMessage: "Failed to list migration guides",
+            properties: {
+              endpoint: "list_migration_guides",
+              responseTime: Date.now() - startTime,
+            },
+          });
+        }
+
         // Fall back to hardcoded list on error
         const componentsList = AVAILABLE_COMPONENTS.map((name) => `  - ${name}`).join("\n");
 
