@@ -77,6 +77,7 @@ These can be done before switching HeroUI dependencies:
 3. **Common changes:**
    - **onClick → onPress**: All interactive components
    - **Compound components**: Card, Modal, Checkbox, etc. now use compound patterns
+   - **Component hooks**: Replace hooks like \`useSwitch\`, \`useInput\`, etc. with compound components
    - **Provider removal**: No HeroUIProvider needed in v3
    - **Import changes**: All components from single \`@heroui/react\` package
 
@@ -120,12 +121,44 @@ These can be done before switching HeroUI dependencies:
    - Verify components work correctly
    - **Wait for user approval** before styling migration
 
-### Final Phase: Styling Migration
+### Final Phase: Hooks Migration
 
 After dependency switch and component verification:
 
+**Note:** Component hooks (like \`useSwitch\`, \`useInput\`, etc.) should have been replaced with compound components during component migration. This phase focuses on migrating \`useDisclosure\` to \`useOverlayState\`.
+
 **Prerequisites:**
 - All component code has been migrated to v3 APIs
+- Component hooks have been replaced with compound components (done during component migration)
+- Dependencies have been switched to v3 (\`@heroui/react@beta\`, \`@heroui/styles@beta\`)
+- HeroUIProvider has been removed
+- CSS imports have been updated
+- Typecheck/lint passes (do NOT build to verify)
+
+1. **Fetch hooks migration guide**
+   - **Use the MCP tool \`get_hooks_migration_guide\`** to fetch the hooks migration guide
+   - This guide covers:
+     - Component hooks removal (useSwitch, useInput, etc.) - typically done during component migration
+     - useDisclosure → useOverlayState migration
+     - Migration examples and strategies
+
+2. **Migrate useDisclosure:**
+   - Search codebase for \`useDisclosure\` usage
+   - Replace with \`useOverlayState\` according to the guide
+   - Update all \`useDisclosure\` usages (modals, popovers, etc.)
+
+3. **🛑 CHECKPOINT: Stop and wait for user approval**
+   - **DO NOT proceed to styling automatically**
+   - Verify hooks have been migrated correctly
+   - **Wait for user approval** before styling migration
+
+### Final Phase: Styling Migration
+
+After hooks migration:
+
+**Prerequisites:**
+- All component code has been migrated to v3 APIs
+- All hooks have been migrated (component hooks → compound components, useDisclosure → useOverlayState)
 - Dependencies have been switched to v3 (\`@heroui/react@beta\`, \`@heroui/styles@beta\`)
 - HeroUIProvider has been removed
 - CSS imports have been updated

@@ -6,6 +6,7 @@ import type {ToolConfig} from "../types";
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import {getComponentMigrationGuidesTool} from "./get-component-migration-guides";
+import {getHooksMigrationGuideTool} from "./get-hooks-migration-guide";
 import {getMigrationGuideTool} from "./get-migration-guide";
 import {getStylingMigrationGuideTool} from "./get-styling-migration-guide";
 import {listMigrationGuidesTool} from "./list-migration-guides";
@@ -36,6 +37,12 @@ export async function initializeTools(server: McpServer, config: ToolConfig = {}
   getStylingMigrationGuideTool.exec(server, {
     name: getStylingMigrationGuideTool.name,
     description: getStylingMigrationGuideTool.description,
+    config,
+  });
+
+  getHooksMigrationGuideTool.exec(server, {
+    name: getHooksMigrationGuideTool.name,
+    description: getHooksMigrationGuideTool.description,
     config,
   });
 }
