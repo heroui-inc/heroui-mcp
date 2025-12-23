@@ -41,7 +41,7 @@ describe("Docs API", () => {
     });
 
     it("should handle valid documentation paths", async () => {
-      const res = await SELF.fetch("http://localhost:8787/docs/content?path=/docs/introduction");
+      const res = await SELF.fetch("http://localhost:8787/docs/content?path=/docs/getting-started");
 
       // This might return 200 or 404 depending on if the docs are available
       // The important thing is that it doesn't return 500

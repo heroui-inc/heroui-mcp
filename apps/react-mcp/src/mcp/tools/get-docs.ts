@@ -24,9 +24,9 @@ Fetches official documentation from v3.heroui.com.
 Returns the complete MDX content of documentation pages.
 Use for understanding concepts, design principles, implementation guides.
 The path parameter description shows ALL available documentation paths.
-Documentation covers: design principles, quick start, components, handbook (theming, colors, styling, animation).
+Documentation covers: design principles, getting started, components, theming, colors, styling, animation.
 IMPORTANT: Always use exact paths shown in the available paths list - DO NOT guess paths.
-Example paths: /docs/introduction, /docs/components/button, /docs/handbook/theming.
+Example paths: /docs/components/button, /docs/getting-started/theming, /docs/getting-started.
 Returns MDX content which may include code examples and explanations.
 This is v3 beta documentation - ensure you're working with HeroUI v3, not v2.`,
 
@@ -41,7 +41,7 @@ This is v3 beta documentation - ensure you're working with HeroUI v3, not v2.`,
       });
     } else {
       availablePaths =
-        "Documentation paths available (examples):\n  - /docs/introduction\n  - /docs/components/button\n  - /docs/handbook/theming";
+        "Documentation paths available (examples):\n  - /docs/components/button\n  - /docs/getting-started/theming\n  - /docs/getting-started";
     }
 
     return {
@@ -56,7 +56,7 @@ This is v3 beta documentation - ensure you're working with HeroUI v3, not v2.`,
 Must be one of the paths listed below - DO NOT guess paths.
 Paths always start with /docs/.
 Component docs use pattern: /docs/components/{component-name}
-Handbook docs use pattern: /docs/handbook/{topic}
+Getting started docs use pattern: /docs/getting-started/{topic}
 
 ${ctx.availablePaths}`),
     });

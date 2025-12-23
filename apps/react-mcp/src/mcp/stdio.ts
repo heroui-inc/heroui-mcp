@@ -73,7 +73,7 @@ get_component_info({ component: "Card" })
 
 ### Available Documentation
 • Components: Use tools to explore v3 components
-• Guides: Use get_docs({ path: "/docs/introduction" })
+• Guides: Use get_docs({ path: "/docs/getting-started" })
 • Theme: Use get_theme_info() for v3 theming
 
 ### 📚 Development Guidelines
