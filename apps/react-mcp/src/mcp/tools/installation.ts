@@ -750,7 +750,7 @@ root.render(
         output += `### Next Steps\n\n`;
         output += `- Use \`list_components\` to see all available components\n`;
         output += `- Use \`get_component_info\` to learn about specific components\n`;
-        output += `- Use \`get_docs\` with path "/docs/quick-start" for more details\n`;
+        output += `- Use \`get_docs\` with path "/docs/getting-started" for more details\n`;
         output += `- Visit https://v3.heroui.com for full documentation\n`;
 
         return {

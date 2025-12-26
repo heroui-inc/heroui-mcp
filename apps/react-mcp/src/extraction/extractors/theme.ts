@@ -57,13 +57,15 @@ export class ThemeExtractor extends BaseExtractor {
     // Fetch documentation guides
     console.log("  Fetching documentation guides...");
     const guides: ThemeSystem["guides"] = {
-      theming: await this.fetchGuide("handbook/theming.mdx"),
-      colors: await this.fetchGuide("handbook/colors.mdx"),
-      styling: await this.fetchGuide("handbook/styling.mdx"),
-      animation: await this.fetchGuide("handbook/animation.mdx"),
-      composition: await this.fetchGuide("handbook/composition.mdx"),
-      designPrinciples: await this.fetchGuide("design-principles.mdx"),
-      quickStart: await this.fetchGuide("quick-start.mdx"),
+      theming: await this.fetchGuide("react/getting-started/(handbook)/theming.mdx"),
+      colors: await this.fetchGuide("react/getting-started/(handbook)/colors.mdx"),
+      styling: await this.fetchGuide("react/getting-started/(handbook)/styling.mdx"),
+      animation: await this.fetchGuide("react/getting-started/(handbook)/animation.mdx"),
+      composition: await this.fetchGuide("react/getting-started/(handbook)/composition.mdx"),
+      designPrinciples: await this.fetchGuide(
+        "react/getting-started/(overview)/design-principles.mdx",
+      ),
+      quickStart: await this.fetchGuide("react/getting-started/(overview)/quick-start.mdx"),
     };
 
     const guideCount = Object.values(guides).filter(Boolean).length;
