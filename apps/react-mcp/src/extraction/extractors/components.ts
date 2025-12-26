@@ -89,7 +89,7 @@ export class ComponentExtractor extends BaseExtractor {
     const docFiles = await this.github.getDocsFiles(
       "heroui-inc",
       "heroui",
-      "apps/docs/content/docs/components",
+      "apps/docs/content/docs/react/components",
       "v3",
     );
 

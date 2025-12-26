@@ -155,13 +155,27 @@ docs.get("/content", async (c) => {
       );
     }
 
+    // Transform all React docs paths: /docs/* -> /docs/react/*
+    // This ensures backward compatibility while supporting the new URL structure
+    // All HeroUI React documentation has been moved under /docs/react/
+    // Note: handbook paths redirect to getting-started, so handle that transformation too
+    let transformedPath = path;
+    if (path.startsWith("/docs/") && !path.startsWith("/docs/react/")) {
+      // Transform handbook paths to getting-started (handbook redirects to getting-started)
+      if (path.startsWith("/docs/handbook/")) {
+        transformedPath = path.replace("/docs/handbook/", "/docs/react/getting-started/");
+      } else {
+        transformedPath = path.replace("/docs/", "/docs/react/");
+      }
+    }
+
     // Construct the full URL for the documentation page
-    let docUrl = path;
+    let docUrl = transformedPath;
 
     // If path doesn't start with http, prepend the base URL
-    if (!path.startsWith("http")) {
+    if (!transformedPath.startsWith("http")) {
       // Remove leading slash if present
-      const cleanPath = path.startsWith("/") ? path : `/${path}`;
+      const cleanPath = transformedPath.startsWith("/") ? transformedPath : `/${transformedPath}`;
       // Add .mdx extension if not present
       const pathWithExt =
         cleanPath.endsWith(".mdx") || cleanPath.endsWith(".md") ? cleanPath : `${cleanPath}.mdx`;

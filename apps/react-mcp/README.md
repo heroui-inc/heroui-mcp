@@ -284,7 +284,7 @@ Get HeroUI v3 documentation content for guides, principles, and component docs.
 ```javascript
 // Parameters
 {
-  path: string  // Required - documentation path (e.g., "/docs/introduction", "/docs/components/button")
+  path: string  // Required - documentation path (e.g., "/docs/components/button", "/docs/getting-started")
 }
 ```
 
