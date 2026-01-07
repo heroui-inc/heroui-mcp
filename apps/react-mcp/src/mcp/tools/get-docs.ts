@@ -19,14 +19,14 @@ interface DocsContext {
 
 export const getDocsTool: Tool<DocsContext> = {
   name: "get_docs",
-  description: `Get HeroUI v3 React documentation content for guides, principles, and component docs.
+  description: `Get HeroUI v3 React documentation content for guides, principles, component docs, and release notes.
 Fetches official documentation from v3.heroui.com.
 Returns the complete MDX content of documentation pages.
-Use for understanding concepts, design principles, implementation guides.
+Use for understanding concepts, design principles, implementation guides, and version history.
 The path parameter description shows available React documentation paths extracted from v3.heroui.com/llms.txt.
-Documentation covers: design principles, getting started, components, theming, colors, styling, animation.
+Documentation covers: design principles, getting started, components, theming, colors, styling, animation, release notes.
 IMPORTANT: Always use exact paths shown in the available paths list - DO NOT guess paths.
-Example paths: /docs/react/components/button, /docs/react/getting-started/theming, /docs/react/getting-started.
+Example paths: /docs/react/components/button, /docs/react/getting-started/theming, /docs/react/releases/v3-0-0-beta-3.
 All React documentation paths start with /docs/react/ prefix.
 Returns MDX content which may include code examples and explanations.
 This is v3 beta documentation - ensure you're working with HeroUI v3, not v2.
@@ -56,7 +56,7 @@ NOTE: For HeroUI Native documentation, use the @heroui/native-mcp server instead
       });
     } else {
       availablePaths =
-        "Documentation paths available (examples):\n  - /docs/react/components/button\n  - /docs/react/getting-started/theming\n  - /docs/react/getting-started";
+        "Documentation paths available (examples):\n  - /docs/react/components/button\n  - /docs/react/getting-started/theming\n  - /docs/react/releases/v3-0-0-beta-3";
     }
 
     return {
@@ -72,6 +72,7 @@ Must be one of the paths listed below - DO NOT guess paths.
 All React documentation paths start with /docs/react/ prefix.
 Component docs use pattern: /docs/react/components/{component-name}
 Getting started docs use pattern: /docs/react/getting-started/{topic}
+Release notes use pattern: /docs/react/releases/{version} (e.g., /docs/react/releases/v3-0-0-beta-3)
 NOTE: Paths containing /native/ are for HeroUI Native docs and require @heroui/native-mcp server.
 
 ${ctx.availablePaths}`),
@@ -165,7 +166,7 @@ Requested path: ${path}`,
           const examplesText =
             examplePaths.length > 0
               ? examplePaths.map((p) => `  - ${p}`).join("\n")
-              : "  - /docs/react/components/button\n  - /docs/react/getting-started/theming\n  - /docs/react/getting-started";
+              : "  - /docs/react/components/button\n  - /docs/react/getting-started/theming\n  - /docs/react/releases/v3-0-0-beta-3";
 
           return {
             content: [
