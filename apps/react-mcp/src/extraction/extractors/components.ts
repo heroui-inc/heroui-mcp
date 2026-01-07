@@ -112,9 +112,24 @@ export class ComponentExtractor extends BaseExtractor {
 
         const component = await this.parser.parseContent(content, filePath);
 
-        if (component && Object.keys(component.props).length > 0) {
+        const hasMainProps = component && Object.keys(component.props).length > 0;
+        const hasSubComponentProps =
+          component?.subComponents && Object.keys(component.subComponents).length > 0;
+
+        if (component && (hasMainProps || hasSubComponentProps)) {
           components[component.name] = component;
-          console.log(`      ✓ ${component.name} (${Object.keys(component.props).length} props)`);
+
+          if (hasMainProps && hasSubComponentProps) {
+            console.log(
+              `      ✓ ${component.name} (${Object.keys(component.props).length} props + ${Object.keys(component.subComponents || {}).length} sub-components)`,
+            );
+          } else if (hasMainProps) {
+            console.log(`      ✓ ${component.name} (${Object.keys(component.props).length} props)`);
+          } else if (hasSubComponentProps) {
+            console.log(
+              `      ✓ ${component.name} (${Object.keys(component.subComponents || {}).length} sub-components only)`,
+            );
+          }
 
           if (component.subComponents) {
             for (const [subName, subComp] of Object.entries(component.subComponents)) {
