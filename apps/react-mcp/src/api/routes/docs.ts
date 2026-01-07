@@ -186,6 +186,10 @@ docs.get("/content", async (c) => {
 
     if (!response.ok) {
       // Try without .mdx extension if it failed
+      let finalStatus = response.status;
+      let finalStatusText = response.statusText;
+      let finalUrl = docUrl;
+
       if (docUrl.endsWith(".mdx")) {
         const urlWithoutExt = docUrl.replace(".mdx", "");
         const retryResponse = await fetch(urlWithoutExt);
@@ -211,6 +215,11 @@ docs.get("/content", async (c) => {
             contentType: retryResponse.headers.get("content-type") || "text/plain",
           });
         }
+
+        // Use retry response status if retry was attempted
+        finalStatus = retryResponse.status;
+        finalStatusText = retryResponse.statusText;
+        finalUrl = urlWithoutExt;
       }
 
       analytics.trackError({
@@ -219,9 +228,9 @@ docs.get("/content", async (c) => {
         properties: {
           endpoint,
           path,
-          status: response.status,
-          statusText: response.statusText,
-          url: docUrl,
+          status: finalStatus,
+          statusText: finalStatusText,
+          url: finalUrl,
           responseTime: Date.now() - startTime,
         },
       });
@@ -229,9 +238,9 @@ docs.get("/content", async (c) => {
       return c.json(
         {
           error: `Documentation not found at path: ${path}`,
-          status: response.status,
+          status: finalStatus,
         },
-        response.status as 400 | 401 | 403 | 404 | 500,
+        finalStatus as 400 | 401 | 403 | 404 | 500,
       );
     }
 
@@ -256,6 +265,13 @@ docs.get("/content", async (c) => {
       contentType,
     });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const isNetworkError =
+      errorMessage.includes("fetch") ||
+      errorMessage.includes("network") ||
+      errorMessage.includes("ECONNREFUSED") ||
+      errorMessage.includes("ENOTFOUND");
+
     analytics.trackError({
       error,
       errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
@@ -264,13 +280,26 @@ docs.get("/content", async (c) => {
         endpoint,
         path,
         responseTime: Date.now() - startTime,
+        isNetworkError,
       },
     });
+
+    if (isNetworkError) {
+      return c.json(
+        {
+          error: "Network error while fetching documentation content",
+          details: errorMessage,
+          path,
+        },
+        500,
+      );
+    }
 
     return c.json(
       {
         error: "Internal server error while fetching documentation content",
-        details: error instanceof Error ? error.message : "Unknown error",
+        details: errorMessage,
+        path,
       },
       500,
     );
