@@ -38,7 +38,7 @@ describe("Docs API", () => {
             if (category.docs && category.docs.length > 0) {
               category.docs.forEach((doc: any) => {
                 expect(doc.path).toMatch(/^\/docs\/react\//);
-                expect(doc.path).not.toContain("/native/");
+                expect(doc.path.includes("/native/")).toBe(false);
               });
             }
           });

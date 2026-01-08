@@ -105,9 +105,9 @@ describe("Context API", () => {
       const data = (await res.json()) as any;
 
       if (res.status === 200 && data.docs.paths.length > 0) {
-        // Verify that paths are GitHub URLs
+        // Verify that paths are native documentation paths from v3.heroui.com
         data.docs.paths.forEach((path: string) => {
-          expect(path).toMatch(/^https:\/\/github\.com\/heroui-inc\/heroui-native/);
+          expect(path).toMatch(/^\/docs\/native\//);
         });
       }
     });
