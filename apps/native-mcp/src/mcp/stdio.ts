@@ -33,15 +33,15 @@ Welcome to HeroUI Native MCP! These tools provide documentation for **HeroUI Nat
 • **Status:** Production-ready components with comprehensive documentation
 
 ### Getting Started
-Use the \`installation\` tool for setting up HeroUI Native in your project:
+Use the \`get_docs\` tool to fetch the official installation guide:
 \`\`\`javascript
-installation()
+get_docs({ path: "/docs/native/getting-started/quick-start" })
 \`\`\`
 
 ### Essential Workflow
 Always follow this order when implementing HeroUI Native components:
 
-1. **installation** - Set up HeroUI Native in your React Native project
+1. **get_docs** - Fetch installation guide: \`get_docs({ path: "/docs/native/getting-started/quick-start" })\`
 2. **list_components** - Check available Native components
 3. **get_component_info** - Get complete API and anatomy
 4. **get_component_props** - Review TypeScript types
@@ -50,7 +50,7 @@ Always follow this order when implementing HeroUI Native components:
 ### Key Features
 • Compound components pattern (e.g., Button.StartContent, Button.LabelContent)
 • Built on React Native Reanimated for smooth animations
-• NativeWind v4 for Tailwind-based styling
+• Uniwind (Tailwind CSS for React Native) for styling
 • Comprehensive theme system with semantic colors
 • Accessibility-first design
 • TypeScript support
@@ -72,7 +72,8 @@ get_component_info({ components: ["Button"] })
 ### Available Documentation
 • Components: Use tools to explore Native components
 • Theme: Use get_theme_info() for theming
-• Installation: Framework-specific setup guides
+• Installation: Use get_docs({ path: "/docs/native/getting-started/quick-start" }) for setup guides
+• Guides: Use get_docs() to fetch any documentation page from v3.heroui.com/docs/native/*
 
 ### Pro Tips
 • HeroUI Native is built for production React Native apps

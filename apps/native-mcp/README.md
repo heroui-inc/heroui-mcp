@@ -125,7 +125,7 @@ Add to your Claude Desktop configuration:
 
 Once configured, you can ask your AI assistant questions like:
 
-- "Help me install HeroUI Native in my React Native app"
+- "Show me the HeroUI Native installation guide"
 - "Show me all HeroUI Native components"
 - "What props does the Button component have?"
 - "Give me an example of using the Card component in React Native"
@@ -136,12 +136,17 @@ Once configured, you can ask your AI assistant questions like:
 
 The MCP server provides these tools to AI assistants:
 
-### `installation`
+### `get_docs`
 
-Get comprehensive installation guide for @heroui/native in your React Native project
+Get HeroUI Native documentation including installation guides, component docs, and guides.
 
 ```javascript
-// No parameters required
+// Get installation guide
+get_docs({ path: "/docs/native/getting-started/quick-start" })
+
+// Get other documentation
+get_docs({ path: "/docs/native/getting-started/theming" })
+get_docs({ path: "/docs/native/components/button" })
 ```
 
 ### `list_components`
