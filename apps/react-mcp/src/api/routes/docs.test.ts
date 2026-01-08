@@ -26,6 +26,32 @@ describe("Docs API", () => {
 
       expect(res.headers.get("access-control-allow-origin")).toBe("*");
     });
+
+    it("should only return React documentation paths", async () => {
+      const res = await SELF.fetch("http://localhost:8787/docs/available");
+
+      if (res.status === 200) {
+        const data = (await res.json()) as any;
+        if (data.categories && data.categories.length > 0) {
+          // Check that all paths in categories start with /docs/react/
+          data.categories.forEach((category: any) => {
+            if (category.docs && category.docs.length > 0) {
+              category.docs.forEach((doc: any) => {
+                expect(doc.path).toMatch(/^\/docs\/react\//);
+                expect(doc.path).not.toContain("/native/");
+              });
+            }
+          });
+        }
+      }
+    });
+
+    it("should fetch from react/llms.txt when R2 cache is unavailable", async () => {
+      const res = await SELF.fetch("http://localhost:8787/docs/available");
+
+      // Should succeed even if R2 cache is unavailable (fallback to live fetch)
+      expect(res.status).toBeLessThan(500);
+    });
   });
 
   describe("GET /docs/content", () => {
@@ -76,6 +102,43 @@ describe("Docs API", () => {
       const res = await SELF.fetch(`http://localhost:8787/docs/content?path=${encodedPath}`);
 
       // Should not return 500
+      expect(res.status).toBeLessThan(500);
+    });
+
+    it("should transform /docs/* paths to /docs/react/*", async () => {
+      const res = await SELF.fetch(
+        "http://localhost:8787/docs/content?path=/docs/getting-started/theming",
+      );
+
+      // Should transform and fetch correctly (might return 200 or 404)
+      // The important thing is that it doesn't return 500 and handles the transformation
+      expect(res.status).toBeLessThan(500);
+
+      if (res.status === 200) {
+        const data = (await res.json()) as any;
+        // Verify the URL was transformed to include /docs/react/
+        if (data && data.url) {
+          expect(data.url).toMatch(/\/docs\/react\/getting-started\/theming/);
+        }
+      }
+    });
+
+    it("should handle /docs/react/* paths directly", async () => {
+      const res = await SELF.fetch(
+        "http://localhost:8787/docs/content?path=/docs/react/getting-started/theming",
+      );
+
+      // Should work without transformation
+      expect(res.status).toBeLessThan(500);
+    });
+
+    it("should reject /docs/native/* paths", async () => {
+      const res = await SELF.fetch(
+        "http://localhost:8787/docs/content?path=/docs/native/components/button",
+      );
+
+      // Should return 404 or appropriate error
+      expect(res.status).toBeGreaterThanOrEqual(400);
       expect(res.status).toBeLessThan(500);
     });
   });

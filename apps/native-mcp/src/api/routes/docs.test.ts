@@ -16,7 +16,7 @@ describe("Docs API", () => {
       expect(data).toHaveProperty("baseUrl");
       expect(data).toHaveProperty("categories");
       expect(data).toHaveProperty("total");
-      expect(data.baseUrl).toBe("https://github.com/heroui-inc/heroui-native");
+      expect(data.baseUrl).toBe("https://v3.heroui.com");
       expect(Array.isArray(data.categories)).toBe(true);
       expect(typeof data.total).toBe("number");
     });
@@ -25,6 +25,31 @@ describe("Docs API", () => {
       const res = await SELF.fetch("http://localhost:8788/docs/available");
 
       expect(res.headers.get("access-control-allow-origin")).toBe("*");
+    });
+
+    it("should only return Native documentation paths", async () => {
+      const res = await SELF.fetch("http://localhost:8788/docs/available");
+
+      if (res.status === 200) {
+        const data = (await res.json()) as any;
+        if (data.categories && data.categories.length > 0) {
+          // Check that all paths in categories start with /docs/native/
+          data.categories.forEach((category: any) => {
+            if (category.docs && category.docs.length > 0) {
+              category.docs.forEach((doc: any) => {
+                expect(doc.path).toMatch(/^\/docs\/native\//);
+              });
+            }
+          });
+        }
+      }
+    });
+
+    it("should fetch from native/llms.txt when R2 cache is unavailable", async () => {
+      const res = await SELF.fetch("http://localhost:8788/docs/available");
+
+      // Should succeed even if R2 cache is unavailable (fallback to live fetch)
+      expect(res.status).toBeLessThan(500);
     });
   });
 

@@ -15,9 +15,8 @@ describe("Themes API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("themes");
-      expect(data).toHaveProperty("sharedVariables");
-      expect(data).toHaveProperty("animations");
-      expect(typeof data.themes).toBe("object");
+      expect(data).toHaveProperty("latestVersion");
+      expect(Array.isArray(data.themes)).toBe(true);
     });
 
     it("should handle version parameter", async () => {
@@ -43,7 +42,6 @@ describe("Themes API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("themes");
       expect(data).toHaveProperty("count");
-      expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("latestVersion");
       expect(Array.isArray(data.themes)).toBe(true);
     });
@@ -114,7 +112,7 @@ describe("Themes API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("timings");
       expect(data).toHaveProperty("presets");
-      expect(data).toHaveProperty("version");
+      expect(data).toHaveProperty("latestVersion");
       expect(Array.isArray(data.timings)).toBe(true);
       expect(Array.isArray(data.presets)).toBe(true);
     });

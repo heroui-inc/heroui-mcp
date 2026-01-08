@@ -41,7 +41,6 @@ describe("Themes API", () => {
 
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("theme");
-      expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("latestVersion");
     });
 

@@ -346,7 +346,14 @@ class ComponentService {
   async getDocsPaths(): Promise<{categories: any[]; paths: string[]} | null> {
     try {
       const key = "native/docs-paths.json";
-      const data = await this.getFromR2<{categories: any[]; paths: string[]}>(key);
+      let data: {categories: any[]; paths: string[]} | null = null;
+
+      try {
+        data = await this.getFromR2<{categories: any[]; paths: string[]}>(key);
+      } catch (error) {
+        // If R2 fetch fails, fall back to live fetch
+        console.warn(`Failed to fetch docs paths from R2, falling back to live fetch: ${error}`);
+      }
 
       if (data) {
         return data;
