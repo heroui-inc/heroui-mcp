@@ -10,7 +10,9 @@ alwaysApply: false
 
 This guide enables AI agents to work effectively with HeroUI v3, a modern React component library built on React Aria Components with Tailwind CSS v4 integration.
 
-**Reference**: https://v3.heroui.com/llms-full.txt - Complete HeroUI v3 context for AI assistants
+**References**: 
+- https://v3.heroui.com/llms-full.txt - Complete HeroUI v3 context for AI assistants
+- Use `get_docs` tool to fetch specific documentation pages from v3.heroui.com/docs/react/*
 
 ## 🚨 Critical Rules - MUST READ
 
@@ -135,13 +137,13 @@ await mcp.list_components();
 
 // Step 2: Get complete component documentation
 const info = await mcp.get_component_info({
-  component: "Card", // Must be one of the available components
+  components: ["Card"], // Must be one of the available components
 });
 // Returns: description, anatomy, props, examples, styling (latest version)
 
 // Step 3: Get TypeScript prop types
 const props = await mcp.get_component_props({
-  component: "Card",
+  components: ["Card"],
 });
 
 // Step 4: Get implementation examples
@@ -155,6 +157,12 @@ const theme = await mcp.get_theme_info({
   mode: "both", // light, dark, or both
   category: "colors", // colors, spacing, typography, etc.
 });
+
+// Step 6: Fetch documentation guides and principles
+const docs = await mcp.get_docs({
+  path: "/docs/react/getting-started/theming", // Use exact paths from available docs
+});
+// Returns: Complete MDX content from v3.heroui.com
 ```
 
 ### When to Use Each Tool
@@ -168,6 +176,8 @@ const theme = await mcp.get_theme_info({
 | `get_component_source_code`   | View React/TypeScript source code               | "Show me Button source code"           |
 | `get_component_source_styles` | View CSS styles                                 | "Show me Card styles"                  |
 | `get_theme_info`              | Customization, theming                          | "What are the color variables?"        |
+| `get_docs`                    | Documentation guides, principles, release notes | "Show me theming guide"                |
+| `installation`                | Setting up new HeroUI v3 project                | "Install HeroUI in Next.js project"    |
 
 ### Common Workflows
 
@@ -182,7 +192,7 @@ const components = await list_components();
 
 // 2. Get full documentation
 const cardInfo = await get_component_info({
-  component: "Card", // Must be one of the available components
+  components: ["Card"], // Must be one of the available components
 });
 
 // 3. Review anatomy (CRITICAL for compound components)
@@ -194,7 +204,12 @@ const examples = await get_component_examples({
   component: "Card",
 });
 
-// 5. Implement with correct structure
+// 5. Fetch related documentation if needed
+const themingGuide = await get_docs({
+  path: "/docs/react/getting-started/theming",
+});
+
+// 6. Implement with correct structure
 ```
 
 ## Component Architecture
@@ -367,9 +382,14 @@ All HeroUI React components include full keyboard support:
 
 // DEBUGGING: Check component info
 const info = await get_component_info({
-  component: "Card" // This MCP only supports HeroUI React components
+  components: ["Card"] // This MCP only supports HeroUI React components
 });
 console.log(info.anatomy); // See required structure
+
+// Or fetch documentation for troubleshooting
+const troubleshootingDocs = await get_docs({
+  path: "/docs/react/getting-started/troubleshooting",
+});
 ```
 
 #### Styling Not Applied
@@ -399,7 +419,7 @@ const theme = await get_theme_info({
 // PROBLEM: Type errors with props
 // SOLUTION: Get correct types
 const props = await get_component_props({
-  component: "Button",
+  components: ["Button"],
 });
 
 // Use generated types
@@ -437,8 +457,10 @@ interface CustomProps extends ButtonProps {
 
 | HeroUI Version  | MCP Supported | Tailwind CSS | React | React Aria |
 | --------------- | ------------- | ------------ | ----- | ---------- |
-| 3.0.0-alpha.33+ | yes           | v4.0+        | 19.0+ | Latest     |
+| v3 (latest)     | yes           | v4.0+        | 19.0+ | Latest     |
 | 2.x.x           | no            | v3.x         | 17.0+ | N/A        |
+
+**Note:** This MCP always serves the latest HeroUI v3 version. No version parameter is needed or supported.
 
 ### Component Checklist
 
@@ -448,7 +470,8 @@ Before implementing any component:
 2. ✅ Query `get_component_info` - Understand anatomy
 3. ✅ Query `get_component_props` - Get correct props
 4. ✅ Query `get_component_examples` - See patterns
-5. ✅ Use compound components - Not flat props
+5. ✅ Query `get_docs` - Fetch guides and principles if needed
+6. ✅ Use compound components - Not flat props
 
 ## Resources
 
@@ -456,6 +479,7 @@ Before implementing any component:
 - **GitHub Repository**: https://github.com/heroui-inc/heroui/tree/v3
 - **Discord Community**: https://discord.gg/9b6yyZKmH4
 - **AI Context**: https://v3.heroui.com/llms-full.txt
+- **Documentation Tool**: Use `get_docs` tool to fetch specific docs from v3.heroui.com/docs/react/*
 
 ---
 

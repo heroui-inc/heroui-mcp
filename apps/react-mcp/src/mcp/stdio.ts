@@ -81,8 +81,8 @@ get_component_info({ component: "Card" })
 
 ### 📚 Development Guidelines
 A comprehensive development guide is available as a resource:
-• Resource name: "heroui-web-rules"
-• Contains: Best practices, common patterns, troubleshooting, MCP tool workflows
+• Resource name: "heroui-react-rules"
+• Contains: Best practices, common patterns, troubleshooting, MCP tool workflows (including get_docs)
 • Include this in context for optimal results
 
 ### Pro Tips

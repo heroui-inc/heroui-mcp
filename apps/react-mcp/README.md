@@ -127,14 +127,14 @@ For better accuracy when working with HeroUI components, add the HeroUI rules fi
 
 ### Cursor / Windsurf / Claude Code
 
-Copy `heroui-web-rules.mdc` to your project's `.cursor/rules/` directory:
+Copy `heroui-react-rules.mdc` to your project's `.cursor/rules/` directory:
 
 ```bash
 # Create rules directory if it doesn't exist
 mkdir -p .cursor/rules
 
-# Copy the HeroUI rules file
-curl -o .cursor/rules/heroui-web-rules.mdc https://raw.githubusercontent.com/heroui-inc/heroui-mcp/main/heroui-web-rules.mdc
+# Copy the HeroUI React rules file
+curl -o .cursor/rules/heroui-react-rules.mdc https://raw.githubusercontent.com/heroui-inc/heroui-mcp/main/apps/react-mcp/heroui-react-rules.mdc
 ```
 
 This provides your AI assistant with:
