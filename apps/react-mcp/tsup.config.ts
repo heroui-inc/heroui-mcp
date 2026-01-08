@@ -27,5 +27,4 @@ export default defineConfig({
     options.pure = ["console.log", "console.info"];
     options.treeShaking = true;
   },
-  onSuccess: "cp heroui-react-rules.mdc dist/",
 });

@@ -39,15 +39,15 @@ A migration tool will be available in the future when v3 reaches stable release.
 For now, v3 should only be used for new projects.
 
 ### Getting Started
-Use the \`installation\` tool for setting up a NEW HeroUI v3 project:
+Use the \`get_docs\` tool to fetch the official installation guide:
 \`\`\`javascript
-installation({ framework: "next-app", packageManager: "npm" })
+get_docs({ path: "/docs/react/getting-started/quick-start" })
 \`\`\`
 
 ### Essential Workflow
 Always follow this order when implementing HeroUI v3 components:
 
-1. **installation** - Set up HeroUI v3 in your project (NEW projects only)
+1. **get_docs** - Fetch installation guide: \`get_docs({ path: "/docs/react/getting-started/quick-start" })\`
 2. **list_components** - Check available v3 components
 3. **get_component_info** - Get complete API and anatomy
 4. **get_component_props** - Review TypeScript types
@@ -76,14 +76,9 @@ get_component_info({ component: "Card" })
 
 ### Available Documentation
 • Components: Use tools to explore v3 components
-• Guides: Use get_docs({ path: "/docs/getting-started" })
+• Installation: Use get_docs({ path: "/docs/react/getting-started/quick-start" }) for setup guides
+• Guides: Use get_docs({ path: "/docs/react/getting-started" }) for other getting-started guides
 • Theme: Use get_theme_variables() for theme variable values, or get_docs({ path: "/docs/react/getting-started/theming" }) for theming guides
-
-### 📚 Development Guidelines
-A comprehensive development guide is available as a resource:
-• Resource name: "heroui-react-rules"
-• Contains: Best practices, common patterns, troubleshooting, MCP tool workflows (including get_docs)
-• Include this in context for optimal results
 
 ### Pro Tips
 • This MCP is for v3 ONLY - v2 docs are at https://heroui.com

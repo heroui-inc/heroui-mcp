@@ -10,12 +10,10 @@ import {getComponentSourceCodeTool} from "./get-component-source-code";
 import {getComponentSourceStylesTool} from "./get-component-source-styles";
 import {getDocsTool} from "./get-docs";
 import {getThemeVariablesTool} from "./get-theme-variables";
-import {installationTool} from "./installation";
 import {listComponentsTool} from "./list-components";
 
 // All available tools
 const tools: Tool[] = [
-  installationTool,
   listComponentsTool,
   getComponentInfoTool,
   getComponentPropsTool,
