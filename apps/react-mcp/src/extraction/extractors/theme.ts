@@ -6,7 +6,6 @@ import type {
   AnimationPreset,
   AnimationTiming,
   CSSVariable,
-  GuideContent,
   ThemeDefinition,
   ThemeSystem,
   ThemeVariables,
@@ -54,30 +53,12 @@ export class ThemeExtractor extends BaseExtractor {
       }
     }
 
-    // Fetch documentation guides
-    console.log("  Fetching documentation guides...");
-    const guides: ThemeSystem["guides"] = {
-      theming: await this.fetchGuide("react/getting-started/(handbook)/theming.mdx"),
-      colors: await this.fetchGuide("react/getting-started/(handbook)/colors.mdx"),
-      styling: await this.fetchGuide("react/getting-started/(handbook)/styling.mdx"),
-      animation: await this.fetchGuide("react/getting-started/(handbook)/animation.mdx"),
-      composition: await this.fetchGuide("react/getting-started/(handbook)/composition.mdx"),
-      designPrinciples: await this.fetchGuide(
-        "react/getting-started/(overview)/design-principles.mdx",
-      ),
-      quickStart: await this.fetchGuide("react/getting-started/(overview)/quick-start.mdx"),
-    };
-
-    const guideCount = Object.values(guides).filter(Boolean).length;
-    console.log(`  ✓ Fetched ${guideCount} documentation guides`);
-
     return {
       data: {
         version,
         themes,
         sharedVariables,
         animations,
-        guides,
       },
     };
   }
@@ -273,76 +254,6 @@ export class ThemeExtractor extends BaseExtractor {
     };
 
     return descriptions[name] || "Custom animation";
-  }
-
-  /**
-   * Fetch and parse MDX documentation
-   */
-  private async fetchGuide(filename: string): Promise<GuideContent | undefined> {
-    try {
-      const url = `${this.githubBase}/apps/docs/content/docs/${filename}`;
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        console.warn(`Failed to fetch guide: ${filename}`);
-
-        return undefined;
-      }
-
-      const content = await response.text();
-
-      // Extract frontmatter
-      const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-      let title = "";
-      let description = "";
-
-      if (frontmatterMatch) {
-        const frontmatter = frontmatterMatch[1];
-        const titleMatch = frontmatter.match(/title:\s*(.+)/);
-        const descMatch = frontmatter.match(/description:\s*(.+)/);
-
-        title = titleMatch ? titleMatch[1].trim() : "";
-        description = descMatch ? descMatch[1].trim() : "";
-      }
-
-      // Remove frontmatter from content
-      const markdownContent = content.replace(/^---\n[\s\S]*?\n---\n/, "");
-
-      return {
-        title,
-        description,
-        content: markdownContent,
-        examples: this.extractExamples(markdownContent),
-      };
-    } catch (error) {
-      console.warn(`Error fetching guide ${filename}:`, error);
-
-      return undefined;
-    }
-  }
-
-  /**
-   * Extract code examples from markdown
-   */
-  private extractExamples(
-    markdown: string,
-  ): Array<{title: string; language: string; code: string}> {
-    const examples: Array<{title: string; language: string; code: string}> = [];
-
-    // Match code blocks with optional title
-    const codeBlockRegex = /```(\w+)(?:\s+(.+))?\n([\s\S]*?)```/g;
-    let match;
-
-    while ((match = codeBlockRegex.exec(markdown)) !== null) {
-      const [, language, title, code] = match;
-      examples.push({
-        title: title || `${language} example`,
-        language,
-        code: code.trim(),
-      });
-    }
-
-    return examples;
   }
 
   /**

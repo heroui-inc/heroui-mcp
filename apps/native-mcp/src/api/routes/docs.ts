@@ -8,6 +8,7 @@ import type {HonoContext} from "../types/context";
 import {Hono} from "hono";
 
 import {CACHE_CONTROL} from "../constants";
+import {getComponentService} from "../services/component";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 
 const docs = new Hono<HonoContext>();
@@ -190,6 +191,10 @@ docs.get("/content", async (c) => {
   let path: string | undefined = undefined;
 
   try {
+    // Fetch latest version for response
+    const componentService = await getComponentService(c.env);
+    const version = (await componentService.getLatestVersion("heroui-native")) || "latest";
+
     path = c.req.query("path");
 
     if (!path) {
@@ -260,6 +265,7 @@ docs.get("/content", async (c) => {
             url: urlWithoutExt,
             content,
             contentType: retryResponse.headers.get("content-type") || "text/plain",
+            version,
           });
         }
 
@@ -311,6 +317,7 @@ docs.get("/content", async (c) => {
     return c.json({
       path,
       url: docUrl,
+      version,
       content,
       contentType,
     });

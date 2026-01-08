@@ -111,21 +111,6 @@ class ThemeService {
   }
 
   /**
-   * Get a specific guide
-   */
-  async getGuide(
-    guideName: keyof ThemeSystem["guides"],
-    version?: string,
-  ): Promise<ThemeSystem["guides"][typeof guideName] | null> {
-    const themeSystem = await this.getThemeSystem(version);
-    if (!themeSystem || !themeSystem.guides[guideName]) {
-      return null;
-    }
-
-    return themeSystem.guides[guideName];
-  }
-
-  /**
    * Get animations (timings and presets)
    */
   async getAnimations(version?: string): Promise<ThemeSystem["animations"] | null> {

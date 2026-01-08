@@ -2,6 +2,7 @@ import type {HonoContext} from "../types/context";
 
 import {Hono} from "hono";
 
+import {getComponentService} from "../services/component";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 
 const docs = new Hono<HonoContext>();
@@ -135,6 +136,10 @@ docs.get("/content", async (c) => {
   let path: string | undefined = undefined;
 
   try {
+    // Fetch latest version for response
+    const componentService = await getComponentService(c.env);
+    const version = (await componentService.getLatestVersion("heroui-react")) || "latest";
+
     path = c.req.query("path");
 
     if (!path) {
@@ -213,6 +218,7 @@ docs.get("/content", async (c) => {
             url: urlWithoutExt,
             content,
             contentType: retryResponse.headers.get("content-type") || "text/plain",
+            version,
           });
         }
 
@@ -263,6 +269,7 @@ docs.get("/content", async (c) => {
       url: docUrl,
       content,
       contentType,
+      version,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
