@@ -54,18 +54,16 @@ export class ComponentExtractor extends BaseExtractor {
     // Extract components
     const components: NativeComponentDataset = {};
 
-    // Add delay between requests to avoid rate limiting
+    // Process components in parallel with concurrency limit
+    const CONCURRENCY = process.env.GITHUB_TOKEN ? 10 : 3;
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-    const DELAY_MS = process.env.GITHUB_TOKEN ? 100 : 500;
+    const DELAY_MS = process.env.GITHUB_TOKEN ? 50 : 200;
 
-    for (const filePath of docFiles) {
+    const processFile = async (filePath: string): Promise<void> => {
       try {
         console.log(`   Processing ${filePath}...`);
 
-        await delay(DELAY_MS);
-
         const content = await this.github.fetchFile("heroui-inc", "heroui-native", filePath, ref);
-
         const component = await this.parser.parseContent(content, filePath);
 
         if (component && Object.keys(component.props).length > 0) {
@@ -84,6 +82,17 @@ export class ComponentExtractor extends BaseExtractor {
         }
       } catch (error) {
         console.log(`      ❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`);
+      }
+    };
+
+    // Process files in batches with concurrency limit
+    for (let i = 0; i < docFiles.length; i += CONCURRENCY) {
+      const batch = docFiles.slice(i, i + CONCURRENCY);
+      await Promise.allSettled(batch.map(processFile));
+
+      // Small delay between batches to avoid rate limiting
+      if (i + CONCURRENCY < docFiles.length) {
+        await delay(DELAY_MS);
       }
     }
 
