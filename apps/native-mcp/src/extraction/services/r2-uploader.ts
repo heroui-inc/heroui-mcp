@@ -4,12 +4,7 @@
  * Handles uploading extracted component data to Cloudflare R2
  */
 
-import {
-  GetObjectCommand,
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import {GetObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
 export interface R2Config {
   accountId: string;
@@ -34,54 +29,6 @@ export class R2Uploader {
         secretAccessKey: config.secretAccessKey,
       },
     });
-  }
-
-  /**
-   * Upload component data to R2
-   * Stores in: native/components/{version}.json
-   */
-  async uploadComponentData(version: string, data: unknown): Promise<void> {
-    const key = `native/components/${version}.json`;
-    const body = JSON.stringify(data, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Uploaded ${key} to R2`);
-    } catch (error) {
-      console.error(`❌ Failed to upload ${key}:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Upload theme data to R2
-   * Stores in: native/theme/{version}.json
-   */
-  async uploadThemeData(version: string, data: unknown): Promise<void> {
-    const key = `native/theme/${version}.json`;
-    const body = JSON.stringify(data, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Uploaded ${key} to R2`);
-    } catch (error) {
-      console.error(`❌ Failed to upload ${key}:`, error);
-      throw error;
-    }
   }
 
   /**
@@ -164,54 +111,25 @@ export class R2Uploader {
     }
   }
 
-  /**
-   * Check if a version exists
-   */
-  async versionExists(type: "components" | "theme", version: string): Promise<boolean> {
-    const key = `native/${type}/${version}.json`;
+  async uploadDocsPaths(categories: any[]): Promise<void> {
+    const key = "native/docs-paths.json";
+    const data = {
+      categories,
+      paths: categories.flatMap((cat) => cat.docs.map((doc: any) => doc.path)),
+    };
 
     try {
       await this.client.send(
-        new GetObjectCommand({
+        new PutObjectCommand({
           Bucket: this.bucketName,
           Key: key,
+          Body: JSON.stringify(data, null, 2),
+          ContentType: "application/json",
         }),
       );
-
-      return true;
-    } catch (error: any) {
-      if (error.name === "NoSuchKey") {
-        return false;
-      }
-      throw error;
-    }
-  }
-
-  /**
-   * List all versions
-   */
-  async listVersions(type: "components" | "theme"): Promise<string[]> {
-    const prefix = `native/${type}/`;
-
-    try {
-      const response = await this.client.send(
-        new ListObjectsV2Command({
-          Bucket: this.bucketName,
-          Prefix: prefix,
-        }),
-      );
-
-      if (!response.Contents) {
-        return [];
-      }
-
-      const versions = response.Contents.map((obj) => obj.Key || "")
-        .filter((key) => key.endsWith(".json"))
-        .map((key) => key.replace(prefix, "").replace(".json", ""));
-
-      return versions.sort().reverse();
+      console.log(`✅ Uploaded ${key} to R2`);
     } catch (error) {
-      console.error(`❌ Failed to list versions:`, error);
+      console.error(`❌ Failed to upload ${key}:`, error);
       throw error;
     }
   }

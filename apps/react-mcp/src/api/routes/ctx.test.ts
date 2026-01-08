@@ -123,14 +123,14 @@ describe("Context API", () => {
       }
     });
 
-    it("should fetch llms.txt from HeroUI v3 docs", async () => {
+    it("should fetch react/llms.txt from HeroUI v3 docs", async () => {
       const res = await SELF.fetch("http://localhost:8787/ctx");
       const data = (await res.json()) as any;
 
       if (res.status === 200 && data.docs.paths.length > 0) {
-        // Verify that paths start with /docs/
+        // Verify that paths start with /docs/react/
         data.docs.paths.forEach((path: string) => {
-          expect(path).toMatch(/^\/docs\//);
+          expect(path).toMatch(/^\/docs\/react\//);
         });
       }
     });
@@ -144,7 +144,7 @@ describe("Context API", () => {
       expect(responseTime).toBeLessThan(5000);
     });
 
-    it("should handle llms.txt parsing errors gracefully", async () => {
+    it("should handle react/llms.txt parsing errors gracefully", async () => {
       const res = await SELF.fetch("http://localhost:8787/ctx");
       const data = (await res.json()) as any;
 

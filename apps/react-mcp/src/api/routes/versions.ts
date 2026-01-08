@@ -16,16 +16,13 @@ versions.get("/", async (c) => {
 
   try {
     const service = await getComponentService(c.env);
-    const heroUIVersions = await service.listVersions("heroui-react");
-    const latestVersionFromMetadata = await service.getLatestVersion("heroui-react");
-    const latestVersion = latestVersionFromMetadata || heroUIVersions[0] || "unknown";
+    const latestVersion = (await service.getLatestVersion("heroui-react")) || "latest";
 
     analytics.track({
       event: AnalyticsEvent.GET_VERSIONS,
       properties: {
         endpoint,
         latestVersion,
-        availableCount: heroUIVersions.length,
         mcpVersion: packageJson.version,
         responseTime: Date.now() - startTime,
       },
@@ -34,7 +31,7 @@ versions.get("/", async (c) => {
     return c.json({
       herouiReact: {
         latest: latestVersion,
-        versions: heroUIVersions,
+        versions: [latestVersion],
       },
       mcp: {
         current: packageJson.version,

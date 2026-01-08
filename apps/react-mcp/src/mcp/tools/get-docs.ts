@@ -23,7 +23,7 @@ export const getDocsTool: Tool<DocsContext> = {
 Fetches official documentation from v3.heroui.com.
 Returns the complete MDX content of documentation pages.
 Use for understanding concepts, design principles, implementation guides, and version history.
-The path parameter description shows available React documentation paths extracted from v3.heroui.com/llms.txt.
+The path parameter description shows available React documentation paths extracted from v3.heroui.com/react/llms.txt.
 Documentation covers: design principles, getting started, components, theming, colors, styling, animation, release notes.
 IMPORTANT: Always use exact paths shown in the available paths list - DO NOT guess paths.
 Example paths: /docs/react/components/button, /docs/react/getting-started/theming, /docs/react/releases/v3-0-0-beta-3.
@@ -36,18 +36,16 @@ NOTE: For HeroUI Native documentation, use the @heroui/native-mcp server instead
     const rawPathsList = shared?.docPaths || [];
     let availablePaths = "Available React documentation paths:\n\n";
 
-    // Filter and format paths: extract path from URLs, filter out Native paths
+    // Filter and format paths: extract path from URLs if needed
+    // Paths are already filtered to only include /docs/react/ at the source
     const filteredPaths = rawPathsList
       .map((p) => {
-        // Extract path from URL if it's a full URL
+        // Extract path from URL if it's a full URL (defensive check)
         const urlMatch = p.match(/https?:\/\/[^/]+(\/.*)/);
 
         return urlMatch ? urlMatch[1] : p;
       })
-      .filter((p) => {
-        // Only include React paths, exclude Native paths
-        return p.startsWith("/docs/react/") && !p.includes("/native/");
-      })
+      .filter((p) => p.startsWith("/docs/react/"))
       .sort();
 
     if (filteredPaths.length > 0) {

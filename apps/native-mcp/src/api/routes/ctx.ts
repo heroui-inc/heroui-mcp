@@ -18,49 +18,21 @@ ctx.get("/", async (c) => {
     const componentService = await getComponentService(c.env);
     const themeService = await getThemeService(c.env);
 
-    // Fetch all context data in parallel
-    const [components, examples, themes, docsResponse, version] = await Promise.allSettled([
+    const [components, examples, themes, docsData, version] = await Promise.allSettled([
       componentService.listComponents(),
       componentService.listExamples(),
       themeService.getAvailableThemes(),
-      fetch("https://v3.heroui.com/native/llms.txt").then((res) => res.text()),
+      componentService.getDocsPaths(),
       componentService.getLatestVersion(),
     ]);
 
-    // Extract component list
     const componentList = components.status === "fulfilled" ? components.value : [];
-
-    // Extract examples list
     const exampleList = examples.status === "fulfilled" ? examples.value : [];
-
-    // Extract theme list
     const themeList = themes.status === "fulfilled" ? themes.value : ["default"];
 
-    // Parse documentation paths from llms.txt
     const docPaths: string[] = [];
-
-    if (docsResponse.status === "fulfilled") {
-      const content = docsResponse.value;
-      const lines = content.split("\n");
-
-      for (const line of lines) {
-        const trimmedLine = line.trim();
-
-        // Skip empty lines and main headers
-        if (!trimmedLine || trimmedLine === "# Docs") continue;
-
-        // Match documentation entries: - [Title](https://v3.heroui.com/docs/native/...)
-        if (trimmedLine.startsWith("- ")) {
-          const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)/);
-          if (match) {
-            const url = match[2];
-            // Only include Native documentation URLs
-            if (url.includes("/docs/native/")) {
-              docPaths.push(url);
-            }
-          }
-        }
-      }
+    if (docsData.status === "fulfilled" && docsData.value) {
+      docPaths.push(...docsData.value.paths);
     }
 
     // Extract version

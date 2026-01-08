@@ -15,9 +15,8 @@ themes.get("/", async (c) => {
   const analytics = c.get("analytics");
 
   try {
-    const version = c.req.query("version");
     const service = await getThemeService(c.env);
-    const themeSystem = await service.getThemeSystem(version);
+    const themeSystem = await service.getThemeSystem();
 
     if (!themeSystem) {
       analytics.trackError({
@@ -25,26 +24,19 @@ themes.get("/", async (c) => {
         errorEvent: AnalyticsErrorEvent.GET_THEMES_ERROR,
         properties: {
           endpoint,
-          version,
           responseTime: Date.now() - startTime,
         },
       });
 
-      return c.json(
-        {error: `Theme system not available${version ? ` for version ${version}` : ""}`},
-        404,
-      );
+      return c.json({error: "Theme system not available"}, 404);
     }
 
-    // Get the latest version if not specified
     const latestVersion = await service.getLatestVersion();
-    const actualVersion = version || latestVersion || "latest";
 
     analytics.track({
       event: AnalyticsEvent.GET_THEMES,
       properties: {
         endpoint,
-        version: actualVersion,
         latestVersion,
         themesCount: themeSystem.themes ? Object.keys(themeSystem.themes).length : 0,
         responseTime: Date.now() - startTime,
@@ -52,9 +44,8 @@ themes.get("/", async (c) => {
     });
 
     return c.json({
-      ...themeSystem,
-      requestedVersion: version,
-      actualVersion,
+      version: latestVersion || themeSystem.version || "latest",
+      themes: themeSystem.themes ? Object.keys(themeSystem.themes) : [],
       latestVersion,
     });
   } catch (error) {
@@ -86,27 +77,19 @@ themes.get("/variables", async (c) => {
 
   let themeName: string | undefined;
   let mode: "light" | "dark" | undefined;
-  let version: string | undefined;
 
   try {
     themeName = c.req.query("theme");
     mode = c.req.query("mode") as "light" | "dark" | undefined;
-    version = c.req.query("version");
 
     const service = await getThemeService(c.env);
     const latestVersion = await service.getLatestVersion();
-    const actualVersion = version || latestVersion || "latest";
 
-    // If specific theme is requested
     if (themeName) {
       if (mode) {
-        // Get specific mode variables
-        const variables = await service.getThemeVariables(themeName, mode, version);
+        const variables = await service.getThemeVariables(themeName, mode);
         if (!variables) {
-          return c.json(
-            {error: `Theme ${themeName} not found${version ? ` for version ${version}` : ""}`},
-            404,
-          );
+          return c.json({error: `Theme ${themeName} not found`}, 404);
         }
 
         analytics.track({
@@ -115,7 +98,6 @@ themes.get("/variables", async (c) => {
             endpoint,
             theme: themeName,
             mode,
-            version: actualVersion,
             latestVersion,
             responseTime: Date.now() - startTime,
           },
@@ -125,17 +107,12 @@ themes.get("/variables", async (c) => {
           theme: themeName,
           mode,
           variables,
-          version: actualVersion,
           latestVersion,
         });
       } else {
-        // Get both light and dark for specific theme
-        const themeData = await service.getTheme(themeName, version);
+        const themeData = await service.getTheme(themeName);
         if (!themeData) {
-          return c.json(
-            {error: `Theme ${themeName} not found${version ? ` for version ${version}` : ""}`},
-            404,
-          );
+          return c.json({error: `Theme ${themeName} not found`}, 404);
         }
 
         analytics.track({
@@ -144,28 +121,22 @@ themes.get("/variables", async (c) => {
             endpoint,
             theme: themeName,
             mode: "both",
-            version: actualVersion,
             latestVersion,
             responseTime: Date.now() - startTime,
           },
         });
 
-        // Check if optimized structure exists
         const optimized = (themeData as any).optimized;
         if (optimized) {
-          // Return optimized structure with common variables extracted
           return c.json({
             theme: themeName,
             common: optimized.common,
             light: optimized.light,
             dark: optimized.dark,
-            version: actualVersion,
             latestVersion,
           });
         }
 
-        // Fallback: Create optimized structure from standard format
-        // Extract common base and calculated from light mode
         const common = {
           base: themeData.light.base,
           calculated: themeData.light.calculated,
@@ -180,19 +151,16 @@ themes.get("/variables", async (c) => {
           dark: {
             semantic: themeData.dark.semantic,
           },
-          version: actualVersion,
           latestVersion,
         });
       }
     } else {
-      // No specific theme requested - return all themes
-      const availableThemes = await service.getAvailableThemes(version);
+      const availableThemes = await service.getAvailableThemes();
       const themes = [];
 
       for (const name of availableThemes) {
-        const themeData = await service.getTheme(name, version);
+        const themeData = await service.getTheme(name);
         if (themeData) {
-          // Check if optimized structure exists
           const optimized = (themeData as any).optimized;
           if (optimized) {
             themes.push({
@@ -202,7 +170,6 @@ themes.get("/variables", async (c) => {
               dark: optimized.dark,
             });
           } else {
-            // Fallback: Create optimized structure from standard format
             const common = {
               base: themeData.light.base,
               calculated: themeData.light.calculated,
@@ -228,7 +195,6 @@ themes.get("/variables", async (c) => {
           endpoint,
           theme: "all",
           mode: "both",
-          version: actualVersion,
           latestVersion,
           themesCount: themes.length,
           responseTime: Date.now() - startTime,
@@ -238,7 +204,6 @@ themes.get("/variables", async (c) => {
       return c.json({
         themes,
         count: themes.length,
-        version: actualVersion,
         latestVersion,
       });
     }
@@ -251,7 +216,6 @@ themes.get("/variables", async (c) => {
         endpoint,
         themeName,
         mode,
-        version,
         responseTime: Date.now() - startTime,
       },
     });
@@ -274,31 +238,22 @@ themes.get("/colors", async (c) => {
 
   let themeName: string | undefined;
   let mode: "light" | "dark" | undefined;
-  let version: string | undefined;
 
   try {
     themeName = c.req.query("theme");
     mode = c.req.query("mode") as "light" | "dark" | undefined;
-    version = c.req.query("version");
 
     const service = await getThemeService(c.env);
     const latestVersion = await service.getLatestVersion();
-    const actualVersion = version || latestVersion || "latest";
 
-    // If specific theme is requested
     if (themeName) {
       if (mode) {
-        // Specific mode requested - return only that mode
-        const variables = await service.getThemeVariables(themeName, mode, version);
+        const variables = await service.getThemeVariables(themeName, mode);
 
         if (!variables) {
-          return c.json(
-            {error: `Theme ${themeName} not found${version ? ` for version ${version}` : ""}`},
-            404,
-          );
+          return c.json({error: `Theme ${themeName} not found`}, 404);
         }
 
-        // Filter for color variables
         const colorVars = [...variables.semantic, ...variables.base].filter(
           (v) =>
             v.category === "colors" ||
@@ -315,7 +270,6 @@ themes.get("/colors", async (c) => {
             endpoint,
             theme: themeName,
             mode,
-            version: actualVersion,
             latestVersion,
             colorsCount: colorVars.length,
             responseTime: Date.now() - startTime,
@@ -326,22 +280,16 @@ themes.get("/colors", async (c) => {
           theme: themeName,
           mode,
           colors: colorVars,
-          version: actualVersion,
           latestVersion,
         });
       } else {
-        // No mode specified - return both light and dark colors
-        const lightVars = await service.getThemeVariables(themeName, "light", version);
-        const darkVars = await service.getThemeVariables(themeName, "dark", version);
+        const lightVars = await service.getThemeVariables(themeName, "light");
+        const darkVars = await service.getThemeVariables(themeName, "dark");
 
         if (!lightVars || !darkVars) {
-          return c.json(
-            {error: `Theme ${themeName} not found${version ? ` for version ${version}` : ""}`},
-            404,
-          );
+          return c.json({error: `Theme ${themeName} not found`}, 404);
         }
 
-        // Filter for color variables
         const lightColors = [...lightVars.semantic, ...lightVars.base].filter(
           (v) =>
             v.category === "colors" ||
@@ -368,7 +316,6 @@ themes.get("/colors", async (c) => {
             endpoint,
             theme: themeName,
             mode: "both",
-            version: actualVersion,
             latestVersion,
             lightColorsCount: lightColors.length,
             darkColorsCount: darkColors.length,
@@ -380,21 +327,17 @@ themes.get("/colors", async (c) => {
           theme: themeName,
           light: lightColors,
           dark: darkColors,
-          version: actualVersion,
           latestVersion,
         });
       }
     } else {
-      // No specific theme requested - return all themes' colors
-      const availableThemes = await service.getAvailableThemes(version);
+      const availableThemes = await service.getAvailableThemes();
       const themes = [];
 
       for (const name of availableThemes) {
         if (mode) {
-          // Specific mode requested for all themes
-          const variables = await service.getThemeVariables(name, mode, version);
+          const variables = await service.getThemeVariables(name, mode);
           if (variables) {
-            // Filter for color variables
             const colorVars = [...variables.semantic, ...variables.base].filter(
               (v) =>
                 v.category === "colors" ||
@@ -412,12 +355,10 @@ themes.get("/colors", async (c) => {
             });
           }
         } else {
-          // No mode specified - return both light and dark for all themes
-          const lightVars = await service.getThemeVariables(name, "light", version);
-          const darkVars = await service.getThemeVariables(name, "dark", version);
+          const lightVars = await service.getThemeVariables(name, "light");
+          const darkVars = await service.getThemeVariables(name, "dark");
 
           if (lightVars && darkVars) {
-            // Filter for color variables
             const lightColors = [...lightVars.semantic, ...lightVars.base].filter(
               (v) =>
                 v.category === "colors" ||
@@ -453,7 +394,6 @@ themes.get("/colors", async (c) => {
           endpoint,
           theme: "all",
           mode: mode || "both",
-          version: actualVersion,
           latestVersion,
           themesCount: themes.length,
           responseTime: Date.now() - startTime,
@@ -463,7 +403,6 @@ themes.get("/colors", async (c) => {
       return c.json({
         themes,
         count: themes.length,
-        version: actualVersion,
         latestVersion,
       });
     }
@@ -476,7 +415,6 @@ themes.get("/colors", async (c) => {
         endpoint,
         themeName,
         mode,
-        version,
         responseTime: Date.now() - startTime,
       },
     });
@@ -543,14 +481,10 @@ themes.get("/animations", async (c) => {
   const startTime = Date.now();
   const analytics = c.get("analytics");
 
-  let version: string | undefined;
-
   try {
-    version = c.req.query("version");
     const service = await getThemeService(c.env);
     const latestVersion = await service.getLatestVersion();
-    const actualVersion = version || latestVersion || "latest";
-    const animations = await service.getAnimations(version);
+    const animations = await service.getAnimations();
 
     if (!animations) {
       analytics.trackError({
@@ -558,23 +492,18 @@ themes.get("/animations", async (c) => {
         errorEvent: AnalyticsErrorEvent.GET_THEMES_ERROR,
         properties: {
           endpoint,
-          version: actualVersion,
           latestVersion,
           responseTime: Date.now() - startTime,
         },
       });
 
-      return c.json(
-        {error: `Animations not available${version ? ` for version ${version}` : ""}`},
-        404,
-      );
+      return c.json({error: "Animations not available"}, 404);
     }
 
     analytics.track({
       event: AnalyticsEvent.GET_THEMES,
       properties: {
         endpoint,
-        version: actualVersion,
         latestVersion,
         responseTime: Date.now() - startTime,
       },
@@ -582,7 +511,6 @@ themes.get("/animations", async (c) => {
 
     return c.json({
       ...animations,
-      version: actualVersion,
       latestVersion,
     });
   } catch (error) {
@@ -592,7 +520,6 @@ themes.get("/animations", async (c) => {
       fallbackMessage: "Failed to get animations",
       properties: {
         endpoint,
-        version,
         responseTime: Date.now() - startTime,
       },
     });

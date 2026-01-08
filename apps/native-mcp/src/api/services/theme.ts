@@ -36,12 +36,9 @@ class ThemeService {
   /**
    * Get the complete theme system data
    */
-  async getThemeSystem(version?: string): Promise<ThemeSystem | null> {
+  async getThemeSystem(): Promise<ThemeSystem | null> {
     try {
-      // Use versioned file if version is provided, otherwise use latest
-      const key = version
-        ? `native/theme/${version.replace(/^v/, "")}.json`
-        : "native/latest/theme.json";
+      const key = "native/latest/theme.json";
 
       const response = await this.client.send(
         new GetObjectCommand({
@@ -58,10 +55,7 @@ class ThemeService {
 
       return null;
     } catch (error) {
-      console.error(
-        `Error fetching theme system${version ? ` for version ${version}` : ""}:`,
-        error,
-      );
+      console.error("Error fetching theme system:", error);
 
       return null;
     }
@@ -70,11 +64,8 @@ class ThemeService {
   /**
    * Get a specific theme
    */
-  async getTheme(
-    themeName: string,
-    version?: string,
-  ): Promise<ThemeSystem["themes"][string] | null> {
-    const themeSystem = await this.getThemeSystem(version);
+  async getTheme(themeName: string): Promise<ThemeSystem["themes"][string] | null> {
+    const themeSystem = await this.getThemeSystem();
     if (!themeSystem || !themeSystem.themes[themeName]) {
       return null;
     }
@@ -85,8 +76,8 @@ class ThemeService {
   /**
    * Get available theme names
    */
-  async getAvailableThemes(version?: string): Promise<string[]> {
-    const themeSystem = await this.getThemeSystem(version);
+  async getAvailableThemes(): Promise<string[]> {
+    const themeSystem = await this.getThemeSystem();
     if (!themeSystem) {
       return [];
     }
@@ -100,9 +91,8 @@ class ThemeService {
   async getThemeVariables(
     themeName: string,
     mode: "light" | "dark",
-    version?: string,
   ): Promise<ThemeSystem["themes"][string]["light"] | null> {
-    const theme = await this.getTheme(themeName, version);
+    const theme = await this.getTheme(themeName);
     if (!theme) {
       return null;
     }

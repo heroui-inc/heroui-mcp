@@ -4,12 +4,7 @@
  * Handles uploading extracted component data to Cloudflare R2
  */
 
-import {
-  GetObjectCommand,
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import {GetObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
 export interface R2Config {
   accountId: string;
@@ -34,54 +29,6 @@ export class R2Uploader {
         secretAccessKey: config.secretAccessKey,
       },
     });
-  }
-
-  /**
-   * Upload component data to R2
-   * Stores in: react/components/{version}.json
-   */
-  async uploadComponentData(version: string, data: unknown): Promise<void> {
-    const key = `react/components/${version}.json`;
-    const body = JSON.stringify(data, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Uploaded ${key} to R2`);
-    } catch (error) {
-      console.error(`❌ Failed to upload ${key}:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Upload theme data to R2
-   * Stores in: react/theme/{version}.json
-   */
-  async uploadThemeData(version: string, data: unknown): Promise<void> {
-    const key = `react/theme/${version}.json`;
-    const body = JSON.stringify(data, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Uploaded ${key} to R2`);
-    } catch (error) {
-      console.error(`❌ Failed to upload ${key}:`, error);
-      throw error;
-    }
   }
 
   /**
@@ -164,9 +111,6 @@ export class R2Uploader {
     }
   }
 
-  /**
-   * Upload generic data to R2
-   */
   async uploadData(key: string, data: any): Promise<void> {
     try {
       await this.client.send(
@@ -184,91 +128,25 @@ export class R2Uploader {
     }
   }
 
-  /**
-   * List all versions for a library
-   */
-  async listVersions(library: string): Promise<string[]> {
-    const prefix = `react/${library}/`;
-
-    try {
-      const response = await this.client.send(
-        new ListObjectsV2Command({
-          Bucket: this.bucketName,
-          Prefix: prefix,
-        }),
-      );
-
-      if (!response.Contents) {
-        return [];
-      }
-
-      const versions = response.Contents.map((obj) => obj.Key || "")
-        .filter((key) => key.endsWith(".json"))
-        .map((key) => key.replace(prefix, "").replace(".json", ""));
-
-      // Sort versions semantically (newest first)
-      return versions.sort((a, b) => {
-        // Remove 'v' prefix for comparison
-        const versionA = a.replace(/^v/, "");
-        const versionB = b.replace(/^v/, "");
-
-        // Split into parts for semantic comparison
-        const partsA = versionA.split(/[.-]/).map((p) => {
-          const num = parseInt(p, 10);
-
-          return isNaN(num) ? p : num;
-        });
-        const partsB = versionB.split(/[.-]/).map((p) => {
-          const num = parseInt(p, 10);
-
-          return isNaN(num) ? p : num;
-        });
-
-        // Compare each part
-        for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
-          const partA = partsA[i] ?? 0;
-          const partB = partsB[i] ?? 0;
-
-          // Handle string vs number comparison
-          if (typeof partA === "string" && typeof partB === "string") {
-            if (partA < partB) return 1; // Reverse for newest first
-            if (partA > partB) return -1;
-          } else if (typeof partA === "number" && typeof partB === "number") {
-            if (partA < partB) return 1; // Reverse for newest first
-            if (partA > partB) return -1;
-          } else {
-            // Numbers come before strings (e.g., "31" before "alpha")
-            return typeof partA === "number" ? 1 : -1;
-          }
-        }
-
-        return 0;
-      });
-    } catch (error) {
-      console.error(`❌ Failed to list versions:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Check if a version exists
-   */
-  async versionExists(type: "components" | "theme", version: string): Promise<boolean> {
-    const key = `react/${type}/${version}.json`;
+  async uploadDocsPaths(categories: any[]): Promise<void> {
+    const key = "react/docs-paths.json";
+    const data = {
+      categories,
+      paths: categories.flatMap((cat) => cat.docs.map((doc: any) => doc.path)),
+    };
 
     try {
       await this.client.send(
-        new GetObjectCommand({
+        new PutObjectCommand({
           Bucket: this.bucketName,
           Key: key,
+          Body: JSON.stringify(data, null, 2),
+          ContentType: "application/json",
         }),
       );
-
-      return true;
-    } catch (error: any) {
-      if (error.name === "NoSuchKey") {
-        return false;
-      }
+      console.log(`✅ Uploaded ${key} to R2`);
+    } catch (error) {
+      console.error(`❌ Failed to upload ${key}:`, error);
       throw error;
     }
   }

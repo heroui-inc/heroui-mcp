@@ -19,10 +19,8 @@ themes.get("/", async (c) => {
   const analytics = c.get("analytics");
 
   try {
-    const version = c.req.query("version");
-
     const service = await getThemeService(c.env);
-    const themeSystem = await service.getThemeSystem(version);
+    const themeSystem = await service.getThemeSystem();
     const latestVersion = await service.getLatestVersion();
 
     if (!themeSystem) {
@@ -31,38 +29,27 @@ themes.get("/", async (c) => {
         errorEvent: AnalyticsErrorEvent.GET_THEMES_ERROR,
         properties: {
           endpoint,
-          version,
           responseTime: Date.now() - startTime,
         },
       });
 
-      return c.json(
-        {
-          error: "Theme system not found",
-          details: version ? `No theme data for version ${version}` : "No theme data available",
-        },
-        404,
-      );
+      return c.json({error: "Theme system not found"}, 404);
     }
-
-    const actualVersion = version || latestVersion || "unknown";
 
     analytics.track({
       event: AnalyticsEvent.GET_THEMES,
       properties: {
         endpoint,
-        version: actualVersion,
         themes: Object.keys(themeSystem.themes),
         latestVersion: latestVersion || "unknown",
         responseTime: Date.now() - startTime,
       },
     });
 
-    // Set cache headers
-    c.header("Cache-Control", version ? CACHE_CONTROL.VERSIONED : CACHE_CONTROL.LATEST);
+    c.header("Cache-Control", CACHE_CONTROL.LATEST);
 
     return c.json({
-      version: actualVersion,
+      version: latestVersion || themeSystem.version || "latest",
       themes: Object.keys(themeSystem.themes),
       latestVersion: latestVersion || "unknown",
     });
@@ -95,18 +82,15 @@ themes.get("/variables", async (c) => {
 
   let themeName: string | undefined;
   let mode: "light" | "dark" | undefined;
-  let version: string | undefined;
 
   try {
     themeName = c.req.query("theme") || "default";
     mode = c.req.query("mode") as "light" | "dark" | undefined;
-    version = c.req.query("version");
 
     const service = await getThemeService(c.env);
     const latestVersion = await service.getLatestVersion();
-    const actualVersion = version || latestVersion || "unknown";
 
-    const theme = await service.getTheme(themeName, version);
+    const theme = await service.getTheme(themeName);
 
     if (!theme) {
       analytics.trackError({
@@ -115,16 +99,12 @@ themes.get("/variables", async (c) => {
         properties: {
           endpoint,
           themeName,
-          version: actualVersion,
           latestVersion: latestVersion || "unknown",
           responseTime: Date.now() - startTime,
         },
       });
 
-      return c.json(
-        {error: `Theme "${themeName}" not found${version ? ` for version ${version}` : ""}`},
-        404,
-      );
+      return c.json({error: `Theme "${themeName}" not found`}, 404);
     }
 
     analytics.track({
@@ -133,22 +113,18 @@ themes.get("/variables", async (c) => {
         endpoint,
         theme: themeName,
         mode: mode || "both",
-        version: actualVersion,
         latestVersion: latestVersion || "unknown",
         responseTime: Date.now() - startTime,
       },
     });
 
-    // Set cache headers
-    c.header("Cache-Control", version ? CACHE_CONTROL.VERSIONED : CACHE_CONTROL.LATEST);
+    c.header("Cache-Control", CACHE_CONTROL.LATEST);
 
-    // Return filtered by mode
     if (mode === "light") {
       return c.json({
         theme: themeName,
         mode: "light",
         colors: theme.light.colors,
-        version: actualVersion,
         latestVersion: latestVersion || "unknown",
       });
     } else if (mode === "dark") {
@@ -156,18 +132,15 @@ themes.get("/variables", async (c) => {
         theme: themeName,
         mode: "dark",
         colors: theme.dark.colors,
-        version: actualVersion,
         latestVersion: latestVersion || "unknown",
       });
     } else {
-      // Return both modes
       return c.json({
         theme: themeName,
         light: theme.light,
         dark: theme.dark,
         borderRadius: theme.borderRadius,
         opacity: theme.opacity,
-        version: actualVersion,
         latestVersion: latestVersion || "unknown",
       });
     }
@@ -181,7 +154,6 @@ themes.get("/variables", async (c) => {
         responseTime: Date.now() - startTime,
         themeName,
         mode,
-        version,
       },
     });
 

@@ -33,63 +33,21 @@ ctx.get("/", async (c) => {
     const componentService = await getComponentService(c.env);
     const themeService = await getThemeService(c.env);
 
-    // Fetch all context data in parallel
-    const [components, themes, docsResponse, version] = await Promise.allSettled([
+    const [components, themes, docsData, version] = await Promise.allSettled([
       componentService.listComponents(LIBRARY_NAME),
       themeService.getAvailableThemes(),
-      fetch("https://v3.heroui.com/llms.txt").then((res) => res.text()),
+      componentService.getDocsPaths(),
       componentService.getLatestVersion(LIBRARY_NAME),
     ]);
 
-    // Extract component list
     const componentList = components.status === "fulfilled" ? components.value : [];
-
-    // Extract theme list
     const themeList = themes.status === "fulfilled" ? themes.value : ["default"];
 
-    // Parse documentation paths
     let docPaths: string[] = [];
     let docCategories: DocCategory[] = [];
-
-    if (docsResponse.status === "fulfilled") {
-      const content = docsResponse.value;
-      const categories: DocCategory[] = [];
-      let currentCategory: DocCategory | null = null;
-
-      const lines = content.split("\n");
-
-      for (const line of lines) {
-        const trimmedLine = line.trim();
-
-        // Skip empty lines and main headers
-        if (!trimmedLine || trimmedLine === "# Docs") continue;
-
-        // Category header (starts with ##)
-        if (trimmedLine.startsWith("## ")) {
-          const categoryName = trimmedLine.substring(3).trim();
-          currentCategory = {
-            name: categoryName,
-            docs: [],
-          };
-          categories.push(currentCategory);
-        }
-        // Documentation entry (starts with -)
-        else if (trimmedLine.startsWith("- ") && currentCategory) {
-          // Parse format: - [Title](path): Description
-          const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
-          if (match) {
-            const [, title, path, description = ""] = match;
-            currentCategory.docs.push({
-              title,
-              path,
-              description,
-            });
-          }
-        }
-      }
-
-      docCategories = categories;
-      docPaths = categories.flatMap((cat) => cat.docs.map((doc) => doc.path));
+    if (docsData.status === "fulfilled" && docsData.value) {
+      docCategories = docsData.value.categories;
+      docPaths = docsData.value.paths;
     }
 
     // Extract version

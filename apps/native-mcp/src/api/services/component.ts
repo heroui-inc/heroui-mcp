@@ -9,7 +9,7 @@ import "../lib/domparser-polyfill";
 
 import type {ComponentData, ComponentDataset, VersionInfo} from "@shared/types/data";
 
-import {GetObjectCommand, ListObjectsV2Command, S3Client} from "@aws-sdk/client-s3";
+import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
 import {ErrorCode, ErrorMessages, MCPError} from "../utils/error-handler";
 
@@ -145,17 +145,13 @@ class ComponentService {
   /**
    * List all available components
    */
-  async listComponents(version?: string): Promise<string[]> {
+  async listComponents(): Promise<string[]> {
     try {
-      const versionToUse = version || "latest";
-      const key =
-        versionToUse === "latest"
-          ? "native/latest/components.json"
-          : `native/components/${versionToUse}.json`;
+      const key = "native/latest/components.json";
       const data = await this.getFromR2<ComponentDataset>(key);
 
       if (!data) {
-        throw new Error(`No data found for version ${versionToUse}`);
+        throw new Error(`No data found`);
       }
 
       return Object.keys(data).sort();
@@ -168,13 +164,9 @@ class ComponentService {
   /**
    * List all available examples from component data
    */
-  async listExamples(version?: string): Promise<string[]> {
+  async listExamples(): Promise<string[]> {
     try {
-      const versionToUse = version || "latest";
-      const key =
-        versionToUse === "latest"
-          ? "native/latest/components.json"
-          : `native/components/${versionToUse}.json`;
+      const key = "native/latest/components.json";
       const data = await this.getFromR2<ComponentDataset>(key);
 
       if (!data) {
@@ -206,21 +198,16 @@ class ComponentService {
    */
   async getComponents(
     componentNames: string[],
-    version?: string,
   ): Promise<Array<{component: string; data: ComponentData | null; error?: string}>> {
     try {
-      const versionToUse = version || "latest";
-      const key =
-        versionToUse === "latest"
-          ? "native/latest/components.json"
-          : `native/components/${versionToUse}.json`;
+      const key = "native/latest/components.json";
       const dataset = await this.getFromR2<ComponentDataset>(key);
 
       if (!dataset) {
         return componentNames.map((name) => ({
           component: name,
           data: null,
-          error: `No data found for version ${versionToUse}`,
+          error: `No data found`,
         }));
       }
 
@@ -256,13 +243,9 @@ class ComponentService {
   /**
    * Get all components
    */
-  async getAllComponents(version?: string): Promise<ComponentDataset | null> {
+  async getAllComponents(): Promise<ComponentDataset | null> {
     try {
-      const versionToUse = version || "latest";
-      const key =
-        versionToUse === "latest"
-          ? "native/latest/components.json"
-          : `native/components/${versionToUse}.json`;
+      const key = "native/latest/components.json";
       const data = await this.getFromR2<ComponentDataset>(key);
 
       return data;
@@ -308,46 +291,11 @@ class ComponentService {
    */
   async listVersions(): Promise<string[]> {
     try {
-      // List all objects in the native/components directory to get actual versions
-      const command = new ListObjectsV2Command({
-        Bucket: this.bucketName,
-        Prefix: "native/components/",
-        Delimiter: "/",
-      });
+      const versionInfo = await this.getVersionInfo();
+      const nativeVersion = versionInfo["heroui-native"];
 
-      const response = await this.s3Client.send(command);
-
-      if (!response.Contents || response.Contents.length === 0) {
-        // Fallback to metadata if no version files found
-        const versionInfo = await this.getVersionInfo();
-        const nativeVersion = versionInfo["heroui-native"];
-
-        if (nativeVersion?.current) {
-          return [nativeVersion.current, "latest"];
-        }
-
-        return ["latest"];
-      }
-
-      // Extract version numbers from file keys
-      const versions = response.Contents.map((obj) => obj.Key || "")
-        .filter((key) => key.endsWith(".json"))
-        .map((key) => {
-          // Extract version from path like "native/components/v0.1.0-alpha.1.json"
-          const match = key.match(/^native\/components\/(.+)\.json$/);
-
-          return match ? match[1] : null;
-        })
-        .filter((v): v is string => v !== null)
-        .sort((a, b) => {
-          // Sort versions properly (newest first)
-          // Handle semantic versioning with alpha/beta tags
-          return this.compareVersions(b, a);
-        });
-
-      // Return the latest version first
-      if (versions.length > 0) {
-        return [versions[0], "latest"];
+      if (nativeVersion?.current) {
+        return [nativeVersion.current];
       }
 
       return ["latest"];
@@ -356,55 +304,6 @@ class ComponentService {
 
       return ["latest"];
     }
-  }
-
-  /**
-   * Compare semantic versions including pre-release tags
-   */
-  private compareVersions(a: string, b: string): number {
-    // Remove 'v' prefix if present
-    const cleanA = a.replace(/^v/, "");
-    const cleanB = b.replace(/^v/, "");
-
-    // Parse semantic version parts
-    const parseVersion = (v: string) => {
-      const match = v.match(/^(\d+)\.(\d+)\.(\d+)(?:-(alpha|beta|rc)\.(\d+))?/);
-      if (!match) return {major: 0, minor: 0, patch: 0, prerelease: "", prereleaseNum: 0};
-
-      return {
-        major: parseInt(match[1], 10),
-        minor: parseInt(match[2], 10),
-        patch: parseInt(match[3], 10),
-        prerelease: match[4] || "",
-        prereleaseNum: parseInt(match[5] || "0", 10),
-      };
-    };
-
-    const vA = parseVersion(cleanA);
-    const vB = parseVersion(cleanB);
-
-    // Compare major.minor.patch
-    if (vA.major !== vB.major) return vA.major - vB.major;
-    if (vA.minor !== vB.minor) return vA.minor - vB.minor;
-    if (vA.patch !== vB.patch) return vA.patch - vB.patch;
-
-    // If one is stable and other is prerelease, stable wins
-    if (!vA.prerelease && vB.prerelease) return 1;
-    if (vA.prerelease && !vB.prerelease) return -1;
-
-    // Both are prerelease, compare type (alpha < beta < rc)
-    if (vA.prerelease && vB.prerelease) {
-      const order = {alpha: 0, beta: 1, rc: 2};
-      const orderA = order[vA.prerelease as keyof typeof order] ?? 0;
-      const orderB = order[vB.prerelease as keyof typeof order] ?? 0;
-
-      if (orderA !== orderB) return orderA - orderB;
-
-      // Same prerelease type, compare numbers
-      return vA.prereleaseNum - vB.prereleaseNum;
-    }
-
-    return 0;
   }
 
   /**
@@ -440,11 +339,64 @@ class ComponentService {
     }
   }
 
-  /**
-   * Clear cache
-   */
   clearCache(): void {
     this.cache.clear();
+  }
+
+  async getDocsPaths(): Promise<{categories: any[]; paths: string[]} | null> {
+    try {
+      const key = "native/docs-paths.json";
+      const data = await this.getFromR2<{categories: any[]; paths: string[]}>(key);
+
+      if (data) {
+        return data;
+      }
+
+      const response = await fetch("https://v3.heroui.com/native/llms.txt");
+      if (!response.ok) {
+        return null;
+      }
+
+      const content = await response.text();
+      const categories: any[] = [];
+      let currentCategory: any = null;
+
+      const lines = content.split("\n");
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        if (!trimmedLine || trimmedLine === "# Docs") continue;
+
+        if (trimmedLine.startsWith("## ")) {
+          const categoryName = trimmedLine.substring(3).trim();
+          currentCategory = {
+            name: categoryName,
+            docs: [],
+          };
+          categories.push(currentCategory);
+        } else if (trimmedLine.startsWith("- ") && currentCategory) {
+          const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
+          if (match) {
+            const [, title, path, description = ""] = match;
+            if (path.startsWith("/docs/native/")) {
+              currentCategory.docs.push({
+                title,
+                path,
+                description,
+              });
+            }
+          }
+        }
+      }
+
+      return {
+        categories,
+        paths: categories.flatMap((cat) => cat.docs.map((doc: any) => doc.path)),
+      };
+    } catch (error) {
+      console.error("Error getting docs paths:", error);
+
+      return null;
+    }
   }
 }
 

@@ -60,39 +60,18 @@ export abstract class BaseExtractor {
    */
   abstract getStorageType(): "components" | "theme";
 
-  /**
-   * Run the extraction and upload process
-   */
-  async run(force: boolean = false, specificVersion?: string): Promise<void> {
+  async run(): Promise<void> {
     const startTime = Date.now();
     console.log(`🚀 Starting ${this.getStorageKey()} extraction...`);
 
     try {
-      // Get version from GitHub first (or use specific version if provided)
-      const githubVersion = specificVersion || (await this.getVersionFromGitHub());
+      const githubVersion = await this.getVersionFromGitHub();
       const versionWithPrefix = githubVersion.startsWith("v") ? githubVersion : `v${githubVersion}`;
 
-      console.log(`📍 Target version: ${versionWithPrefix}`);
+      console.log(`📍 Version: ${versionWithPrefix}`);
 
       const storageType = this.getStorageType();
 
-      // Check if version exists in R2 (unless forced)
-      if (!force) {
-        console.log("🔍 Checking if version exists in R2...");
-        const exists = await this.r2.versionExists(storageType, versionWithPrefix);
-        if (exists) {
-          console.log(
-            `ℹ️  Version ${versionWithPrefix} already exists in R2. Use --force to overwrite.`,
-          );
-
-          return;
-        }
-        console.log("✓ Version not found in R2, proceeding with extraction");
-      } else {
-        console.log("⚠️  Force flag detected, skipping version check");
-      }
-
-      // Extract data from GitHub
       console.log("🔄 Starting extraction from GitHub...");
       const {data} = await this.extract();
 
@@ -101,26 +80,58 @@ export abstract class BaseExtractor {
         process.exit(1);
       }
 
-      // Log extraction results
       if (storageType === "components" && typeof data === "object") {
-        console.log(
-          `📦 Extracted ${Object.keys(data).length} components for version ${versionWithPrefix}`,
-        );
+        console.log(`📦 Extracted ${Object.keys(data).length} components`);
       } else if (storageType === "theme") {
-        console.log(`📦 Extracted theme system for version ${versionWithPrefix}`);
+        console.log(`📦 Extracted theme system`);
       }
 
-      // Upload versioned data
-      if (storageType === "components") {
-        await this.r2.uploadComponentData(versionWithPrefix, data);
-      } else {
-        await this.r2.uploadThemeData(versionWithPrefix, data);
-      }
-
-      // Upload as latest
       await this.r2.uploadLatestVersion(storageType, data);
 
-      // Update metadata
+      if (storageType === "components") {
+        try {
+          console.log("🔄 Fetching docs paths from llms.txt...");
+          const response = await fetch("https://v3.heroui.com/react/llms.txt");
+          if (response.ok) {
+            const content = await response.text();
+            const categories: any[] = [];
+            let currentCategory: any = null;
+
+            const lines = content.split("\n");
+            for (const line of lines) {
+              const trimmedLine = line.trim();
+              if (!trimmedLine || trimmedLine === "# Docs") continue;
+
+              if (trimmedLine.startsWith("## ")) {
+                const categoryName = trimmedLine.substring(3).trim();
+                currentCategory = {
+                  name: categoryName,
+                  docs: [],
+                };
+                categories.push(currentCategory);
+              } else if (trimmedLine.startsWith("- ") && currentCategory) {
+                const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
+                if (match) {
+                  const [, title, path, description = ""] = match;
+                  if (path.startsWith("/docs/react/")) {
+                    currentCategory.docs.push({
+                      title,
+                      path,
+                      description,
+                    });
+                  }
+                }
+              }
+            }
+
+            await this.r2.uploadDocsPaths(categories);
+            console.log(`✅ Uploaded docs paths to R2`);
+          }
+        } catch (error) {
+          console.warn("⚠️  Failed to fetch/upload docs paths:", error);
+        }
+      }
+
       const metadata = ((await this.r2.getVersionMetadata()) as any) || {};
       const extractDuration = Date.now() - startTime;
       const storageKey = this.getStorageKey();
@@ -132,9 +143,7 @@ export abstract class BaseExtractor {
       };
       await this.r2.updateVersionMetadata(metadata);
 
-      console.log(
-        `✅ Successfully uploaded ${storageKey} data to R2 (version: ${versionWithPrefix})`,
-      );
+      console.log(`✅ Successfully uploaded ${storageKey} data to R2`);
       console.log(`⏱️  Extraction took ${(extractDuration / 1000).toFixed(2)} seconds`);
     } catch (error) {
       console.error("❌ Extraction failed:", error);
