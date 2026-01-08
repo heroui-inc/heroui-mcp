@@ -146,7 +146,7 @@ export const ErrorMessages: Record<
   [ErrorCode.TOOL_NOT_FOUND]: (metadata) => ({
     code: ErrorCode.TOOL_NOT_FOUND,
     message: `Tool not found: ${metadata?.tool}`,
-    userMessage: `Tool "${metadata?.tool}" not found. Available tools: list_components, get_component_info, get_component_props, get_component_examples, get_component_source, get_theme_info`,
+    userMessage: `Tool "${metadata?.tool}" not found. Available tools: list_components, get_component_info, get_component_props, get_component_examples, get_component_source, get_theme_variables`,
     statusCode: 404,
     metadata,
   }),

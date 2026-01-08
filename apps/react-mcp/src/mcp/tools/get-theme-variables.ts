@@ -30,9 +30,9 @@ Defaults to 'both' to show all available variables.`),
 - "all": Return everything (default)`),
 });
 
-export const getThemeInfoTool: Tool = {
-  name: "get_theme_info",
-  description: `Get HeroUI v3 theme CSS variables and design tokens for customization.
+export const getThemeVariablesTool: Tool = {
+  name: "get_theme_variables",
+  description: `Get HeroUI v3 theme variables and design tokens (actual variable values).
 Returns organized CSS custom properties that control the entire design system.
 Variables follow a three-layer system: primitives → semantic → calculated.
 Use for customizing colors, spacing, typography, borders, shadows, animations.
@@ -41,6 +41,7 @@ Apply these in your CSS with :root or theme-specific selectors.
 Example variables: --color-accent, --radius-md, --font-size-body, --spacing-4.
 Category options help filter to specific design aspects.
 Mode options (light/dark) show theme-specific values.
+For theme documentation and guides, use get_docs({ path: "/docs/react/getting-started/theming" }) instead.
 IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
   exec(server, {config, name, description}) {
     const handler = async ({

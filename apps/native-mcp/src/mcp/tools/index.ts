@@ -7,7 +7,7 @@ import {getComponentExamplesTool} from "./get-component-examples";
 import {getComponentInfoTool} from "./get-component-info";
 import {getComponentPropsTool} from "./get-component-props";
 import {getDocsTool} from "./get-docs";
-import {getThemeInfoTool} from "./get-theme-info";
+import {getThemeVariablesTool} from "./get-theme-variables";
 import {listComponentsTool} from "./list-components";
 
 // All available tools
@@ -16,7 +16,7 @@ const tools: Tool[] = [
   getComponentInfoTool,
   getComponentPropsTool,
   getComponentExamplesTool,
-  getThemeInfoTool,
+  getThemeVariablesTool,
   getDocsTool,
 ];
 

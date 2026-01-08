@@ -264,9 +264,9 @@ Get the CSS styles (.css) for HeroUI components.
 }
 ```
 
-### `get_theme_info`
+### `get_theme_variables`
 
-Get HeroUI theme variables with an optimized structure that extracts common variables (base and calculated) shared between light and dark modes.
+Get HeroUI theme variables and design tokens (actual variable values) with an optimized structure that extracts common variables (base and calculated) shared between light and dark modes.
 
 ```javascript
 // Parameters
@@ -276,6 +276,8 @@ Get HeroUI theme variables with an optimized structure that extracts common vari
   category?: "colors" | "typography" | "spacing" | "borders" | "shadows" | "animations" | "all" // Optional
 }
 ```
+
+**Note:** For theming documentation and guides, use `get_docs({ path: "/docs/react/getting-started/theming" })` instead.
 
 ### `get_docs`
 

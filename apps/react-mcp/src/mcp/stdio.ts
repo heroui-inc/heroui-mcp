@@ -77,7 +77,7 @@ get_component_info({ component: "Card" })
 ### Available Documentation
 • Components: Use tools to explore v3 components
 • Guides: Use get_docs({ path: "/docs/getting-started" })
-• Theme: Use get_theme_info() for v3 theming
+• Theme: Use get_theme_variables() for theme variable values, or get_docs({ path: "/docs/react/getting-started/theming" }) for theming guides
 
 ### 📚 Development Guidelines
 A comprehensive development guide is available as a resource:

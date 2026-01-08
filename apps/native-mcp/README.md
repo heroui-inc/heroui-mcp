@@ -210,9 +210,9 @@ Get complete, working code examples for HeroUI Native components.
 }
 ```
 
-### `get_theme_info`
+### `get_theme_variables`
 
-Get HeroUI Native theme colors and design tokens.
+Get HeroUI Native theme variables and design tokens (actual variable values).
 
 ```javascript
 // Parameters
@@ -224,13 +224,15 @@ Get HeroUI Native theme colors and design tokens.
 // Examples
 {
   theme: "default",
-  mode: "light"  // Get only light mode colors
+  mode: "light"  // Get only light mode variables
 }
 {
   theme: "default",
-  mode: "both"  // Get both light and dark mode colors (default)
+  mode: "both"  // Get both light and dark mode variables (default)
 }
 ```
+
+**Note:** For theming documentation and guides, use `get_docs({ path: "/docs/native/getting-started/theming" })` instead.
 
 ### `get_docs`
 

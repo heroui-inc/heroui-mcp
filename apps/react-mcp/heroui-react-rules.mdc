@@ -152,7 +152,7 @@ const examples = await mcp.get_component_examples({
 });
 
 // Step 5: Get theme variables for customization
-const theme = await mcp.get_theme_info({
+const theme = await mcp.get_theme_variables({
   theme: "default",
   mode: "both", // light, dark, or both
   category: "colors", // colors, spacing, typography, etc.
@@ -175,7 +175,7 @@ const docs = await mcp.get_docs({
 | `get_component_examples`      | Implementation patterns                         | "Show me Card examples"                |
 | `get_component_source_code`   | View React/TypeScript source code               | "Show me Button source code"           |
 | `get_component_source_styles` | View CSS styles                                 | "Show me Card styles"                  |
-| `get_theme_info`              | Customization, theming                          | "What are the color variables?"        |
+| `get_theme_variables`          | Get theme variable values                      | "What are the color variable values?"  |
 | `get_docs`                    | Documentation guides, principles, release notes | "Show me theming guide"                |
 | `installation`                | Setting up new HeroUI v3 project                | "Install HeroUI in Next.js project"    |
 
@@ -248,7 +248,7 @@ const themingGuide = await get_docs({
 
 ### CSS Variables Architecture
 
-HeroUI uses a three-layer CSS variable system. Always query with `get_theme_info`:
+HeroUI uses a three-layer CSS variable system. Always query with `get_theme_variables`:
 
 ```css
 /* Layer 1: Base Primitives */
@@ -407,7 +407,7 @@ npm list tailwindcss  // Should show v4.x.x
 
 
 // CHECK 3: CSS variables loaded
-const theme = await get_theme_info({
+const theme = await get_theme_variables({
   category: "all"
 });
 // Apply missing variables

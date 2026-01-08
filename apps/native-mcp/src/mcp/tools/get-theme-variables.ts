@@ -5,11 +5,12 @@ import {z} from "zod";
 
 import {fetchApi} from "../lib/fetch";
 
-export const getThemeInfoTool: Tool<ThemeContext> = {
-  name: "get_theme_info",
-  description: `Get HeroUI Native theme colors and design tokens.
-Returns theme colors in HSL format for light and dark modes.
-Use this tool to understand theme structure and color token organization.`,
+export const getThemeVariablesTool: Tool<ThemeContext> = {
+  name: "get_theme_variables",
+  description: `Get HeroUI Native theme variables and design tokens.
+Returns theme variable values (colors, border radius, opacity) in HSL format for light and dark modes.
+Use this tool to get actual theme variable values for customization.
+For theme documentation and guides, use get_docs({ path: "/docs/native/getting-started/theming" }) instead.`,
 
   async ctx(shared) {
     return {
@@ -110,7 +111,7 @@ Returns color tokens for the specified mode(s).`,
           content: [
             {
               type: "text" as const,
-              text: `Error: Unable to get theme information. ${error instanceof Error ? error.message : "Unknown error"}`,
+              text: `Error: Unable to get theme variables. ${error instanceof Error ? error.message : "Unknown error"}`,
             },
           ],
         };

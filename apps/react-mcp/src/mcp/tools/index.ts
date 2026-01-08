@@ -9,7 +9,7 @@ import {getComponentPropsTool} from "./get-component-props";
 import {getComponentSourceCodeTool} from "./get-component-source-code";
 import {getComponentSourceStylesTool} from "./get-component-source-styles";
 import {getDocsTool} from "./get-docs";
-import {getThemeInfoTool} from "./get-theme-info";
+import {getThemeVariablesTool} from "./get-theme-variables";
 import {installationTool} from "./installation";
 import {listComponentsTool} from "./list-components";
 
@@ -22,7 +22,7 @@ const tools: Tool[] = [
   getComponentExamplesTool,
   getComponentSourceCodeTool,
   getComponentSourceStylesTool,
-  getThemeInfoTool,
+  getThemeVariablesTool,
   getDocsTool,
 ];
 

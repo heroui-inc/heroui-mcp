@@ -71,7 +71,7 @@ get_component_info({ components: ["Button"] })
 
 ### Available Documentation
 • Components: Use tools to explore Native components
-• Theme: Use get_theme_info() for theming
+• Theme: Use get_theme_variables() for theme variable values, or get_docs({ path: "/docs/native/getting-started/theming" }) for theming guides
 • Installation: Use get_docs({ path: "/docs/native/getting-started/quick-start" }) for setup guides
 • Guides: Use get_docs() to fetch any documentation page from v3.heroui.com/docs/native/*
 
