@@ -16,7 +16,7 @@ Example workflow: list_components → get_component_info → get_component_examp
 Note: v3 is BETA - component list may change before stable release.`,
   exec(server, {config, name, description}) {
     // Register tool
-    server.tool(name, description, {}, async () => {
+    server.registerTool(name, {description}, async () => {
       try {
         // Direct API call
         const data = await fetchApi<{components: string[]; latestVersion: string}>(

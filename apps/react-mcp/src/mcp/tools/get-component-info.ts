@@ -186,6 +186,6 @@ DO NOT guess names - always verify with list_components first.`),
     };
 
     // Register tool
-    server.tool(name, description, inputSchema.shape, handler as any);
+    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
   },
 };

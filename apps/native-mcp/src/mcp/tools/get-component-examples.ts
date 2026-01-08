@@ -98,6 +98,6 @@ Study the examples carefully - they show the correct React Native patterns.`),
     };
 
     // Register tool
-    server.tool(name, description, inputSchema.shape, handler as any);
+    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
   },
 };

@@ -55,7 +55,7 @@ export const heroUIReactRulesResource: Resource = {
       }
     };
 
-    server.resource(
+    server.registerResource(
       "heroui-react-rules",
       "file:///heroui-react-rules.mdc",
       {

@@ -222,6 +222,6 @@ Requested path: ${path}`,
       }
     };
 
-    server.tool(name, description, inputSchema.shape, handler as any);
+    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
   },
 };

@@ -144,7 +144,7 @@ IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
     };
 
     // Register tool
-    server.tool(name, description, inputSchema.shape, handler as any);
+    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
   },
 };
 

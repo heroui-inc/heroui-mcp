@@ -379,6 +379,6 @@ See README.md [Components section](https://github.com/heroui-inc/heroui-native/b
       };
     };
 
-    server.tool(name, description, inputSchema.shape, handler as any);
+    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
   },
 };
