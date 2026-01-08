@@ -12,60 +12,54 @@ interface DocsContext {
 
 export const getDocsTool: Tool<DocsContext> = {
   name: "get_docs",
-  description: `Get HeroUI Native documentation content for guides and component docs.
-Fetches official documentation from GitHub (heroui-native repository README.md).
-Only supports documentation links from the ## Documentation and ## Changelog sections (### subsections).
-Returns the complete markdown content of documentation pages.
-Use for understanding concepts, configuration, theming, and component usage.
-The path parameter description shows ALL available documentation paths.
-Documentation covers: core setup (provider, theming, fonts), all components, changelog.
+  description: `Get HeroUI v3 Native documentation content for guides, principles, component docs, and release notes.
+Fetches official documentation from v3.heroui.com.
+Returns the complete MDX content of documentation pages.
+Use for understanding concepts, design principles, implementation guides, and version history.
+The path parameter description shows available Native documentation paths extracted from v3.heroui.com/native/llms.txt.
+Documentation covers: design principles, getting started, components, theming, colors, styling, animation, release notes.
 IMPORTANT: Always use exact paths shown in the available paths list - DO NOT guess paths.
-Example paths: /docs/core/provider, /docs/components/button, /docs/changelog.
-Returns markdown content which may include code examples and API references.`,
+Example paths: /docs/native/components/button, /docs/native/getting-started/theming, /docs/native/releases/beta-11.
+All Native documentation paths start with /docs/native/ prefix.
+Returns MDX content which may include code examples and explanations.
+This is v3 beta documentation - ensure you're working with HeroUI Native v3, not v2.`,
 
   async ctx(shared) {
     const pathsList = shared?.docPaths || [];
-    let availablePaths = "Available documentation paths:\n\n";
+    let availablePaths =
+      "Available Native documentation paths extracted from v3.heroui.com/native/llms.txt:\n\n";
 
     if (pathsList.length > 0) {
-      // Group paths by category based on URL structure
-      const categories: Record<string, string[]> = {
-        CORE: [],
-        COMPONENTS: [],
-        CHANGELOG: [],
-        OTHER: [],
-      };
+      // Filter to only include Native documentation paths and extract path parts
+      const filteredPaths = pathsList
+        .map((p) => {
+          // Extract path from full URL if needed
+          const urlMatch = p.match(/https?:\/\/[^/]+(\/docs\/native\/.*)/);
 
-      pathsList.forEach((path) => {
-        if (path.includes("/core/")) {
-          categories.CORE.push(path);
-        } else if (path.includes("/components/")) {
-          categories.COMPONENTS.push(path);
-        } else if (path.includes("/changelog")) {
-          categories.CHANGELOG.push(path);
-        } else {
-          categories.OTHER.push(path);
-        }
-      });
+          return urlMatch ? urlMatch[1] : p;
+        })
+        .filter((p) => {
+          // Only include Native docs paths
+          return p.startsWith("/docs/native/") && !p.includes("/react/");
+        })
+        .sort();
 
-      // Format available paths for display
-      Object.entries(categories).forEach(([category, paths]) => {
-        if (paths.length > 0) {
-          availablePaths += `${category}:\n`;
-          paths.forEach((path) => {
-            availablePaths += `  - ${path}\n`;
-          });
-          availablePaths += "\n";
-        }
-      });
+      if (filteredPaths.length > 0) {
+        filteredPaths.forEach((path) => {
+          availablePaths += `  - ${path}\n`;
+        });
+      } else {
+        availablePaths =
+          "Documentation paths available (examples):\n  - /docs/native/components/button\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/beta-11";
+      }
     } else {
-      availablePaths +=
-        "Documentation paths available (examples):\n  - /docs/core/provider\n  - /docs/components/button\n  - /docs/changelog\n";
+      availablePaths =
+        "Documentation paths available (examples):\n  - /docs/native/components/button\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/beta-11";
     }
 
     return {
       availablePaths,
-      pathsList,
+      pathsList: pathsList, // Return original pathsList for other uses
     };
   },
 
@@ -74,9 +68,11 @@ Returns markdown content which may include code examples and API references.`,
     const inputSchema = z.object({
       path: z.string().describe(`The exact documentation path to fetch.
 Must be one of the paths listed below - DO NOT guess paths.
-Paths always start with /docs/.
-Component docs use pattern: /docs/components/{component-name}
-Core docs use pattern: /docs/core/{topic}
+All Native documentation paths start with /docs/native/ prefix.
+Component docs use pattern: /docs/native/components/{component-name}
+Getting started docs use pattern: /docs/native/getting-started/{topic}
+Release notes use pattern: /docs/native/releases/{version} (e.g., /docs/native/releases/beta-11)
+For backward compatibility, old paths like /docs/components/{name} and /docs/core/{topic} are automatically transformed.
 
 ${ctx.availablePaths}`),
     });
@@ -116,14 +112,55 @@ ${ctx.availablePaths}`),
       } catch (error) {
         // Check if it's a 404 error
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        const is404 = errorMessage.includes("404") || errorMessage.includes("not found");
+        const statusCode = (error as any)?.status;
+        const is404 =
+          statusCode === 404 || errorMessage.includes("404") || errorMessage.includes("not found");
 
         if (is404) {
+          // Filter example paths (exclude releases/changelogs, prioritize components/getting-started)
+          const examplePaths = ctx.pathsList
+            .map((p) => {
+              const urlMatch = p.match(/https?:\/\/[^/]+(\/docs\/native\/.*)/);
+
+              return urlMatch ? urlMatch[1] : p;
+            })
+            .filter((p) => {
+              const lower = p.toLowerCase();
+
+              return (
+                p.startsWith("/docs/native/") &&
+                !lower.includes("/releases/") &&
+                !lower.includes("/changelog") &&
+                !lower.includes("release")
+              );
+            })
+            .sort((a, b) => {
+              // Prioritize components and getting-started
+              const aIsComponent = a.includes("/components/");
+              const bIsComponent = b.includes("/components/");
+              const aIsGettingStarted = a.includes("/getting-started/");
+              const bIsGettingStarted = b.includes("/getting-started/");
+
+              if (aIsComponent && !bIsComponent) return -1;
+              if (!aIsComponent && bIsComponent) return 1;
+              if (aIsGettingStarted && !bIsGettingStarted) return -1;
+              if (!aIsGettingStarted && bIsGettingStarted) return 1;
+
+              return a.localeCompare(b);
+            })
+            // Limit to 8 examples
+            .slice(0, 8);
+
+          const examplesText =
+            examplePaths.length > 0
+              ? examplePaths.map((p) => `  - ${p}`).join("\n")
+              : "  - /docs/native/components/button\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/beta-11";
+
           return {
             content: [
               {
                 type: "text" as const,
-                text: `Error: Documentation not found at path: ${path}\n\nAvailable paths:\n${ctx.pathsList.slice(0, 10).join("\n")}\n\nUse one of these paths or check the description for more available paths.`,
+                text: `Error: Documentation not found at path: ${path}\n\nExample paths (these are examples, not an exhaustive list):\n${examplesText}\n\nAll Native documentation paths start with /docs/native/ prefix.`,
               },
             ],
           };

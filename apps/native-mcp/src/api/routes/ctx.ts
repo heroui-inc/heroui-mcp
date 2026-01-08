@@ -23,9 +23,7 @@ ctx.get("/", async (c) => {
       componentService.listComponents(),
       componentService.listExamples(),
       themeService.getAvailableThemes(),
-      fetch("https://raw.githubusercontent.com/heroui-inc/heroui-native/beta/README.md").then(
-        (res) => res.text(),
-      ),
+      fetch("https://v3.heroui.com/native/llms.txt").then((res) => res.text()),
       componentService.getLatestVersion(),
     ]);
 
@@ -38,41 +36,26 @@ ctx.get("/", async (c) => {
     // Extract theme list
     const themeList = themes.status === "fulfilled" ? themes.value : ["default"];
 
-    // Parse documentation paths (simple extraction from README)
+    // Parse documentation paths from llms.txt
     const docPaths: string[] = [];
 
     if (docsResponse.status === "fulfilled") {
       const content = docsResponse.value;
       const lines = content.split("\n");
-      let inDocSection = false;
-      let inChangelogSection = false;
 
       for (const line of lines) {
         const trimmedLine = line.trim();
 
-        // Track if we're in Documentation or Changelog sections
-        if (trimmedLine.startsWith("## Documentation")) {
-          inDocSection = true;
-          inChangelogSection = false;
-          continue;
-        } else if (trimmedLine.startsWith("## Changelog")) {
-          inChangelogSection = true;
-          inDocSection = false;
-          continue;
-        } else if (trimmedLine.startsWith("## ") && !trimmedLine.startsWith("### ")) {
-          // Reset when hitting another main section
-          inDocSection = false;
-          inChangelogSection = false;
-        }
+        // Skip empty lines and main headers
+        if (!trimmedLine || trimmedLine === "# Docs") continue;
 
-        // Extract links from these sections
-        if (inDocSection || inChangelogSection) {
-          // Match markdown links: [text](url)
-          const linkMatches = trimmedLine.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g);
-          for (const match of linkMatches) {
+        // Match documentation entries: - [Title](https://v3.heroui.com/docs/native/...)
+        if (trimmedLine.startsWith("- ")) {
+          const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)/);
+          if (match) {
             const url = match[2];
-            // Only include GitHub URLs
-            if (url.startsWith("https://github.com/heroui-inc/heroui-native")) {
+            // Only include Native documentation URLs
+            if (url.includes("/docs/native/")) {
               docPaths.push(url);
             }
           }
