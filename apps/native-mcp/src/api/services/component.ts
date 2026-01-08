@@ -345,7 +345,7 @@ class ComponentService {
 
   async getDocsPaths(): Promise<{categories: any[]; paths: string[]} | null> {
     try {
-      const key = "native/docs-paths.json";
+      const key = "native/latest/docs-paths.json";
       let data: {categories: any[]; paths: string[]} | null = null;
 
       try {
@@ -383,7 +383,12 @@ class ComponentService {
         } else if (trimmedLine.startsWith("- ") && currentCategory) {
           const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
           if (match) {
-            const [, title, path, description = ""] = match;
+            const [, title, url, description = ""] = match;
+            // Extract path from URL (handle both full URLs and relative paths)
+            let path = url;
+            if (url.startsWith("https://v3.heroui.com")) {
+              path = url.replace("https://v3.heroui.com", "");
+            }
             if (path.startsWith("/docs/native/")) {
               currentCategory.docs.push({
                 title,

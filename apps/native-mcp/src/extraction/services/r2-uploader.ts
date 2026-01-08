@@ -112,7 +112,7 @@ export class R2Uploader {
   }
 
   async uploadDocsPaths(categories: any[]): Promise<void> {
-    const key = "native/docs-paths.json";
+    const key = "native/latest/docs-paths.json";
     const data = {
       categories,
       paths: categories.flatMap((cat) => cat.docs.map((doc: any) => doc.path)),

@@ -112,7 +112,12 @@ export abstract class BaseExtractor {
               } else if (trimmedLine.startsWith("- ") && currentCategory) {
                 const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
                 if (match) {
-                  const [, title, path, description = ""] = match;
+                  const [, title, url, description = ""] = match;
+                  // Extract path from URL (handle both full URLs and relative paths)
+                  let path = url;
+                  if (url.startsWith("https://v3.heroui.com")) {
+                    path = url.replace("https://v3.heroui.com", "");
+                  }
                   if (path.startsWith("/docs/react/")) {
                     currentCategory.docs.push({
                       title,
