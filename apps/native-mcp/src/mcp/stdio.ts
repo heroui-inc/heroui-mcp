@@ -16,10 +16,13 @@ import {initializeTools} from "./tools";
  * Create and configure the MCP server
  */
 async function createServer(): Promise<McpServer> {
-  const server = new McpServer({
-    name: packageInfo.name,
-    version: packageInfo.version,
-    instructions: `## HeroUI Native MCP Tools - React Native Component Documentation
+  const server = new McpServer(
+    {
+      name: packageInfo.name,
+      version: packageInfo.version,
+    },
+    {
+      instructions: `## HeroUI Native MCP Tools - React Native Component Documentation
 
 Welcome to HeroUI Native MCP! These tools provide documentation for **HeroUI Native** React Native components.
 
@@ -79,12 +82,13 @@ get_component_info({ components: ["Button"] })
 • Report issues at: https://github.com/heroui-inc/heroui-native/issues
 
 For complete guidelines: https://github.com/heroui-inc/heroui-native/blob/beta/README.md`,
-    capabilities: {
-      tools: {
-        listChanged: true,
+      capabilities: {
+        tools: {
+          listChanged: true,
+        },
       },
     },
-  });
+  );
 
   // Initialize tools from the tools directory
   await initializeTools(server, {

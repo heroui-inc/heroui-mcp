@@ -17,10 +17,13 @@ import {initializeTools} from "./tools";
  * Create and configure the MCP server
  */
 async function createServer(): Promise<McpServer> {
-  const server = new McpServer({
-    name: packageInfo.name,
-    version: packageInfo.version,
-    instructions: `## HeroUI React MCP Tools - v3 Beta Documentation
+  const server = new McpServer(
+    {
+      name: packageInfo.name,
+      version: packageInfo.version,
+    },
+    {
+      instructions: `## HeroUI React MCP Tools - v3 Beta Documentation
 
 These tools provide documentation for **HeroUI v3 (Beta)** React components.
 
@@ -90,13 +93,14 @@ A comprehensive development guide is available as a resource:
 
 For v3 guidelines: https://v3.heroui.com/llms-full.txt
 For v2 documentation: https://heroui.com (not supported by this MCP)`,
-    capabilities: {
-      tools: {
-        listChanged: true,
+      capabilities: {
+        tools: {
+          listChanged: true,
+        },
+        resources: {},
       },
-      resources: {},
     },
-  });
+  );
 
   // Initialize tools from the tools directory
   await initializeTools(server, {
