@@ -7,6 +7,8 @@ import type {ComponentDataset} from "../../shared/types/data";
 import type {GitHubClient} from "../services/github-client";
 
 import {SimpleGitHubClient} from "../services/github-client";
+import {parseLlmsTxt} from "../utils/llms-parser";
+import {findComponentFilePath} from "../utils/url-to-path";
 
 import {BaseExtractor} from "./base";
 import {HeroUIParser} from "./heroui-parser";
@@ -52,51 +54,67 @@ export class ComponentExtractor extends BaseExtractor {
   }
 
   async extract(): Promise<{data: ComponentDataset}> {
-    console.log("🔍 Extracting heroui-react from GitHub...");
+    console.log("🔍 Extracting heroui-react from llms.txt...");
     console.log("📍 Repository: heroui-inc/heroui@v3");
 
-    // Get documentation files
-    const docFiles = await this.github.getDocsFiles(
-      "heroui-inc",
-      "heroui",
-      "apps/docs/content/docs/react/components",
-      "v3",
-    );
+    // Step 1: Fetch llms.txt
+    const llmsResponse = await fetch("https://v3.heroui.com/react/llms.txt");
+    if (!llmsResponse.ok) {
+      throw new Error(`Failed to fetch llms.txt: ${llmsResponse.status}`);
+    }
+    const llmsContent = await llmsResponse.text();
 
-    console.log(`📄 Found ${docFiles.length} documentation files`);
+    // Step 2: Parse component URLs
+    const componentUrls = parseLlmsTxt(llmsContent);
+    console.log(`📄 Found ${componentUrls.length} components in llms.txt`);
 
-    // Extract components
+    // Step 3: Convert URLs to file paths and fetch
     const components: Record<string, ComponentDefinition> = {};
-
-    // Process components in parallel with concurrency limit
     const CONCURRENCY = process.env.GITHUB_TOKEN ? 10 : 3;
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     const DELAY_MS = process.env.GITHUB_TOKEN ? 50 : 200;
 
-    const processFile = async (filePath: string): Promise<void> => {
+    const processComponent = async (componentUrl: {
+      title: string;
+      url: string;
+      description?: string;
+      category?: string;
+    }): Promise<void> => {
       try {
-        console.log(`   Processing ${filePath}...`);
+        // Extract component name from URL
+        const componentName = componentUrl.url.split("/").pop() || componentUrl.title;
 
+        // Find the actual file path (handles category folders)
+        const filePath = await findComponentFilePath(this.github, componentUrl.url, componentName);
+
+        if (!filePath) {
+          console.log(`   ⚠️  File not found for ${componentName}`);
+
+          return;
+        }
+
+        console.log(`   Processing ${componentName}...`);
+
+        // Fetch and parse the file
         const content = await this.github.fetchFile("heroui-inc", "heroui", filePath, "v3");
         const component = await this.parser.parseContent(content, filePath);
 
         if (component && component.name) {
           components[component.name] = component;
         } else {
-          console.log("      ⚠️  (component name not found)");
+          console.log(`      ⚠️  (component name not found)`);
         }
       } catch (error) {
         console.log(`      ❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`);
       }
     };
 
-    // Process files in batches with concurrency limit
-    for (let i = 0; i < docFiles.length; i += CONCURRENCY) {
-      const batch = docFiles.slice(i, i + CONCURRENCY);
-      await Promise.allSettled(batch.map(processFile));
+    // Process components in batches
+    for (let i = 0; i < componentUrls.length; i += CONCURRENCY) {
+      const batch = componentUrls.slice(i, i + CONCURRENCY);
+      await Promise.allSettled(batch.map(processComponent));
 
-      // Small delay between batches to avoid rate limiting
-      if (i + CONCURRENCY < docFiles.length) {
+      if (i + CONCURRENCY < componentUrls.length) {
         await delay(DELAY_MS);
       }
     }

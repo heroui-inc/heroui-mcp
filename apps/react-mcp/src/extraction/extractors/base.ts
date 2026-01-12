@@ -94,40 +94,32 @@ export abstract class BaseExtractor {
           const response = await fetch("https://v3.heroui.com/react/llms.txt");
           if (response.ok) {
             const content = await response.text();
-            const categories: any[] = [];
-            let currentCategory: any = null;
+            const {parseAllDocsFromLlmsTxt} = await import("../utils/llms-parser");
+            const docUrls = parseAllDocsFromLlmsTxt(content);
 
-            const lines = content.split("\n");
-            for (const line of lines) {
-              const trimmedLine = line.trim();
-              if (!trimmedLine || trimmedLine === "# Docs") continue;
-
-              if (trimmedLine.startsWith("## ")) {
-                const categoryName = trimmedLine.substring(3).trim();
-                currentCategory = {
-                  name: categoryName,
-                  docs: [],
-                };
-                categories.push(currentCategory);
-              } else if (trimmedLine.startsWith("- ") && currentCategory) {
-                const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
-                if (match) {
-                  const [, title, url, description = ""] = match;
-                  // Extract path from URL (handle both full URLs and relative paths)
-                  let path = url;
-                  if (url.startsWith("https://v3.heroui.com")) {
-                    path = url.replace("https://v3.heroui.com", "");
-                  }
-                  if (path.startsWith("/docs/react/")) {
-                    currentCategory.docs.push({
-                      title,
-                      path,
-                      description,
-                    });
-                  }
-                }
+            // Group by category
+            const categoriesMap = new Map<
+              string,
+              Array<{title: string; path: string; description: string}>
+            >();
+            for (const docUrl of docUrls) {
+              const category = docUrl.category || "General";
+              if (!categoriesMap.has(category)) {
+                categoriesMap.set(category, []);
               }
+              const categoryDocs = categoriesMap.get(category)!;
+              categoryDocs.push({
+                title: docUrl.title,
+                path: docUrl.url,
+                description: docUrl.description || "",
+              });
             }
+
+            // Convert map to array format
+            const categories = Array.from(categoriesMap.entries()).map(([name, docs]) => ({
+              name,
+              docs,
+            }));
 
             await this.r2.uploadDocsPaths(categories);
             console.log(`✅ Uploaded docs paths to R2`);
