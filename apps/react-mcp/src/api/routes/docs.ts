@@ -7,12 +7,14 @@ import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 const docs = new Hono<HonoContext>();
 
 // Get specific documentation content
-docs.get("/:path(*)", async (c) => {
+docs.get("*", async (c) => {
   const endpoint = "get-docs";
   const startTime = Date.now();
   const analytics = c.get("analytics");
 
-  let path = c.req.param("path");
+  // Get the path from the request URL (everything after /docs/)
+  const requestPath = c.req.path;
+  let path = requestPath.startsWith("/docs/") ? requestPath.slice(6) : requestPath.slice(1);
 
   if (!path) {
     analytics.trackError({
@@ -33,26 +35,7 @@ docs.get("/:path(*)", async (c) => {
   }
 
   try {
-    // Ensure path starts with /docs/react/
-    if (!path.startsWith("/docs/react/")) {
-      // Transform paths if needed
-      if (path.startsWith("/docs/")) {
-        // Transform handbook paths to getting-started
-        if (path.startsWith("/docs/handbook/")) {
-          path = path.replace("/docs/handbook/", "/docs/react/getting-started/");
-        } else {
-          path = path.replace("/docs/", "/docs/react/");
-        }
-      } else {
-        // Add /docs/react/ prefix if missing
-        path = `/docs/react/${path}`;
-      }
-    }
-
-    // Add .mdx extension if not present
-    if (!path.endsWith(".mdx") && !path.endsWith(".md")) {
-      path = `${path}.mdx`;
-    }
+    path = `/docs/${path}.mdx`;
 
     const docUrl = `https://v3.heroui.com${path}`;
 

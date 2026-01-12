@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Tool} from "../types";
+import type {DocsContext, Tool} from "../types";
 
 import {z} from "zod";
 
@@ -12,7 +12,7 @@ interface DocContentResponse {
   contentType: string;
 }
 
-export const getDocsTool: Tool = {
+export const getDocsTool: Tool<DocsContext> = {
   name: "get_docs",
   description: `Get HeroUI v3 React documentation content for guides, principles, and release notes (NOT component docs).
 Fetches official documentation from v3.heroui.com.
@@ -26,12 +26,26 @@ Returns MDX content which may include code examples and explanations.
 This is v3 beta documentation - ensure you're working with HeroUI v3, not v2.
 NOTE: For HeroUI Native documentation, use the @heroui/native-mcp server instead.`,
 
-  exec(server, {config, name, description}) {
+  async ctx(shared) {
+    // Filter out component paths - those are handled by get_component_docs
+    const docPaths = (shared?.docPaths || []).filter(
+      (path) => !path.startsWith("/docs/react/components"),
+    );
+
+    return {
+      docPaths,
+    };
+  },
+
+  exec(server, {config, name, description, ctx}) {
+    // Create input schema with dynamic doc paths enum
+    // Fallback to string if not enough paths available (shouldn't happen in production)
+    const pathSchema =
+      ctx.docPaths.length >= 2 ? z.enum(ctx.docPaths as [string, ...string[]]) : z.string();
+
     const inputSchema = z.object({
-      path: z.string().describe(`The documentation path to fetch.
-All React documentation paths start with /docs/react/ prefix.
-Getting started docs use pattern: /docs/react/getting-started/{topic}
-Release notes use pattern: /docs/react/releases/{version} (e.g., /docs/react/releases/v3-0-0-beta-3)
+      path: pathSchema.describe(`The documentation path to fetch.
+DO NOT guess paths - use one of the available paths from the enum.
 NOTE: For component docs, use get_component_docs instead.
 NOTE: Paths containing /native/ are for HeroUI Native docs and require @heroui/native-mcp server.`),
     });
@@ -82,8 +96,14 @@ Requested path: ${path}`,
 
       try {
         // Fetch documentation content from the API
-        // Remove leading slash if present for the API call
-        const apiPath = path.startsWith("/") ? path.slice(1) : path;
+        // The API route is mounted at /docs, so we need to strip /docs/ prefix
+        // Input: /docs/react/getting-started/theming
+        // API expects: react/getting-started/theming (route is /docs/:path(*))
+        const apiPath = path.startsWith("/docs/")
+          ? path.slice(6)
+          : path.startsWith("/")
+            ? path.slice(1)
+            : path;
         const data = await fetchApi<DocContentResponse>(`/docs/${apiPath}`, config.apiBaseUrl);
 
         const {content, url, contentType} = data;

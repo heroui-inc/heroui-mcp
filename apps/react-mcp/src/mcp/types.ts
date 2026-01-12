@@ -17,6 +17,10 @@ export interface ComponentContext {
   componentList: string[];
 }
 
+export interface DocsContext {
+  docPaths: string[];
+}
+
 export interface Tool<T = unknown> {
   name: string;
   description: string;
