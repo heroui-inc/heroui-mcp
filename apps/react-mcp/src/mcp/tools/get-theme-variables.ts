@@ -5,105 +5,36 @@ import {z} from "zod";
 
 import {fetchApi} from "../lib/fetch";
 
-const inputSchema = z.object({
-  theme: z
-    .string()
-    .optional()
-    .describe(
-      `Theme name (default: "default").
-Currently only "default" theme is available in HeroUI v3 beta.
-Leave empty to see all available themes.`,
-    ),
-  mode: z.enum(["light", "dark", "both"]).optional()
-    .describe(`Color mode: "light" for light theme, "dark" for dark theme, "both" for all modes.
-HeroUI v3 supports automatic dark mode with [data-theme="dark"] or .dark class.
-Defaults to 'both' to show all available variables.`),
-  category: z
-    .enum(["colors", "typography", "spacing", "borders", "shadows", "animations", "all"])
-    .optional().describe(`Filter variables by design category:
-- "colors": Color tokens (accent, success, danger, background, foreground)
-- "typography": Font sizes, weights, line heights
-- "spacing": Margin, padding, gap values
-- "borders": Border radius, widths, colors
-- "shadows": Box shadows and elevations
-- "animations": Durations, timing functions
-- "all": Return everything (default)`),
-});
+const inputSchema = z.object({});
 
 export const getThemeVariablesTool: Tool = {
   name: "get_theme_variables",
-  description: `Get HeroUI v3 theme variables and design tokens (actual variable values).
-Returns organized CSS custom properties that control the entire design system.
-Variables follow a three-layer system: primitives → semantic → calculated.
-Use for customizing colors, spacing, typography, borders, shadows, animations.
+  description: `Get HeroUI v3 default theme variables and design tokens (actual variable values).
+Includes both light and dark mode variables for all categories:
+- Colors: Color tokens (accent, success, danger, background, foreground)
+- Typography: Font sizes, weights, line heights
+- Spacing: Margin, padding, gap values
+- Borders: Border radius, widths, colors
+- Shadows: Box shadows and elevations
+- Animations: Durations, timing functions
 Variables use modern oklch() color format for better color manipulation.
 Apply these in your CSS with :root or theme-specific selectors.
 Example variables: --color-accent, --radius-md, --font-size-body, --spacing-4.
-Category options help filter to specific design aspects.
-Mode options (light/dark) show theme-specific values.
-For theme documentation and guides, use get_docs({ path: "/docs/react/getting-started/theming" }) instead.
+For theme documentation and guides, use the get_docs tool instead.
 IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
   exec(server, {config, name, description}) {
-    const handler = async ({
-      theme,
-      mode = "both",
-      category = "all",
-    }: z.infer<typeof inputSchema>) => {
+    const handler = async () => {
       try {
-        // Build query parameters
-        const params = new URLSearchParams();
-        if (theme) params.append("theme", theme);
-        // Only add mode if theme is specified AND mode is not "both" (API doesn't support "both")
-        if (mode && mode !== "both" && theme) params.append("mode", mode);
-        if (category && category !== "all") params.append("category", category);
-
-        const endpoint = `/themes/variables${params.toString() ? `?${params.toString()}` : ""}`;
-
-        const response = await fetchApi<any>(endpoint, config.apiBaseUrl);
+        const response = await fetchApi<any>("/themes/variables?theme=default", config.apiBaseUrl);
 
         // Format the response as structured text
-        let responseText = `# HeroUI Theme Variables\n\n`;
+        let responseText = `# HeroUI Default Theme Variables\n\n`;
+        responseText += `**Theme:** ${response.theme || "default"}\n\n`;
 
-        // Check if response is an array of themes or a single theme
-        if (response.themes && Array.isArray(response.themes)) {
-          // Handle array response (all themes)
-          responseText += `**Available Themes:** ${response.count}\n\n`;
-
-          for (const themeData of response.themes) {
-            responseText += `## Theme: ${themeData.theme}\n\n`;
-            responseText += formatThemeData(themeData, mode, category);
-            responseText += `\n---\n\n`;
-          }
-        } else if (response.theme) {
-          // Handle single theme response
-          responseText += `**Theme:** ${response.theme}\n`;
-          responseText += formatThemeData(response, mode, category);
-        } else if (response.common) {
-          // Legacy handling for direct structure
-          responseText += formatThemeData(response, mode, category);
-        } else {
-          // Fallback to old structure
-          responseText += `**Mode:** ${response.mode || mode}\n\n`;
-
-          if (response.variables?.light && (mode === "light" || mode === "both")) {
-            responseText += formatThemeVariables("Light Mode", response.variables.light, category);
-          }
-
-          if (response.variables?.dark && (mode === "dark" || mode === "both")) {
-            responseText += formatThemeVariables("Dark Mode", response.variables.dark, category);
-          }
-        }
+        responseText += formatThemeData(response);
 
         return {
           content: [
-            // TODO: Add a explanation message which add context about each category/token purpose
-            // e.g
-            /*
-             * {
-             *  type: "text",
-             *  text: `[EXPLAIN TOKENS PURPOSE/CATEGORIES/ETC]`
-             * },
-             */
             {
               type: "text",
               text: responseText,
@@ -115,7 +46,7 @@ IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
           content: [
             {
               type: "text",
-              text: `Error fetching theme info: ${error instanceof Error ? error.message : String(error)}`,
+              text: `Error fetching theme variables: ${error instanceof Error ? error.message : String(error)}`,
             },
           ],
         };
@@ -128,90 +59,68 @@ IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
 };
 
 /**
- * Format theme data with optimized structure
+ * Format theme data - always shows both modes and all categories
  */
-function formatThemeData(themeData: any, mode: string, category: string): string {
+function formatThemeData(themeData: any): string {
   let text = "";
 
   // Handle optimized structure (with common variables)
   if (themeData.common) {
-    text += `**Structure:** Optimized (common variables extracted)\n\n`;
-
     // Format common variables
     if (themeData.common.base?.length > 0 || themeData.common.calculated?.length > 0) {
-      text += `### Common Variables (Shared)\n\n`;
+      text += `## Common Variables (Shared)\n\n`;
 
-      if (themeData.common.base?.length > 0 && (category === "all" || category !== "animations")) {
-        text += `#### Base Variables\n`;
+      if (themeData.common.base?.length > 0) {
+        text += `### Base Variables\n`;
         themeData.common.base.forEach((v: any) => {
-          if (category === "all" || matchesCategory(v, category)) {
-            text += `- **${v.name}**: ${v.value}`;
-            if (v.description) text += ` - ${v.description}`;
-            text += `\n`;
-          }
+          text += `- **${v.name}**: ${v.value}`;
+          if (v.description) text += ` - ${v.description}`;
+          text += `\n`;
         });
         text += `\n`;
       }
 
       if (themeData.common.calculated?.length > 0) {
-        text += `#### Calculated Variables\n`;
+        text += `### Calculated Variables\n`;
         themeData.common.calculated.forEach((v: any) => {
-          if (category === "all" || matchesCategory(v, category)) {
-            text += `- **${v.name}**: ${v.value}`;
-            if (v.description) text += ` - ${v.description}`;
-            text += `\n`;
-          }
+          text += `- **${v.name}**: ${v.value}`;
+          if (v.description) text += ` - ${v.description}`;
+          text += `\n`;
         });
         text += `\n`;
       }
     }
 
     // Format mode-specific semantic variables
-    if (mode === "light" || mode === "both") {
-      if (themeData.light?.semantic?.length > 0) {
-        text += `### Light Mode Semantic Variables\n\n`;
-        themeData.light.semantic.forEach((v: any) => {
-          if (category === "all" || matchesCategory(v, category)) {
-            text += `- **${v.name}**: ${v.value}`;
-            if (v.description) text += ` - ${v.description}`;
-            text += `\n`;
-          }
-        });
+    if (themeData.light?.semantic?.length > 0) {
+      text += `## Light Mode Semantic Variables\n\n`;
+      themeData.light.semantic.forEach((v: any) => {
+        text += `- **${v.name}**: ${v.value}`;
+        if (v.description) text += ` - ${v.description}`;
         text += `\n`;
-      }
+      });
+      text += `\n`;
     }
 
-    if (mode === "dark" || mode === "both") {
-      if (themeData.dark?.semantic?.length > 0) {
-        text += `### Dark Mode Semantic Variables\n\n`;
-        themeData.dark.semantic.forEach((v: any) => {
-          if (category === "all" || matchesCategory(v, category)) {
-            text += `- **${v.name}**: ${v.value}`;
-            if (v.description) text += ` - ${v.description}`;
-            text += `\n`;
-          }
-        });
+    if (themeData.dark?.semantic?.length > 0) {
+      text += `## Dark Mode Semantic Variables\n\n`;
+      themeData.dark.semantic.forEach((v: any) => {
+        text += `- **${v.name}**: ${v.value}`;
+        if (v.description) text += ` - ${v.description}`;
         text += `\n`;
-      }
+      });
+      text += `\n`;
     }
   } else if (themeData.variables) {
     // Handle old structure
-    if (themeData.mode) {
-      text += `**Mode:** ${themeData.mode}\n\n`;
-    }
-
     if (themeData.variables.base?.length > 0) {
-      text += formatThemeVariables("Base Variables", themeData.variables.base, category);
+      text += formatThemeVariables("Base Variables", themeData.variables.base);
     }
     if (themeData.variables.semantic?.length > 0) {
-      text += formatThemeVariables("Semantic Variables", themeData.variables.semantic, category);
+      text += formatThemeVariables("Semantic Variables", themeData.variables.semantic);
     }
     if (themeData.variables.calculated?.length > 0) {
-      text += formatThemeVariables(
-        "Calculated Variables",
-        themeData.variables.calculated,
-        category,
-      );
+      text += formatThemeVariables("Calculated Variables", themeData.variables.calculated);
     }
   }
 
@@ -219,77 +128,15 @@ function formatThemeData(themeData: any, mode: string, category: string): string
 }
 
 /**
- * Check if a variable matches the category filter
- */
-function matchesCategory(variable: any, category: string): boolean {
-  if (category === "all") return true;
-
-  const name = variable.name.toLowerCase();
-  const varCategory = variable.category?.toLowerCase();
-
-  switch (category) {
-    case "colors":
-      return (
-        varCategory === "colors" ||
-        name.includes("color") ||
-        name.includes("accent") ||
-        name.includes("success") ||
-        name.includes("warning") ||
-        name.includes("danger") ||
-        name.includes("background") ||
-        name.includes("foreground")
-      );
-    case "typography":
-      return (
-        varCategory === "typography" ||
-        name.includes("font") ||
-        name.includes("text") ||
-        name.includes("line-height")
-      );
-    case "spacing":
-      return (
-        varCategory === "spacing" ||
-        name.includes("spacing") ||
-        name.includes("margin") ||
-        name.includes("padding") ||
-        name.includes("gap") ||
-        name.includes("size")
-      );
-    case "borders":
-      return (
-        varCategory === "borders" ||
-        name.includes("radius") ||
-        name.includes("border") ||
-        name.includes("divider")
-      );
-    case "shadows":
-      return varCategory === "shadows" || name.includes("shadow");
-    case "animations":
-      return (
-        varCategory === "animation" ||
-        name.includes("duration") ||
-        name.includes("timing") ||
-        name.includes("transition") ||
-        name.includes("ease") ||
-        name.includes("animate")
-      );
-    default:
-      return true;
-  }
-}
-
-/**
  * Format theme variables for display (array of variables)
  */
-function formatThemeVariables(title: string, variables: any[], category: string): string {
-  let text = `### ${title}\n\n`;
+function formatThemeVariables(title: string, variables: any[]): string {
+  let text = `## ${title}\n\n`;
 
   variables.forEach((v: any) => {
-    if (category === "all" || matchesCategory(v, category)) {
-      text += `- **${v.name}**: ${v.value}`;
-      if (v.description) text += ` - ${v.description}`;
-      text += `\n`;
-    }
+    text += `- **${v.name}**: ${v.value}`;
+    if (v.description) text += ` - ${v.description}`;
+    text += `\n`;
   });
 
   text += `\n`;
