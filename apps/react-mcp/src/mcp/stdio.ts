@@ -92,7 +92,6 @@ For v2 documentation: https://heroui.com (not supported by this MCP)`,
         tools: {
           listChanged: true,
         },
-        resources: {},
       },
     },
   );
