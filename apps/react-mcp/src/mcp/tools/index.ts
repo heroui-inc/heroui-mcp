@@ -3,9 +3,7 @@ import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import {getSharedContext} from "../lib/shared-context";
 
-import {getComponentExamplesTool} from "./get-component-examples";
-import {getComponentInfoTool} from "./get-component-info";
-import {getComponentPropsTool} from "./get-component-props";
+import {getComponentDocsTool} from "./get-component-docs";
 import {getComponentSourceCodeTool} from "./get-component-source-code";
 import {getComponentSourceStylesTool} from "./get-component-source-styles";
 import {getDocsTool} from "./get-docs";
@@ -15,9 +13,7 @@ import {listComponentsTool} from "./list-components";
 // All available tools
 const tools: Tool[] = [
   listComponentsTool,
-  getComponentInfoTool,
-  getComponentPropsTool,
-  getComponentExamplesTool,
+  getComponentDocsTool,
   getComponentSourceCodeTool,
   getComponentSourceStylesTool,
   getThemeVariablesTool,
