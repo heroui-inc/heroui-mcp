@@ -59,79 +59,57 @@ IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
 
         const endpoint = `/themes/variables${params.toString() ? `?${params.toString()}` : ""}`;
 
-        try {
-          const response = await fetchApi<any>(endpoint, config.apiBaseUrl);
+        const response = await fetchApi<any>(endpoint, config.apiBaseUrl);
 
-          // Format the response as structured text
-          let responseText = `# HeroUI Theme Variables\n\n`;
+        // Format the response as structured text
+        let responseText = `# HeroUI Theme Variables\n\n`;
 
-          // Check if response is an array of themes or a single theme
-          if (response.themes && Array.isArray(response.themes)) {
-            // Handle array response (all themes)
-            responseText += `**Available Themes:** ${response.count}\n\n`;
+        // Check if response is an array of themes or a single theme
+        if (response.themes && Array.isArray(response.themes)) {
+          // Handle array response (all themes)
+          responseText += `**Available Themes:** ${response.count}\n\n`;
 
-            for (const themeData of response.themes) {
-              responseText += `## Theme: ${themeData.theme}\n\n`;
-              responseText += formatThemeData(themeData, mode, category);
-              responseText += `\n---\n\n`;
-            }
-          } else if (response.theme) {
-            // Handle single theme response
-            responseText += `**Theme:** ${response.theme}\n`;
-            responseText += formatThemeData(response, mode, category);
-          } else if (response.common) {
-            // Legacy handling for direct structure
-            responseText += formatThemeData(response, mode, category);
-          } else {
-            // Fallback to old structure
-            responseText += `**Mode:** ${response.mode || mode}\n\n`;
+          for (const themeData of response.themes) {
+            responseText += `## Theme: ${themeData.theme}\n\n`;
+            responseText += formatThemeData(themeData, mode, category);
+            responseText += `\n---\n\n`;
+          }
+        } else if (response.theme) {
+          // Handle single theme response
+          responseText += `**Theme:** ${response.theme}\n`;
+          responseText += formatThemeData(response, mode, category);
+        } else if (response.common) {
+          // Legacy handling for direct structure
+          responseText += formatThemeData(response, mode, category);
+        } else {
+          // Fallback to old structure
+          responseText += `**Mode:** ${response.mode || mode}\n\n`;
 
-            if (response.variables?.light && (mode === "light" || mode === "both")) {
-              responseText += formatThemeVariables(
-                "Light Mode",
-                response.variables.light,
-                category,
-              );
-            }
-
-            if (response.variables?.dark && (mode === "dark" || mode === "both")) {
-              responseText += formatThemeVariables("Dark Mode", response.variables.dark, category);
-            }
+          if (response.variables?.light && (mode === "light" || mode === "both")) {
+            responseText += formatThemeVariables("Light Mode", response.variables.light, category);
           }
 
-          return {
-            content: [
-              // TODO: Add a explanation message which add context about each category/token purpose
-              // e.g
-              /*
-               * {
-               *  type: "text",
-               *  text: `[EXPLAIN TOKENS PURPOSE/CATEGORIES/ETC]`
-               * },
-               */
-              {
-                type: "text",
-                text: responseText,
-              },
-            ],
-          };
-        } catch (error: any) {
-          if (error.status === 404) {
-            // Fetch available themes dynamically
-            try {
-              const themesResponse = await fetchApi<any>("/themes", config.apiBaseUrl);
-              const availableThemes = themesResponse.themes
-                ? Object.keys(themesResponse.themes).join(", ")
-                : "none";
-              throw new Error(`Theme "${theme}" not found. Available themes: ${availableThemes}`);
-            } catch (error: any) {
-              console.error(error);
-              // Fallback if fetching themes fails
-              throw new Error(`Theme "${theme}" not found. Unable to fetch available themes.`);
-            }
+          if (response.variables?.dark && (mode === "dark" || mode === "both")) {
+            responseText += formatThemeVariables("Dark Mode", response.variables.dark, category);
           }
-          throw error;
         }
+
+        return {
+          content: [
+            // TODO: Add a explanation message which add context about each category/token purpose
+            // e.g
+            /*
+             * {
+             *  type: "text",
+             *  text: `[EXPLAIN TOKENS PURPOSE/CATEGORIES/ETC]`
+             * },
+             */
+            {
+              type: "text",
+              text: responseText,
+            },
+          ],
+        };
       } catch (error) {
         return {
           content: [

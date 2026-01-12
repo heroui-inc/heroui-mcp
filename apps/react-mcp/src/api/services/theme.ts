@@ -101,30 +101,6 @@ class ThemeService {
   }
 
   /**
-   * Get animations (timings and presets)
-   */
-  async getAnimations(): Promise<ThemeSystem["animations"] | null> {
-    const themeSystem = await this.getThemeSystem();
-    if (!themeSystem) {
-      return null;
-    }
-
-    return themeSystem.animations;
-  }
-
-  /**
-   * Get shared variables
-   */
-  async getSharedVariables(): Promise<ThemeSystem["sharedVariables"] | null> {
-    const themeSystem = await this.getThemeSystem();
-    if (!themeSystem) {
-      return null;
-    }
-
-    return themeSystem.sharedVariables;
-  }
-
-  /**
    * Get the latest version
    */
   async getLatestVersion(): Promise<string | null> {

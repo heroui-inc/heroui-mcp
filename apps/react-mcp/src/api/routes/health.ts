@@ -21,12 +21,8 @@ health.get("/", (c) => {
         "Get component source code for multiple components (body: {components: string[]})",
       "POST /components/styles":
         "Get component CSS styles for multiple components (body: {components: string[]})",
-      "/themes": "Get complete theme system (query: version)",
-      "/themes/variables": "Get theme variables (query: theme, mode, version)",
-      "/themes/colors": "Get theme colors (query: theme, mode, version)",
-      "/themes/animations": "Get animation definitions (query: version)",
+      "GET /themes/variables": "Get theme variables (query: theme, mode, version)",
       "GET /docs/:path": "Get documentation content from a specific path",
-      "/versions": "Get version information",
     },
   });
 });

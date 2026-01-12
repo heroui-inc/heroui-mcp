@@ -11,10 +11,7 @@ export enum AnalyticsEvent {
   // Docs
   GET_DOCS = "GET_DOCS",
   // Themes
-  GET_THEMES = "GET_THEMES",
   GET_THEME_VARIABLES = "GET_THEME_VARIABLES",
-  // Versions
-  GET_VERSIONS = "GET_VERSIONS",
 }
 
 export enum AnalyticsErrorEvent {
@@ -31,10 +28,7 @@ export enum AnalyticsErrorEvent {
   // Docs
   GET_DOCS_ERROR = "GET_DOCS_ERROR",
   // Themes
-  GET_THEMES_ERROR = "GET_THEMES_ERROR",
   GET_THEME_VARIABLES_ERROR = "GET_THEME_VARIABLES_ERROR",
-  // Versions
-  GET_VERSIONS_ERROR = "GET_VERSIONS_ERROR",
 }
 
 export interface AnalyticsProperties {

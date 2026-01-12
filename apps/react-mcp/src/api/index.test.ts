@@ -38,8 +38,7 @@ describe("Main API Application", () => {
         "/",
         "/health",
         "/components",
-        "/themes",
-        "/versions",
+        "/themes/variables",
         "/docs/getting-started/theming",
       ];
 
