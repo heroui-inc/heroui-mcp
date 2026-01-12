@@ -12,23 +12,6 @@ import {BaseExtractor} from "./base";
 import {HeroUIParser} from "./heroui-parser";
 
 // Component-specific types
-export interface PropDefinition {
-  name: string;
-  type: string;
-  default?: unknown;
-  description: string;
-}
-
-export interface ComponentExample {
-  name: string;
-  content: string;
-}
-
-export interface CssClass {
-  name: string;
-  description: string;
-}
-
 export interface ComponentSourceLinks {
   source?: string;
   styles?: string;
@@ -37,19 +20,6 @@ export interface ComponentSourceLinks {
 
 export interface ComponentDefinition {
   name: string;
-  description: string;
-  importStatement: string;
-  anatomy?: string;
-  props: Record<string, PropDefinition>;
-  subComponents?: Record<
-    string,
-    {
-      name: string;
-      props: Record<string, PropDefinition>;
-    }
-  >;
-  examples?: ComponentExample[];
-  cssClasses?: CssClass[];
   links?: ComponentSourceLinks;
 }
 
@@ -110,34 +80,10 @@ export class ComponentExtractor extends BaseExtractor {
         const content = await this.github.fetchFile("heroui-inc", "heroui", filePath, "v3");
         const component = await this.parser.parseContent(content, filePath);
 
-        const hasMainProps = component && Object.keys(component.props).length > 0;
-        const hasSubComponentProps =
-          component?.subComponents && Object.keys(component.subComponents).length > 0;
-
-        if (component && (hasMainProps || hasSubComponentProps)) {
+        if (component && component.name) {
           components[component.name] = component;
-
-          if (hasMainProps && hasSubComponentProps) {
-            console.log(
-              `      ✓ ${component.name} (${Object.keys(component.props).length} props + ${Object.keys(component.subComponents || {}).length} sub-components)`,
-            );
-          } else if (hasMainProps) {
-            console.log(`      ✓ ${component.name} (${Object.keys(component.props).length} props)`);
-          } else if (hasSubComponentProps) {
-            console.log(
-              `      ✓ ${component.name} (${Object.keys(component.subComponents || {}).length} sub-components only)`,
-            );
-          }
-
-          if (component.subComponents) {
-            for (const [subName, subComp] of Object.entries(component.subComponents)) {
-              console.log(
-                `        ✓ ${component.name}.${subName} (${Object.keys(subComp.props).length} props)`,
-              );
-            }
-          }
         } else {
-          console.log("      ⚠️  (no props found)");
+          console.log("      ⚠️  (component name not found)");
         }
       } catch (error) {
         console.log(`      ❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`);
