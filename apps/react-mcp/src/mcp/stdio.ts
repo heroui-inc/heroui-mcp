@@ -49,9 +49,9 @@ Always follow this order when implementing HeroUI v3 components:
 
 1. **get_docs** - Fetch installation guide: \`get_docs({ path: "/docs/react/getting-started/quick-start" })\`
 2. **list_components** - Check available v3 components
-3. **get_component_info** - Get complete API and anatomy
-4. **get_component_props** - Review TypeScript types
-5. **get_component_examples** - See usage patterns
+3. **get_component_docs** - Get complete component documentation (API, examples, usage)
+4. **get_component_source_code** - View source code implementation (optional, for learning)
+5. **get_component_source_styles** - View CSS styles (optional, for customization)
 
 ### Key Differences in v3
 • Compound components pattern (e.g., Card.Header, Card.Content)
@@ -60,34 +60,23 @@ Always follow this order when implementing HeroUI v3 components:
 • Built on React Aria Components
 • Modern React 19+ features
 
-### Example Usage
-\`\`\`javascript
-// Check v3 component structure
-get_component_info({ component: "Card" })
-
-// v3 uses compound components (NOT flat props like v2)
-<Card>
-  <Card.Header>
-    <Card.Title>Title</Card.Title>
-  </Card.Header>
-  <Card.Content>Content</Card.Content>
-</Card>
-\`\`\`
+### Available Tools
+• **list_components** - List all available v3 components
+• **get_component_docs** - Get component documentation (API, examples, usage)
+• **get_component_source_code** - Get component source code
+• **get_component_source_styles** - Get component CSS styles
+• **get_docs** - Get general documentation (guides, getting started, etc.)
+• **get_theme_variables** - Get default theme variables and design tokens
 
 ### Available Documentation
-• Components: Use tools to explore v3 components
+• Components: Use get_component_docs to explore v3 components
 • Installation: Use get_docs({ path: "/docs/react/getting-started/quick-start" }) for setup guides
 • Guides: Use get_docs({ path: "/docs/react/getting-started" }) for other getting-started guides
 • Theme: Use get_theme_variables() for theme variable values, or get_docs({ path: "/docs/react/getting-started/theming" }) for theming guides
 
 ### Pro Tips
 • This MCP is for v3 ONLY - v2 docs are at https://heroui.com
-• v3 is BETA - use for experimentation and new projects
-• Migration guide will come with stable v3 release
-• Report v3 issues at: https://github.com/heroui-inc/heroui/issues
-
-For v3 guidelines: https://v3.heroui.com/llms-full.txt
-For v2 documentation: https://heroui.com (not supported by this MCP)`,
+• v3 is BETA - use for experimentation and new projects`,
       capabilities: {
         tools: {
           listChanged: true,
