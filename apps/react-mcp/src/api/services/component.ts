@@ -306,6 +306,46 @@ class ComponentService {
     this.cache.clear();
   }
 
+  /**
+   * Get combined context data from ctx.json
+   */
+  async getContext(): Promise<{
+    components: string[];
+    themes: string[];
+    docs: {
+      paths: string[];
+      categories: Array<{
+        name: string;
+        docs: Array<{title: string; path: string; description: string}>;
+      }>;
+    };
+    version: string;
+    timestamp: number;
+  } | null> {
+    try {
+      const key = "react/latest/ctx.json";
+      const data = await this.getFromR2<{
+        components: string[];
+        themes: string[];
+        docs: {
+          paths: string[];
+          categories: Array<{
+            name: string;
+            docs: Array<{title: string; path: string; description: string}>;
+          }>;
+        };
+        version: string;
+        timestamp: number;
+      }>(key);
+
+      return data;
+    } catch (error) {
+      console.error("Error getting context from ctx.json:", error);
+
+      return null;
+    }
+  }
+
   async getDocsPaths(): Promise<{categories: any[]; paths: string[]} | null> {
     try {
       const key = "react/latest/docs-paths.json";

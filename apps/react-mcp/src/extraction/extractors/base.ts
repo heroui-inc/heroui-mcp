@@ -123,6 +123,42 @@ export abstract class BaseExtractor {
 
             await this.r2.uploadDocsPaths(categories);
             console.log(`✅ Uploaded docs paths to R2`);
+
+            // Create and upload ctx.json with all initialization data
+            console.log("🔄 Creating ctx.json...");
+            const componentDataset = data as Record<string, {name: string}>;
+            const componentList = Object.keys(componentDataset).sort();
+
+            // Get themes (try to read from theme.json, fallback to default)
+            let themes = ["default"];
+            try {
+              const themeData = await this.r2.readData<{themes: Record<string, unknown>}>(
+                "react/latest/theme.json",
+              );
+              if (themeData && themeData.themes) {
+                themes = Object.keys(themeData.themes);
+              }
+            } catch {
+              // Use default themes if theme.json doesn't exist
+            }
+
+            // Get version
+            const version = versionWithPrefix;
+
+            // Create ctx data
+            const ctxData = {
+              components: componentList,
+              themes,
+              docs: {
+                paths: categories.flatMap((cat) => cat.docs.map((doc) => doc.path)),
+                categories,
+              },
+              version,
+              timestamp: Date.now(),
+            };
+
+            await this.r2.uploadContext(ctxData);
+            console.log(`✅ Uploaded ctx.json to R2`);
           }
         } catch (error) {
           console.warn("⚠️  Failed to fetch/upload docs paths:", error);

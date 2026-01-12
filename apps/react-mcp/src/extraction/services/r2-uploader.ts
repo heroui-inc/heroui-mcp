@@ -111,6 +111,33 @@ export class R2Uploader {
     }
   }
 
+  /**
+   * Read data from R2
+   */
+  async readData<T>(key: string): Promise<T | null> {
+    try {
+      const response = await this.client.send(
+        new GetObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+        }),
+      );
+
+      if (response.Body) {
+        const text = await response.Body.transformToString();
+
+        return JSON.parse(text) as T;
+      }
+
+      return null;
+    } catch (error: any) {
+      if (error.name === "NoSuchKey") {
+        return null;
+      }
+      throw error;
+    }
+  }
+
   async uploadData(key: string, data: any): Promise<void> {
     try {
       await this.client.send(
@@ -141,6 +168,42 @@ export class R2Uploader {
           Bucket: this.bucketName,
           Key: key,
           Body: JSON.stringify(data, null, 2),
+          ContentType: "application/json",
+        }),
+      );
+      console.log(`✅ Uploaded ${key} to R2`);
+    } catch (error) {
+      console.error(`❌ Failed to upload ${key}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Upload combined context data for /ctx endpoint
+   * Stores in: react/latest/ctx.json
+   * Contains: components, themes, docs, version, timestamp
+   */
+  async uploadContext(ctxData: {
+    components: string[];
+    themes: string[];
+    docs: {
+      paths: string[];
+      categories: Array<{
+        name: string;
+        docs: Array<{title: string; path: string; description: string}>;
+      }>;
+    };
+    version: string;
+    timestamp: number;
+  }): Promise<void> {
+    const key = "react/latest/ctx.json";
+
+    try {
+      await this.client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+          Body: JSON.stringify(ctxData, null, 2),
           ContentType: "application/json",
         }),
       );
