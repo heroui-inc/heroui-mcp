@@ -93,11 +93,12 @@ export abstract class BaseExtractor {
 
       if (storageType === "components" && typeof data === "object") {
         console.log(`📦 Extracted ${Object.keys(data).length} components`);
+        // Skip uploading components.json - component list is in ctx.json
       } else if (storageType === "theme") {
         console.log(`📦 Extracted theme system`);
+        // Upload theme.json (still needed for theme system data)
+        await this.r2.uploadLatestVersion(storageType, data);
       }
-
-      await this.r2.uploadLatestVersion(storageType, data);
 
       // After component extraction, create and upload ctx.json
       if (storageType === "components") {

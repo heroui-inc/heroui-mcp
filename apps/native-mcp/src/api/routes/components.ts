@@ -16,8 +16,10 @@ components.get("/", async (c) => {
 
   try {
     const service = await getComponentService(c.env);
-    const componentsList = await service.listComponents();
-    const latestVersion = (await service.getLatestVersion()) || "unknown";
+    // Fetch context once - getFromR2() cache ensures subsequent calls in same request reuse it
+    const ctxData = await service.getContext();
+    const componentsList = ctxData?.components?.sort() || [];
+    const latestVersion = ctxData?.version || "unknown";
 
     analytics.track({
       event: AnalyticsEvent.LIST_COMPONENTS,

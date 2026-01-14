@@ -7,8 +7,6 @@
 // Import polyfills first - must be before AWS SDK imports
 import "../lib/domparser-polyfill";
 
-import type {ComponentDataset} from "@shared/types/data";
-
 import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
 import {ErrorCode, ErrorMessages, MCPError} from "../utils/error-handler";
@@ -139,40 +137,6 @@ class ComponentService {
           key,
         }),
       );
-    }
-  }
-
-  /**
-   * List all available components
-   */
-  async listComponents(): Promise<string[]> {
-    try {
-      const key = "native/latest/components.json";
-      const data = await this.getFromR2<ComponentDataset>(key);
-
-      if (!data) {
-        throw new Error(`No data found`);
-      }
-
-      return Object.keys(data).sort();
-    } catch (error) {
-      console.error(`Error listing components:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get the latest version from ctx.json (single source of truth)
-   */
-  async getLatestVersion(): Promise<string | null> {
-    try {
-      const ctxData = await this.getContext();
-
-      return ctxData?.version || null;
-    } catch (error) {
-      console.error("Error getting latest version:", error);
-
-      return null;
     }
   }
 
