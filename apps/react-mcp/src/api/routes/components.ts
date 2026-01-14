@@ -226,7 +226,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
     if (failedComponents.length > 0) {
       analytics.trackError({
         error: failedComponents.map((result) => `${result.component}: ${result.error}`).join(", "),
-        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_ERROR,
+        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
         properties: {
           endpoint,
           components: componentNames,
@@ -237,7 +237,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
       });
     } else {
       analytics.track({
-        event: AnalyticsEvent.GET_COMPONENT_SOURCE,
+        event: AnalyticsEvent.GET_COMPONENT_SOURCE_CODE,
         properties: {
           endpoint,
           components: componentNames,
@@ -254,7 +254,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
   } catch (error) {
     analytics.trackError({
       error,
-      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_ERROR,
+      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
       fallbackMessage: "Failed to get component source code",
       properties: {
         endpoint,
@@ -332,7 +332,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
     if (failedComponents.length > 0) {
       analytics.trackError({
         error: failedComponents.map((result) => `${result.component}: ${result.error}`).join(", "),
-        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_STYLES_ERROR,
+        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
         properties: {
           endpoint,
           components: componentNames,
@@ -343,7 +343,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
       });
     } else {
       analytics.track({
-        event: AnalyticsEvent.GET_COMPONENT_STYLES,
+        event: AnalyticsEvent.GET_COMPONENT_SOURCE_STYLES,
         properties: {
           endpoint,
           components: componentNames,
@@ -360,7 +360,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
   } catch (error) {
     analytics.trackError({
       error,
-      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_STYLES_ERROR,
+      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
       fallbackMessage: "Failed to get component styles",
       properties: {
         endpoint,
