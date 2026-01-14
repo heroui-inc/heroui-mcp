@@ -103,5 +103,4 @@ export class SimpleGitHubClient implements GitHubClient {
       type: item.type === "file" ? "file" : "dir",
     }));
   }
-
 }

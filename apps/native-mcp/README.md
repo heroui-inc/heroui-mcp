@@ -127,27 +127,14 @@ Once configured, you can ask your AI assistant questions like:
 
 - "Show me the HeroUI Native installation guide"
 - "Show me all HeroUI Native components"
-- "What props does the Button component have?"
-- "Give me an example of using the Card component in React Native"
-- "What are the theme variables for dark mode?"
-- "Explain HeroUI Native's color customization guide"
+- "Get the complete documentation for the Button component"
+- "Show me examples of using the Card component in React Native"
+- "What are the theme variables?"
+- "Explain HeroUI Native's theming guide"
 
 ## Available Tools
 
 The MCP server provides these tools to AI assistants:
-
-### `get_docs`
-
-Get HeroUI Native documentation including installation guides, component docs, and guides.
-
-```javascript
-// Get installation guide
-get_docs({ path: "/docs/native/getting-started/quick-start" })
-
-// Get other documentation
-get_docs({ path: "/docs/native/getting-started/theming" })
-get_docs({ path: "/docs/native/components/button" })
-```
 
 ### `list_components`
 
@@ -157,14 +144,14 @@ List all available HeroUI Native components (always returns latest version).
 // No parameters required
 ```
 
-### `get_component_info`
+### `get_component_docs`
 
-Get complete information about HeroUI Native components including description, anatomy, props, subcomponents, and available examples.
+Get complete component documentation (including examples, props, usage) directly from v3.heroui.com. This tool consolidates component information, props, and examples into a single call.
 
 ```javascript
 // Parameters
 {
-  components: ["Button"]  // Required - array of component names
+  components: ["Button"]  // Required - array of component names (case-sensitive)
 }
 
 // Examples
@@ -176,67 +163,11 @@ Get complete information about HeroUI Native components including description, a
 }
 ```
 
-### `get_component_props`
-
-Get detailed prop definitions for HeroUI Native components.
-
-```javascript
-// Parameters
-{
-  components: ["Button"]  // Required - array of component names
-}
-
-// Examples
-{
-  components: ["Button", "Card"]  // Get props for multiple components
-}
-```
-
-### `get_component_examples`
-
-Get complete, working code examples for HeroUI Native components.
-
-**Note:** Example files use kebab-case naming (e.g., "dialog", "dialog-native-modal", "drop-shadow-view").
-
-```javascript
-// Parameters
-{
-  examples: ["button"]  // Required - array of example names (kebab-case, without .tsx extension)
-}
-
-// Examples
-{
-  examples: ["dialog", "dialog-native-modal"]  // Get examples for specific components
-}
-```
-
-### `get_theme_variables`
-
-Get HeroUI Native theme variables and design tokens (actual variable values).
-
-```javascript
-// Parameters
-{
-  theme?: "default",   // Optional, defaults to "default" (only default theme is supported)
-  mode?: "light" | "dark" | "both"  // Optional, defaults to "both"
-}
-
-// Examples
-{
-  theme: "default",
-  mode: "light"  // Get only light mode variables
-}
-{
-  theme: "default",
-  mode: "both"  // Get both light and dark mode variables (default)
-}
-```
-
-**Note:** For theming documentation and guides, use `get_docs({ path: "/docs/native/getting-started/theming" })` instead.
+**Note:** Always use `list_components` first to verify component names before calling this tool.
 
 ### `get_docs`
 
-Get HeroUI Native documentation content for guides and component docs.
+Get HeroUI Native documentation content for guides, principles, and release notes (NOT component docs). Fetches official documentation from v3.heroui.com.
 
 ```javascript
 // Parameters
@@ -246,15 +177,20 @@ Get HeroUI Native documentation content for guides and component docs.
 
 // Examples
 {
-  path: "/docs/core/provider"  // Core documentation
+  path: "/docs/native/getting-started/theming"  // Get theming guide
 }
 {
-  path: "/docs/components/button"  // Component documentation
-}
-{
-  path: "/docs/changelog"  // Changelog
+  path: "/docs/native/getting-started/quick-start"  // Get installation guide
 }
 ```
+
+**Note:** For component documentation, use `get_component_docs` instead. All Native documentation paths start with `/docs/native/` prefix.
+
+### `get_theme_variables`
+
+Get HeroUI Native default theme variables and design tokens (actual variable values). Includes both light and dark mode variables for all categories.
+
+**Note:** For theme documentation and guides, use `get_docs({ path: "/docs/native/getting-started/theming" })` instead.
 
 ## Troubleshooting
 
