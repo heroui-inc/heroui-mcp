@@ -7,7 +7,7 @@ import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 
 const ctx = new Hono<HonoContext>();
 
-// Get initialization context (components, themes, docs paths)
+// Get initialization context (components, docs paths)
 ctx.get("/", async (c) => {
   const endpoint = "get-ctx";
   const startTime = Date.now();
@@ -31,7 +31,6 @@ ctx.get("/", async (c) => {
       properties: {
         endpoint,
         componentsCount: ctxData.components.length,
-        themesCount: ctxData.themes.length,
         docPathsCount: ctxData.docs.paths.length,
         version: ctxData.version,
         responseTime: Date.now() - startTime,
@@ -40,7 +39,6 @@ ctx.get("/", async (c) => {
 
     const response: Record<string, unknown> = {
       components: ctxData.components,
-      themes: ctxData.themes,
       docs: {
         paths: ctxData.docs.paths,
         categories: ctxData.docs.categories,

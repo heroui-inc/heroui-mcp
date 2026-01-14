@@ -7,7 +7,7 @@ import type {ComponentDataset} from "../../shared/types/data";
 import type {GitHubClient} from "../services/github-client";
 
 import {SimpleGitHubClient} from "../services/github-client";
-import {parseLlmsTxt} from "../utils/llms-parser";
+import {parseAllDocsFromLlmsTxt, parseLlmsTxt} from "../utils/llms-parser";
 import {findComponentFilePath} from "../utils/url-to-path";
 
 import {BaseExtractor} from "./base";
@@ -53,9 +53,17 @@ export class ComponentExtractor extends BaseExtractor {
     return "components";
   }
 
-  async extract(): Promise<{data: ComponentDataset}> {
-    console.log("🔍 Extracting heroui-react from llms.txt...");
-    console.log("📍 Repository: heroui-inc/heroui@v3");
+  async extract(): Promise<{
+    data: ComponentDataset;
+    docsPaths?: {
+      paths: string[];
+      categories: Array<{
+        name: string;
+        docs: Array<{title: string; path: string; description: string}>;
+      }>;
+    };
+  }> {
+    console.log("🔍 Extracting HeroUI React components from llms.txt...");
 
     // Step 1: Fetch llms.txt
     const llmsResponse = await fetch("https://v3.heroui.com/react/llms.txt");
@@ -119,8 +127,40 @@ export class ComponentExtractor extends BaseExtractor {
       }
     }
 
+    // Extract docs paths from llms.txt
+    console.log("🔄 Extracting docs paths from llms.txt...");
+    const docUrls = parseAllDocsFromLlmsTxt(llmsContent);
+
+    // Group by category
+    const categoriesMap = new Map<
+      string,
+      Array<{title: string; path: string; description: string}>
+    >();
+    for (const docUrl of docUrls) {
+      const category = docUrl.category || "General";
+      if (!categoriesMap.has(category)) {
+        categoriesMap.set(category, []);
+      }
+      const categoryDocs = categoriesMap.get(category)!;
+      categoryDocs.push({
+        title: docUrl.title,
+        path: docUrl.url,
+        description: docUrl.description || "",
+      });
+    }
+
+    // Convert map to array format
+    const categories = Array.from(categoriesMap.entries()).map(([name, docs]) => ({
+      name,
+      docs,
+    }));
+
     return {
       data: components as ComponentDataset,
+      docsPaths: {
+        paths: categories.flatMap((cat) => cat.docs.map((doc) => doc.path)),
+        categories,
+      },
     };
   }
 }

@@ -149,7 +149,6 @@ class ComponentService {
    */
   async getContext(): Promise<{
     components: string[];
-    themes: string[];
     docs: {
       paths: string[];
       categories: Array<{
@@ -164,7 +163,6 @@ class ComponentService {
       const key = "native/latest/ctx.json";
       const data = await this.getFromR2<{
         components: string[];
-        themes: string[];
         docs: {
           paths: string[];
           categories: Array<{

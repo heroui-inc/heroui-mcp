@@ -99,37 +99,13 @@ export class R2Uploader {
     }
   }
 
-  async uploadDocsPaths(categories: any[]): Promise<void> {
-    const key = "react/latest/docs-paths.json";
-    const data = {
-      categories,
-      paths: categories.flatMap((cat) => cat.docs.map((doc: any) => doc.path)),
-    };
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: JSON.stringify(data, null, 2),
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Uploaded ${key} to R2`);
-    } catch (error) {
-      console.error(`❌ Failed to upload ${key}:`, error);
-      throw error;
-    }
-  }
-
   /**
    * Upload combined context data for /ctx endpoint
    * Stores in: react/latest/ctx.json
-   * Contains: components, themes, docs, version, timestamp
+   * Contains: components, docs, version, timestamp
    */
   async uploadContext(ctxData: {
     components: string[];
-    themes: string[];
     docs: {
       paths: string[];
       categories: Array<{

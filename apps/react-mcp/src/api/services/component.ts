@@ -249,7 +249,6 @@ class ComponentService {
    */
   async getContext(): Promise<{
     components: string[];
-    themes: string[];
     docs: {
       paths: string[];
       categories: Array<{
@@ -264,7 +263,6 @@ class ComponentService {
       const key = "react/latest/ctx.json";
       const data = await this.getFromR2<{
         components: string[];
-        themes: string[];
         docs: {
           paths: string[];
           categories: Array<{
@@ -279,74 +277,6 @@ class ComponentService {
       return data;
     } catch (error) {
       console.error("Error getting context from ctx.json:", error);
-
-      return null;
-    }
-  }
-
-  async getDocsPaths(): Promise<{categories: any[]; paths: string[]} | null> {
-    try {
-      const key = "react/latest/docs-paths.json";
-      let data: {categories: any[]; paths: string[]} | null = null;
-
-      try {
-        data = await this.getFromR2<{categories: any[]; paths: string[]}>(key);
-      } catch (error) {
-        // If R2 fetch fails, fall back to live fetch
-        console.warn(`Failed to fetch docs paths from R2, falling back to live fetch: ${error}`);
-      }
-
-      if (data) {
-        return data;
-      }
-
-      const response = await fetch("https://v3.heroui.com/react/llms.txt");
-      if (!response.ok) {
-        return null;
-      }
-
-      const content = await response.text();
-      const categories: any[] = [];
-      let currentCategory: any = null;
-
-      const lines = content.split("\n");
-      for (const line of lines) {
-        const trimmedLine = line.trim();
-        if (!trimmedLine || trimmedLine === "# Docs") continue;
-
-        if (trimmedLine.startsWith("## ")) {
-          const categoryName = trimmedLine.substring(3).trim();
-          currentCategory = {
-            name: categoryName,
-            docs: [],
-          };
-          categories.push(currentCategory);
-        } else if (trimmedLine.startsWith("- ") && currentCategory) {
-          const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
-          if (match) {
-            const [, title, url, description = ""] = match;
-            // Extract path from URL (handle both full URLs and relative paths)
-            let path = url;
-            if (url.startsWith("https://v3.heroui.com")) {
-              path = url.replace("https://v3.heroui.com", "");
-            }
-            if (path.startsWith("/docs/react/")) {
-              currentCategory.docs.push({
-                title,
-                path,
-                description,
-              });
-            }
-          }
-        }
-      }
-
-      return {
-        categories,
-        paths: categories.flatMap((cat) => cat.docs.map((doc: any) => doc.path)),
-      };
-    } catch (error) {
-      console.error("Error getting docs paths:", error);
 
       return null;
     }

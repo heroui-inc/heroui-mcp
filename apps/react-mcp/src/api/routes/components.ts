@@ -31,11 +31,9 @@ components.get("/", async (c) => {
 
   try {
     const service = await getComponentService(c.env);
-    // Always use latest version
-    const componentsList = await service.listComponents(LIBRARY_NAME);
-
-    // Get the latest version
-    const latestVersion = await service.getLatestVersion();
+    const ctxData = await service.getContext();
+    const componentsList = ctxData?.components?.sort() || [];
+    const latestVersion = ctxData?.version || "unknown";
 
     analytics.track({
       event: AnalyticsEvent.LIST_COMPONENTS,

@@ -22,7 +22,10 @@ export class ThemeExtractor extends BaseExtractor {
     return "theme";
   }
 
-  async extract(): Promise<{data: ThemeSystem}> {
+  async extract(): Promise<{
+    data: ThemeSystem;
+    docsPaths?: undefined;
+  }> {
     console.log("🎨 Extracting HeroUI theme system...");
 
     // Get version from GitHub (same source as components)

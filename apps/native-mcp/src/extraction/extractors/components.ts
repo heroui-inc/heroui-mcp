@@ -4,7 +4,7 @@
 
 import type {NativeComponentDefinition} from "./native-parser";
 
-import {parseLlmsTxt} from "../utils/llms-parser";
+import {parseAllDocsFromLlmsTxt, parseLlmsTxt} from "../utils/llms-parser";
 
 import {BaseExtractor} from "./base";
 import {NativeParser} from "./native-parser";
@@ -31,7 +31,16 @@ export class ComponentExtractor extends BaseExtractor {
     return "components";
   }
 
-  async extract(ref: string = "beta"): Promise<{data: NativeComponentDataset}> {
+  async extract(ref: string = "beta"): Promise<{
+    data: NativeComponentDataset;
+    docsPaths?: {
+      paths: string[];
+      categories: Array<{
+        name: string;
+        docs: Array<{title: string; path: string; description: string}>;
+      }>;
+    };
+  }> {
     console.log("🔍 Extracting HeroUI Native from llms.txt...");
     console.log(`📍 Fetching docs from v3.heroui.com`);
 
@@ -105,8 +114,40 @@ export class ComponentExtractor extends BaseExtractor {
       }
     }
 
+    // Extract docs paths from llms.txt
+    console.log("🔄 Extracting docs paths from llms.txt...");
+    const docUrls = parseAllDocsFromLlmsTxt(llmsContent);
+
+    // Group by category
+    const categoriesMap = new Map<
+      string,
+      Array<{title: string; path: string; description: string}>
+    >();
+    for (const docUrl of docUrls) {
+      const category = docUrl.category || "General";
+      if (!categoriesMap.has(category)) {
+        categoriesMap.set(category, []);
+      }
+      const categoryDocs = categoriesMap.get(category)!;
+      categoryDocs.push({
+        title: docUrl.title,
+        path: docUrl.url,
+        description: docUrl.description || "",
+      });
+    }
+
+    // Convert map to array format
+    const categories = Array.from(categoriesMap.entries()).map(([name, docs]) => ({
+      name,
+      docs,
+    }));
+
     return {
       data: components,
+      docsPaths: {
+        paths: docUrls.map((doc) => doc.url),
+        categories,
+      },
     };
   }
 }

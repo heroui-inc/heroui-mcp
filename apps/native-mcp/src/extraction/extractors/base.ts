@@ -58,7 +58,16 @@ export abstract class BaseExtractor {
   /**
    * Extract data from source
    */
-  abstract extract(ref?: string): Promise<{data: any}>;
+  abstract extract(ref?: string): Promise<{
+    data: any;
+    docsPaths?: {
+      paths: string[];
+      categories: Array<{
+        name: string;
+        docs: Array<{title: string; path: string; description: string}>;
+      }>;
+    };
+  }>;
 
   /**
    * Get the storage key for this extraction type
@@ -84,7 +93,8 @@ export abstract class BaseExtractor {
       const storageType = this.getStorageType();
 
       console.log("🔄 Starting extraction...");
-      const {data} = await this.extract(this.githubRef);
+      const extractResult = await this.extract(this.githubRef);
+      const {data, docsPaths} = extractResult;
 
       if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
         console.error("❌ No data extracted");
@@ -100,51 +110,21 @@ export abstract class BaseExtractor {
         await this.r2.uploadLatestVersion(storageType, data);
       }
 
-      // After component extraction, create and upload ctx.json
-      if (storageType === "components") {
+      // Handle ctx.json creation for components
+      if (storageType === "components" && docsPaths) {
         try {
-          console.log("🔄 Fetching docs paths from llms.txt for context...");
-          const response = await fetch("https://v3.heroui.com/native/llms.txt");
-          if (!response.ok) {
-            throw new Error(`Failed to fetch llms.txt for context: ${response.status}`);
-          }
-          const content = await response.text();
-          const {parseAllDocsFromLlmsTxt} = await import("../utils/llms-parser");
-          const docUrls = parseAllDocsFromLlmsTxt(content);
+          const {categories, paths} = docsPaths;
 
-          // Group by category
-          const categoriesMap = new Map<
-            string,
-            Array<{title: string; path: string; description: string}>
-          >();
-          for (const docUrl of docUrls) {
-            const category = docUrl.category || "General";
-            if (!categoriesMap.has(category)) {
-              categoriesMap.set(category, []);
-            }
-            const categoryDocs = categoriesMap.get(category)!;
-            categoryDocs.push({
-              title: docUrl.title,
-              path: docUrl.url,
-              description: docUrl.description || "",
-            });
-          }
+          // Create and upload ctx.json with all initialization data
+          console.log("🔄 Creating ctx.json...");
+          const componentDataset = data as Record<string, {name: string}>;
+          const componentList = Object.keys(componentDataset).sort();
 
-          // Convert map to array format
-          const categories = Array.from(categoriesMap.entries()).map(([name, docs]) => ({
-            name,
-            docs,
-          }));
-
-          // Get theme list
-          const themeData = await this.r2.readData<any>("native/latest/theme.json");
-          const themes = themeData?.themes ? Object.keys(themeData.themes) : ["default"];
-
+          // Create ctx data
           const ctxData = {
-            components: Object.keys(data).sort(),
-            themes,
+            components: componentList,
             docs: {
-              paths: docUrls.map((doc) => doc.url),
+              paths,
               categories,
             },
             version: versionWithPrefix,
@@ -154,7 +134,7 @@ export abstract class BaseExtractor {
           await this.r2.uploadContext(ctxData);
           console.log(`✅ Uploaded ctx.json to R2`);
         } catch (error) {
-          console.warn("⚠️  Failed to create/upload ctx.json:", error);
+          console.warn("⚠️  Failed to upload ctx.json:", error);
         }
       }
 
