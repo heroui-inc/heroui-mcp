@@ -13,10 +13,11 @@ describe("Themes API", () => {
       expect(res.status).toBe(200);
 
       const data = (await res.json()) as any;
-      expect(data).toHaveProperty("themes");
-      expect(data).toHaveProperty("count");
+      expect(data).toHaveProperty("theme", "default");
       expect(data).toHaveProperty("latestVersion");
-      expect(Array.isArray(data.themes)).toBe(true);
+      expect(data).toHaveProperty("common");
+      expect(data).toHaveProperty("light");
+      expect(data).toHaveProperty("dark");
     });
 
     it("should handle theme parameter", async () => {
@@ -39,9 +40,10 @@ describe("Themes API", () => {
       expect(res.status).toBe(200);
 
       const data = (await res.json()) as any;
+      // Mode parameter is ignored - always returns both light and dark
       expect(data).toHaveProperty("theme", "default");
-      expect(data).toHaveProperty("mode", "light");
-      expect(data).toHaveProperty("variables");
+      expect(data).toHaveProperty("light");
+      expect(data).toHaveProperty("dark");
     });
 
     it("should handle invalid theme names gracefully", async () => {

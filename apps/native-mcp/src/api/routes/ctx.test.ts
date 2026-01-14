@@ -14,7 +14,6 @@ describe("Context API", () => {
 
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("components");
-      expect(data).toHaveProperty("themes");
       expect(data).toHaveProperty("docs");
       expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("timestamp");
@@ -25,14 +24,6 @@ describe("Context API", () => {
       const data = (await res.json()) as any;
 
       expect(Array.isArray(data.components)).toBe(true);
-    });
-
-    it("should return array of themes", async () => {
-      const res = await SELF.fetch("http://localhost:8788/ctx");
-      const data = (await res.json()) as any;
-
-      expect(Array.isArray(data.themes)).toBe(true);
-      expect(data.themes.length).toBeGreaterThan(0);
     });
 
     it("should return docs object with paths and categories", async () => {

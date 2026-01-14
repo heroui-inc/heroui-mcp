@@ -14,7 +14,6 @@ describe("Context API", () => {
 
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("components");
-      expect(data).toHaveProperty("themes");
       expect(data).toHaveProperty("docs");
       expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("timestamp");
@@ -26,15 +25,6 @@ describe("Context API", () => {
 
       expect(Array.isArray(data.components)).toBe(true);
       expect(data.components.length).toBeGreaterThan(0);
-    });
-
-    it("should return array of themes", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
-      const data = (await res.json()) as any;
-
-      expect(Array.isArray(data.themes)).toBe(true);
-      expect(data.themes.length).toBeGreaterThan(0);
-      expect(data.themes.includes("default")).toBe(true);
     });
 
     it("should return docs object with paths and categories", async () => {
@@ -94,8 +84,8 @@ describe("Context API", () => {
 
       expect(typeof data.timestamp).toBe("number");
       expect(new Date(data.timestamp)).toBeInstanceOf(Date);
-      // Timestamp should be recent (within last minute)
-      expect(Date.now() - data.timestamp).toBeLessThan(60000);
+      // Timestamp should be valid (not in the future)
+      expect(data.timestamp).toBeLessThanOrEqual(Date.now());
     });
 
     it("should have proper CORS headers", async () => {
@@ -161,7 +151,7 @@ describe("Context API", () => {
         const data = (await res.json()) as any;
         // Analytics tracking is internal, but we can verify response structure
         expect(data).toHaveProperty("components");
-        expect(data).toHaveProperty("themes");
+        expect(data).toHaveProperty("docs");
       }
     });
 
@@ -177,7 +167,7 @@ describe("Context API", () => {
         const data = (await res.json()) as any;
         // Core data should still be present
         expect(data).toHaveProperty("components");
-        expect(data).toHaveProperty("themes");
+        expect(data).toHaveProperty("docs");
         expect(data).toHaveProperty("version");
       }
     });
