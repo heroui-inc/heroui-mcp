@@ -165,16 +165,8 @@ export abstract class BaseExtractor {
         }
       }
 
-      const metadata = ((await this.r2.getVersionMetadata()) as any) || {};
       const extractDuration = Date.now() - startTime;
       const storageKey = this.getStorageKey();
-
-      metadata[storageKey] = {
-        current: versionWithPrefix,
-        lastExtracted: new Date().toISOString(),
-        extractDuration,
-      };
-      await this.r2.updateVersionMetadata(metadata);
 
       console.log(`✅ Successfully uploaded ${storageKey} data to R2`);
       console.log(`⏱️  Extraction took ${(extractDuration / 1000).toFixed(2)} seconds`);

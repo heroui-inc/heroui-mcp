@@ -101,15 +101,32 @@ class ThemeService {
   }
 
   /**
-   * Get the latest version
+   * Get the latest version from ctx.json (single source of truth)
    */
   async getLatestVersion(): Promise<string | null> {
-    const themeSystem = await this.getThemeSystem();
-    if (!themeSystem) {
+    try {
+      const response = await this.client.send(
+        new GetObjectCommand({
+          Bucket: this.bucketName,
+          Key: "react/latest/ctx.json",
+        }),
+      );
+
+      if (response.Body) {
+        const bodyString = await response.Body.transformToString();
+        const ctxData = JSON.parse(bodyString) as {
+          version?: string;
+        };
+
+        return ctxData?.version || null;
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error fetching latest version from ctx.json:", error);
+
       return null;
     }
-
-    return themeSystem.version;
   }
 }
 

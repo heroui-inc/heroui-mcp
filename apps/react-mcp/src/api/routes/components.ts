@@ -35,7 +35,7 @@ components.get("/", async (c) => {
     const componentsList = await service.listComponents(LIBRARY_NAME);
 
     // Get the latest version
-    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
+    const latestVersion = await service.getLatestVersion();
 
     analytics.track({
       event: AnalyticsEvent.LIST_COMPONENTS,
@@ -179,7 +179,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
   try {
     const service = await getComponentService(c.env);
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
-    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
+    const latestVersion = await service.getLatestVersion();
 
     const branch = "v3";
     const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
@@ -285,7 +285,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
   try {
     const service = await getComponentService(c.env);
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
-    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
+    const latestVersion = await service.getLatestVersion();
 
     const branch = "v3";
     const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;

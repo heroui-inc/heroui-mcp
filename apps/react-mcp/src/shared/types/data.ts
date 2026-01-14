@@ -13,9 +13,3 @@ export interface ComponentData {
 export interface ComponentDataset {
   [componentName: string]: ComponentData;
 }
-
-export interface VersionInfo {
-  current: string;
-  lastExtracted: string;
-  extractDuration: number;
-}

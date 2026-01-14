@@ -7,7 +7,7 @@
 // Import polyfills first - must be before AWS SDK imports
 import "../lib/domparser-polyfill";
 
-import type {ComponentData, ComponentDataset, VersionInfo} from "../../shared/types/data";
+import type {ComponentData, ComponentDataset} from "../../shared/types/data";
 
 import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
@@ -226,79 +226,17 @@ class ComponentService {
   }
 
   /**
-   * Get version information
+   * Get the latest version from ctx.json (single source of truth)
    */
-  async getVersionInfo(): Promise<Record<string, VersionInfo>> {
+  async getLatestVersion(): Promise<string | null> {
     try {
-      const data = await this.getFromR2<Record<string, VersionInfo>>("react/versions.json");
+      const ctxData = await this.getContext();
 
-      return data || {};
+      return ctxData?.version || null;
     } catch (error) {
-      console.error("Error getting version info:", error);
-
-      return {};
-    }
-  }
-
-  /**
-   * Get the latest version for a library
-   */
-  async getLatestVersion(library: string): Promise<string | null> {
-    try {
-      const versionInfo = await this.getVersionInfo();
-
-      return versionInfo[library]?.current || null;
-    } catch (error) {
-      console.error(`Error getting latest version for ${library}:`, error);
+      console.error("Error getting latest version:", error);
 
       return null;
-    }
-  }
-
-  async listVersions(library: string): Promise<string[]> {
-    try {
-      const versionInfo = await this.getVersionInfo();
-      const libraryInfo = versionInfo[library];
-
-      if (libraryInfo && libraryInfo.current) {
-        return [libraryInfo.current];
-      }
-
-      return ["latest"];
-    } catch (error) {
-      console.error(`Error listing versions for ${library}:`, error);
-
-      return ["latest"];
-    }
-  }
-
-  /**
-   * Check version status
-   */
-  async checkVersion(pkg: "heroui" | "mcp", currentVersion?: string): Promise<{message: string}> {
-    try {
-      const versionInfo = await this.getVersionInfo();
-      const packageInfo = versionInfo[pkg];
-
-      if (!packageInfo) {
-        return {message: `Unable to get version information for ${pkg}`};
-      }
-
-      const latestVersion = packageInfo.current;
-
-      if (!currentVersion) {
-        return {message: `Latest ${pkg} version: ${latestVersion}`};
-      }
-
-      if (currentVersion === latestVersion) {
-        return {message: `✓ You're using the latest version of ${pkg} (${latestVersion})`};
-      } else {
-        return {message: `Update available for ${pkg}: ${currentVersion} → ${latestVersion}`};
-      }
-    } catch (error) {
-      console.error(`Error checking version for ${pkg}:`, error);
-
-      return {message: `Error checking version for ${pkg}`};
     }
   }
 

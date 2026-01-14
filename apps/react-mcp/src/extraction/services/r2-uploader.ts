@@ -56,62 +56,6 @@ export class R2Uploader {
   }
 
   /**
-   * Update version metadata
-   * Stores in: react/versions.json
-   */
-  async updateVersionMetadata(metadata: unknown): Promise<void> {
-    const key = "react/versions.json";
-    const body = JSON.stringify(metadata, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Updated version metadata in R2`);
-    } catch (error) {
-      console.error(`❌ Failed to update metadata:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get current version metadata
-   * Reads from: react/versions.json
-   */
-  async getVersionMetadata(): Promise<unknown> {
-    const key = "react/versions.json";
-
-    try {
-      const response = await this.client.send(
-        new GetObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-        }),
-      );
-
-      if (response.Body) {
-        const text = await response.Body.transformToString();
-
-        return JSON.parse(text);
-      }
-
-      return {};
-    } catch (error: any) {
-      if (error.name === "NoSuchKey") {
-        console.log("No existing metadata found, starting fresh");
-
-        return {};
-      }
-      throw error;
-    }
-  }
-
-  /**
    * Read data from R2
    */
   async readData<T>(key: string): Promise<T | null> {
