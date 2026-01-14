@@ -101,27 +101,29 @@ class ThemeService {
   }
 
   /**
-   * Get the latest version from R2 versions.json
+   * Get the latest version from ctx.json (single source of truth)
    */
-  async getLatestVersion(packageName: string = "heroui-native-theme"): Promise<string | null> {
+  async getLatestVersion(): Promise<string | null> {
     try {
       const response = await this.client.send(
         new GetObjectCommand({
           Bucket: this.bucketName,
-          Key: "native/versions.json",
+          Key: "native/latest/ctx.json",
         }),
       );
 
       if (response.Body) {
         const bodyString = await response.Body.transformToString();
-        const versionInfo = JSON.parse(bodyString);
+        const ctxData = JSON.parse(bodyString) as {
+          version?: string;
+        };
 
-        return versionInfo?.[packageName]?.current || null;
+        return ctxData?.version || null;
       }
 
       return null;
     } catch (error) {
-      console.error(`Error fetching latest version for ${packageName}:`, error);
+      console.error("Error fetching latest version from ctx.json:", error);
 
       return null;
     }

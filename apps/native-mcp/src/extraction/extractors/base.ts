@@ -49,7 +49,7 @@ export abstract class BaseExtractor {
 
       return packageJson.version;
     } catch (error) {
-      console.error("Failed to fetch version from GitHub, using fallback");
+      console.error("Failed to fetch version from GitHub");
 
       throw error;
     }
@@ -83,7 +83,7 @@ export abstract class BaseExtractor {
 
       const storageType = this.getStorageType();
 
-      console.log("🔄 Starting extraction from GitHub...");
+      console.log("🔄 Starting extraction...");
       const {data} = await this.extract(this.githubRef);
 
       if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
@@ -99,52 +99,61 @@ export abstract class BaseExtractor {
 
       await this.r2.uploadLatestVersion(storageType, data);
 
+      // After component extraction, create and upload ctx.json
       if (storageType === "components") {
         try {
-          console.log("🔄 Fetching docs paths from llms.txt...");
+          console.log("🔄 Fetching docs paths from llms.txt for context...");
           const response = await fetch("https://v3.heroui.com/native/llms.txt");
-          if (response.ok) {
-            const content = await response.text();
-            const categories: any[] = [];
-            let currentCategory: any = null;
-
-            const lines = content.split("\n");
-            for (const line of lines) {
-              const trimmedLine = line.trim();
-              if (!trimmedLine || trimmedLine === "# Docs") continue;
-
-              if (trimmedLine.startsWith("## ")) {
-                const categoryName = trimmedLine.substring(3).trim();
-                currentCategory = {
-                  name: categoryName,
-                  docs: [],
-                };
-                categories.push(currentCategory);
-              } else if (trimmedLine.startsWith("- ") && currentCategory) {
-                const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
-                if (match) {
-                  const [, title, url, description = ""] = match;
-                  // Extract path from URL (handle both full URLs and relative paths)
-                  let path = url;
-                  if (url.startsWith("https://v3.heroui.com")) {
-                    path = url.replace("https://v3.heroui.com", "");
-                  }
-                  if (path.startsWith("/docs/native/")) {
-                    currentCategory.docs.push({
-                      title,
-                      path,
-                      description,
-                    });
-                  }
-                }
-              }
-            }
-
-            await this.r2.uploadDocsPaths(categories);
-            console.log(`✅ Uploaded docs paths to R2`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch llms.txt for context: ${response.status}`);
           }
+          const content = await response.text();
+          const {parseAllDocsFromLlmsTxt} = await import("../utils/llms-parser");
+          const docUrls = parseAllDocsFromLlmsTxt(content);
+
+          // Group by category
+          const categoriesMap = new Map<
+            string,
+            Array<{title: string; path: string; description: string}>
+          >();
+          for (const docUrl of docUrls) {
+            const category = docUrl.category || "General";
+            if (!categoriesMap.has(category)) {
+              categoriesMap.set(category, []);
+            }
+            const categoryDocs = categoriesMap.get(category)!;
+            categoryDocs.push({
+              title: docUrl.title,
+              path: docUrl.url,
+              description: docUrl.description || "",
+            });
+          }
+
+          // Convert map to array format
+          const categories = Array.from(categoriesMap.entries()).map(([name, docs]) => ({
+            name,
+            docs,
+          }));
+
+          // Get theme list
+          const themeData = await this.r2.readData<any>("native/latest/theme.json");
+          const themes = themeData?.themes ? Object.keys(themeData.themes) : ["default"];
+
+          const ctxData = {
+            components: Object.keys(data).sort(),
+            themes,
+            docs: {
+              paths: docUrls.map((doc) => doc.url),
+              categories,
+            },
+            version: versionWithPrefix,
+            timestamp: Date.now(),
+          };
+
+          await this.r2.uploadContext(ctxData);
+          console.log(`✅ Uploaded ctx.json to R2`);
         } catch (error) {
-          console.warn("⚠️  Failed to fetch/upload docs paths:", error);
+          console.warn("⚠️  Failed to create/upload ctx.json:", error);
         }
       }
 

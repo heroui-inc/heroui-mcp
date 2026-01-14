@@ -3,12 +3,11 @@ import type {HonoContext} from "../types/context";
 import {Hono} from "hono";
 
 import {getComponentService} from "../services/component";
-import {getThemeService} from "../services/theme";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 
 const ctx = new Hono<HonoContext>();
 
-// Get initialization context (components, themes, examples, docs paths)
+// Get initialization context (components, themes, docs paths)
 ctx.get("/", async (c) => {
   const endpoint = "get-ctx";
   const startTime = Date.now();
@@ -16,50 +15,39 @@ ctx.get("/", async (c) => {
 
   try {
     const componentService = await getComponentService(c.env);
-    const themeService = await getThemeService(c.env);
+    const ctxData = await componentService.getContext();
 
-    const [components, examples, themes, docsData, version] = await Promise.allSettled([
-      componentService.listComponents(),
-      componentService.listExamples(),
-      themeService.getAvailableThemes(),
-      componentService.getDocsPaths(),
-      componentService.getLatestVersion(),
-    ]);
-
-    const componentList = components.status === "fulfilled" ? components.value : [];
-    const exampleList = examples.status === "fulfilled" ? examples.value : [];
-    const themeList = themes.status === "fulfilled" ? themes.value : ["default"];
-
-    const docPaths: string[] = [];
-    if (docsData.status === "fulfilled" && docsData.value) {
-      docPaths.push(...docsData.value.paths);
+    if (!ctxData) {
+      return c.json(
+        {
+          error: "Context data not available",
+        },
+        503,
+      );
     }
-
-    // Extract version
-    const latestVersion = version.status === "fulfilled" ? version.value : "unknown";
 
     analytics.track({
       event: AnalyticsEvent.GET_CTX,
       properties: {
         endpoint,
-        componentsCount: componentList.length,
-        examplesCount: exampleList.length,
-        themesCount: themeList.length,
-        docPathsCount: docPaths.length,
-        version: latestVersion,
+        componentsCount: ctxData.components.length,
+        themesCount: ctxData.themes.length,
+        docPathsCount: ctxData.docs.paths.length,
+        version: ctxData.version,
+        timestamp: ctxData.timestamp,
         responseTime: Date.now() - startTime,
       },
     });
 
     const response: Record<string, unknown> = {
-      components: componentList,
-      examples: exampleList,
-      themes: themeList,
+      components: ctxData.components,
+      themes: ctxData.themes,
       docs: {
-        paths: docPaths,
+        paths: ctxData.docs.paths,
+        categories: ctxData.docs.categories,
       },
-      version: latestVersion || "unknown",
-      timestamp: Date.now(),
+      version: ctxData.version,
+      timestamp: ctxData.timestamp,
     };
 
     // Add user ID if authenticated (from auth middleware)

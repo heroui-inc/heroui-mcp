@@ -1,107 +1,46 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {ThemeContext, Tool} from "../types";
+import type {Tool} from "../types";
 
 import {z} from "zod";
 
 import {fetchApi} from "../lib/fetch";
 
-export const getThemeVariablesTool: Tool<ThemeContext> = {
-  name: "get_theme_variables",
-  description: `Get HeroUI Native theme variables and design tokens.
-Returns theme variable values (colors, border radius, opacity) in HSL format for light and dark modes.
-Use this tool to get actual theme variable values for customization.
-For theme documentation and guides, use get_docs({ path: "/docs/native/getting-started/theming" }) instead.`,
+const inputSchema = z.object({});
 
-  async ctx(shared) {
-    return {
-      themeList: shared?.themeList || ["default"],
-    };
-  },
+export const getThemeVariablesTool: Tool = {
+  name: "get_theme_variables",
+  description: `Get HeroUI Native default theme variables and design tokens (actual variable values).
+Returns organized CSS custom properties that control the entire design system.
+Variables follow a three-layer system: primitives → semantic → calculated.
+Includes both light and dark mode variables for all categories:
+- Colors: Color tokens (accent, success, danger, background, foreground)
+- Typography: Font sizes, weights, line heights
+- Spacing: Margin, padding, gap values
+- Borders: Border radius, widths, colors
+- Shadows: Box shadows and elevations
+- Animations: Durations, timing functions
+Variables use modern HSL color format for better color manipulation.
+Apply these in your CSS with :root or theme-specific selectors.
+Example variables: --color-accent, --radius-md, --font-size-body, --spacing-4.
+For theme documentation and guides, use the get_docs tool instead.
+IMPORTANT: HeroUI Native uses Uniwind (Tailwind CSS for React Native) - ensure compatibility.`,
 
   exec(server, {config, name, description}) {
-    // Create input schema with dynamic theme enum
-    const inputSchema = z.object({
-      theme: z
-        .enum(["default"] as [string, ...string[]])
-        .optional()
-        .describe(
-          `Theme name. Only "default" theme is supported. Defaults to "default" if not specified.`,
-        ),
-      mode: z
-        .enum(["light", "dark", "both"])
-        .optional()
-        .describe(
-          `Color mode: "light", "dark", or "both" (default).
-Returns color tokens for the specified mode(s).`,
-        ),
-    });
-
-    const handler = async ({theme = "default", mode = "both"}: z.infer<typeof inputSchema>) => {
+    const handler = async () => {
       try {
-        // Build query parameters
-        const params = new URLSearchParams();
-        params.append("theme", theme);
-        if (mode !== "both") params.append("mode", mode);
-
-        const endpoint = `/themes/variables?${params.toString()}`;
-        const response = await fetchApi<any>(endpoint, config.apiBaseUrl);
+        // Always fetch default theme with both modes
+        const response = await fetchApi<any>("/themes/variables?theme=default", config.apiBaseUrl);
 
         // Format the response as structured text
-        let responseText = `# HeroUI Native Theme\n\n`;
-        responseText += `**Theme:** ${response.theme || "default"}\n`;
-        responseText += `**Version:** ${response.version || "unknown"}\n\n`;
+        let responseText = `# HeroUI Native Default Theme Variables\n\n`;
+        responseText += `**Theme:** ${response.theme || "default"}\n\n`;
 
-        // Format colors by mode
-        if (mode === "light" || mode === "both") {
-          if (response.light?.colors || response.colors) {
-            const colors = response.light?.colors || response.colors;
-            responseText += `## Light Mode Colors\n\n`;
-
-            // Group by category
-            const grouped = groupByCategory(colors);
-            for (const [category, tokens] of Object.entries(grouped)) {
-              responseText += `### ${capitalize(category)}\n`;
-              tokens.forEach((c: any) => {
-                responseText += `- **${c.name}**: \`${c.value}\` (HSL)\n`;
-              });
-              responseText += `\n`;
-            }
-          }
-        }
-
-        if (mode === "dark" || mode === "both") {
-          if (response.dark?.colors || response.colors) {
-            const colors = response.dark?.colors || response.colors;
-            responseText += `## Dark Mode Colors\n\n`;
-
-            // Group by category
-            const grouped = groupByCategory(colors);
-            for (const [category, tokens] of Object.entries(grouped)) {
-              responseText += `### ${capitalize(category)}\n`;
-              tokens.forEach((c: any) => {
-                responseText += `- **${c.name}**: \`${c.value}\` (HSL)\n`;
-              });
-              responseText += `\n`;
-            }
-          }
-        }
-
-        // Add utilities if both modes returned
-        if (mode === "both" && response.borderRadius) {
-          responseText += `## Border Radius\n`;
-          Object.entries(response.borderRadius).forEach(([key, value]) => {
-            responseText += `- **${key}**: \`${value}\`\n`;
-          });
-          responseText += `\n`;
-
-          responseText += `## Opacity\n`;
-          responseText += `- **disabled**: \`${response.opacity?.disabled || 0.5}\`\n`;
-        }
+        responseText += formatThemeData(response);
 
         return {
           content: [
             {
-              type: "text" as const,
+              type: "text",
               text: responseText,
             },
           ],
@@ -110,8 +49,8 @@ Returns color tokens for the specified mode(s).`,
         return {
           content: [
             {
-              type: "text" as const,
-              text: `Error: Unable to get theme variables. ${error instanceof Error ? error.message : "Unknown error"}`,
+              type: "text",
+              text: `Error fetching theme variables: ${error instanceof Error ? error.message : String(error)}`,
             },
           ],
         };
@@ -122,6 +61,59 @@ Returns color tokens for the specified mode(s).`,
     server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
   },
 };
+
+/**
+ * Format theme data - always shows both modes and all categories
+ */
+function formatThemeData(themeData: any): string {
+  let text = "";
+
+  // Format light mode colors
+  if (themeData.light?.colors?.length > 0) {
+    text += `## Light Mode Colors\n\n`;
+    const grouped = groupByCategory(themeData.light.colors);
+    for (const [category, tokens] of Object.entries(grouped)) {
+      text += `### ${capitalize(category)}\n`;
+      tokens.forEach((c: any) => {
+        text += `- **${c.name}**: \`${c.value}\`\n`;
+      });
+      text += `\n`;
+    }
+  }
+
+  // Format dark mode colors
+  if (themeData.dark?.colors?.length > 0) {
+    text += `## Dark Mode Colors\n\n`;
+    const grouped = groupByCategory(themeData.dark.colors);
+    for (const [category, tokens] of Object.entries(grouped)) {
+      text += `### ${capitalize(category)}\n`;
+      tokens.forEach((c: any) => {
+        text += `- **${c.name}**: \`${c.value}\`\n`;
+      });
+      text += `\n`;
+    }
+  }
+
+  // Format border radius
+  if (themeData.borderRadius) {
+    text += `## Border Radius\n\n`;
+    Object.entries(themeData.borderRadius).forEach(([key, value]) => {
+      text += `- **${key}**: \`${value}\`\n`;
+    });
+    text += `\n`;
+  }
+
+  // Format opacity
+  if (themeData.opacity) {
+    text += `## Opacity\n\n`;
+    Object.entries(themeData.opacity).forEach(([key, value]) => {
+      text += `- **${key}**: \`${value}\`\n`;
+    });
+    text += `\n`;
+  }
+
+  return text;
+}
 
 /**
  * Group colors by category

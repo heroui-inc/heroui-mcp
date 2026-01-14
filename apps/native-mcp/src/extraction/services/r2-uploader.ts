@@ -111,19 +111,48 @@ export class R2Uploader {
     }
   }
 
-  async uploadDocsPaths(categories: any[]): Promise<void> {
-    const key = "native/latest/docs-paths.json";
-    const data = {
-      categories,
-      paths: categories.flatMap((cat) => cat.docs.map((doc: any) => doc.path)),
-    };
+  /**
+   * Generic method to read JSON data from R2
+   */
+  async readData<T>(key: string): Promise<T | null> {
+    try {
+      const response = await this.client.send(
+        new GetObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+        }),
+      );
+
+      if (response.Body) {
+        const text = await response.Body.transformToString();
+
+        return JSON.parse(text) as T;
+      }
+
+      return null;
+    } catch (error: any) {
+      if (error.name === "NoSuchKey") {
+        return null;
+      }
+      console.error(`❌ Failed to read ${key} from R2:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Upload combined context data for /ctx endpoint
+   * Stores in: native/latest/ctx.json
+   */
+  async uploadContext(data: unknown): Promise<void> {
+    const key = "native/latest/ctx.json";
+    const body = JSON.stringify(data, null, 2);
 
     try {
       await this.client.send(
         new PutObjectCommand({
           Bucket: this.bucketName,
           Key: key,
-          Body: JSON.stringify(data, null, 2),
+          Body: body,
           ContentType: "application/json",
         }),
       );

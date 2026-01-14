@@ -7,7 +7,7 @@
 // Import polyfills first - must be before AWS SDK imports
 import "../lib/domparser-polyfill";
 
-import type {ComponentData, ComponentDataset, VersionInfo} from "@shared/types/data";
+import type {ComponentDataset} from "@shared/types/data";
 
 import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
@@ -162,180 +162,17 @@ class ComponentService {
   }
 
   /**
-   * List all available examples from component data
+   * Get the latest version from ctx.json (single source of truth)
    */
-  async listExamples(): Promise<string[]> {
+  async getLatestVersion(): Promise<string | null> {
     try {
-      const key = "native/latest/components.json";
-      const data = await this.getFromR2<ComponentDataset>(key);
+      const ctxData = await this.getContext();
 
-      if (!data) {
-        return [];
-      }
-
-      // Extract all unique example names from all components
-      const exampleNames = new Set<string>();
-      for (const component of Object.values(data)) {
-        if (component.examples && Array.isArray(component.examples)) {
-          for (const example of component.examples) {
-            if (example.name) {
-              exampleNames.add(example.name);
-            }
-          }
-        }
-      }
-
-      return Array.from(exampleNames).sort();
+      return ctxData?.version || null;
     } catch (error) {
-      console.error(`Error listing examples:`, error);
-
-      return [];
-    }
-  }
-
-  /**
-   * Get component data for multiple components
-   */
-  async getComponents(
-    componentNames: string[],
-  ): Promise<Array<{component: string; data: ComponentData | null; error?: string}>> {
-    try {
-      const key = "native/latest/components.json";
-      const dataset = await this.getFromR2<ComponentDataset>(key);
-
-      if (!dataset) {
-        return componentNames.map((name) => ({
-          component: name,
-          data: null,
-          error: `No data found`,
-        }));
-      }
-
-      return componentNames.map((componentName) => {
-        const component = Object.keys(dataset).find(
-          (key) => key.toLowerCase() === componentName.toLowerCase(),
-        );
-
-        if (!component) {
-          return {
-            component: componentName,
-            data: null,
-            error: `Component ${componentName} not found`,
-          };
-        }
-
-        return {
-          component,
-          data: dataset[component],
-        };
-      });
-    } catch (error) {
-      console.error(`Error getting components:`, error);
-
-      return componentNames.map((name) => ({
-        component: name,
-        data: null,
-        error: error instanceof Error ? error.message : "Unknown error",
-      }));
-    }
-  }
-
-  /**
-   * Get all components
-   */
-  async getAllComponents(): Promise<ComponentDataset | null> {
-    try {
-      const key = "native/latest/components.json";
-      const data = await this.getFromR2<ComponentDataset>(key);
-
-      return data;
-    } catch (error) {
-      console.error(`Error getting all components:`, error);
+      console.error("Error getting latest version:", error);
 
       return null;
-    }
-  }
-
-  /**
-   * Get version information
-   */
-  async getVersionInfo(): Promise<Record<string, VersionInfo>> {
-    try {
-      const data = await this.getFromR2<Record<string, VersionInfo>>("native/versions.json");
-
-      return data || {};
-    } catch (error) {
-      console.error("Error getting version info:", error);
-
-      return {};
-    }
-  }
-
-  /**
-   * Get the latest version for a specific package
-   */
-  async getLatestVersion(packageName: string = "heroui-native"): Promise<string | null> {
-    try {
-      const versionInfo = await this.getVersionInfo();
-
-      return versionInfo[packageName]?.current || null;
-    } catch (error) {
-      console.error(`Error getting latest version for ${packageName}:`, error);
-
-      return null;
-    }
-  }
-
-  /**
-   * List available versions
-   */
-  async listVersions(): Promise<string[]> {
-    try {
-      const versionInfo = await this.getVersionInfo();
-      const nativeVersion = versionInfo["heroui-native"];
-
-      if (nativeVersion?.current) {
-        return [nativeVersion.current];
-      }
-
-      return ["latest"];
-    } catch (error) {
-      console.error(`Error listing versions:`, error);
-
-      return ["latest"];
-    }
-  }
-
-  /**
-   * Check version status
-   */
-  async checkVersion(
-    currentVersion?: string,
-    packageName: string = "heroui-native",
-  ): Promise<{message: string}> {
-    try {
-      const versionInfo = await this.getVersionInfo();
-      const packageVersion = versionInfo[packageName];
-
-      if (!packageVersion) {
-        return {message: `Unable to get version information for ${packageName}`};
-      }
-
-      const latestVersion = packageVersion.current;
-
-      if (!currentVersion) {
-        return {message: `Latest version: ${latestVersion}`};
-      }
-
-      if (currentVersion === latestVersion) {
-        return {message: `✓ You're using the latest version (${latestVersion})`};
-      } else {
-        return {message: `Update available: ${currentVersion} → ${latestVersion}`};
-      }
-    } catch (error) {
-      console.error(`Error checking version:`, error);
-
-      return {message: `Error checking version`};
     }
   }
 
@@ -343,71 +180,42 @@ class ComponentService {
     this.cache.clear();
   }
 
-  async getDocsPaths(): Promise<{categories: any[]; paths: string[]} | null> {
+  /**
+   * Get the combined context data for MCP initialization
+   */
+  async getContext(): Promise<{
+    components: string[];
+    themes: string[];
+    docs: {
+      paths: string[];
+      categories: Array<{
+        name: string;
+        docs: Array<{title: string; path: string; description: string}>;
+      }>;
+    };
+    version: string;
+    timestamp: number;
+  } | null> {
     try {
-      const key = "native/latest/docs-paths.json";
-      let data: {categories: any[]; paths: string[]} | null = null;
+      const key = "native/latest/ctx.json";
+      const data = await this.getFromR2<{
+        components: string[];
+        themes: string[];
+        docs: {
+          paths: string[];
+          categories: Array<{
+            name: string;
+            docs: Array<{title: string; path: string; description: string}>;
+          }>;
+        };
+        version: string;
+        timestamp: number;
+      }>(key);
 
-      try {
-        data = await this.getFromR2<{categories: any[]; paths: string[]}>(key);
-      } catch (error) {
-        // If R2 fetch fails, fall back to live fetch
-        console.warn(`Failed to fetch docs paths from R2, falling back to live fetch: ${error}`);
-      }
-
-      if (data) {
-        return data;
-      }
-
-      const response = await fetch("https://v3.heroui.com/native/llms.txt");
-      if (!response.ok) {
-        return null;
-      }
-
-      const content = await response.text();
-      const categories: any[] = [];
-      let currentCategory: any = null;
-
-      const lines = content.split("\n");
-      for (const line of lines) {
-        const trimmedLine = line.trim();
-        if (!trimmedLine || trimmedLine === "# Docs") continue;
-
-        if (trimmedLine.startsWith("## ")) {
-          const categoryName = trimmedLine.substring(3).trim();
-          currentCategory = {
-            name: categoryName,
-            docs: [],
-          };
-          categories.push(currentCategory);
-        } else if (trimmedLine.startsWith("- ") && currentCategory) {
-          const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
-          if (match) {
-            const [, title, url, description = ""] = match;
-            // Extract path from URL (handle both full URLs and relative paths)
-            let path = url;
-            if (url.startsWith("https://v3.heroui.com")) {
-              path = url.replace("https://v3.heroui.com", "");
-            }
-            if (path.startsWith("/docs/native/")) {
-              currentCategory.docs.push({
-                title,
-                path,
-                description,
-              });
-            }
-          }
-        }
-      }
-
-      return {
-        categories,
-        paths: categories.flatMap((cat) => cat.docs.map((doc: any) => doc.path)),
-      };
+      return data;
     } catch (error) {
-      console.error("Error getting docs paths:", error);
-
-      return null;
+      console.error("Error getting context data:", error);
+      throw error;
     }
   }
 }

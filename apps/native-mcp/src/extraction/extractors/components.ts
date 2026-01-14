@@ -3,9 +3,8 @@
  */
 
 import type {NativeComponentDefinition} from "./native-parser";
-import type {GitHubClient} from "../services/github-client";
 
-import {SimpleGitHubClient} from "../services/github-client";
+import {parseLlmsTxt} from "../utils/llms-parser";
 
 import {BaseExtractor} from "./base";
 import {NativeParser} from "./native-parser";
@@ -14,15 +13,13 @@ export type {NativeComponentDefinition};
 export type NativeComponentDataset = Record<string, NativeComponentDefinition>;
 
 /**
- * Component extractor - extracts Native component documentation from GitHub
+ * Component extractor - extracts HeroUI Native component documentation from v3.heroui.com
  */
 export class ComponentExtractor extends BaseExtractor {
-  private github: GitHubClient;
   private parser: NativeParser;
 
   constructor() {
     super();
-    this.github = new SimpleGitHubClient(process.env.GITHUB_TOKEN);
     this.parser = new NativeParser("beta");
   }
 
@@ -35,68 +32,78 @@ export class ComponentExtractor extends BaseExtractor {
   }
 
   async extract(ref: string = "beta"): Promise<{data: NativeComponentDataset}> {
-    console.log("🔍 Extracting heroui-native from GitHub...");
-    console.log(`📍 Repository: heroui-inc/heroui-native@${ref}`);
+    console.log("🔍 Extracting HeroUI Native from llms.txt...");
+    console.log(`📍 Fetching docs from v3.heroui.com`);
 
     // Update parser with the correct ref
     this.parser = new NativeParser(ref);
 
-    // Get component documentation files
-    const docFiles = await this.github.getComponentFiles(
-      "heroui-inc",
-      "heroui-native",
-      "src/components",
-      ref,
-    );
+    // Step 1: Fetch llms.txt
+    const llmsResponse = await fetch("https://v3.heroui.com/native/llms.txt");
+    if (!llmsResponse.ok) {
+      throw new Error(`Failed to fetch llms.txt: ${llmsResponse.status}`);
+    }
+    const llmsContent = await llmsResponse.text();
 
-    console.log(`📄 Found ${docFiles.length} documentation files`);
+    // Step 2: Parse component URLs
+    const componentUrls = parseLlmsTxt(llmsContent);
+    console.log(`📄 Found ${componentUrls.length} components in llms.txt`);
 
-    // Extract components
+    // Step 3: Fetch component docs from v3.heroui.com
     const components: NativeComponentDataset = {};
-
-    // Process components in parallel with concurrency limit
-    const CONCURRENCY = process.env.GITHUB_TOKEN ? 10 : 3;
+    const CONCURRENCY = 10; // Fetch from v3.heroui.com (no GitHub rate limits)
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-    const DELAY_MS = process.env.GITHUB_TOKEN ? 50 : 200;
+    const DELAY_MS = 50; // Small delay between batches
 
-    const processFile = async (filePath: string): Promise<void> => {
+    const processComponent = async (componentUrl: {
+      title: string;
+      url: string;
+      description?: string;
+      category?: string;
+    }): Promise<void> => {
       try {
-        console.log(`   Processing ${filePath}...`);
+        // Extract component name from URL
+        const componentName = componentUrl.url.split("/").pop() || componentUrl.title;
 
-        const content = await this.github.fetchFile("heroui-inc", "heroui-native", filePath, ref);
-        const component = await this.parser.parseContent(content, filePath);
+        console.log(`   Processing ${componentName}...`);
 
-        if (component && Object.keys(component.props).length > 0) {
+        // Fetch component docs directly from v3.heroui.com
+        const docUrl = `https://v3.heroui.com${componentUrl.url}.mdx`;
+        const response = await fetch(docUrl);
+
+        if (!response.ok) {
+          console.log(`   ⚠️  File not found for ${componentName} at ${docUrl}`);
+
+          return;
+        }
+
+        const content = await response.text();
+        const component = await this.parser.parseContent(content, docUrl);
+
+        if (component && component.name) {
           components[component.name] = component;
-          console.log(`      ✓ ${component.name} (${Object.keys(component.props).length} props)`);
-
-          if (component.subComponents) {
-            for (const [subName, subComp] of Object.entries(component.subComponents)) {
-              console.log(
-                `        ✓ ${component.name}.${subName} (${Object.keys(subComp.props).length} props)`,
-              );
-            }
+          if (component.links) {
+            console.log(`      ✓ ${component.name} (links found)`);
+          } else {
+            console.log(`      ✓ ${component.name}`);
           }
         } else {
-          console.log("      ⚠️  (no props found)");
+          console.log(`      ⚠️  (component name not found)`);
         }
       } catch (error) {
         console.log(`      ❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`);
       }
     };
 
-    // Process files in batches with concurrency limit
-    for (let i = 0; i < docFiles.length; i += CONCURRENCY) {
-      const batch = docFiles.slice(i, i + CONCURRENCY);
-      await Promise.allSettled(batch.map(processFile));
+    // Process components in batches
+    for (let i = 0; i < componentUrls.length; i += CONCURRENCY) {
+      const batch = componentUrls.slice(i, i + CONCURRENCY);
+      await Promise.allSettled(batch.map(processComponent));
 
-      // Small delay between batches to avoid rate limiting
-      if (i + CONCURRENCY < docFiles.length) {
+      if (i + CONCURRENCY < componentUrls.length) {
         await delay(DELAY_MS);
       }
     }
-
-    console.log(`📄 Found ${Object.keys(components).length} components`);
 
     return {
       data: components,

@@ -7,7 +7,6 @@ export interface ToolConfig {
 
 export interface SharedContext {
   componentList: string[];
-  exampleList: string[];
   themeList: string[];
   docPaths: string[];
   version: string;
@@ -16,7 +15,10 @@ export interface SharedContext {
 
 export interface ComponentContext {
   componentList: string[];
-  exampleList: string[];
+}
+
+export interface DocsContext {
+  docPaths: string[];
 }
 
 export interface ThemeContext {
