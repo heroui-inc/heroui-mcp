@@ -1,21 +1,16 @@
-import type {AnalyticsClient} from "../types/analytics";
 import type {HonoContext} from "../types/context";
 import type {Context} from "hono";
 
 /**
- * Extracts the client type from request query parameters.
- * Defaults to "mcp" if not specified or invalid.
+ * Extracts the app type from request query parameters.
+ * Defaults to "react-mcp" if not specified.
  *
  * @param c - Hono context
- * @returns The client type ("mcp" or "skills")
+ * @returns The app identifier (e.g., "skills", "react-mcp")
  */
-export function getClient(c: Context<HonoContext>): AnalyticsClient {
-  const client = c.req.query("client");
+export function getApp(c: Context<HonoContext>): string {
+  const app = c.req.query("app");
 
-  if (client === "skills") {
-    return "skills";
-  }
-
-  // Default to "mcp" for backward compatibility
-  return "mcp";
+  // If app is provided, use it; otherwise default to "react-mcp"
+  return app || "react-mcp";
 }

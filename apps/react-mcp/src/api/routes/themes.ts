@@ -5,7 +5,7 @@ import {Hono} from "hono";
 
 import {getThemeService} from "../services/theme";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
-import {getClient} from "../utils/get-client";
+import {getApp} from "../utils/get-client";
 
 const themes = new Hono<HonoContext>();
 
@@ -14,7 +14,7 @@ themes.get("/variables", async (c) => {
   const endpoint = "get-theme-variables";
   const startTime = Date.now();
   const analytics = c.get("analytics");
-  const client = getClient(c);
+  const app = getApp(c);
 
   try {
     const service = await getThemeService(c.env);
@@ -31,7 +31,7 @@ themes.get("/variables", async (c) => {
       event: AnalyticsEvent.GET_THEME_VARIABLES,
       properties: {
         endpoint,
-        client,
+        app,
         theme: themeName,
         mode: "both",
         latestVersion,
@@ -73,7 +73,7 @@ themes.get("/variables", async (c) => {
       fallbackMessage: "Failed to get theme variables",
       properties: {
         endpoint,
-        client,
+        app,
         responseTime: Date.now() - startTime,
       },
     });

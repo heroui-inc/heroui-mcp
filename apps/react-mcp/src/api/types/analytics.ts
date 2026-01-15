@@ -23,16 +23,8 @@ export enum AnalyticsErrorEvent {
   GET_THEME_VARIABLES_ERROR = "GET_THEME_VARIABLES_ERROR",
 }
 
-/**
- * Client type for analytics tracking.
- * - "mcp" - Request from MCP server (default)
- * - "skills" - Request from Claude Code Skills
- */
-export type AnalyticsClient = "mcp" | "skills";
-
 export interface AnalyticsProperties {
   endpoint: string;
   responseTime: number;
-  client: AnalyticsClient;
   [key: string]: unknown;
 }
