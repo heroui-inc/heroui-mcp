@@ -8,6 +8,7 @@ import {REACT_LIBRARY_NAME} from "../contants";
 import {getComponentService} from "../services/component";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 import {componentNameToKebab} from "../utils/component-name";
+import {getClient} from "../utils/get-client";
 
 const ComponentsRequestSchema = z.object({
   components: z
@@ -28,6 +29,7 @@ components.get("/", async (c) => {
   const endpoint = "list-components";
   const startTime = Date.now();
   const analytics = c.get("analytics");
+  const client = getClient(c);
 
   try {
     const service = await getComponentService(c.env);
@@ -39,6 +41,7 @@ components.get("/", async (c) => {
       event: AnalyticsEvent.LIST_COMPONENTS,
       properties: {
         endpoint,
+        client,
         componentsCount: componentsList.length,
         latestVersion,
         responseTime: Date.now() - startTime,
@@ -57,6 +60,7 @@ components.get("/", async (c) => {
       fallbackMessage: "Failed to list components",
       properties: {
         endpoint,
+        client,
         responseTime: Date.now() - startTime,
       },
     });
@@ -76,6 +80,7 @@ components.get("/:component/docs", async (c) => {
   const endpoint = "get-component-docs";
   const startTime = Date.now();
   const analytics = c.get("analytics");
+  const client = getClient(c);
   const component = c.req.param("component");
 
   try {
@@ -90,6 +95,7 @@ components.get("/:component/docs", async (c) => {
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
         properties: {
           endpoint,
+          client,
           component,
           status: response.status,
           responseTime: Date.now() - startTime,
@@ -112,6 +118,7 @@ components.get("/:component/docs", async (c) => {
       event: AnalyticsEvent.GET_COMPONENT_DOCS,
       properties: {
         endpoint,
+        client,
         component,
         url: docUrl,
         length: content.length,
@@ -139,6 +146,7 @@ components.get("/:component/docs", async (c) => {
       fallbackMessage: "Failed to fetch component documentation",
       properties: {
         endpoint,
+        client,
         component,
         responseTime: Date.now() - startTime,
         isNetworkError,
@@ -173,6 +181,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
   const analytics = c.get("analytics");
+  const client = getClient(c);
 
   try {
     const service = await getComponentService(c.env);
@@ -229,6 +238,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
         properties: {
           endpoint,
+          client,
           components: componentNames,
           failedComponents: failedComponents.map((result) => result.component),
           latestVersion,
@@ -240,6 +250,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
         event: AnalyticsEvent.GET_COMPONENT_SOURCE_CODE,
         properties: {
           endpoint,
+          client,
           components: componentNames,
           latestVersion,
           responseTime: Date.now() - startTime,
@@ -258,6 +269,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
       fallbackMessage: "Failed to get component source code",
       properties: {
         endpoint,
+        client,
         components: componentNames,
         responseTime: Date.now() - startTime,
       },
@@ -279,6 +291,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
   const analytics = c.get("analytics");
+  const client = getClient(c);
 
   try {
     const service = await getComponentService(c.env);
@@ -335,6 +348,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
         properties: {
           endpoint,
+          client,
           components: componentNames,
           failedComponents: failedComponents.map((result) => result.component),
           latestVersion,
@@ -346,6 +360,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
         event: AnalyticsEvent.GET_COMPONENT_SOURCE_STYLES,
         properties: {
           endpoint,
+          client,
           components: componentNames,
           latestVersion,
           responseTime: Date.now() - startTime,
@@ -364,6 +379,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
       fallbackMessage: "Failed to get component styles",
       properties: {
         endpoint,
+        client,
         components: componentNames,
         responseTime: Date.now() - startTime,
       },

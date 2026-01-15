@@ -3,6 +3,7 @@ import type {HonoContext} from "../types/context";
 import {Hono} from "hono";
 
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
+import {getClient} from "../utils/get-client";
 
 const docs = new Hono<HonoContext>();
 
@@ -11,6 +12,7 @@ docs.get("*", async (c) => {
   const endpoint = "get-docs";
   const startTime = Date.now();
   const analytics = c.get("analytics");
+  const client = getClient(c);
 
   // Get the path from the request URL (everything after /docs/)
   const requestPath = c.req.path;
@@ -22,6 +24,7 @@ docs.get("*", async (c) => {
       errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       properties: {
         endpoint,
+        client,
         responseTime: Date.now() - startTime,
       },
     });
@@ -47,6 +50,7 @@ docs.get("*", async (c) => {
         errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
         properties: {
           endpoint,
+          client,
           path,
           status: response.status,
           responseTime: Date.now() - startTime,
@@ -69,6 +73,7 @@ docs.get("*", async (c) => {
       event: AnalyticsEvent.GET_DOCS,
       properties: {
         endpoint,
+        client,
         path,
         url: docUrl,
         length: content.length,
@@ -96,6 +101,7 @@ docs.get("*", async (c) => {
       fallbackMessage: "Failed to fetch documentation content",
       properties: {
         endpoint,
+        client,
         path,
         responseTime: Date.now() - startTime,
         isNetworkError,

@@ -4,6 +4,7 @@ import {Hono} from "hono";
 
 import {getComponentService} from "../services/component";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
+import {getClient} from "../utils/get-client";
 
 const ctx = new Hono<HonoContext>();
 
@@ -12,6 +13,7 @@ ctx.get("/", async (c) => {
   const endpoint = "get-ctx";
   const startTime = Date.now();
   const analytics = c.get("analytics");
+  const client = getClient(c);
 
   try {
     const componentService = await getComponentService(c.env);
@@ -30,6 +32,7 @@ ctx.get("/", async (c) => {
       event: AnalyticsEvent.GET_CTX,
       properties: {
         endpoint,
+        client,
         componentsCount: ctxData.components.length,
         docPathsCount: ctxData.docs.paths.length,
         version: ctxData.version,
@@ -61,6 +64,7 @@ ctx.get("/", async (c) => {
       fallbackMessage: "Failed to get initialization context",
       properties: {
         endpoint,
+        client,
         responseTime: Date.now() - startTime,
       },
     });
