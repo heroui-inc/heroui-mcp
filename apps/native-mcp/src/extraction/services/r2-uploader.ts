@@ -4,12 +4,7 @@
  * Handles uploading extracted component data to Cloudflare R2
  */
 
-import {
-  GetObjectCommand,
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import {GetObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
 export interface R2Config {
   accountId: string;
@@ -37,54 +32,6 @@ export class R2Uploader {
   }
 
   /**
-   * Upload component data to R2
-   * Stores in: native/components/{version}.json
-   */
-  async uploadComponentData(version: string, data: unknown): Promise<void> {
-    const key = `native/components/${version}.json`;
-    const body = JSON.stringify(data, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Uploaded ${key} to R2`);
-    } catch (error) {
-      console.error(`❌ Failed to upload ${key}:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Upload theme data to R2
-   * Stores in: native/theme/{version}.json
-   */
-  async uploadThemeData(version: string, data: unknown): Promise<void> {
-    const key = `native/theme/${version}.json`;
-    const body = JSON.stringify(data, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Uploaded ${key} to R2`);
-    } catch (error) {
-      console.error(`❌ Failed to upload ${key}:`, error);
-      throw error;
-    }
-  }
-
-  /**
    * Upload latest version data
    * Stores in: native/latest/{type}.json
    */
@@ -109,36 +56,9 @@ export class R2Uploader {
   }
 
   /**
-   * Update version metadata
-   * Stores in: native/versions.json
+   * Generic method to read JSON data from R2
    */
-  async updateVersionMetadata(metadata: unknown): Promise<void> {
-    const key = "native/versions.json";
-    const body = JSON.stringify(metadata, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Updated version metadata in R2`);
-    } catch (error) {
-      console.error(`❌ Failed to update metadata:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get current version metadata
-   * Reads from: native/versions.json
-   */
-  async getVersionMetadata(): Promise<unknown> {
-    const key = "native/versions.json";
-
+  async readData<T>(key: string): Promise<T | null> {
     try {
       const response = await this.client.send(
         new GetObjectCommand({
@@ -150,68 +70,39 @@ export class R2Uploader {
       if (response.Body) {
         const text = await response.Body.transformToString();
 
-        return JSON.parse(text);
+        return JSON.parse(text) as T;
       }
 
-      return {};
+      return null;
     } catch (error: any) {
       if (error.name === "NoSuchKey") {
-        console.log("No existing metadata found, starting fresh");
-
-        return {};
+        return null;
       }
+      console.error(`❌ Failed to read ${key} from R2:`, error);
       throw error;
     }
   }
 
   /**
-   * Check if a version exists
+   * Upload combined context data for /ctx endpoint
+   * Stores in: native/latest/ctx.json
    */
-  async versionExists(type: "components" | "theme", version: string): Promise<boolean> {
-    const key = `native/${type}/${version}.json`;
+  async uploadContext(data: unknown): Promise<void> {
+    const key = "native/latest/ctx.json";
+    const body = JSON.stringify(data, null, 2);
 
     try {
       await this.client.send(
-        new GetObjectCommand({
+        new PutObjectCommand({
           Bucket: this.bucketName,
           Key: key,
+          Body: body,
+          ContentType: "application/json",
         }),
       );
-
-      return true;
-    } catch (error: any) {
-      if (error.name === "NoSuchKey") {
-        return false;
-      }
-      throw error;
-    }
-  }
-
-  /**
-   * List all versions
-   */
-  async listVersions(type: "components" | "theme"): Promise<string[]> {
-    const prefix = `native/${type}/`;
-
-    try {
-      const response = await this.client.send(
-        new ListObjectsV2Command({
-          Bucket: this.bucketName,
-          Prefix: prefix,
-        }),
-      );
-
-      if (!response.Contents) {
-        return [];
-      }
-
-      const versions = response.Contents.map((obj) => obj.Key || "")
-        .filter((key) => key.endsWith(".json"))
-        .map((key) => key.replace(prefix, "").replace(".json", ""));
-
-      return versions.sort().reverse();
+      console.log(`✅ Uploaded ${key} to R2`);
     } catch (error) {
-      console.error(`❌ Failed to list versions:`, error);
+      console.error(`❌ Failed to upload ${key}:`, error);
       throw error;
     }
   }

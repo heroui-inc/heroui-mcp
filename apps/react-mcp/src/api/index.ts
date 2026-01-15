@@ -15,7 +15,6 @@ import {ctx} from "./routes/ctx";
 import {docs} from "./routes/docs";
 import {health} from "./routes/health";
 import {themes} from "./routes/themes";
-import {versions} from "./routes/versions";
 import type {HonoContext} from "./types/context";
 import {analyticsMiddleware} from "./middleware/analytics";
 import {authMiddleware} from "./middleware/auth";
@@ -35,7 +34,6 @@ app.route("/", health);
 app.route("/ctx", ctx);
 app.route("/components", components);
 app.route("/themes", themes);
-app.route("/versions", versions);
 app.route("/docs", docs);
 
 // 404 handler

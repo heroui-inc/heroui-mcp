@@ -22,66 +22,47 @@ async function createServer(): Promise<McpServer> {
       version: packageInfo.version,
     },
     {
-      instructions: `## HeroUI Native MCP Tools - React Native Component Documentation
+      instructions: `## HeroUI Native MCP Tools - Beta Documentation
 
-Welcome to HeroUI Native MCP! These tools provide documentation for **HeroUI Native** React Native components.
+These tools provide documentation for **HeroUI Native (Beta)** React Native components.
 
 ### ⚠️ IMPORTANT: Version Information
-• **Current Status:** Local documentation extraction
+• **Current Support:** HeroUI Native (Beta) ONLY
+• **Status:** Beta - expect breaking changes
 • **Target Platform:** React Native (iOS & Android)
-• **Built With:** React Native Reanimated, NativeWind v4
-• **Status:** Production-ready components with comprehensive documentation
+• **Built With:** React Native Reanimated, Uniwind (Tailwind CSS for React Native)
 
 ### Getting Started
-Use the \`installation\` tool for setting up HeroUI Native in your project:
+Use the \`get_docs\` tool to fetch the official installation guide:
 \`\`\`javascript
-installation()
+get_docs({ path: "/docs/native/getting-started/quick-start" })
 \`\`\`
 
 ### Essential Workflow
 Always follow this order when implementing HeroUI Native components:
 
-1. **installation** - Set up HeroUI Native in your React Native project
-2. **list_components** - Check available Native components
-3. **get_component_info** - Get complete API and anatomy
-4. **get_component_props** - Review TypeScript types
-5. **get_component_examples** - See usage patterns
+1. **get_docs** - Fetch installation guide: \`get_docs({ path: "/docs/native/getting-started/quick-start" })\`
+2. **list_components** - Check available components
+3. **get_component_docs** - Get complete API, examples, and usage (examples are included in component docs)
+4. **get_theme_variables** - Review theme variable values
 
 ### Key Features
 • Compound components pattern (e.g., Button.StartContent, Button.LabelContent)
 • Built on React Native Reanimated for smooth animations
-• NativeWind v4 for Tailwind-based styling
+• Uniwind (Tailwind CSS for React Native) for styling
 • Comprehensive theme system with semantic colors
 • Accessibility-first design
 • TypeScript support
 
-### Example Usage
-\`\`\`javascript
-// Check Native component structure
-get_component_info({ components: ["Button"] })
-
-// Native uses compound components
-<Button variant="primary" onPress={handlePress}>
-  <Button.StartContent>
-    <Icon name="download" />
-  </Button.StartContent>
-  <Button.LabelContent>Download</Button.LabelContent>
-</Button>
-\`\`\`
-
-### Available Documentation
-• Components: Use tools to explore Native components
-• Theme: Use get_theme_info() for theming
-• Installation: Framework-specific setup guides
+### Available Tools
+• Components: Use \`list_components\` to see all available components. Use \`get_component_docs({ components: ["ComponentName"] })\` for detailed documentation (includes examples).
+• Documentation: Use \`get_docs({ path: "/docs/native/getting-started/quick-start" })\` for setup guides, or \`get_docs({ path: "/docs/native/getting-started/theming" })\` for other guides.
+• Theme: Use \`get_theme_variables()\` for default theme variable values.
 
 ### Pro Tips
-• HeroUI Native is built for production React Native apps
-• All components support dark mode out of the box
-• Use NativeWind classes for custom styling
-• Components are fully typed with TypeScript
-• Report issues at: https://github.com/heroui-inc/heroui-native/issues
-
-For complete guidelines: https://github.com/heroui-inc/heroui-native/blob/beta/README.md`,
+• This MCP is for HeroUI Native Beta
+• Beta status - use for experimentation and new projects
+• Examples are included in component docs - no separate examples tool needed`,
       capabilities: {
         tools: {
           listChanged: true,

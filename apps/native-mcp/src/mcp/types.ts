@@ -7,8 +7,6 @@ export interface ToolConfig {
 
 export interface SharedContext {
   componentList: string[];
-  exampleList: string[];
-  themeList: string[];
   docPaths: string[];
   version: string;
   timestamp: number;
@@ -16,11 +14,10 @@ export interface SharedContext {
 
 export interface ComponentContext {
   componentList: string[];
-  exampleList: string[];
 }
 
-export interface ThemeContext {
-  themeList: string[];
+export interface DocsContext {
+  docPaths: string[];
 }
 
 export interface Tool<T = unknown> {

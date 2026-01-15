@@ -6,110 +6,20 @@ import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 
 const docs = new Hono<HonoContext>();
 
-// Types for documentation structure
-interface DocSection {
-  title: string;
-  path: string;
-  description: string;
-}
-
-interface DocCategory {
-  name: string;
-  docs: DocSection[];
-}
-
-// Get available documentation paths from v3.heroui.com
-docs.get("/available", async (c) => {
-  const endpoint = "list-docs";
+// Get specific documentation content
+docs.get("*", async (c) => {
+  const endpoint = "get-docs";
   const startTime = Date.now();
   const analytics = c.get("analytics");
 
-  try {
-    // Fetch the llms.txt file from HeroUI v3 docs
-    const response = await fetch("https://v3.heroui.com/llms.txt");
+  // Get the path from the request URL (everything after /docs/)
+  const requestPath = c.req.path;
+  let path = requestPath.startsWith("/docs/") ? requestPath.slice(6) : requestPath.slice(1);
 
-    if (!response.ok) {
-      analytics.trackError({
-        error: "Failed to fetch documentation list",
-        errorEvent: AnalyticsErrorEvent.LIST_DOCS_ERROR,
-        properties: {
-          endpoint,
-          status: response.status,
-          statusText: response.statusText,
-          url: "https://v3.heroui.com/llms.txt",
-          responseTime: Date.now() - startTime,
-        },
-      });
-
-      return c.json(
-        {
-          error: "Failed to fetch documentation list",
-          status: response.status,
-        },
-        response.status as 400 | 401 | 403 | 404 | 500,
-      );
-    }
-
-    const content = await response.text();
-
-    // Parse the content to extract documentation structure
-    const categories: DocCategory[] = [];
-    let currentCategory: DocCategory | null = null;
-
-    const lines = content.split("\n");
-
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-
-      // Skip empty lines and main headers
-      if (!trimmedLine || trimmedLine === "# Docs") continue;
-
-      // Category header (starts with ##)
-      if (trimmedLine.startsWith("## ")) {
-        const categoryName = trimmedLine.substring(3).trim();
-        currentCategory = {
-          name: categoryName,
-          docs: [],
-        };
-        categories.push(currentCategory);
-      }
-      // Documentation entry (starts with -)
-      else if (trimmedLine.startsWith("- ") && currentCategory) {
-        // Parse format: - [Title](path): Description
-        const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
-        if (match) {
-          const [, title, path, description = ""] = match;
-          currentCategory.docs.push({
-            title,
-            path,
-            description,
-          });
-        }
-      }
-    }
-
-    const total = categories.reduce((acc, cat) => acc + cat.docs.length, 0);
-
-    analytics.track({
-      event: AnalyticsEvent.LIST_DOCS,
-      properties: {
-        endpoint,
-        responseTime: Date.now() - startTime,
-        categories: categories.length,
-        total,
-      },
-    });
-
-    return c.json({
-      baseUrl: "https://v3.heroui.com",
-      categories,
-      total,
-    });
-  } catch (error) {
+  if (!path) {
     analytics.trackError({
-      error,
-      errorEvent: AnalyticsErrorEvent.LIST_DOCS_ERROR,
-      fallbackMessage: "Failed to fetch documentation list",
+      error: "Missing path parameter",
+      errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       properties: {
         endpoint,
         responseTime: Date.now() - startTime,
@@ -118,119 +28,27 @@ docs.get("/available", async (c) => {
 
     return c.json(
       {
-        error: "Internal server error while fetching documentation list",
-        details: error instanceof Error ? error.message : "Unknown error",
+        error: "Missing required path parameter",
       },
-      500,
+      400,
     );
   }
-});
-
-// Get specific documentation content
-docs.get("/content", async (c) => {
-  const endpoint = "get-docs-content";
-  const startTime = Date.now();
-  const analytics = c.get("analytics");
-
-  let path: string | undefined = undefined;
 
   try {
-    path = c.req.query("path");
+    path = `/docs/${path}.mdx`;
 
-    if (!path) {
-      analytics.trackError({
-        error: "Missing required query parameter: path",
-        errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
-        properties: {
-          endpoint,
-          responseTime: Date.now() - startTime,
-        },
-      });
-
-      return c.json(
-        {
-          error: "Missing required query parameter: path",
-        },
-        400,
-      );
-    }
-
-    // Transform all React docs paths: /docs/* -> /docs/react/*
-    // This ensures backward compatibility while supporting the new URL structure
-    // All HeroUI React documentation has been moved under /docs/react/
-    // Note: handbook paths redirect to getting-started, so handle that transformation too
-    let transformedPath = path;
-    if (path.startsWith("/docs/") && !path.startsWith("/docs/react/")) {
-      // Transform handbook paths to getting-started (handbook redirects to getting-started)
-      if (path.startsWith("/docs/handbook/")) {
-        transformedPath = path.replace("/docs/handbook/", "/docs/react/getting-started/");
-      } else {
-        transformedPath = path.replace("/docs/", "/docs/react/");
-      }
-    }
-
-    // Construct the full URL for the documentation page
-    let docUrl = transformedPath;
-
-    // If path doesn't start with http, prepend the base URL
-    if (!transformedPath.startsWith("http")) {
-      // Remove leading slash if present
-      const cleanPath = transformedPath.startsWith("/") ? transformedPath : `/${transformedPath}`;
-      // Add .mdx extension if not present
-      const pathWithExt =
-        cleanPath.endsWith(".mdx") || cleanPath.endsWith(".md") ? cleanPath : `${cleanPath}.mdx`;
-      docUrl = `https://v3.heroui.com${pathWithExt}`;
-    }
+    const docUrl = `https://v3.heroui.com${path}`;
 
     const response = await fetch(docUrl);
 
     if (!response.ok) {
-      // Try without .mdx extension if it failed
-      let finalStatus = response.status;
-      let finalStatusText = response.statusText;
-      let finalUrl = docUrl;
-
-      if (docUrl.endsWith(".mdx")) {
-        const urlWithoutExt = docUrl.replace(".mdx", "");
-        const retryResponse = await fetch(urlWithoutExt);
-
-        if (retryResponse.ok) {
-          const content = await retryResponse.text();
-
-          analytics.track({
-            event: AnalyticsEvent.GET_DOCS_CONTENT,
-            properties: {
-              endpoint,
-              path,
-              url: urlWithoutExt,
-              length: content.length,
-              responseTime: Date.now() - startTime,
-            },
-          });
-
-          return c.json({
-            path,
-            url: urlWithoutExt,
-            content,
-            contentType: retryResponse.headers.get("content-type") || "text/plain",
-          });
-        }
-
-        // Use retry response status if retry was attempted
-        finalStatus = retryResponse.status;
-        finalStatusText = retryResponse.statusText;
-        finalUrl = urlWithoutExt;
-      }
-
       analytics.trackError({
-        error: "Failed to fetch documentation from v3.heroui.com",
-        errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
+        error: `Failed to fetch documentation: ${path}`,
+        errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
         properties: {
           endpoint,
           path,
-          status: finalStatus,
-          statusText: finalStatusText,
-          url: finalUrl,
+          status: response.status,
           responseTime: Date.now() - startTime,
         },
       });
@@ -238,9 +56,9 @@ docs.get("/content", async (c) => {
       return c.json(
         {
           error: `Documentation not found at path: ${path}`,
-          status: finalStatus,
+          status: response.status,
         },
-        finalStatus as 400 | 401 | 403 | 404 | 500,
+        response.status as 400 | 404 | 500,
       );
     }
 
@@ -248,7 +66,7 @@ docs.get("/content", async (c) => {
     const contentType = response.headers.get("content-type") || "text/plain";
 
     analytics.track({
-      event: AnalyticsEvent.GET_DOCS_CONTENT,
+      event: AnalyticsEvent.GET_DOCS,
       properties: {
         endpoint,
         path,
@@ -274,7 +92,7 @@ docs.get("/content", async (c) => {
 
     analytics.trackError({
       error,
-      errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
+      errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       fallbackMessage: "Failed to fetch documentation content",
       properties: {
         endpoint,

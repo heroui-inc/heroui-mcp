@@ -12,11 +12,11 @@ Always call this first before using any component to verify it exists in v3.
 Returns the component names exactly as they should be used in imports and other tool calls.
 v3 uses compound patterns (e.g., Card.Header, Card.Content) - different from v2's flat props.
 If user asks about a v2 component not in v3, explain it may not be available yet.
-Example workflow: list_components → get_component_info → get_component_examples.
+Example workflow: list_components → get_component_docs → get_component_source_code (optional).
 Note: v3 is BETA - component list may change before stable release.`,
   exec(server, {config, name, description}) {
     // Register tool
-    server.tool(name, description, {}, async () => {
+    server.registerTool(name, {description}, async () => {
       try {
         // Direct API call
         const data = await fetchApi<{components: string[]; latestVersion: string}>(

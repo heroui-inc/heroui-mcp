@@ -87,6 +87,6 @@ These are BEM classes from @heroui/styles - not for use with React components.`)
     };
 
     // Register tool
-    server.tool(name, description, inputSchema.shape, handler as any);
+    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
   },
 };

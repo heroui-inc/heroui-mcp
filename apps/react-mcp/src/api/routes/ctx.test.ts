@@ -14,7 +14,6 @@ describe("Context API", () => {
 
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("components");
-      expect(data).toHaveProperty("themes");
       expect(data).toHaveProperty("docs");
       expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("timestamp");
@@ -26,15 +25,6 @@ describe("Context API", () => {
 
       expect(Array.isArray(data.components)).toBe(true);
       expect(data.components.length).toBeGreaterThan(0);
-    });
-
-    it("should return array of themes", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
-      const data = (await res.json()) as any;
-
-      expect(Array.isArray(data.themes)).toBe(true);
-      expect(data.themes.length).toBeGreaterThan(0);
-      expect(data.themes.includes("default")).toBe(true);
     });
 
     it("should return docs object with paths and categories", async () => {
@@ -94,8 +84,8 @@ describe("Context API", () => {
 
       expect(typeof data.timestamp).toBe("number");
       expect(new Date(data.timestamp)).toBeInstanceOf(Date);
-      // Timestamp should be recent (within last minute)
-      expect(Date.now() - data.timestamp).toBeLessThan(60000);
+      // Timestamp should be valid (not in the future)
+      expect(data.timestamp).toBeLessThanOrEqual(Date.now());
     });
 
     it("should have proper CORS headers", async () => {
@@ -123,14 +113,14 @@ describe("Context API", () => {
       }
     });
 
-    it("should fetch llms.txt from HeroUI v3 docs", async () => {
+    it("should fetch react/llms.txt from HeroUI v3 docs", async () => {
       const res = await SELF.fetch("http://localhost:8787/ctx");
       const data = (await res.json()) as any;
 
       if (res.status === 200 && data.docs.paths.length > 0) {
-        // Verify that paths start with /docs/
+        // Verify that paths start with /docs/react/
         data.docs.paths.forEach((path: string) => {
-          expect(path).toMatch(/^\/docs\//);
+          expect(path).toMatch(/^\/docs\/react\//);
         });
       }
     });
@@ -144,7 +134,7 @@ describe("Context API", () => {
       expect(responseTime).toBeLessThan(5000);
     });
 
-    it("should handle llms.txt parsing errors gracefully", async () => {
+    it("should handle react/llms.txt parsing errors gracefully", async () => {
       const res = await SELF.fetch("http://localhost:8787/ctx");
       const data = (await res.json()) as any;
 
@@ -161,7 +151,7 @@ describe("Context API", () => {
         const data = (await res.json()) as any;
         // Analytics tracking is internal, but we can verify response structure
         expect(data).toHaveProperty("components");
-        expect(data).toHaveProperty("themes");
+        expect(data).toHaveProperty("docs");
       }
     });
 
@@ -177,7 +167,7 @@ describe("Context API", () => {
         const data = (await res.json()) as any;
         // Core data should still be present
         expect(data).toHaveProperty("components");
-        expect(data).toHaveProperty("themes");
+        expect(data).toHaveProperty("docs");
         expect(data).toHaveProperty("version");
       }
     });

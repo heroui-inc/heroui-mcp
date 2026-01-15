@@ -1,22 +1,34 @@
-/**
- * Health check endpoint
- */
-
 import type {HonoContext} from "../types/context";
 
 import {Hono} from "hono";
 
-import {API_VERSION} from "../constants";
+import packageJson from "../../../package.json";
 
 const health = new Hono<HonoContext>();
 
-health.get("/", async (c) => {
+// Root endpoint - API info
+health.get("/", (c) => {
+  return c.json({
+    name: "HeroUI Native MCP API",
+    version: packageJson.version,
+    description: "REST API for HeroUI Native component documentation",
+    endpoints: {
+      "/": "API information",
+      "/health": "Health check",
+      "GET /components": "List HeroUI Native components (latest version)",
+      "GET /components/:component/docs": "Get component documentation from v3.heroui.com",
+      "GET /docs/:path": "Get documentation content from a specific path",
+      "/themes/variables": "Get theme variables",
+    },
+  });
+});
+
+// Health check
+health.get("/health", (c) => {
   return c.json({
     status: "healthy",
-    service: "heroui-native-mcp-api",
-    version: API_VERSION,
     timestamp: new Date().toISOString(),
-    environment: c.env.NODE_ENV,
+    environment: c.env?.NODE_ENV || process.env.NODE_ENV || "development",
   });
 });
 

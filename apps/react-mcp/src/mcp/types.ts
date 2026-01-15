@@ -7,7 +7,6 @@ export interface ToolConfig {
 
 export interface SharedContext {
   componentList: string[];
-  themeList: string[];
   docPaths: string[];
   version: string;
   timestamp: number;
@@ -15,6 +14,10 @@ export interface SharedContext {
 
 export interface ComponentContext {
   componentList: string[];
+}
+
+export interface DocsContext {
+  docPaths: string[];
 }
 
 export interface Tool<T = unknown> {
