@@ -203,16 +203,9 @@ The Inspector provides a web interface for testing MCP tools interactively.
 
 ### 📦 Data Extraction Commands
 
-#### Native MCP Extraction
-
 ```bash
-pnpm extract:native            # Extract all to dev bucket
-```
-
-#### React MCP Extraction
-
-```bash
-pnpm extract:react            # Extract all to dev bucket
+pnpm extract:react            # Extract React MCP data
+pnpm extract:native           # Extract Native MCP data
 ```
 
 ### ✅ Code Quality Commands
@@ -316,15 +309,8 @@ Data is stored as `ctx.json` in R2, containing components list, documentation pa
 Set up environment variables in `.env`, then extract to development bucket:
 
 ```bash
-# React MCP
-pnpm extract:react            # Extract all React data
-pnpm extract:react:components # Extract only components
-pnpm extract:react:theme      # Extract only theme data
-
-# Native MCP
-pnpm extract:native           # Extract all Native data
-pnpm extract:native:components # Extract only components
-pnpm extract:native:theme     # Extract only theme data
+pnpm extract:react            # Extract React MCP data
+pnpm extract:native           # Extract Native MCP data
 ```
 
 #### For Staging/Production
