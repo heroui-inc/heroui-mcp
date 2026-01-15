@@ -183,13 +183,12 @@ pnpm build:react       # Build @heroui/react-mcp
 ### 🚀 Development Commands
 
 ```bash
-# Start development server for all packages (excludes mastra)
+# Start development server for all packages
 pnpm dev
 
 # Start development server for specific package
 pnpm dev:native        # Native MCP API server (http://localhost:8788)
 pnpm dev:react         # React MCP API server (http://localhost:8787)
-pnpm dev:mastra        # Mastra playground (http://localhost:4111)
 ```
 
 ### 🔍 MCP Inspector Commands
@@ -200,7 +199,7 @@ pnpm inspect:native    # Native MCP Inspector
 pnpm inspect:react     # React MCP Inspector
 ```
 
-The Inspector provides a web interface at http://localhost:6274 (or similar) for testing MCP tools interactively.
+The Inspector provides a web interface for testing MCP tools interactively.
 
 ### 📦 Data Extraction Commands
 
@@ -208,16 +207,12 @@ The Inspector provides a web interface at http://localhost:6274 (or similar) for
 
 ```bash
 pnpm extract:native            # Extract all to dev bucket
-pnpm extract:native:components # Extract only components
-pnpm extract:native:theme      # Extract only theme
 ```
 
 #### React MCP Extraction
 
 ```bash
 pnpm extract:react            # Extract all to dev bucket
-pnpm extract:react:components # Extract only components
-pnpm extract:react:theme      # Extract only theme
 ```
 
 ### ✅ Code Quality Commands
@@ -280,7 +275,7 @@ NODE_ENV=staging
 NODE_ENV=production
 ```
 
-Environment variables are configured in `wrangler.toml`.
+Environment variables are configured in `wrangler.toml` for API servers.
 
 ## 🌐 Cloudflare Workers Deployment
 
@@ -337,7 +332,6 @@ pnpm extract:native:theme     # Extract only theme data
 Data is automatically extracted via GitHub Actions when:
 
 - Code is pushed to `develop` (staging) or `main` (production)
-- Daily at 2 AM UTC
 - Manually triggered via GitHub Actions UI
 
 ### Rate Limiting
@@ -347,36 +341,6 @@ The extraction scripts fetch documentation directly from `v3.heroui.com`:
 - Documentation is fetched from public URLs (no authentication required)
 - Rate limiting is handled by the documentation server
 - GitHub token is optional and only used for version checking via GitHub API
-
-## 🛠️ Debugging
-
-### Debug Mode
-
-Run with debug output:
-
-```bash
-DEBUG=* npx @heroui/react-mcp@latest
-```
-
-### Testing API Connection
-
-```bash
-# Test if the API is accessible
-curl https://mcp-api.heroui.com/health
-
-# Check component data
-curl https://mcp-api.heroui.com/components
-
-# Get shared context
-curl https://mcp-api.heroui.com/ctx
-```
-
-### Verifying Package Installation
-
-```bash
-# Check if the package is available (always use @latest)
-npx @heroui/react-mcp@latest --version
-```
 
 ## 🛠️ Adding New Features
 
@@ -483,28 +447,6 @@ Each MCP package follows a unified architecture:
    - Fetches component data from v3.heroui.com using `llms.txt` manifest
    - Extracts minimal metadata (name, links) from component documentation
    - Uploads consolidated `ctx.json` to R2
-
-### Working on Multiple Packages
-
-When working on features that affect multiple packages, you can use the root commands:
-
-```bash
-# Run commands for all packages (via Turbo)
-pnpm build
-pnpm typecheck
-pnpm lint
-pnpm test
-
-# Run for specific package (from root)
-pnpm build:react       # Build React MCP
-pnpm build:native      # Build Native MCP
-pnpm dev:react         # Dev server for React MCP
-pnpm dev:native        # Dev server for Native MCP
-
-# Or use pnpm filtering directly
-pnpm --filter @heroui/react-mcp build
-pnpm --filter @heroui/native-mcp typecheck
-```
 
 ## 🤝 Submitting Pull Requests
 
