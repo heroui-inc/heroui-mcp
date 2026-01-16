@@ -70,21 +70,38 @@ components.get("/:component/docs", async (c) => {
     const response = await fetch(docUrl);
 
     if (!response.ok) {
+      let errorBody: string | null = null;
+      try {
+        errorBody = await response.text();
+
+        if (errorBody && errorBody.length > 300) {
+          errorBody =
+            errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+        }
+      } catch {
+        // Ignore if we can't read the body
+      }
+
       analytics.trackError({
-        error: `Failed to fetch component docs: ${component}`,
+        error: new Error(`${response.status}: ${response.statusText}`),
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
         properties: {
           endpoint,
           component,
+          url: docUrl,
           status: response.status,
+          statusText: response.statusText,
+          errorBody,
           responseTime: Date.now() - startTime,
         },
       });
 
       return c.json(
         {
-          error: `Component documentation not found: ${component}`,
+          error: `${response.status} ${response.statusText}`,
           status: response.status,
+          statusText: response.statusText,
+          url: docUrl,
         },
         response.status as 400 | 404 | 500,
       );
@@ -112,12 +129,8 @@ components.get("/:component/docs", async (c) => {
       contentType,
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    const isNetworkError =
-      errorMessage.includes("fetch") ||
-      errorMessage.includes("network") ||
-      errorMessage.includes("ECONNREFUSED") ||
-      errorMessage.includes("ENOTFOUND");
+    const kebabName = componentNameToKebab(component);
+    const docUrl = `https://v3.heroui.com/docs/native/components/${kebabName}.mdx`;
 
     analytics.trackError({
       error,
@@ -126,27 +139,16 @@ components.get("/:component/docs", async (c) => {
       properties: {
         endpoint,
         component,
+        url: docUrl,
         responseTime: Date.now() - startTime,
-        isNetworkError,
       },
     });
 
-    if (isNetworkError) {
-      return c.json(
-        {
-          error: "Network error while fetching component documentation",
-          details: errorMessage,
-          component,
-        },
-        500,
-      );
-    }
-
     return c.json(
       {
-        error: "Internal server error while fetching component documentation",
-        details: errorMessage,
+        error: error instanceof Error ? error.message : String(error),
         component,
+        url: docUrl,
       },
       500,
     );

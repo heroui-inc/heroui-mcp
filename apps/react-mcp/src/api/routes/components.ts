@@ -90,22 +90,39 @@ components.get("/:component/docs", async (c) => {
     const response = await fetch(docUrl);
 
     if (!response.ok) {
+      let errorBody: string | null = null;
+      try {
+        errorBody = await response.text();
+
+        if (errorBody && errorBody.length > 300) {
+          errorBody =
+            errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+        }
+      } catch {
+        // Ignore if we can't read the body
+      }
+
       analytics.trackError({
-        error: `Failed to fetch component docs: ${component}`,
+        error: new Error(`${response.status}: ${response.statusText}`),
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
         properties: {
           endpoint,
           app,
           component,
+          url: docUrl,
           status: response.status,
+          statusText: response.statusText,
+          errorBody,
           responseTime: Date.now() - startTime,
         },
       });
 
       return c.json(
         {
-          error: `Component documentation not found: ${component}`,
+          error: `${response.status} ${response.statusText}`,
           status: response.status,
+          statusText: response.statusText,
+          url: docUrl,
         },
         response.status as 400 | 404 | 500,
       );
@@ -133,42 +150,26 @@ components.get("/:component/docs", async (c) => {
       contentType,
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    const isNetworkError =
-      errorMessage.includes("fetch") ||
-      errorMessage.includes("network") ||
-      errorMessage.includes("ECONNREFUSED") ||
-      errorMessage.includes("ENOTFOUND");
+    const kebabName = componentNameToKebab(component);
+    const docUrl = `https://v3.heroui.com/docs/react/components/${kebabName}.mdx`;
 
     analytics.trackError({
       error,
       errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
-      fallbackMessage: "Failed to fetch component documentation",
       properties: {
         endpoint,
         app,
         component,
+        url: docUrl,
         responseTime: Date.now() - startTime,
-        isNetworkError,
       },
     });
 
-    if (isNetworkError) {
-      return c.json(
-        {
-          error: "Network error while fetching component documentation",
-          details: errorMessage,
-          component,
-        },
-        500,
-      );
-    }
-
     return c.json(
       {
-        error: "Internal server error while fetching component documentation",
-        details: errorMessage,
+        error: error instanceof Error ? error.message : String(error),
         component,
+        url: docUrl,
       },
       500,
     );
@@ -203,11 +204,62 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
         const sourceUrl = `${baseUrl}/packages/react/src/components/${result.data.links.source}`;
 
         try {
-          const response = await fetch(sourceUrl);
-          if (!response.ok) {
+          let response: Response;
+          try {
+            response = await fetch(sourceUrl);
+          } catch (fetchError) {
+            analytics.trackError({
+              error: fetchError,
+              errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
+              fallbackMessage: "Failed to fetch source code",
+              properties: {
+                endpoint,
+                app,
+                component: result.component,
+                url: sourceUrl,
+                filePath: result.data.links.source,
+                responseTime: Date.now() - startTime,
+              },
+            });
+
             return {
               component: result.component,
-              error: "Failed to fetch source code from GitHub",
+              error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+            };
+          }
+
+          if (!response.ok) {
+            let errorBody: string | null = null;
+            try {
+              errorBody = await response.text();
+
+              if (errorBody && errorBody.length > 300) {
+                errorBody =
+                  errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+              }
+            } catch {
+              // Ignore if we can't read the body
+            }
+
+            analytics.trackError({
+              error: new Error(`${response.status}: ${response.statusText}`),
+              errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
+              properties: {
+                endpoint,
+                app,
+                component: result.component,
+                url: sourceUrl,
+                filePath: result.data.links.source,
+                status: response.status,
+                statusText: response.statusText,
+                errorBody,
+                responseTime: Date.now() - startTime,
+              },
+            });
+
+            return {
+              component: result.component,
+              error: `${response.status} ${response.statusText}`,
             };
           }
 
@@ -222,9 +274,22 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
               .replace("/refs/heads/", "/blob/"),
           };
         } catch (error) {
+          analytics.trackError({
+            error,
+            errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
+            properties: {
+              endpoint,
+              app,
+              component: result.component,
+              url: sourceUrl,
+              filePath: result.data.links.source,
+              responseTime: Date.now() - startTime,
+            },
+          });
+
           return {
             component: result.component,
-            error: error instanceof Error ? error.message : "Failed to fetch source code",
+            error: error instanceof Error ? error.message : String(error),
           };
         }
       }),
@@ -313,11 +378,62 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
         const stylesUrl = `${baseUrl}/packages/styles/components/${result.data.links.styles}`;
 
         try {
-          const response = await fetch(stylesUrl);
-          if (!response.ok) {
+          let response: Response;
+          try {
+            response = await fetch(stylesUrl);
+          } catch (fetchError) {
+            analytics.trackError({
+              error: fetchError,
+              errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
+              fallbackMessage: "Failed to fetch styles",
+              properties: {
+                endpoint,
+                app,
+                component: result.component,
+                url: stylesUrl,
+                filePath: result.data.links.styles,
+                responseTime: Date.now() - startTime,
+              },
+            });
+
             return {
               component: result.component,
-              error: "Failed to fetch styles from GitHub",
+              error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+            };
+          }
+
+          if (!response.ok) {
+            let errorBody: string | null = null;
+            try {
+              errorBody = await response.text();
+
+              if (errorBody && errorBody.length > 300) {
+                errorBody =
+                  errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+              }
+            } catch {
+              // Ignore if we can't read the body
+            }
+
+            analytics.trackError({
+              error: new Error(`${response.status}: ${response.statusText}`),
+              errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
+              properties: {
+                endpoint,
+                app,
+                component: result.component,
+                url: stylesUrl,
+                filePath: result.data.links.styles,
+                status: response.status,
+                statusText: response.statusText,
+                errorBody,
+                responseTime: Date.now() - startTime,
+              },
+            });
+
+            return {
+              component: result.component,
+              error: `${response.status} ${response.statusText}`,
             };
           }
 
@@ -332,9 +448,22 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
               .replace("/refs/heads/", "/blob/"),
           };
         } catch (error) {
+          analytics.trackError({
+            error,
+            errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
+            properties: {
+              endpoint,
+              app,
+              component: result.component,
+              url: stylesUrl,
+              filePath: result.data.links.styles,
+              responseTime: Date.now() - startTime,
+            },
+          });
+
           return {
             component: result.component,
-            error: error instanceof Error ? error.message : "Failed to fetch styles",
+            error: error instanceof Error ? error.message : String(error),
           };
         }
       }),

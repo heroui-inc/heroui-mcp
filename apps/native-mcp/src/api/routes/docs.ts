@@ -43,21 +43,38 @@ docs.get("*", async (c) => {
     const response = await fetch(docUrl);
 
     if (!response.ok) {
+      let errorBody: string | null = null;
+      try {
+        errorBody = await response.text();
+
+        if (errorBody && errorBody.length > 300) {
+          errorBody =
+            errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+        }
+      } catch {
+        // Ignore if we can't read the body
+      }
+
       analytics.trackError({
-        error: `Failed to fetch documentation: ${path}`,
+        error: new Error(`${response.status}: ${response.statusText}`),
         errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
         properties: {
           endpoint,
           path,
+          url: docUrl,
           status: response.status,
+          statusText: response.statusText,
+          errorBody,
           responseTime: Date.now() - startTime,
         },
       });
 
       return c.json(
         {
-          error: `Documentation not found at path: ${path}`,
+          error: `${response.status} ${response.statusText}`,
           status: response.status,
+          statusText: response.statusText,
+          url: docUrl,
         },
         response.status as 400 | 404 | 500,
       );
@@ -84,41 +101,24 @@ docs.get("*", async (c) => {
       contentType,
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    const isNetworkError =
-      errorMessage.includes("fetch") ||
-      errorMessage.includes("network") ||
-      errorMessage.includes("ECONNREFUSED") ||
-      errorMessage.includes("ENOTFOUND");
+    const docUrl = `https://v3.heroui.com${path}`;
 
     analytics.trackError({
       error,
       errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
-      fallbackMessage: "Failed to fetch documentation content",
       properties: {
         endpoint,
         path,
+        url: docUrl,
         responseTime: Date.now() - startTime,
-        isNetworkError,
       },
     });
 
-    if (isNetworkError) {
-      return c.json(
-        {
-          error: "Network error while fetching documentation content",
-          details: errorMessage,
-          path,
-        },
-        500,
-      );
-    }
-
     return c.json(
       {
-        error: "Internal server error while fetching documentation content",
-        details: errorMessage,
+        error: error instanceof Error ? error.message : String(error),
         path,
+        url: docUrl,
       },
       500,
     );
