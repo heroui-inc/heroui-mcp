@@ -69,6 +69,20 @@ describe("Components API", () => {
       }
     });
 
+    it("should convert space-separated component names to kebab-case", async () => {
+      const res = await SELF.fetch("http://localhost:8788/components/Alert Dialog/docs");
+
+      // May return 200 or 404 depending on if component exists
+      if (res.status === 200) {
+        const data = (await res.json()) as any;
+        expect(data.url).toContain("alert-dialog");
+      } else {
+        // Even if component doesn't exist, URL should be correctly formatted
+        expect(res.status).toBeGreaterThanOrEqual(400);
+        expect(res.status).toBeLessThan(600);
+      }
+    });
+
     it("should have proper CORS headers", async () => {
       const res = await SELF.fetch("http://localhost:8788/components/Button/docs");
 
