@@ -1,10 +1,22 @@
 import type {HonoContext} from "../types/context";
 
+import {zValidator} from "@hono/zod-validator";
 import {Hono} from "hono";
+import {z} from "zod";
 
 import {getComponentService} from "../services/component";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 import {componentNameToKebab} from "../utils/component-name";
+
+const ComponentsRequestSchema = z.object({
+  components: z
+    .array(z.string().trim().min(1, "Component name cannot be empty"))
+    .min(1, "Components array cannot be empty")
+    .refine(
+      (components) => components.every((c) => c.trim().length > 0),
+      "All component names must be non-empty strings",
+    ),
+});
 
 const components = new Hono<HonoContext>();
 
@@ -56,99 +68,134 @@ components.get("/", async (c) => {
   }
 });
 
-// Get component documentation
-components.get("/:component/docs", async (c) => {
-  const endpoint = "get-component-docs";
+// Get component documentation (batch)
+components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) => {
+  const endpoint = "get-component-docs-batch";
   const startTime = Date.now();
+  const {components: componentNames} = c.req.valid("json");
   const analytics = c.get("analytics");
-  const component = c.req.param("component");
 
   try {
-    const kebabName = componentNameToKebab(component);
-    const docUrl = `https://v3.heroui.com/docs/native/components/${kebabName}.mdx`;
+    const docResults = await Promise.all(
+      componentNames.map(async (component) => {
+        const kebabName = componentNameToKebab(component);
+        const docUrl = `https://v3.heroui.com/docs/native/components/${kebabName}.mdx`;
 
-    const response = await fetch(docUrl);
+        try {
+          const response = await fetch(docUrl);
 
-    if (!response.ok) {
-      let errorBody: string | null = null;
-      try {
-        errorBody = await response.text();
+          if (!response.ok) {
+            let errorBody: string | null = null;
+            try {
+              errorBody = await response.text();
 
-        if (errorBody && errorBody.length > 300) {
-          errorBody =
-            errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+              if (errorBody && errorBody.length > 300) {
+                errorBody =
+                  errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+              }
+            } catch {
+              // Ignore if we can't read the body
+            }
+
+            analytics.trackError({
+              error: new Error(`${response.status}: ${response.statusText}`),
+              errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
+              properties: {
+                endpoint,
+                component,
+                url: docUrl,
+                status: response.status,
+                statusText: response.statusText,
+                errorBody,
+                responseTime: Date.now() - startTime,
+              },
+            });
+
+            return {
+              component,
+              error: `${response.status} ${response.statusText}`,
+              status: response.status,
+              statusText: response.statusText,
+              url: docUrl,
+            };
+          }
+
+          const content = await response.text();
+          const contentType = response.headers.get("content-type") || "text/plain";
+
+          analytics.track({
+            event: AnalyticsEvent.GET_COMPONENT_DOCS,
+            properties: {
+              endpoint,
+              component,
+              url: docUrl,
+              length: content.length,
+              responseTime: Date.now() - startTime,
+            },
+          });
+
+          return {
+            component,
+            path: `/docs/native/components/${kebabName}`,
+            url: docUrl,
+            content,
+            contentType,
+          };
+        } catch (error) {
+          analytics.trackError({
+            error,
+            errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
+            properties: {
+              endpoint,
+              component,
+              url: docUrl,
+              responseTime: Date.now() - startTime,
+            },
+          });
+
+          return {
+            component,
+            error: error instanceof Error ? error.message : String(error),
+            url: docUrl,
+          };
         }
-      } catch {
-        // Ignore if we can't read the body
-      }
+      }),
+    );
 
+    const failedComponents = docResults.filter((result) => result.error);
+
+    if (failedComponents.length > 0) {
       analytics.trackError({
-        error: new Error(`${response.status}: ${response.statusText}`),
+        error: failedComponents.map((result) => `${result.component}: ${result.error}`).join(", "),
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
         properties: {
           endpoint,
-          component,
-          url: docUrl,
-          status: response.status,
-          statusText: response.statusText,
-          errorBody,
+          components: componentNames,
+          failedComponents: failedComponents.map((result) => result.component),
           responseTime: Date.now() - startTime,
         },
       });
-
-      return c.json(
-        {
-          error: `${response.status} ${response.statusText}`,
-          status: response.status,
-          statusText: response.statusText,
-          url: docUrl,
-        },
-        response.status as 400 | 404 | 500,
-      );
     }
 
-    const content = await response.text();
-    const contentType = response.headers.get("content-type") || "text/plain";
-
-    analytics.track({
-      event: AnalyticsEvent.GET_COMPONENT_DOCS,
-      properties: {
-        endpoint,
-        component,
-        url: docUrl,
-        length: content.length,
-        responseTime: Date.now() - startTime,
-      },
-    });
-
     return c.json({
-      component,
-      path: `/docs/native/components/${kebabName}`,
-      url: docUrl,
-      content,
-      contentType,
+      results: docResults,
     });
   } catch (error) {
-    const kebabName = componentNameToKebab(component);
-    const docUrl = `https://v3.heroui.com/docs/native/components/${kebabName}.mdx`;
-
     analytics.trackError({
       error,
       errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
-      fallbackMessage: "Failed to fetch component documentation",
+      fallbackMessage: "Failed to get component documentation",
       properties: {
         endpoint,
-        component,
-        url: docUrl,
+        components: componentNames,
         responseTime: Date.now() - startTime,
       },
     });
 
     return c.json(
       {
-        error: error instanceof Error ? error.message : String(error),
-        component,
-        url: docUrl,
+        error: "Failed to get component documentation",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       500,
     );

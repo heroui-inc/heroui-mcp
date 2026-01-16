@@ -5,13 +5,6 @@ import {z} from "zod";
 
 import {fetchApi} from "../lib/fetch";
 
-interface ComponentDocsResponse {
-  component: string;
-  url: string;
-  content: string;
-  contentType: string;
-}
-
 export const getComponentDocsTool: Tool<ComponentContext> = {
   name: "get_component_docs",
   description: `Get complete component documentation (including examples, props, usage) directly from v3.heroui.com.
@@ -46,41 +39,27 @@ DO NOT guess names - always verify with list_components first.`),
 
     const handler = async ({components}: z.infer<typeof inputSchema>) => {
       try {
-        const results = await Promise.all(
-          components.map(async (component) => {
-            try {
-              const data = await fetchApi<ComponentDocsResponse>(
-                `/components/${component}/docs`,
-                config.apiBaseUrl,
-              );
-
-              return {
-                success: true as const,
-                component,
-                url: data.url,
-                content: data.content,
-                contentType: data.contentType,
-              };
-            } catch (error: any) {
-              const statusCode = error?.status;
-              const errorMessage = error instanceof Error ? error.message : "Unknown error";
-
-              return {
-                success: false as const,
-                component,
-                error: errorMessage,
-                status: statusCode,
-              };
-            }
-          }),
-        );
+        const response = await fetchApi<{
+          results: Array<{
+            component: string;
+            url?: string;
+            content?: string;
+            contentType?: string;
+            error?: string;
+            status?: number;
+            statusText?: string;
+          }>;
+        }>("/components/docs", config.apiBaseUrl, {
+          method: "POST",
+          body: JSON.stringify({components}),
+        });
 
         let responseText = "";
 
-        results.forEach((result, index) => {
+        response.results.forEach((result, index) => {
           if (index > 0) responseText += "\n\n---\n\n";
 
-          if (!result.success) {
+          if (result.error || !result.content) {
             responseText += `# ${result.component} Documentation\n\n`;
             responseText += `Error: ${result.error}\n`;
             if (result.status) {
