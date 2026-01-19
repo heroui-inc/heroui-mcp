@@ -38,7 +38,7 @@ class ThemeService {
    */
   async getThemeSystem(): Promise<ThemeSystem | null> {
     try {
-      const key = "native/latest/theme.json";
+      const key = "native/v1/latest/theme.json";
 
       const response = await this.client.send(
         new GetObjectCommand({
@@ -108,7 +108,7 @@ class ThemeService {
       const response = await this.client.send(
         new GetObjectCommand({
           Bucket: this.bucketName,
-          Key: "native/latest/ctx.json",
+          Key: "native/v1/latest/ctx.json",
         }),
       );
 

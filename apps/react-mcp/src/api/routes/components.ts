@@ -41,6 +41,7 @@ components.get("/", async (c) => {
       event: AnalyticsEvent.LIST_COMPONENTS,
       properties: {
         endpoint,
+        apiVersion: "v1",
         app,
         componentsCount: componentsList.length,
         latestVersion,
@@ -60,6 +61,7 @@ components.get("/", async (c) => {
       fallbackMessage: "Failed to list components",
       properties: {
         endpoint,
+        apiVersion: "v1",
         app,
         responseTime: Date.now() - startTime,
       },
@@ -110,6 +112,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
               errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
               properties: {
                 endpoint,
+                apiVersion: "v1",
                 app,
                 component,
                 url: docUrl,
@@ -136,6 +139,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
             event: AnalyticsEvent.GET_COMPONENT_DOCS,
             properties: {
               endpoint,
+              apiVersion: "v1",
               app,
               component,
               url: docUrl,
@@ -156,6 +160,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
             errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
             properties: {
               endpoint,
+              apiVersion: "v1",
               app,
               component,
               url: docUrl,
@@ -180,6 +185,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
           app,
           components: componentNames,
           failedComponents: failedComponents.map((result) => result.component),
@@ -198,6 +204,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
       fallbackMessage: "Failed to get component documentation",
       properties: {
         endpoint,
+        apiVersion: "v1",
         app,
         components: componentNames,
         responseTime: Date.now() - startTime,
@@ -252,6 +259,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
               fallbackMessage: "Failed to fetch source code",
               properties: {
                 endpoint,
+                apiVersion: "v1",
                 app,
                 component: result.component,
                 url: sourceUrl,
@@ -284,6 +292,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
               errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
               properties: {
                 endpoint,
+                apiVersion: "v1",
                 app,
                 component: result.component,
                 url: sourceUrl,
@@ -317,6 +326,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
             errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
             properties: {
               endpoint,
+              apiVersion: "v1",
               app,
               component: result.component,
               url: sourceUrl,
@@ -341,6 +351,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
           app,
           components: componentNames,
           failedComponents: failedComponents.map((result) => result.component),
@@ -353,6 +364,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
         event: AnalyticsEvent.GET_COMPONENT_SOURCE_CODE,
         properties: {
           endpoint,
+          apiVersion: "v1",
           app,
           components: componentNames,
           latestVersion,
@@ -372,6 +384,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
       fallbackMessage: "Failed to get component source code",
       properties: {
         endpoint,
+        apiVersion: "v1",
         app,
         components: componentNames,
         responseTime: Date.now() - startTime,
@@ -426,6 +439,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
               fallbackMessage: "Failed to fetch styles",
               properties: {
                 endpoint,
+                apiVersion: "v1",
                 app,
                 component: result.component,
                 url: stylesUrl,
@@ -458,6 +472,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
               errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
               properties: {
                 endpoint,
+                apiVersion: "v1",
                 app,
                 component: result.component,
                 url: stylesUrl,
@@ -491,6 +506,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
             errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
             properties: {
               endpoint,
+              apiVersion: "v1",
               app,
               component: result.component,
               url: stylesUrl,
@@ -515,6 +531,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
           app,
           components: componentNames,
           failedComponents: failedComponents.map((result) => result.component),
@@ -527,6 +544,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
         event: AnalyticsEvent.GET_COMPONENT_SOURCE_STYLES,
         properties: {
           endpoint,
+          apiVersion: "v1",
           app,
           components: componentNames,
           latestVersion,
@@ -546,6 +564,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
       fallbackMessage: "Failed to get component styles",
       properties: {
         endpoint,
+        apiVersion: "v1",
         app,
         components: componentNames,
         responseTime: Date.now() - startTime,

@@ -21,6 +21,7 @@ docs.get("*", async (c) => {
       errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       properties: {
         endpoint,
+        apiVersion: "v1",
         responseTime: Date.now() - startTime,
       },
     });
@@ -60,6 +61,7 @@ docs.get("*", async (c) => {
         errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
           path,
           url: docUrl,
           status: response.status,
@@ -87,6 +89,7 @@ docs.get("*", async (c) => {
       event: AnalyticsEvent.GET_DOCS,
       properties: {
         endpoint,
+        apiVersion: "v1",
         path,
         url: docUrl,
         length: content.length,
@@ -108,6 +111,7 @@ docs.get("*", async (c) => {
       errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       properties: {
         endpoint,
+        apiVersion: "v1",
         path,
         url: docUrl,
         responseTime: Date.now() - startTime,

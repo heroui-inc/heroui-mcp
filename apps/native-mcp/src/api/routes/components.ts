@@ -36,6 +36,7 @@ components.get("/", async (c) => {
       event: AnalyticsEvent.LIST_COMPONENTS,
       properties: {
         endpoint,
+        apiVersion: "v1",
         componentsCount: componentsList.length,
         latestVersion,
         responseTime: Date.now() - startTime,
@@ -54,6 +55,7 @@ components.get("/", async (c) => {
       fallbackMessage: "Failed to list components",
       properties: {
         endpoint,
+        apiVersion: "v1",
         responseTime: Date.now() - startTime,
       },
     });
@@ -102,6 +104,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
               errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
               properties: {
                 endpoint,
+                apiVersion: "v1",
                 component,
                 url: docUrl,
                 status: response.status,
@@ -127,6 +130,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
             event: AnalyticsEvent.GET_COMPONENT_DOCS,
             properties: {
               endpoint,
+              apiVersion: "v1",
               component,
               url: docUrl,
               length: content.length,
@@ -147,6 +151,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
             errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
             properties: {
               endpoint,
+              apiVersion: "v1",
               component,
               url: docUrl,
               responseTime: Date.now() - startTime,
@@ -170,6 +175,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
         errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
           components: componentNames,
           failedComponents: failedComponents.map((result) => result.component),
           responseTime: Date.now() - startTime,
@@ -187,6 +193,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
       fallbackMessage: "Failed to get component documentation",
       properties: {
         endpoint,
+        apiVersion: "v1",
         components: componentNames,
         responseTime: Date.now() - startTime,
       },

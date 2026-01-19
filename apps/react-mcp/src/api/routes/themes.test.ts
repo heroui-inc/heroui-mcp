@@ -6,9 +6,9 @@ import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
 describe("Themes API", () => {
-  describe("GET /themes/variables", () => {
+  describe("GET /v1/themes/variables", () => {
     it("should return theme variables", async () => {
-      const res = await SELF.fetch("http://localhost:8787/themes/variables");
+      const res = await SELF.fetch("http://localhost:8787/v1/themes/variables");
 
       expect(res.status).toBe(200);
 
@@ -21,7 +21,7 @@ describe("Themes API", () => {
     });
 
     it("should handle theme parameter", async () => {
-      const res = await SELF.fetch("http://localhost:8787/themes/variables?theme=default");
+      const res = await SELF.fetch("http://localhost:8787/v1/themes/variables?theme=default");
 
       expect(res.status).toBe(200);
 
@@ -34,7 +34,7 @@ describe("Themes API", () => {
 
     it("should handle mode parameter", async () => {
       const res = await SELF.fetch(
-        "http://localhost:8787/themes/variables?theme=default&mode=light",
+        "http://localhost:8787/v1/themes/variables?theme=default&mode=light",
       );
 
       expect(res.status).toBe(200);
@@ -47,7 +47,7 @@ describe("Themes API", () => {
     });
 
     it("should handle invalid theme names gracefully", async () => {
-      const res = await SELF.fetch("http://localhost:8787/themes/variables?theme=nonexistent");
+      const res = await SELF.fetch("http://localhost:8787/v1/themes/variables?theme=nonexistent");
 
       // Should return 404, not 500
       const validStatuses = [404, 200];

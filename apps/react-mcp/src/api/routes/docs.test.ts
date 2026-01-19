@@ -6,9 +6,9 @@ import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
 describe("Docs API", () => {
-  describe("GET /docs/:path", () => {
+  describe("GET /v1/docs/:path", () => {
     it("should return documentation for valid paths", async () => {
-      const res = await SELF.fetch("http://localhost:8787/docs/getting-started/theming");
+      const res = await SELF.fetch("http://localhost:8787/v1/docs/getting-started/theming");
 
       // Might return 200, 404, or 500 depending on if docs are available or network errors
       expect(res.status).toBeGreaterThanOrEqual(200);
@@ -25,7 +25,7 @@ describe("Docs API", () => {
     });
 
     it("should add .mdx extension if not present", async () => {
-      const res = await SELF.fetch("http://localhost:8787/docs/getting-started/theming");
+      const res = await SELF.fetch("http://localhost:8787/v1/docs/getting-started/theming");
 
       if (res.status === 200) {
         const data = (await res.json()) as any;
@@ -34,7 +34,7 @@ describe("Docs API", () => {
     });
 
     it("should transform /docs/* paths to /docs/react/*", async () => {
-      const res = await SELF.fetch("http://localhost:8787/docs/getting-started/theming");
+      const res = await SELF.fetch("http://localhost:8787/v1/docs/getting-started/theming");
 
       if (res.status === 200) {
         const data = (await res.json()) as any;
@@ -43,13 +43,13 @@ describe("Docs API", () => {
     });
 
     it("should handle /docs/react/* paths directly", async () => {
-      const res = await SELF.fetch("http://localhost:8787/docs/react/getting-started/theming");
+      const res = await SELF.fetch("http://localhost:8787/v1/docs/react/getting-started/theming");
 
       expect(res.status).toBeLessThan(500);
     });
 
     it("should handle invalid documentation paths gracefully", async () => {
-      const res = await SELF.fetch("http://localhost:8787/docs/invalid/path");
+      const res = await SELF.fetch("http://localhost:8787/v1/docs/invalid/path");
 
       // May return 404, 400, or 500 depending on error handling
       expect(res.status).toBeGreaterThanOrEqual(400);
@@ -60,7 +60,7 @@ describe("Docs API", () => {
     });
 
     it("should have proper CORS headers", async () => {
-      const res = await SELF.fetch("http://localhost:8787/docs/getting-started/theming");
+      const res = await SELF.fetch("http://localhost:8787/v1/docs/getting-started/theming");
 
       expect(res.headers.get("access-control-allow-origin")).toBe("*");
     });

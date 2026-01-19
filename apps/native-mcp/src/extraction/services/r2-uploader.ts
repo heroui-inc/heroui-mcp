@@ -33,10 +33,10 @@ export class R2Uploader {
 
   /**
    * Upload latest version data
-   * Stores in: native/latest/{type}.json
+   * Stores in: native/v1/latest/{type}.json
    */
   async uploadLatestVersion(type: "components" | "theme", data: unknown): Promise<void> {
-    const key = `native/latest/${type}.json`;
+    const key = `native/v1/latest/${type}.json`;
     const body = JSON.stringify(data, null, 2);
 
     try {
@@ -85,10 +85,10 @@ export class R2Uploader {
 
   /**
    * Upload combined context data for /ctx endpoint
-   * Stores in: native/latest/ctx.json
+   * Stores in: native/v1/latest/ctx.json
    */
   async uploadContext(data: unknown): Promise<void> {
-    const key = "native/latest/ctx.json";
+    const key = "native/v1/latest/ctx.json";
     const body = JSON.stringify(data, null, 2);
 
     try {

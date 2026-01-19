@@ -147,7 +147,7 @@ class ComponentService {
    */
   async listComponents(library: string): Promise<string[]> {
     try {
-      const key = `react/latest/components.json`;
+      const key = `react/v1/latest/components.json`;
       const data = await this.getFromR2<ComponentDataset>(key);
 
       if (!data) {
@@ -169,7 +169,7 @@ class ComponentService {
     componentNames: string[],
   ): Promise<Array<{component: string; data: ComponentData | null; error?: string}>> {
     try {
-      const key = `react/latest/components.json`;
+      const key = `react/v1/latest/components.json`;
       const dataset = await this.getFromR2<ComponentDataset>(key);
 
       if (!dataset) {
@@ -214,7 +214,7 @@ class ComponentService {
    */
   async getAllComponents(library: string): Promise<ComponentDataset | null> {
     try {
-      const key = `react/latest/components.json`;
+      const key = `react/v1/latest/components.json`;
       const data = await this.getFromR2<ComponentDataset>(key);
 
       return data;
@@ -260,7 +260,7 @@ class ComponentService {
     timestamp: number;
   } | null> {
     try {
-      const key = "react/latest/ctx.json";
+      const key = "react/v1/latest/ctx.json";
       const data = await this.getFromR2<{
         components: string[];
         docs: {
