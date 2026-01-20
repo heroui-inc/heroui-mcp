@@ -14,9 +14,16 @@ docs.get("*", async (c) => {
   const analytics = c.get("analytics");
   const app = getApp(c);
 
-  // Get the path from the request URL (everything after /docs/)
   const requestPath = c.req.path;
-  let path = requestPath.startsWith("/docs/") ? requestPath.slice(6) : requestPath.slice(1);
+  let path: string;
+
+  if (requestPath.startsWith("/v1/docs/")) {
+    path = requestPath.slice(9); // Remove "/v1/docs/"
+  } else if (requestPath.startsWith("/docs/")) {
+    path = requestPath.slice(6); // Remove "/docs/"
+  } else {
+    path = requestPath.slice(1); // Remove leading "/"
+  }
 
   if (!path) {
     analytics.trackError({
@@ -24,6 +31,7 @@ docs.get("*", async (c) => {
       errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       properties: {
         endpoint,
+        apiVersion: "v1",
         app,
         responseTime: Date.now() - startTime,
       },
@@ -38,7 +46,12 @@ docs.get("*", async (c) => {
   }
 
   try {
-    path = `/docs/${path}.mdx`;
+    let transformedPath = path;
+    if (!path.startsWith("react/") && !path.startsWith("/react/")) {
+      transformedPath = `react/${path}`;
+    }
+
+    path = `/docs/${transformedPath}.mdx`;
 
     const docUrl = `https://v3.heroui.com${path}`;
 
@@ -62,6 +75,7 @@ docs.get("*", async (c) => {
         errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
           app,
           path,
           url: docUrl,
@@ -90,6 +104,7 @@ docs.get("*", async (c) => {
       event: AnalyticsEvent.GET_DOCS,
       properties: {
         endpoint,
+        apiVersion: "v1",
         app,
         path,
         url: docUrl,
@@ -112,6 +127,7 @@ docs.get("*", async (c) => {
       errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       properties: {
         endpoint,
+        apiVersion: "v1",
         app,
         path,
         url: docUrl,

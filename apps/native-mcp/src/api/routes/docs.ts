@@ -12,15 +12,31 @@ docs.get("*", async (c) => {
   const startTime = Date.now();
   const analytics = c.get("analytics");
 
-  // Extract path from c.req.path, removing the /docs/ prefix from the base route
-  let path = c.req.path.replace(/^\/docs\//, "");
+  // Extract path from c.req.path, removing the /v1/docs/ or /docs/ prefix from the base route
+  // When mounted at /v1/docs, c.req.path includes the full path, so we need to strip the mount prefix
+  const requestPath = c.req.path;
+  let path: string;
 
-  if (!path) {
+  if (requestPath.startsWith("/v1/docs/")) {
+    path = requestPath.slice(9); // Remove "/v1/docs/"
+  } else if (requestPath === "/v1/docs") {
+    path = ""; // Empty path when exactly "/v1/docs"
+  } else if (requestPath.startsWith("/docs/")) {
+    path = requestPath.slice(6); // Remove "/docs/"
+  } else if (requestPath === "/docs") {
+    path = ""; // Empty path when exactly "/docs"
+  } else {
+    path = requestPath.slice(1); // Remove leading "/"
+  }
+
+  // Check if path is empty or just whitespace
+  if (!path || !path.trim()) {
     analytics.trackError({
       error: "Missing path parameter",
       errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       properties: {
         endpoint,
+        apiVersion: "v1",
         responseTime: Date.now() - startTime,
       },
     });
@@ -60,6 +76,7 @@ docs.get("*", async (c) => {
         errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
           path,
           url: docUrl,
           status: response.status,
@@ -87,6 +104,7 @@ docs.get("*", async (c) => {
       event: AnalyticsEvent.GET_DOCS,
       properties: {
         endpoint,
+        apiVersion: "v1",
         path,
         url: docUrl,
         length: content.length,
@@ -108,6 +126,7 @@ docs.get("*", async (c) => {
       errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       properties: {
         endpoint,
+        apiVersion: "v1",
         path,
         url: docUrl,
         responseTime: Date.now() - startTime,

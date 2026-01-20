@@ -7,9 +7,9 @@ import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
 describe("Components API", () => {
-  describe("GET /components", () => {
+  describe("GET /v1/components", () => {
     it("should return list of components", async () => {
-      const res = await SELF.fetch("http://localhost:8788/components");
+      const res = await SELF.fetch("http://localhost:8788/v1/components");
 
       expect(res.status).toBe(200);
 
@@ -22,69 +22,99 @@ describe("Components API", () => {
     });
 
     it("should have proper CORS headers", async () => {
-      const res = await SELF.fetch("http://localhost:8788/components");
+      const res = await SELF.fetch("http://localhost:8788/v1/components");
 
       expect(res.headers.get("access-control-allow-origin")).toBe("*");
     });
   });
 
-  describe("GET /components/:component/docs", () => {
+  describe("POST /v1/components/docs", () => {
     it("should return component documentation for valid component", async () => {
-      const res = await SELF.fetch("http://localhost:8788/components/Button/docs");
+      const res = await SELF.fetch("http://localhost:8788/v1/components/docs", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({components: ["Button"]}),
+      });
 
-      // May return 200 or 404 depending on if component exists
-      expect([200, 404].includes(res.status)).toBe(true);
+      expect(res.status).toBe(200);
 
-      if (res.status === 200) {
-        const data = (await res.json()) as any;
-        expect(data).toHaveProperty("component");
-        expect(data).toHaveProperty("path");
-        expect(data).toHaveProperty("url");
-        expect(data).toHaveProperty("content");
-        expect(data).toHaveProperty("contentType");
-        expect(typeof data.url).toBe("string");
-        if (data.url) {
-          expect(data.url.includes("v3.heroui.com")).toBe(true);
+      const data = (await res.json()) as any;
+      expect(data).toHaveProperty("results");
+      expect(Array.isArray(data.results)).toBe(true);
+      if (data.results.length > 0) {
+        const result = data.results[0];
+        expect(result).toHaveProperty("component");
+        expect(result).toHaveProperty("url");
+        expect(result).toHaveProperty("content");
+        expect(result).toHaveProperty("contentType");
+        expect(typeof result.url).toBe("string");
+        if (result.url) {
+          expect(result.url.includes("v3.heroui.com")).toBe(true);
         }
       }
     });
 
     it("should handle invalid component names gracefully", async () => {
-      const res = await SELF.fetch("http://localhost:8788/components/NonExistentComponent/docs");
+      const res = await SELF.fetch("http://localhost:8788/v1/components/docs", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({components: ["NonExistentComponent"]}),
+      });
 
-      // May return 404, 400, or 500 depending on error handling
-      expect(res.status).toBeGreaterThanOrEqual(400);
-      expect(res.status).toBeLessThan(600);
-
+      expect(res.status).toBe(200);
       const data = (await res.json()) as any;
-      expect(data).toHaveProperty("error");
+      expect(data).toHaveProperty("results");
+      if (data.results.length > 0) {
+        expect(data.results[0]).toHaveProperty("error");
+      }
     });
 
     it("should convert component names to kebab-case in URL", async () => {
-      const res = await SELF.fetch("http://localhost:8788/components/ButtonGroup/docs");
+      const res = await SELF.fetch("http://localhost:8788/v1/components/docs", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({components: ["ButtonGroup"]}),
+      });
 
       if (res.status === 200) {
         const data = (await res.json()) as any;
-        expect(data.url).toContain("button-group");
+        if (data.results.length > 0 && data.results[0].url) {
+          expect(data.results[0].url.includes("button-group")).toBe(true);
+        }
       }
     });
 
     it("should convert space-separated component names to kebab-case", async () => {
-      const res = await SELF.fetch("http://localhost:8788/components/Alert Dialog/docs");
+      const res = await SELF.fetch("http://localhost:8788/v1/components/docs", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({components: ["Alert Dialog"]}),
+      });
 
-      // May return 200 or 404 depending on if component exists
       if (res.status === 200) {
         const data = (await res.json()) as any;
-        expect(data.url).toContain("alert-dialog");
-      } else {
-        // Even if component doesn't exist, URL should be correctly formatted
-        expect(res.status).toBeGreaterThanOrEqual(400);
-        expect(res.status).toBeLessThan(600);
+        if (data.results.length > 0 && data.results[0].url) {
+          expect(data.results[0].url.includes("alert-dialog")).toBe(true);
+        }
       }
     });
 
+    it("should validate request body", async () => {
+      const res = await SELF.fetch("http://localhost:8788/v1/components/docs", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({invalid: "data"}),
+      });
+
+      expect(res.status).toBe(400);
+    });
+
     it("should have proper CORS headers", async () => {
-      const res = await SELF.fetch("http://localhost:8788/components/Button/docs");
+      const res = await SELF.fetch("http://localhost:8788/v1/components/docs", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({components: ["Button"]}),
+      });
 
       expect(res.headers.get("access-control-allow-origin")).toBe("*");
     });

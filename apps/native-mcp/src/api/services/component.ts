@@ -160,7 +160,7 @@ class ComponentService {
     timestamp: number;
   } | null> {
     try {
-      const key = "native/latest/ctx.json";
+      const key = "native/v1/latest/ctx.json";
       const data = await this.getFromR2<{
         components: string[];
         docs: {

@@ -49,7 +49,7 @@ DO NOT guess names - always verify with list_components first.`),
             status?: number;
             statusText?: string;
           }>;
-        }>("/components/docs", config.apiBaseUrl, {
+        }>("/v1/components/docs", config.apiBaseUrl, {
           method: "POST",
           body: JSON.stringify({components}),
         });

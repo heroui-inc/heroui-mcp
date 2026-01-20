@@ -33,10 +33,10 @@ export class R2Uploader {
 
   /**
    * Upload latest version data
-   * Stores in: react/latest/{type}.json
+   * Stores in: react/v1/latest/{type}.json
    */
   async uploadLatestVersion(type: "components" | "theme", data: unknown): Promise<void> {
-    const key = `react/latest/${type}.json`;
+    const key = `react/v1/latest/${type}.json`;
     const body = JSON.stringify(data, null, 2);
 
     try {
@@ -101,7 +101,7 @@ export class R2Uploader {
 
   /**
    * Upload combined context data for /ctx endpoint
-   * Stores in: react/latest/ctx.json
+   * Stores in: react/v1/latest/ctx.json
    * Contains: components, docs, version, timestamp
    */
   async uploadContext(ctxData: {
@@ -116,7 +116,7 @@ export class R2Uploader {
     version: string;
     timestamp: number;
   }): Promise<void> {
-    const key = "react/latest/ctx.json";
+    const key = "react/v1/latest/ctx.json";
 
     try {
       await this.client.send(

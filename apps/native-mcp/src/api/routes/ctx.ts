@@ -30,6 +30,7 @@ ctx.get("/", async (c) => {
       event: AnalyticsEvent.GET_CTX,
       properties: {
         endpoint,
+        apiVersion: "v1",
         componentsCount: ctxData.components.length,
         docPathsCount: ctxData.docs.paths.length,
         version: ctxData.version,
@@ -62,6 +63,7 @@ ctx.get("/", async (c) => {
       fallbackMessage: "Failed to get initialization context",
       properties: {
         endpoint,
+        apiVersion: "v1",
         responseTime: Date.now() - startTime,
       },
     });

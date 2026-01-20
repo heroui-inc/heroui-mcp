@@ -20,7 +20,7 @@ Note: v3 is BETA - component list may change before stable release.`,
       try {
         // Direct API call
         const data = await fetchApi<{components: string[]; latestVersion: string}>(
-          "/components",
+          "/v1/components",
           config.apiBaseUrl,
         );
         const components = data.components || [];

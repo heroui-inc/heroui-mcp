@@ -6,9 +6,9 @@ import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
 describe("Context API", () => {
-  describe("GET /ctx", () => {
+  describe("GET /v1/ctx", () => {
     it("should return initialization context", async () => {
-      const res = await SELF.fetch("http://localhost:8788/ctx");
+      const res = await SELF.fetch("http://localhost:8788/v1/ctx");
 
       expect(res.status).toBe(200);
 
@@ -20,14 +20,14 @@ describe("Context API", () => {
     });
 
     it("should return array of components", async () => {
-      const res = await SELF.fetch("http://localhost:8788/ctx");
+      const res = await SELF.fetch("http://localhost:8788/v1/ctx");
       const data = (await res.json()) as any;
 
       expect(Array.isArray(data.components)).toBe(true);
     });
 
     it("should return docs object with paths and categories", async () => {
-      const res = await SELF.fetch("http://localhost:8788/ctx");
+      const res = await SELF.fetch("http://localhost:8788/v1/ctx");
       const data = (await res.json()) as any;
 
       expect(data.docs).toHaveProperty("paths");
@@ -37,7 +37,7 @@ describe("Context API", () => {
     });
 
     it("should return valid version string", async () => {
-      const res = await SELF.fetch("http://localhost:8788/ctx");
+      const res = await SELF.fetch("http://localhost:8788/v1/ctx");
       const data = (await res.json()) as any;
 
       expect(typeof data.version).toBe("string");
@@ -45,7 +45,7 @@ describe("Context API", () => {
     });
 
     it("should return valid timestamp", async () => {
-      const res = await SELF.fetch("http://localhost:8788/ctx");
+      const res = await SELF.fetch("http://localhost:8788/v1/ctx");
       const data = (await res.json()) as any;
 
       expect(typeof data.timestamp).toBe("number");
@@ -53,13 +53,13 @@ describe("Context API", () => {
     });
 
     it("should have proper CORS headers", async () => {
-      const res = await SELF.fetch("http://localhost:8788/ctx");
+      const res = await SELF.fetch("http://localhost:8788/v1/ctx");
 
       expect(res.headers.get("access-control-allow-origin")).toBe("*");
     });
 
     it("should handle errors gracefully", async () => {
-      const res = await SELF.fetch("http://localhost:8788/ctx");
+      const res = await SELF.fetch("http://localhost:8788/v1/ctx");
 
       expect(res.status).toBeLessThanOrEqual(500);
       const contentType = res.headers.get("content-type");
@@ -67,7 +67,7 @@ describe("Context API", () => {
     });
 
     it("should parse doc paths correctly", async () => {
-      const res = await SELF.fetch("http://localhost:8788/ctx");
+      const res = await SELF.fetch("http://localhost:8788/v1/ctx");
       const data = (await res.json()) as any;
 
       if (res.status === 200 && data.docs.paths.length > 0) {

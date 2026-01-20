@@ -28,6 +28,7 @@ themes.get("/variables", async (c) => {
       event: AnalyticsEvent.GET_THEME_VARIABLES,
       properties: {
         endpoint,
+        apiVersion: "v1",
         theme: themeName,
         mode: "both",
         latestVersion,
@@ -50,6 +51,7 @@ themes.get("/variables", async (c) => {
       fallbackMessage: "Failed to get theme variables",
       properties: {
         endpoint,
+        apiVersion: "v1",
         responseTime: Date.now() - startTime,
       },
     });

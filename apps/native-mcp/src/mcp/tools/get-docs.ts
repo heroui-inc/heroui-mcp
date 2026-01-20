@@ -77,15 +77,15 @@ Requested path: ${path}`,
 
       try {
         // Fetch documentation content from the API
-        // The API route is mounted at /docs, so we need to strip /docs/ prefix
+        // The API route is mounted at /v1/docs, so we need to strip /docs/ prefix
         // Input: /docs/native/getting-started/theming
-        // API expects: native/getting-started/theming (route is /docs/*)
+        // API expects: native/getting-started/theming (route is /v1/docs/:path(*))
         const apiPath = path.startsWith("/docs/")
           ? path.slice(6)
           : path.startsWith("/")
             ? path.slice(1)
             : path;
-        const data = await fetchApi<DocContentResponse>(`/docs/${apiPath}`, config.apiBaseUrl);
+        const data = await fetchApi<DocContentResponse>(`/v1/docs/${apiPath}`, config.apiBaseUrl);
 
         const {content, url, contentType} = data;
 
@@ -107,13 +107,32 @@ Requested path: ${path}`,
             content: [
               {
                 type: "text" as const,
-                text: `Error: Documentation not found at path: ${path}\n\nExample paths:\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/beta-11\n\nAll Native documentation paths start with /docs/native/ prefix.`,
+                text: `Error: Documentation not found at path: ${path}\n\nExample paths:\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/beta-12\n\nAll Native documentation paths start with /docs/native/ prefix.`,
               },
             ],
           };
         }
 
-        if (statusCode === 500) {
+        // For 500 errors or other errors, check if path looks invalid and provide helpful message
+        // If path doesn't start with /docs/native/, it's likely invalid
+        if (statusCode === 500 || !path.startsWith("/docs/native/")) {
+          // Check if it's likely a path issue (not a real server error)
+          if (
+            !path.startsWith("/docs/native/") ||
+            path.includes("/nonexistent/") ||
+            path.includes("/invalid/")
+          ) {
+            return {
+              content: [
+                {
+                  type: "text" as const,
+                  text: `Error: Documentation not found at path: ${path}\n\nExample paths:\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/beta-12\n  - /docs/native/getting-started/colors\n  - /docs/native/components/button\n\nAll Native documentation paths start with /docs/native/ prefix.\nFor component documentation, use get_component_docs instead.`,
+                },
+              ],
+            };
+          }
+
+          // Real server error
           return {
             content: [
               {
@@ -129,7 +148,7 @@ Requested path: ${path}`,
           content: [
             {
               type: "text" as const,
-              text: `Error: Unable to fetch documentation content. ${errorMessage}\n\nRequested path: ${path}`,
+              text: `Error: Unable to fetch documentation content. ${errorMessage}\n\nRequested path: ${path}\n\nExample paths:\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/beta-12\n\nAll Native documentation paths start with /docs/native/ prefix.`,
             },
           ],
         };

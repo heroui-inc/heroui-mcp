@@ -15,10 +15,22 @@ health.get("/", (c) => {
     endpoints: {
       "/": "API information",
       "/health": "Health check",
-      "GET /components": "List HeroUI Native components (latest version)",
-      "GET /components/:component/docs": "Get component documentation from v3.heroui.com",
-      "GET /docs/:path": "Get documentation content from a specific path",
-      "/themes/variables": "Get theme variables",
+      // Legacy endpoints (unchanged, production paths)
+      "GET /components": "List components (legacy)",
+      "POST /components": "Get component info (legacy)",
+      "POST /components/props": "Get component props (legacy)",
+      "POST /components/examples": "Get component examples (legacy)",
+      "GET /themes": "Get all themes list (legacy)",
+      "GET /themes/variables": "Get theme variables (legacy, query: theme, mode, version)",
+      "GET /ctx": "Get initialization context (legacy)",
+      "GET /docs/available": "Get available documentation paths (legacy)",
+      "GET /docs/content": "Get documentation content (legacy, query: path)",
+      // New endpoints (v1 API)
+      "GET /v1/components": "List HeroUI Native components",
+      "POST /v1/components/docs": "Get component documentation (body: {components: string[]})",
+      "GET /v1/themes/variables": "Get theme variables (simplified)",
+      "GET /v1/docs/:path": "Get documentation content from a specific path",
+      "GET /v1/ctx": "Get initialization context",
     },
   });
 });
