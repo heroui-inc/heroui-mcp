@@ -44,7 +44,7 @@ These are BEM classes from @heroui/styles - not for use with React components.`)
             githubUrl?: string;
             error?: string;
           }>;
-        }>("/components/styles", config.apiBaseUrl, {
+        }>("/v1/components/styles", config.apiBaseUrl, {
           method: "POST",
           body: JSON.stringify({components}),
         });

@@ -96,15 +96,15 @@ Requested path: ${path}`,
 
       try {
         // Fetch documentation content from the API
-        // The API route is mounted at /docs, so we need to strip /docs/ prefix
+        // The API route is mounted at /v1/docs, so we need to strip /docs/ prefix
         // Input: /docs/react/getting-started/theming
-        // API expects: react/getting-started/theming (route is /docs/:path(*))
+        // API expects: react/getting-started/theming (route is /v1/docs/:path(*))
         const apiPath = path.startsWith("/docs/")
           ? path.slice(6)
           : path.startsWith("/")
             ? path.slice(1)
             : path;
-        const data = await fetchApi<DocContentResponse>(`/docs/${apiPath}`, config.apiBaseUrl);
+        const data = await fetchApi<DocContentResponse>(`/v1/docs/${apiPath}`, config.apiBaseUrl);
 
         const {content, url, contentType} = data;
 

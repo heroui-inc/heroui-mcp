@@ -15,7 +15,7 @@ Example workflow: list_components → get_component_docs.`,
       try {
         // Direct API call
         const data = await fetchApi<{components: string[]; latestVersion: string}>(
-          "/components",
+          "/v1/components",
           config.apiBaseUrl,
         );
         const components = data.components || [];

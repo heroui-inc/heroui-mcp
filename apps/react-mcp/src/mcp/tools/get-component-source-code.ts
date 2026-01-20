@@ -41,7 +41,7 @@ This shows internal implementation - use get_component_docs for usage examples.`
             githubUrl?: string;
             error?: string;
           }>;
-        }>("/components/source", config.apiBaseUrl, {
+        }>("/v1/components/source", config.apiBaseUrl, {
           method: "POST",
           body: JSON.stringify({components}),
         });
