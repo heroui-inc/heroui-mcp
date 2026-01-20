@@ -79,7 +79,7 @@ describe("Components API", () => {
       if (res.status === 200) {
         const data = (await res.json()) as any;
         if (data.results.length > 0 && data.results[0].url) {
-          expect(data.results[0].url).toContain("button-group");
+          expect(data.results[0].url.includes("button-group")).toBe(true);
         }
       }
     });
@@ -94,7 +94,7 @@ describe("Components API", () => {
       if (res.status === 200) {
         const data = (await res.json()) as any;
         if (data.results.length > 0 && data.results[0].url) {
-          expect(data.results[0].url).toContain("alert-dialog");
+          expect(data.results[0].url.includes("alert-dialog")).toBe(true);
         }
       }
     });

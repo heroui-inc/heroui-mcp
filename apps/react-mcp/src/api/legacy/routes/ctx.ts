@@ -78,7 +78,12 @@ ctx.get("/", async (c) => {
           // Parse format: - [Title](path): Description
           const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
           if (match) {
-            const [, title, path, description = ""] = match;
+            const [, title, url, description = ""] = match;
+
+            let path = url;
+            if (url.startsWith("https://v3.heroui.com")) {
+              path = url.replace("https://v3.heroui.com", "");
+            }
             currentCategory.docs.push({
               title,
               path,
