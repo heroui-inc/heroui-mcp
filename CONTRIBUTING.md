@@ -56,14 +56,22 @@ GITHUB_TOKEN=your_github_personal_access_token
 pnpm build
 
 # Build specific package
-pnpm build --filter=@heroui/react-mcp
-pnpm build --filter=@heroui/native-mcp
-
-# Test a built package locally
-cd apps/react-mcp  # or apps/native-mcp
-npm pack
-# This creates a .tgz file you can install locally to test
+pnpm build:react
+pnpm build:native
 ```
+
+Test using the build output directly. For example, in Cursor, add the following to your MCP settings:
+
+```
+"heroui-react": {
+  "command": "/path/to/repo/mcp/apps/react-mcp/dist/stdio.js",
+  "env": {
+    "HEROUI_NATIVE_API_URL": "http://localhost:8787"
+  }
+}
+```
+
+Remember to start the API server with `pnpm dev:react` as well.
 
 ### Deploying API to Cloudflare
 
@@ -76,19 +84,6 @@ pnpm deploy:api:production
 ```
 
 ## 🧪 Testing
-
-### Quick Testing
-
-```bash
-# Test API endpoints
-pnpm test:api
-
-# Test with staging API
-pnpm test:api:staging
-
-# Test with production API
-pnpm test:api:production
-```
 
 ### Using MCP Inspector
 
@@ -188,13 +183,12 @@ pnpm build:react       # Build @heroui/react-mcp
 ### 🚀 Development Commands
 
 ```bash
-# Start development server for all packages (excludes mastra)
+# Start development server for all packages
 pnpm dev
 
 # Start development server for specific package
 pnpm dev:native        # Native MCP API server (http://localhost:8788)
 pnpm dev:react         # React MCP API server (http://localhost:8787)
-pnpm dev:mastra        # Mastra playground (http://localhost:4111)
 ```
 
 ### 🔍 MCP Inspector Commands
@@ -205,24 +199,13 @@ pnpm inspect:native    # Native MCP Inspector
 pnpm inspect:react     # React MCP Inspector
 ```
 
-The Inspector provides a web interface at http://localhost:6274 (or similar) for testing MCP tools interactively.
+The Inspector provides a web interface for testing MCP tools interactively.
 
 ### 📦 Data Extraction Commands
 
-#### Native MCP Extraction
-
 ```bash
-pnpm extract:native            # Extract all to dev bucket
-pnpm extract:native:components # Extract only components
-pnpm extract:native:theme      # Extract only theme
-```
-
-#### React MCP Extraction
-
-```bash
-pnpm extract:react            # Extract all to dev bucket
-pnpm extract:react:components # Extract only components
-pnpm extract:react:theme      # Extract only theme
+pnpm extract:react            # Extract React MCP data
+pnpm extract:native           # Extract Native MCP data
 ```
 
 ### ✅ Code Quality Commands
@@ -255,111 +238,12 @@ pnpm release:check     # Run lint, typecheck, and build
 
 The HeroUI MCP uses a simple architecture:
 
-1. **STDIO Client** (`@heroui/react-mcp`) - Runs locally, handles MCP protocol
+1. **STDIO Client** - Runs locally, handles MCP protocol
 2. **REST API** (Cloudflare Worker) - Serves component data
-3. **R2 Storage** - Stores component documentation
+3. **R2 Storage** - Stores component metadata
 
 ```
 AI Assistant → STDIO Client → REST API → R2 Storage
-```
-
-### API Endpoints
-
-**React MCP API** (`https://mcp-api.heroui.com`):
-
-```
-GET  /                         - Health check and API info
-GET  /health                   - Health status
-GET  /components               - List all components
-POST /components               - Get component info (batch)
-POST /components/props         - Get component props (batch)
-POST /components/examples      - Get component examples (batch)
-POST /components/source        - Get component source code (batch)
-POST /components/styles        - Get component styles (batch)
-GET  /themes                   - Get theme information
-GET  /themes/variables         - Get theme CSS variables
-GET  /themes/colors            - Get theme colors
-GET  /themes/animations        - Get theme animations
-GET  /themes/versions          - Get available theme versions
-GET  /versions                 - Get version information
-GET  /docs/available           - Get available documentation paths
-GET  /docs/content?path={path} - Get documentation content
-```
-
-**Native MCP API** (`https://native-mcp-api.heroui.com`):
-
-```
-GET  /                         - Health check and API info
-GET  /components               - List all components
-POST /components               - Get component info (batch)
-POST /components/props         - Get component props (batch)
-POST /components/examples      - Get component examples (batch)
-GET  /themes                   - Get theme information
-GET  /themes/variables         - Get theme CSS variables
-GET  /docs/available           - Get available documentation paths
-GET  /docs/content?path={path} - Get documentation content
-```
-
-## 🏗️ Monorepo Structure
-
-```
-.
-├── apps/
-│   ├── react-mcp/           # @heroui/react-mcp - Web components
-│   │   ├── src/
-│   │   │   ├── api/                  # Cloudflare Worker API
-│   │   │   │   ├── index.ts          # API entry point
-│   │   │   │   ├── routes/           # API route handlers
-│   │   │   │   ├── services/         # Business logic
-│   │   │   │   ├── middleware/       # Analytics, auth, CORS
-│   │   │   │   └── types/            # TypeScript definitions
-│   │   │   ├── mcp/                  # MCP server implementation
-│   │   │   │   ├── stdio.ts          # STDIO transport (NPM)
-│   │   │   │   ├── tools/            # MCP tool handlers
-│   │   │   │   └── types/            # MCP type definitions
-│   │   │   └── extraction/           # Data extraction scripts
-│   │   │       ├── cli/              # CLI scripts
-│   │   │       ├── lib/              # Extraction utilities
-│   │   │       └── strategies/       # Extraction strategies
-│   │   ├── scripts/                  # Shell scripts
-│   │   ├── wrangler.toml             # Cloudflare config
-│   │   ├── README.md                 # Package docs
-│   │   └── package.json
-│   │
-│   └── native-mcp/          # @heroui/native-mcp - React Native
-│       ├── src/                      # Similar structure to react-mcp
-│       │   ├── api/                  # Cloudflare Worker API
-│       │   ├── mcp/                  # MCP server implementation
-│       │   └── extraction/           # Data extraction scripts
-│       ├── scripts/                  # Shell scripts
-│       ├── wrangler.toml             # Cloudflare config
-│       ├── README.md                 # Package docs
-│       └── package.json
-│
-├── packages/
-│   ├── analytics/           # Shared analytics utilities
-│   │   ├── src/
-│   │   └── package.json
-│   ├── config/              # Shared configuration (ESLint, Prettier, TS)
-│   │   ├── eslint/
-│   │   ├── prettier/
-│   │   ├── typescript/
-│   │   └── package.json
-│   └── mastra/              # Local testing harness (dev only)
-│       ├── src/
-│       │   ├── agent.ts              # Test agents
-│       │   └── index.ts              # Mastra instance
-│       ├── README.md
-│       └── package.json
-│
-├── .github/                 # GitHub Actions workflows
-├── CONTRIBUTING.md          # This file
-├── CODE_OF_CONDUCT.md       # Community guidelines
-├── TROUBLESHOOTING.md       # Common issues
-├── README.md                # Monorepo overview
-├── turbo.json               # Turbo configuration
-├── pnpm-workspace.yaml      # pnpm workspace config
-└── package.json             # Root dependencies
 ```
 
 ## 🔧 Environment Configuration
@@ -384,22 +268,11 @@ NODE_ENV=staging
 NODE_ENV=production
 ```
 
-Environment variables are configured in `wrangler.toml`.
+Environment variables are configured in `wrangler.toml` for API servers.
 
 ## 🌐 Cloudflare Workers Deployment
 
-The MCP server can also be deployed as a Cloudflare Worker for HTTP transport.
-
-### API Endpoints
-
-When deployed as a Cloudflare Worker:
-
-- `GET /` - Service information and capabilities
-- `GET /health` - Health check endpoint
-- `POST /mcp` - MCP protocol endpoint for HTTP transport
-- `OPTIONS /mcp` - CORS preflight support
-
-### Deployment Steps
+Deploy the API to Cloudflare Workers:
 
 1. **Configure Wrangler** (if not already done):
 
@@ -410,58 +283,24 @@ When deployed as a Cloudflare Worker:
 2. **Deploy to staging**:
 
    ```bash
-   pnpm deploy:staging
+   pnpm deploy:api:staging
    ```
 
 3. **Deploy to production**:
    ```bash
-   pnpm deploy:production
+   pnpm deploy:api:production
    ```
 
 ## 📊 Data Management
 
 ### Component Data Extraction
 
-The server extracts component data from GitHub repositories and stores it in Cloudflare R2:
+The server extracts component data directly from `v3.heroui.com` and stores it in Cloudflare R2:
 
-- **React MCP**: React components from `heroui-inc/heroui` (v3 branch)
-- **Native MCP**: React Native components from `heroui-inc/heroui-native` (alpha branch)
+- **React MCP**: Fetches component documentation from `https://v3.heroui.com/docs/react/components/` using `llms.txt` manifest
+- **Native MCP**: Fetches component documentation from `https://v3.heroui.com/docs/native/components/` using `llms.txt` manifest
 
-### R2 Storage Structure
-
-**React MCP:** (stored in `heroui-mcp-data` bucket)
-```
-react/
-├── components/
-│   ├── 3.0.0-alpha.33.json   # Versioned component data
-│   ├── 3.0.0-alpha.34.json
-│   └── ...
-├── theme/
-│   ├── 3.0.0-alpha.33.json   # Versioned theme data
-│   ├── 3.0.0-alpha.34.json
-│   └── ...
-├── latest/
-│   ├── components.json       # Latest component data
-│   └── theme.json            # Latest theme data
-└── versions.json             # Version metadata
-```
-
-**Native MCP:** (stored in `heroui-native-mcp-data` bucket)
-```
-native/
-├── components/
-│   ├── 1.0.0-alpha.14.json   # Versioned component data
-│   ├── 1.0.0-alpha.15.json
-│   └── ...
-├── theme/
-│   ├── 1.0.0-alpha.14.json   # Versioned theme data
-│   ├── 1.0.0-alpha.15.json
-│   └── ...
-├── latest/
-│   ├── components.json       # Latest component data
-│   └── theme.json            # Latest theme data
-└── versions.json             # Version metadata
-```
+Data is stored as `ctx.json` in R2, containing components list, documentation paths, version, and timestamp.
 
 ### Updating Component Data
 
@@ -470,15 +309,8 @@ native/
 Set up environment variables in `.env`, then extract to development bucket:
 
 ```bash
-# React MCP
-pnpm extract:react            # Extract all React data
-pnpm extract:react:components # Extract only components
-pnpm extract:react:theme      # Extract only theme data
-
-# Native MCP
-pnpm extract:native           # Extract all Native data
-pnpm extract:native:components # Extract only components
-pnpm extract:native:theme     # Extract only theme data
+pnpm extract:react            # Extract React MCP data
+pnpm extract:native           # Extract Native MCP data
 ```
 
 #### For Staging/Production
@@ -486,44 +318,15 @@ pnpm extract:native:theme     # Extract only theme data
 Data is automatically extracted via GitHub Actions when:
 
 - Code is pushed to `develop` (staging) or `main` (production)
-- Daily at 2 AM UTC
 - Manually triggered via GitHub Actions UI
 
 ### Rate Limiting
 
-The extraction scripts include rate limiting to avoid GitHub API limits:
+The extraction scripts fetch documentation directly from `v3.heroui.com`:
 
-- **With GitHub token**: 100ms delay between requests
-- **Without token**: 500ms delay between requests
-
-Always include `GITHUB_TOKEN` in your `.env` to avoid rate limits.
-
-## 🛠️ Debugging
-
-### Debug Mode
-
-Run with debug output:
-
-```bash
-DEBUG=* npx @heroui/react-mcp@latest
-```
-
-### Testing API Connection
-
-```bash
-# Test if the API is accessible
-curl https://mcp-api.heroui.com/health
-
-# Check component data
-curl https://mcp-api.heroui.com/api/components
-```
-
-### Verifying Package Installation
-
-```bash
-# Check if the package is available (always use @latest)
-npx @heroui/react-mcp@latest --version
-```
+- Documentation is fetched from public URLs (no authentication required)
+- Rate limiting is handled by the documentation server
+- GitHub token is optional and only used for version checking via GitHub API
 
 ## 🛠️ Adding New Features
 
@@ -531,91 +334,105 @@ npx @heroui/react-mcp@latest --version
 
 To add a new tool to the MCP server:
 
-1. Define the tool schema in `mcp-server-core.ts`:
+1. Create a new tool file in `src/mcp/tools/`:
 
 ```typescript
-const myToolSchema = z.object({
-  // Define your parameters
-});
-```
+// src/mcp/tools/my-tool.ts
+import type {Tool} from "../types";
+import {z} from "zod";
+import {fetchApi} from "../lib/fetch";
 
-2. Implement the handler method:
-
-```typescript
-private async handleMyTool(args: {...}) {
-  // Implementation
-}
-```
-
-3. Register in `handleToolCall` method:
-
-```typescript
-if (name === "my_tool") {
-  return this.handleMyTool(args);
-}
-```
-
-4. Add to tool list in `handleListTools`:
-
-```typescript
-{
+export const myTool: Tool = {
   name: "my_tool",
   description: "Description of your tool",
-  inputSchema: { /* ... */ }
-}
+  
+  async ctx(shared) {
+    // Optional: Initialize tool-specific context from shared context
+    return {
+      // Tool-specific context
+    };
+  },
+  
+  exec(server, {config, name, description, ctx}) {
+    const inputSchema = z.object({
+      // Define your parameters
+    });
+    
+    const handler = async (args: z.infer<typeof inputSchema>) => {
+      // Implementation
+      const data = await fetchApi("/endpoint", config.apiBaseUrl);
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(data),
+          },
+        ],
+      };
+    };
+    
+    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
+  },
+};
 ```
 
-5. If creating a service (like version checking), add it to `services/`:
+2. Register the tool in `src/mcp/tools/index.ts`:
 
 ```typescript
-// services/my-service.ts
-export class MyService {
-  // Service implementation
-}
+import {myTool} from "./my-tool";
 
-export const myService = new MyService();
+const tools: Tool[] = [
+  // ... existing tools
+  myTool,
+];
 ```
 
-6. Update both MCP server core files:
-   - `mcp-server-core.ts` (Cloudflare version)
-   - `mcp-server-core-npm.ts` (NPM distribution version)
+3. If needed, add a corresponding API route in `src/api/routes/`:
+
+```typescript
+// src/api/routes/my-route.ts
+import {Hono} from "hono";
+
+const myRoute = new Hono();
+
+myRoute.get("/", async (c) => {
+  // Implementation
+  return c.json({data: "..."});
+});
+
+export {myRoute};
+```
+
+4. Mount the route in `src/api/index.ts`:
+
+```typescript
+import {myRoute} from "./routes/my-route";
+
+app.route("/my-route", myRoute);
+```
 
 ### Architecture Notes
 
-Each MCP package has two parallel implementations:
+Each MCP package follows a unified architecture:
 
-1. **Cloudflare Workers version** (`src/index.ts`, `src/services/data-store.ts`)
-   - Uses Cloudflare R2 for storage
-   - Supports HTTP transport
-   - Designed for edge deployment
+1. **MCP Server** - STDIO transport for NPM distribution
+   - Runs locally in AI assistants
+   - Communicates with REST API via HTTP
+   - Uses shared context for tool initialization
 
-2. **NPM distribution version** (`src/stdio-npm.ts`, `src/services/data-store-file.ts`)
-   - Uses file-based storage
-   - Supports stdio transport
-   - Designed for local usage
+2. **REST API** - Cloudflare Worker
+   - Serves component data from R2 storage
+   - Fetches documentation directly from v3.heroui.com when needed
+   - Provides analytics and authentication middleware
 
-Both versions share the same core functionality but use different storage backends.
+3. **R2 Storage** - Cloudflare R2 bucket
+   - Stores `ctx.json` with shared context (components, docs paths, version)
+   - Single source of truth for component metadata
 
-### Working on Multiple Packages
-
-When working on features that affect multiple packages, you can use the root commands:
-
-```bash
-# Run commands for all packages (via Turbo)
-pnpm build
-pnpm typecheck
-pnpm lint
-
-# Run for specific package (from root)
-pnpm build:react       # Build React MCP
-pnpm build:native      # Build Native MCP
-pnpm dev:react         # Dev server for React MCP
-pnpm dev:native        # Dev server for Native MCP
-
-# Or use pnpm filtering directly
-pnpm --filter @heroui/react-mcp build
-pnpm --filter @heroui/native-mcp typecheck
-```
+4. **Data Extraction** - CLI scripts
+   - Fetches component data from v3.heroui.com using `llms.txt` manifest
+   - Extracts minimal metadata (name, links) from component documentation
+   - Uploads consolidated `ctx.json` to R2
 
 ## 🤝 Submitting Pull Requests
 
@@ -627,8 +444,8 @@ pnpm --filter @heroui/native-mcp typecheck
 
 Please ensure:
 
-- All tests pass (`pnpm typecheck && pnpm lint`)
 - Code is formatted (`pnpm format`)
+- All tests pass (`pnpm typecheck && pnpm lint && pnpm test`)
 - Documentation is updated if needed
 - Commit messages are clear and descriptive
 

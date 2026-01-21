@@ -1,10 +1,10 @@
-import type {HonoContext} from "../types/context";
+import type {HonoContext} from "../../types/context";
 
 import {Hono} from "hono";
 
-import packageJson from "../../../package.json";
-import {getComponentService} from "../services/component";
-import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
+import packageJson from "../../../../package.json";
+import {AnalyticsErrorEvent, AnalyticsEvent} from "../../types/analytics";
+import {getLegacyComponentService} from "../services/component-adapter";
 
 const versions = new Hono<HonoContext>();
 
@@ -15,7 +15,7 @@ versions.get("/", async (c) => {
   const analytics = c.get("analytics");
 
   try {
-    const service = await getComponentService(c.env);
+    const service = await getLegacyComponentService(c.env);
     const heroUIVersions = await service.listVersions("heroui-react");
     const latestVersionFromMetadata = await service.getLatestVersion("heroui-react");
     const latestVersion = latestVersionFromMetadata || heroUIVersions[0] || "unknown";
@@ -24,6 +24,7 @@ versions.get("/", async (c) => {
       event: AnalyticsEvent.GET_VERSIONS,
       properties: {
         endpoint,
+        apiVersion: "legacy",
         latestVersion,
         availableCount: heroUIVersions.length,
         mcpVersion: packageJson.version,
@@ -47,6 +48,7 @@ versions.get("/", async (c) => {
       fallbackMessage: "Failed to get version information",
       properties: {
         endpoint,
+        apiVersion: "legacy",
         responseTime: Date.now() - startTime,
       },
     });

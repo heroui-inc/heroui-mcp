@@ -12,12 +12,10 @@ args.forEach(arg => {
 });
 
 const forceExtract = argMap.force === 'true';
-const targetLibrary = argMap.library || 'all';
 const specificVersion = typeof argMap.version === 'string' && argMap.version !== '' ? argMap.version : undefined;
 
 console.log(`🔧 Script configuration:`);
 console.log(`   force: ${argMap.force} (parsed as forceExtract: ${forceExtract})`);
-console.log(`   library: ${targetLibrary}`);
 console.log(`   version: ${specificVersion || '(will fetch latest)'}`);
 
 // Configure S3 client for R2
@@ -30,20 +28,50 @@ const client = new S3Client({
   },
 });
 
-async function getStoredVersion(library) {
+/**
+ * Get stored version from ctx.json
+ * Returns the version string if ctx.json exists, null otherwise
+ */
+async function getStoredVersion() {
   try {
     const response = await client.send(
       new GetObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME,
-        Key: "react/versions.json",
+        Key: "react/latest/ctx.json",
       })
     );
     const text = await response.Body.transformToString();
-    const metadata = JSON.parse(text);
-    return metadata[library]?.current || null;
+    const ctxData = JSON.parse(text);
+    return ctxData.version || null;
   } catch (error) {
-    console.log(`No existing metadata for ${library}`);
+    if (error.name === "NoSuchKey") {
+      console.log("No existing ctx.json found");
+    } else {
+      console.log(`Error reading ctx.json: ${error.message}`);
+    }
     return null;
+  }
+}
+
+/**
+ * Check if theme.json exists in R2
+ * Returns true if theme.json exists, false otherwise
+ */
+async function themeExists() {
+  try {
+    await client.send(
+      new GetObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: "react/latest/theme.json",
+      })
+    );
+    return true;
+  } catch (error) {
+    if (error.name === "NoSuchKey") {
+      return false;
+    }
+    // For other errors, assume it doesn't exist to be safe
+    return false;
   }
 }
 
@@ -88,30 +116,24 @@ async function main() {
     theme: {needsUpdate: false, version: null}
   };
 
-  // Check Components
-  if (targetLibrary === 'all' || targetLibrary === 'components') {
-    const storedVersion = await getStoredVersion('heroui-react');
-    const latestVersion = specificVersion || await getLatestVersion();
-
-    if (latestVersion) {
-      results.components.version = latestVersion;
-      results.components.needsUpdate = forceExtract || !storedVersion || storedVersion !== latestVersion;
-      console.log(`HeroUI Components: stored=${storedVersion}, latest=${latestVersion}, needsUpdate=${results.components.needsUpdate}`);
-    }
+  // Get latest version from GitHub
+  const latestVersion = specificVersion || await getLatestVersion();
+  
+  if (!latestVersion) {
+    console.error("Failed to get latest version from GitHub");
+    process.exit(1);
   }
 
-  // Check Theme
-  if (targetLibrary === 'all' || targetLibrary === 'theme') {
-    const storedVersion = await getStoredVersion('heroui-theme');
-    // Theme version follows the HeroUI React package version from v3 branch
-    const latestVersion = specificVersion || await getLatestVersion();
+  const storedVersion = await getStoredVersion();
+  const themeFileExists = await themeExists();
 
-    if (latestVersion) {
-      results.theme.version = latestVersion;
-      results.theme.needsUpdate = forceExtract || !storedVersion || storedVersion !== latestVersion;
-      console.log(`Theme: stored=${storedVersion}, latest=${latestVersion}, needsUpdate=${results.theme.needsUpdate}`);
-    }
-  }
+  results.components.version = latestVersion;
+  results.components.needsUpdate = forceExtract || !storedVersion || storedVersion !== latestVersion;
+  console.log(`HeroUI Components: stored=${storedVersion || 'none'}, latest=${latestVersion}, needsUpdate=${results.components.needsUpdate}`);
+
+  results.theme.version = latestVersion;
+  results.theme.needsUpdate = forceExtract || !themeFileExists || !storedVersion || storedVersion !== latestVersion;
+  console.log(`Theme: stored=${storedVersion || 'none'}, latest=${latestVersion}, theme.json exists=${themeFileExists}, needsUpdate=${results.theme.needsUpdate}`);
 
   console.log(`\n📤 Setting outputs:`);
   console.log(`   components-needs-update: ${results.components.needsUpdate}`);

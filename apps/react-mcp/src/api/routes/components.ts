@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import type {HonoContext} from "../types/context";
 
 import {zValidator} from "@hono/zod-validator";
@@ -9,6 +7,8 @@ import {z} from "zod";
 import {REACT_LIBRARY_NAME} from "../contants";
 import {getComponentService} from "../services/component";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
+import {componentNameToKebab} from "../utils/component-name";
+import {getApp} from "../utils/get-client";
 
 const ComponentsRequestSchema = z.object({
   components: z
@@ -29,19 +29,20 @@ components.get("/", async (c) => {
   const endpoint = "list-components";
   const startTime = Date.now();
   const analytics = c.get("analytics");
+  const app = getApp(c);
 
   try {
     const service = await getComponentService(c.env);
-    // Always use latest version
-    const componentsList = await service.listComponents(LIBRARY_NAME);
-
-    // Get the latest version
-    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
+    const ctxData = await service.getContext();
+    const componentsList = ctxData?.components?.sort() || [];
+    const latestVersion = ctxData?.version || "unknown";
 
     analytics.track({
       event: AnalyticsEvent.LIST_COMPONENTS,
       properties: {
         endpoint,
+        apiVersion: "v1",
+        app,
         componentsCount: componentsList.length,
         latestVersion,
         responseTime: Date.now() - startTime,
@@ -60,6 +61,8 @@ components.get("/", async (c) => {
       fallbackMessage: "Failed to list components",
       properties: {
         endpoint,
+        apiVersion: "v1",
+        app,
         responseTime: Date.now() - startTime,
       },
     });
@@ -74,55 +77,135 @@ components.get("/", async (c) => {
   }
 });
 
-// Get component details
-components.post("/", zValidator("json", ComponentsRequestSchema), async (c) => {
-  const endpoint = "get-components";
+// Get component documentation (batch)
+components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) => {
+  const endpoint = "get-component-docs-batch";
   const startTime = Date.now();
-  const analytics = c.get("analytics");
   const {components: componentNames} = c.req.valid("json");
+  const analytics = c.get("analytics");
+  const app = getApp(c);
 
   try {
-    const service = await getComponentService(c.env);
-    const results = await service.getComponents(LIBRARY_NAME, componentNames);
-    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
+    const docResults = await Promise.all(
+      componentNames.map(async (component) => {
+        const kebabName = componentNameToKebab(component);
+        const docUrl = `https://v3.heroui.com/docs/react/components/${kebabName}.mdx`;
 
-    const failedComponents = results.filter((result) => result.error);
+        try {
+          const response = await fetch(docUrl);
+
+          if (!response.ok) {
+            let errorBody: string | null = null;
+            try {
+              errorBody = await response.text();
+
+              if (errorBody && errorBody.length > 300) {
+                errorBody =
+                  errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+              }
+            } catch {
+              // Ignore if we can't read the body
+            }
+
+            analytics.trackError({
+              error: new Error(`${response.status}: ${response.statusText}`),
+              errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
+              properties: {
+                endpoint,
+                apiVersion: "v1",
+                app,
+                component,
+                url: docUrl,
+                status: response.status,
+                statusText: response.statusText,
+                errorBody,
+                responseTime: Date.now() - startTime,
+              },
+            });
+
+            return {
+              component,
+              error: `${response.status} ${response.statusText}`,
+              status: response.status,
+              statusText: response.statusText,
+              url: docUrl,
+            };
+          }
+
+          const content = await response.text();
+          const contentType = response.headers.get("content-type") || "text/plain";
+
+          analytics.track({
+            event: AnalyticsEvent.GET_COMPONENT_DOCS,
+            properties: {
+              endpoint,
+              apiVersion: "v1",
+              app,
+              component,
+              url: docUrl,
+              length: content.length,
+              responseTime: Date.now() - startTime,
+            },
+          });
+
+          return {
+            component,
+            url: docUrl,
+            content,
+            contentType,
+          };
+        } catch (error) {
+          analytics.trackError({
+            error,
+            errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
+            properties: {
+              endpoint,
+              apiVersion: "v1",
+              app,
+              component,
+              url: docUrl,
+              responseTime: Date.now() - startTime,
+            },
+          });
+
+          return {
+            component,
+            error: error instanceof Error ? error.message : String(error),
+            url: docUrl,
+          };
+        }
+      }),
+    );
+
+    const failedComponents = docResults.filter((result) => result.error);
 
     if (failedComponents.length > 0) {
       analytics.trackError({
         error: failedComponents.map((result) => `${result.component}: ${result.error}`).join(", "),
-        errorEvent: AnalyticsErrorEvent.GET_COMPONENTS_ERROR,
+        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
+          app,
           components: componentNames,
           failedComponents: failedComponents.map((result) => result.component),
-          latestVersion,
-          responseTime: Date.now() - startTime,
-        },
-      });
-    } else {
-      analytics.track({
-        event: AnalyticsEvent.GET_COMPONENTS,
-        properties: {
-          endpoint,
-          components: componentNames,
-          latestVersion,
           responseTime: Date.now() - startTime,
         },
       });
     }
 
     return c.json({
-      version: latestVersion || "unknown",
-      results,
+      results: docResults,
     });
   } catch (error) {
     analytics.trackError({
       error,
-      errorEvent: AnalyticsErrorEvent.GET_COMPONENTS_ERROR,
-      fallbackMessage: "Failed to get component data",
+      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_DOCS_ERROR,
+      fallbackMessage: "Failed to get component documentation",
       properties: {
         endpoint,
+        apiVersion: "v1",
+        app,
         components: componentNames,
         responseTime: Date.now() - startTime,
       },
@@ -130,241 +213,7 @@ components.post("/", zValidator("json", ComponentsRequestSchema), async (c) => {
 
     return c.json(
       {
-        error: "Failed to get component data",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      500,
-    );
-  }
-});
-
-// Get component props
-components.post("/props", zValidator("json", ComponentsRequestSchema), async (c) => {
-  const endpoint = "get-component-props";
-  const startTime = Date.now();
-  const {components: componentNames} = c.req.valid("json");
-  const analytics = c.get("analytics");
-
-  try {
-    const service = await getComponentService(c.env);
-    const results = await service.getComponents(LIBRARY_NAME, componentNames);
-    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
-
-    const failedComponents: typeof results = [];
-
-    const propsResults = results.map((result) => {
-      if (result.error || !result.data) {
-        failedComponents.push(result);
-
-        return {
-          component: result.component,
-          error: result.error || "Component not found",
-        };
-      }
-
-      const libraryName = "HeroUI";
-      const versionText = ` (${latestVersion})`;
-      let propsText = `# ${result.component} Component Props - ${libraryName}${versionText}\n\n`;
-
-      if (result.data.description) {
-        propsText += `${result.data.description}\n\n`;
-      }
-
-      if (result.data.props && Object.keys(result.data.props).length > 0) {
-        propsText += "## Props\n\n";
-        Object.entries(result.data.props).forEach(([propName, prop]) => {
-          propsText += `- **${propName}**: \`${prop.type}\``;
-          if (prop.default) {
-            propsText += ` = \`${prop.default}\``;
-          }
-          if (prop.description) {
-            propsText += ` - ${prop.description}`;
-          }
-          propsText += "\n";
-        });
-      } else {
-        propsText += "No props available for this component.\n";
-      }
-
-      // Add sub-components if available
-      if (result.data.subComponents && Object.keys(result.data.subComponents).length > 0) {
-        propsText += "\n## Sub-components\n\n";
-        Object.values(result.data.subComponents).forEach((sub: any) => {
-          propsText += `### ${sub.name}\n\n`;
-          if (sub.props && Object.keys(sub.props).length > 0) {
-            Object.entries(sub.props).forEach(([propName, prop]: [string, any]) => {
-              propsText += `- **${propName}**: \`${prop.type}\``;
-              if (prop.default) {
-                propsText += ` = \`${prop.default}\``;
-              }
-              if (prop.description) {
-                propsText += ` - ${prop.description}`;
-              }
-              propsText += "\n";
-            });
-          } else {
-            propsText += "No props documented for this sub-component.\n";
-          }
-          propsText += "\n";
-        });
-      }
-
-      return {
-        component: result.component,
-        props: propsText,
-      };
-    });
-
-    if (failedComponents.length > 0) {
-      analytics.trackError({
-        error: failedComponents
-          .map((component) => `${component.component}: ${component.error}`)
-          .join(", "),
-        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_PROPS_ERROR,
-        properties: {
-          endpoint,
-          components: componentNames,
-          failedComponents: failedComponents.map((component) => component.component),
-          latestVersion,
-          responseTime: Date.now() - startTime,
-        },
-      });
-    } else {
-      analytics.track({
-        event: AnalyticsEvent.GET_COMPONENT_PROPS,
-        properties: {
-          endpoint,
-          components: componentNames,
-          latestVersion,
-          responseTime: Date.now() - startTime,
-        },
-      });
-    }
-
-    return c.json({
-      version: latestVersion || "unknown",
-      results: propsResults,
-    });
-  } catch (error) {
-    analytics.trackError({
-      error,
-      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_PROPS_ERROR,
-      fallbackMessage: "Failed to get component props",
-      properties: {
-        endpoint,
-        components: componentNames,
-        responseTime: Date.now() - startTime,
-      },
-    });
-
-    return c.json(
-      {
-        error: "Failed to get component props",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      500,
-    );
-  }
-});
-
-// Get component examples
-components.post("/examples", zValidator("json", ComponentsRequestSchema), async (c) => {
-  const endpoint = "get-component-examples";
-  const startTime = Date.now();
-  const {components: componentNames} = c.req.valid("json");
-  const analytics = c.get("analytics");
-
-  try {
-    const service = await getComponentService(c.env);
-    const results = await service.getComponents(LIBRARY_NAME, componentNames);
-    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
-
-    const failedComponents: typeof results = [];
-
-    const exampleResults = results.map((result) => {
-      if (result.error || !result.data) {
-        failedComponents.push(result);
-
-        return {
-          component: result.component,
-          error: result.error || "Component not found",
-        };
-      }
-
-      const examples = result.data.examples || [];
-
-      if (examples.length === 0) {
-        const libraryName = "HeroUI";
-        const versionText = ` (${latestVersion})`;
-        const importStatement = `import { ${result.component} } from '@heroui/react';`;
-
-        let exampleText = `// ${result.component} Component Example - ${libraryName}${versionText}\n\n`;
-        exampleText += `${importStatement}\n\n`;
-        exampleText += `export default function Example() {\n`;
-        exampleText += `  return (\n`;
-        exampleText += `    <${result.component}>\n`;
-        exampleText += `      Content\n`;
-        exampleText += `    </${result.component}>\n`;
-        exampleText += `  );\n`;
-        exampleText += `}\n`;
-
-        examples.push({
-          name: "basic",
-          content: exampleText,
-        });
-      }
-
-      return {
-        component: result.component,
-        examples,
-      };
-    });
-
-    if (failedComponents.length > 0) {
-      analytics.trackError({
-        error: failedComponents
-          .map((component) => `${component.component}: ${component.error}`)
-          .join(", "),
-        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_EXAMPLES_ERROR,
-        properties: {
-          endpoint,
-          components: componentNames,
-          failedComponents: failedComponents.map((component) => component.component),
-          latestVersion,
-          responseTime: Date.now() - startTime,
-        },
-      });
-    } else {
-      analytics.track({
-        event: AnalyticsEvent.GET_COMPONENT_EXAMPLES,
-        properties: {
-          endpoint,
-          components: componentNames,
-          latestVersion,
-          responseTime: Date.now() - startTime,
-        },
-      });
-    }
-
-    return c.json({
-      version: latestVersion || "unknown",
-      results: exampleResults,
-    });
-  } catch (error) {
-    analytics.trackError({
-      error,
-      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_EXAMPLES_ERROR,
-      fallbackMessage: "Failed to get component examples",
-      properties: {
-        endpoint,
-        components: componentNames,
-        responseTime: Date.now() - startTime,
-      },
-    });
-
-    return c.json(
-      {
-        error: "Failed to get component examples",
+        error: "Failed to get component documentation",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       500,
@@ -378,11 +227,12 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
   const analytics = c.get("analytics");
+  const app = getApp(c);
 
   try {
     const service = await getComponentService(c.env);
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
-    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
+    const latestVersion = await service.getLatestVersion();
 
     const branch = "v3";
     const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
@@ -399,11 +249,64 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
         const sourceUrl = `${baseUrl}/packages/react/src/components/${result.data.links.source}`;
 
         try {
-          const response = await fetch(sourceUrl);
-          if (!response.ok) {
+          let response: Response;
+          try {
+            response = await fetch(sourceUrl);
+          } catch (fetchError) {
+            analytics.trackError({
+              error: fetchError,
+              errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
+              fallbackMessage: "Failed to fetch source code",
+              properties: {
+                endpoint,
+                apiVersion: "v1",
+                app,
+                component: result.component,
+                url: sourceUrl,
+                filePath: result.data.links.source,
+                responseTime: Date.now() - startTime,
+              },
+            });
+
             return {
               component: result.component,
-              error: "Failed to fetch source code from GitHub",
+              error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+            };
+          }
+
+          if (!response.ok) {
+            let errorBody: string | null = null;
+            try {
+              errorBody = await response.text();
+
+              if (errorBody && errorBody.length > 300) {
+                errorBody =
+                  errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+              }
+            } catch {
+              // Ignore if we can't read the body
+            }
+
+            analytics.trackError({
+              error: new Error(`${response.status}: ${response.statusText}`),
+              errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
+              properties: {
+                endpoint,
+                apiVersion: "v1",
+                app,
+                component: result.component,
+                url: sourceUrl,
+                filePath: result.data.links.source,
+                status: response.status,
+                statusText: response.statusText,
+                errorBody,
+                responseTime: Date.now() - startTime,
+              },
+            });
+
+            return {
+              component: result.component,
+              error: `${response.status} ${response.statusText}`,
             };
           }
 
@@ -418,9 +321,23 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
               .replace("/refs/heads/", "/blob/"),
           };
         } catch (error) {
+          analytics.trackError({
+            error,
+            errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
+            properties: {
+              endpoint,
+              apiVersion: "v1",
+              app,
+              component: result.component,
+              url: sourceUrl,
+              filePath: result.data.links.source,
+              responseTime: Date.now() - startTime,
+            },
+          });
+
           return {
             component: result.component,
-            error: error instanceof Error ? error.message : "Failed to fetch source code",
+            error: error instanceof Error ? error.message : String(error),
           };
         }
       }),
@@ -431,9 +348,11 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
     if (failedComponents.length > 0) {
       analytics.trackError({
         error: failedComponents.map((result) => `${result.component}: ${result.error}`).join(", "),
-        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_ERROR,
+        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
+          app,
           components: componentNames,
           failedComponents: failedComponents.map((result) => result.component),
           latestVersion,
@@ -442,9 +361,11 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
       });
     } else {
       analytics.track({
-        event: AnalyticsEvent.GET_COMPONENT_SOURCE,
+        event: AnalyticsEvent.GET_COMPONENT_SOURCE_CODE,
         properties: {
           endpoint,
+          apiVersion: "v1",
+          app,
           components: componentNames,
           latestVersion,
           responseTime: Date.now() - startTime,
@@ -459,10 +380,12 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
   } catch (error) {
     analytics.trackError({
       error,
-      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_ERROR,
+      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_CODE_ERROR,
       fallbackMessage: "Failed to get component source code",
       properties: {
         endpoint,
+        apiVersion: "v1",
+        app,
         components: componentNames,
         responseTime: Date.now() - startTime,
       },
@@ -484,11 +407,12 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
   const analytics = c.get("analytics");
+  const app = getApp(c);
 
   try {
     const service = await getComponentService(c.env);
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
-    const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
+    const latestVersion = await service.getLatestVersion();
 
     const branch = "v3";
     const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
@@ -505,11 +429,64 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
         const stylesUrl = `${baseUrl}/packages/styles/components/${result.data.links.styles}`;
 
         try {
-          const response = await fetch(stylesUrl);
-          if (!response.ok) {
+          let response: Response;
+          try {
+            response = await fetch(stylesUrl);
+          } catch (fetchError) {
+            analytics.trackError({
+              error: fetchError,
+              errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
+              fallbackMessage: "Failed to fetch styles",
+              properties: {
+                endpoint,
+                apiVersion: "v1",
+                app,
+                component: result.component,
+                url: stylesUrl,
+                filePath: result.data.links.styles,
+                responseTime: Date.now() - startTime,
+              },
+            });
+
             return {
               component: result.component,
-              error: "Failed to fetch styles from GitHub",
+              error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+            };
+          }
+
+          if (!response.ok) {
+            let errorBody: string | null = null;
+            try {
+              errorBody = await response.text();
+
+              if (errorBody && errorBody.length > 300) {
+                errorBody =
+                  errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+              }
+            } catch {
+              // Ignore if we can't read the body
+            }
+
+            analytics.trackError({
+              error: new Error(`${response.status}: ${response.statusText}`),
+              errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
+              properties: {
+                endpoint,
+                apiVersion: "v1",
+                app,
+                component: result.component,
+                url: stylesUrl,
+                filePath: result.data.links.styles,
+                status: response.status,
+                statusText: response.statusText,
+                errorBody,
+                responseTime: Date.now() - startTime,
+              },
+            });
+
+            return {
+              component: result.component,
+              error: `${response.status} ${response.statusText}`,
             };
           }
 
@@ -524,9 +501,23 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
               .replace("/refs/heads/", "/blob/"),
           };
         } catch (error) {
+          analytics.trackError({
+            error,
+            errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
+            properties: {
+              endpoint,
+              apiVersion: "v1",
+              app,
+              component: result.component,
+              url: stylesUrl,
+              filePath: result.data.links.styles,
+              responseTime: Date.now() - startTime,
+            },
+          });
+
           return {
             component: result.component,
-            error: error instanceof Error ? error.message : "Failed to fetch styles",
+            error: error instanceof Error ? error.message : String(error),
           };
         }
       }),
@@ -537,9 +528,11 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
     if (failedComponents.length > 0) {
       analytics.trackError({
         error: failedComponents.map((result) => `${result.component}: ${result.error}`).join(", "),
-        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_STYLES_ERROR,
+        errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
+          app,
           components: componentNames,
           failedComponents: failedComponents.map((result) => result.component),
           latestVersion,
@@ -548,9 +541,11 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
       });
     } else {
       analytics.track({
-        event: AnalyticsEvent.GET_COMPONENT_STYLES,
+        event: AnalyticsEvent.GET_COMPONENT_SOURCE_STYLES,
         properties: {
           endpoint,
+          apiVersion: "v1",
+          app,
           components: componentNames,
           latestVersion,
           responseTime: Date.now() - startTime,
@@ -565,10 +560,12 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
   } catch (error) {
     analytics.trackError({
       error,
-      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_STYLES_ERROR,
+      errorEvent: AnalyticsErrorEvent.GET_COMPONENT_SOURCE_STYLES_ERROR,
       fallbackMessage: "Failed to get component styles",
       properties: {
         endpoint,
+        apiVersion: "v1",
+        app,
         components: componentNames,
         responseTime: Date.now() - startTime,
       },

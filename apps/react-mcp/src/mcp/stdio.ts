@@ -17,10 +17,13 @@ import {initializeTools} from "./tools";
  * Create and configure the MCP server
  */
 async function createServer(): Promise<McpServer> {
-  const server = new McpServer({
-    name: packageInfo.name,
-    version: packageInfo.version,
-    instructions: `## HeroUI React MCP Tools - v3 Beta Documentation
+  const server = new McpServer(
+    {
+      name: packageInfo.name,
+      version: packageInfo.version,
+    },
+    {
+      instructions: `## HeroUI React MCP Tools - v3 Beta Documentation
 
 These tools provide documentation for **HeroUI v3 (Beta)** React components.
 
@@ -36,19 +39,19 @@ A migration tool will be available in the future when v3 reaches stable release.
 For now, v3 should only be used for new projects.
 
 ### Getting Started
-Use the \`installation\` tool for setting up a NEW HeroUI v3 project:
+Use the \`get_docs\` tool to fetch the official installation guide:
 \`\`\`javascript
-installation({ framework: "next-app", packageManager: "npm" })
+get_docs({ path: "/docs/react/getting-started/quick-start" })
 \`\`\`
 
 ### Essential Workflow
 Always follow this order when implementing HeroUI v3 components:
 
-1. **installation** - Set up HeroUI v3 in your project (NEW projects only)
+1. **get_docs** - Fetch installation guide: \`get_docs({ path: "/docs/react/getting-started/quick-start" })\`
 2. **list_components** - Check available v3 components
-3. **get_component_info** - Get complete API and anatomy
-4. **get_component_props** - Review TypeScript types
-5. **get_component_examples** - See usage patterns
+3. **get_component_docs** - Get complete component documentation (API, examples, usage)
+4. **get_component_source_code** - View source code implementation (optional, for learning)
+5. **get_component_source_styles** - View CSS styles (optional, for customization)
 
 ### Key Differences in v3
 • Compound components pattern (e.g., Card.Header, Card.Content)
@@ -57,46 +60,30 @@ Always follow this order when implementing HeroUI v3 components:
 • Built on React Aria Components
 • Modern React 19+ features
 
-### Example Usage
-\`\`\`javascript
-// Check v3 component structure
-get_component_info({ component: "Card" })
-
-// v3 uses compound components (NOT flat props like v2)
-<Card>
-  <Card.Header>
-    <Card.Title>Title</Card.Title>
-  </Card.Header>
-  <Card.Content>Content</Card.Content>
-</Card>
-\`\`\`
+### Available Tools
+• **list_components** - List all available v3 components
+• **get_component_docs** - Get component documentation (API, examples, usage)
+• **get_component_source_code** - Get component source code
+• **get_component_source_styles** - Get component CSS styles
+• **get_docs** - Get general documentation (guides, getting started, etc.)
+• **get_theme_variables** - Get default theme variables and design tokens
 
 ### Available Documentation
-• Components: Use tools to explore v3 components
-• Guides: Use get_docs({ path: "/docs/getting-started" })
-• Theme: Use get_theme_info() for v3 theming
-
-### 📚 Development Guidelines
-A comprehensive development guide is available as a resource:
-• Resource name: "heroui-web-rules"
-• Contains: Best practices, common patterns, troubleshooting, MCP tool workflows
-• Include this in context for optimal results
+• Components: Use get_component_docs to explore v3 components
+• Installation: Use get_docs({ path: "/docs/react/getting-started/quick-start" }) for setup guides
+• Guides: Use get_docs({ path: "/docs/react/getting-started" }) for other getting-started guides
+• Theme: Use get_theme_variables() for theme variable values, or get_docs({ path: "/docs/react/getting-started/theming" }) for theming guides
 
 ### Pro Tips
 • This MCP is for v3 ONLY - v2 docs are at https://heroui.com
-• v3 is BETA - use for experimentation and new projects
-• Migration guide will come with stable v3 release
-• Report v3 issues at: https://github.com/heroui-inc/heroui/issues
-
-For v3 guidelines: https://v3.heroui.com/llms-full.txt
-For v2 documentation: https://heroui.com (not supported by this MCP)`,
-    capabilities: {
-      tools: {
-        listChanged: true,
+• v3 is BETA - use for experimentation and new projects`,
+      capabilities: {
+        tools: {
+          listChanged: true,
+        },
       },
-      resources: {},
     },
-  });
+  );
 
   // Initialize tools from the tools directory
   await initializeTools(server, {

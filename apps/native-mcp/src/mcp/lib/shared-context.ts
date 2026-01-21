@@ -18,10 +18,12 @@ export async function getSharedContext(apiBaseUrl?: string): Promise<SharedConte
   try {
     const response = await fetchApi<{
       components: string[];
-      examples: string[];
-      themes: string[];
       docs: {
         paths: string[];
+        categories?: Array<{
+          name: string;
+          docs: Array<{title: string; path: string; description: string}>;
+        }>;
       };
       version: string;
       timestamp: number;
@@ -30,8 +32,6 @@ export async function getSharedContext(apiBaseUrl?: string): Promise<SharedConte
     // Cache the context
     cachedContext = {
       componentList: response.components || [],
-      exampleList: response.examples || [],
-      themeList: response.themes || ["default"],
       docPaths: response.docs?.paths || [],
       version: response.version || "unknown",
       timestamp: response.timestamp || Date.now(),
@@ -44,8 +44,6 @@ export async function getSharedContext(apiBaseUrl?: string): Promise<SharedConte
     // Return empty fallback context
     return {
       componentList: [],
-      exampleList: [],
-      themeList: ["default"],
       docPaths: [],
       version: "unknown",
       timestamp: Date.now(),

@@ -35,19 +35,6 @@ export interface AnimationPreset {
   description?: string;
 }
 
-export interface GuideContent {
-  title: string;
-  description: string;
-  content: string; // Markdown content
-  examples?: CodeExample[];
-}
-
-export interface CodeExample {
-  title: string;
-  language: string;
-  code: string;
-}
-
 export interface ThemeSystem {
   version: string;
   themes: {
@@ -57,14 +44,5 @@ export interface ThemeSystem {
   animations: {
     timings: AnimationTiming[];
     presets: AnimationPreset[];
-  };
-  guides: {
-    theming?: GuideContent;
-    colors?: GuideContent;
-    styling?: GuideContent;
-    animation?: GuideContent;
-    composition?: GuideContent;
-    designPrinciples?: GuideContent;
-    quickStart?: GuideContent;
   };
 }

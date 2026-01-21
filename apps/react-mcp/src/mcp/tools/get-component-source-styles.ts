@@ -44,7 +44,7 @@ These are BEM classes from @heroui/styles - not for use with React components.`)
             githubUrl?: string;
             error?: string;
           }>;
-        }>("/components/styles", config.apiBaseUrl, {
+        }>("/v1/components/styles", config.apiBaseUrl, {
           method: "POST",
           body: JSON.stringify({components}),
         });
@@ -87,6 +87,6 @@ These are BEM classes from @heroui/styles - not for use with React components.`)
     };
 
     // Register tool
-    server.tool(name, description, inputSchema.shape, handler as any);
+    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
   },
 };

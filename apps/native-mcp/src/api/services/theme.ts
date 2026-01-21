@@ -36,12 +36,9 @@ class ThemeService {
   /**
    * Get the complete theme system data
    */
-  async getThemeSystem(version?: string): Promise<ThemeSystem | null> {
+  async getThemeSystem(): Promise<ThemeSystem | null> {
     try {
-      // Use versioned file if version is provided, otherwise use latest
-      const key = version
-        ? `native/theme/${version.replace(/^v/, "")}.json`
-        : "native/latest/theme.json";
+      const key = "native/v1/latest/theme.json";
 
       const response = await this.client.send(
         new GetObjectCommand({
@@ -58,10 +55,7 @@ class ThemeService {
 
       return null;
     } catch (error) {
-      console.error(
-        `Error fetching theme system${version ? ` for version ${version}` : ""}:`,
-        error,
-      );
+      console.error("Error fetching theme system:", error);
 
       return null;
     }
@@ -70,11 +64,8 @@ class ThemeService {
   /**
    * Get a specific theme
    */
-  async getTheme(
-    themeName: string,
-    version?: string,
-  ): Promise<ThemeSystem["themes"][string] | null> {
-    const themeSystem = await this.getThemeSystem(version);
+  async getTheme(themeName: string): Promise<ThemeSystem["themes"][string] | null> {
+    const themeSystem = await this.getThemeSystem();
     if (!themeSystem || !themeSystem.themes[themeName]) {
       return null;
     }
@@ -85,8 +76,8 @@ class ThemeService {
   /**
    * Get available theme names
    */
-  async getAvailableThemes(version?: string): Promise<string[]> {
-    const themeSystem = await this.getThemeSystem(version);
+  async getAvailableThemes(): Promise<string[]> {
+    const themeSystem = await this.getThemeSystem();
     if (!themeSystem) {
       return [];
     }
@@ -100,9 +91,8 @@ class ThemeService {
   async getThemeVariables(
     themeName: string,
     mode: "light" | "dark",
-    version?: string,
   ): Promise<ThemeSystem["themes"][string]["light"] | null> {
-    const theme = await this.getTheme(themeName, version);
+    const theme = await this.getTheme(themeName);
     if (!theme) {
       return null;
     }
@@ -111,27 +101,29 @@ class ThemeService {
   }
 
   /**
-   * Get the latest version from R2 versions.json
+   * Get the latest version from ctx.json (single source of truth)
    */
-  async getLatestVersion(packageName: string = "heroui-native-theme"): Promise<string | null> {
+  async getLatestVersion(): Promise<string | null> {
     try {
       const response = await this.client.send(
         new GetObjectCommand({
           Bucket: this.bucketName,
-          Key: "native/versions.json",
+          Key: "native/v1/latest/ctx.json",
         }),
       );
 
       if (response.Body) {
         const bodyString = await response.Body.transformToString();
-        const versionInfo = JSON.parse(bodyString);
+        const ctxData = JSON.parse(bodyString) as {
+          version?: string;
+        };
 
-        return versionInfo?.[packageName]?.current || null;
+        return ctxData?.version || null;
       }
 
       return null;
     } catch (error) {
-      console.error(`Error fetching latest version for ${packageName}:`, error);
+      console.error("Error fetching latest version from ctx.json:", error);
 
       return null;
     }

@@ -15,10 +15,16 @@ import {ctx} from "./routes/ctx";
 import {docs} from "./routes/docs";
 import {health} from "./routes/health";
 import {themes} from "./routes/themes";
-import {versions} from "./routes/versions";
 import type {HonoContext} from "./types/context";
 import {analyticsMiddleware} from "./middleware/analytics";
 import {authMiddleware} from "./middleware/auth";
+import {
+  components as legacyComponents,
+  ctx as legacyCtx,
+  docs as legacyDocs,
+  themes as legacyThemes,
+  versions as legacyVersions,
+} from "./legacy";
 
 const app = new Hono<HonoContext>();
 
@@ -32,11 +38,19 @@ app.use("*", authMiddleware);
 
 // Mount routes
 app.route("/", health);
-app.route("/ctx", ctx);
-app.route("/components", components);
-app.route("/themes", themes);
-app.route("/versions", versions);
-app.route("/docs", docs);
+
+// Mount legacy routes at original paths (unchanged)
+app.route("/components", legacyComponents);
+app.route("/themes", legacyThemes);
+app.route("/versions", legacyVersions);
+app.route("/ctx", legacyCtx);
+app.route("/docs", legacyDocs);
+
+// Mount NEW routes at /v1/* prefix
+app.route("/v1/components", components);
+app.route("/v1/themes", themes);
+app.route("/v1/docs", docs);
+app.route("/v1/ctx", ctx);
 
 // 404 handler
 app.notFound((c) => {

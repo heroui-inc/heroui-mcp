@@ -6,39 +6,29 @@ import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
 describe("Context API", () => {
-  describe("GET /ctx", () => {
+  describe("GET /v1/ctx", () => {
     it("should return initialization context", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
 
       expect(res.status).toBe(200);
 
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("components");
-      expect(data).toHaveProperty("themes");
       expect(data).toHaveProperty("docs");
       expect(data).toHaveProperty("version");
       expect(data).toHaveProperty("timestamp");
     });
 
     it("should return array of components", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
       const data = (await res.json()) as any;
 
       expect(Array.isArray(data.components)).toBe(true);
       expect(data.components.length).toBeGreaterThan(0);
     });
 
-    it("should return array of themes", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
-      const data = (await res.json()) as any;
-
-      expect(Array.isArray(data.themes)).toBe(true);
-      expect(data.themes.length).toBeGreaterThan(0);
-      expect(data.themes.includes("default")).toBe(true);
-    });
-
     it("should return docs object with paths and categories", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
       const data = (await res.json()) as any;
 
       expect(data.docs).toHaveProperty("paths");
@@ -48,7 +38,7 @@ describe("Context API", () => {
     });
 
     it("should parse doc categories correctly", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
       const data = (await res.json()) as any;
 
       if (data.docs.categories.length > 0) {
@@ -67,7 +57,7 @@ describe("Context API", () => {
     });
 
     it("should flatten doc paths from categories", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
       const data = (await res.json()) as any;
 
       if (data.docs.categories.length > 0) {
@@ -80,7 +70,7 @@ describe("Context API", () => {
     });
 
     it("should return valid version string", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
       const data = (await res.json()) as any;
 
       expect(typeof data.version).toBe("string");
@@ -89,17 +79,17 @@ describe("Context API", () => {
     });
 
     it("should return valid timestamp", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
       const data = (await res.json()) as any;
 
       expect(typeof data.timestamp).toBe("number");
       expect(new Date(data.timestamp)).toBeInstanceOf(Date);
-      // Timestamp should be recent (within last minute)
-      expect(Date.now() - data.timestamp).toBeLessThan(60000);
+      // Timestamp should be valid (not in the future)
+      expect(data.timestamp).toBeLessThanOrEqual(Date.now());
     });
 
     it("should have proper CORS headers", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
 
       expect(res.headers.get("access-control-allow-origin")).toBe("*");
     });
@@ -107,7 +97,7 @@ describe("Context API", () => {
     it("should handle errors gracefully", async () => {
       // This test verifies error handling structure
       // The endpoint should always return a response, even if some data fails
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
 
       expect(res.status).toBeLessThanOrEqual(500);
       const contentType = res.headers.get("content-type");
@@ -115,7 +105,7 @@ describe("Context API", () => {
     });
 
     it("should return components when service is available", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
       const data = (await res.json()) as any;
 
       if (res.status === 200) {
@@ -123,29 +113,29 @@ describe("Context API", () => {
       }
     });
 
-    it("should fetch llms.txt from HeroUI v3 docs", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+    it("should fetch react/llms.txt from HeroUI v3 docs", async () => {
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
       const data = (await res.json()) as any;
 
       if (res.status === 200 && data.docs.paths.length > 0) {
-        // Verify that paths start with /docs/
+        // Verify that paths start with /docs/react/
         data.docs.paths.forEach((path: string) => {
-          expect(path).toMatch(/^\/docs\//);
+          expect(path).toMatch(/^\/docs\/react\//);
         });
       }
     });
 
     it("should return response within acceptable time", async () => {
       const startTime = Date.now();
-      await SELF.fetch("http://localhost:8787/ctx");
+      await SELF.fetch("http://localhost:8787/v1/ctx");
       const responseTime = Date.now() - startTime;
 
       // Should respond within 5 seconds
       expect(responseTime).toBeLessThan(5000);
     });
 
-    it("should handle llms.txt parsing errors gracefully", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+    it("should handle react/llms.txt parsing errors gracefully", async () => {
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
       const data = (await res.json()) as any;
 
       // Even if parsing fails, docs should exist with empty arrays
@@ -155,19 +145,19 @@ describe("Context API", () => {
     });
 
     it("should track analytics for successful requests", async () => {
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
 
       if (res.status === 200) {
         const data = (await res.json()) as any;
         // Analytics tracking is internal, but we can verify response structure
         expect(data).toHaveProperty("components");
-        expect(data).toHaveProperty("themes");
+        expect(data).toHaveProperty("docs");
       }
     });
 
     it("should handle network errors when fetching external resources", async () => {
       // This test ensures the endpoint doesn't fail completely if external fetch fails
-      const res = await SELF.fetch("http://localhost:8787/ctx");
+      const res = await SELF.fetch("http://localhost:8787/v1/ctx");
 
       // Should still return a valid response structure
       const contentType = res.headers.get("content-type");
@@ -177,7 +167,7 @@ describe("Context API", () => {
         const data = (await res.json()) as any;
         // Core data should still be present
         expect(data).toHaveProperty("components");
-        expect(data).toHaveProperty("themes");
+        expect(data).toHaveProperty("docs");
         expect(data).toHaveProperty("version");
       }
     });

@@ -1,350 +1,143 @@
-/**
- * Documentation endpoints
- * Note: Native docs are fetched from GitHub markdown files
- */
-
 import type {HonoContext} from "../types/context";
 
 import {Hono} from "hono";
 
-import {CACHE_CONTROL} from "../constants";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 
 const docs = new Hono<HonoContext>();
 
-// Types for documentation structure
-interface DocSection {
-  title: string;
-  path: string;
-  description: string;
-}
-
-interface DocCategory {
-  name: string;
-  docs: DocSection[];
-}
-
-// Get available documentation paths from GitHub README
-// Only extracts links from ### sections within ## Documentation and ## Changelog
-docs.get("/available", async (c) => {
-  const endpoint = "list-docs-available";
+// Get specific documentation content
+docs.get("*", async (c) => {
+  const endpoint = "get-docs";
   const startTime = Date.now();
   const analytics = c.get("analytics");
 
-  try {
-    // Fetch README.md from heroui-native repository
-    const branch = "beta";
-    const readmeUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${branch}/README.md`;
-    const response = await fetch(readmeUrl);
+  // Extract path from c.req.path, removing the /v1/docs/ or /docs/ prefix from the base route
+  // When mounted at /v1/docs, c.req.path includes the full path, so we need to strip the mount prefix
+  const requestPath = c.req.path;
+  let path: string;
 
-    if (!response.ok) {
-      analytics.trackError({
-        error: "Failed to fetch documentation list",
-        errorEvent: AnalyticsErrorEvent.LIST_DOCS_ERROR,
-        properties: {
-          endpoint,
-          status: response.status,
-          statusText: response.statusText,
-          url: readmeUrl,
-          responseTime: Date.now() - startTime,
-        },
-      });
+  if (requestPath.startsWith("/v1/docs/")) {
+    path = requestPath.slice(9); // Remove "/v1/docs/"
+  } else if (requestPath === "/v1/docs") {
+    path = ""; // Empty path when exactly "/v1/docs"
+  } else if (requestPath.startsWith("/docs/")) {
+    path = requestPath.slice(6); // Remove "/docs/"
+  } else if (requestPath === "/docs") {
+    path = ""; // Empty path when exactly "/docs"
+  } else {
+    path = requestPath.slice(1); // Remove leading "/"
+  }
 
-      return c.json(
-        {
-          error: "Failed to fetch documentation list",
-          status: response.status,
-        },
-        404,
-      );
-    }
-
-    const content = await response.text();
-
-    // Parse the README to extract documentation structure
-    const categories: DocCategory[] = [];
-    let currentCategory: DocCategory | null = null;
-
-    const lines = content.split("\n");
-    let inDocumentationSection = false;
-    let inChangelogSection = false;
-
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-
-      // Track when we enter the Documentation section
-      if (trimmedLine === "## Documentation") {
-        inDocumentationSection = true;
-        inChangelogSection = false;
-        continue;
-      }
-
-      // Track when we enter the Changelog section
-      if (trimmedLine === "## Changelog") {
-        inDocumentationSection = false;
-        inChangelogSection = true;
-        // Add changelog link as its own category
-        categories.push({
-          name: "Changelog",
-          docs: [
-            {
-              title: "Changelog",
-              path: "/docs/changelog",
-              description: "History of changes to HeroUI Native",
-            },
-          ],
-        });
-        continue;
-      }
-
-      // Exit both sections when we hit another ## heading
-      if (
-        trimmedLine.startsWith("## ") &&
-        trimmedLine !== "## Documentation" &&
-        trimmedLine !== "## Changelog"
-      ) {
-        inDocumentationSection = false;
-        inChangelogSection = false;
-        continue;
-      }
-
-      // Only process ### sections within Documentation or Changelog
-      if (!inDocumentationSection && !inChangelogSection) {
-        continue;
-      }
-
-      // Category header (starts with ###) - only within allowed sections
-      if (trimmedLine.startsWith("### ")) {
-        const categoryName = trimmedLine.substring(4).trim();
-        currentCategory = {
-          name: categoryName,
-          docs: [],
-        };
-        categories.push(currentCategory);
-      }
-      // Documentation entry (starts with -) - only within allowed sections
-      else if (trimmedLine.startsWith("- [") && currentCategory) {
-        // Parse format: - [Title](path) - Description
-        // or: - [Title](path)
-        const match = trimmedLine.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*-\s*(.+))?$/);
-        if (match) {
-          const [, title, githubPath, description = ""] = match;
-
-          // Convert GitHub path to doc path
-          let docPath = "";
-          if (githubPath.includes("/providers/")) {
-            // Core documentation
-            if (githubPath.includes("provider.md")) {
-              docPath = "/docs/core/provider";
-            } else if (githubPath.includes("theme.md#custom-fonts")) {
-              docPath = "/docs/core/custom-fonts";
-            } else if (githubPath.includes("theme.md")) {
-              docPath = "/docs/core/theming";
-            }
-          } else if (githubPath.includes("/components/")) {
-            // Component documentation
-            const componentName = githubPath.match(/\/components\/([^/]+)\//)?.[1];
-            if (componentName) {
-              docPath = `/docs/components/${componentName}`;
-            }
-          }
-
-          if (docPath) {
-            currentCategory.docs.push({
-              title,
-              path: docPath,
-              description: description || title,
-            });
-          }
-        }
-      }
-    }
-
-    const total = categories.reduce((acc, cat) => acc + cat.docs.length, 0);
-
-    analytics.track({
-      event: AnalyticsEvent.LIST_DOCS,
-      properties: {
-        endpoint,
-        responseTime: Date.now() - startTime,
-        categories: categories.length,
-        total,
-      },
-    });
-
-    // Set cache headers
-    c.header("Cache-Control", CACHE_CONTROL.VERSIONED);
-
-    return c.json({
-      baseUrl: "https://github.com/heroui-inc/heroui-native",
-      categories,
-      total,
-    });
-  } catch (error) {
+  // Check if path is empty or just whitespace
+  if (!path || !path.trim()) {
     analytics.trackError({
-      error,
-      errorEvent: AnalyticsErrorEvent.LIST_DOCS_ERROR,
-      fallbackMessage: "Failed to fetch documentation list",
+      error: "Missing path parameter",
+      errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       properties: {
         endpoint,
+        apiVersion: "v1",
         responseTime: Date.now() - startTime,
       },
     });
 
     return c.json(
       {
-        error: "Internal server error while fetching documentation list",
-        details: error instanceof Error ? error.message : "Unknown error",
+        error: "Missing required path parameter",
       },
-      500,
+      400,
     );
   }
-});
-
-// Helper function to convert doc path to GitHub file path
-function getGithubPath(docPath: string): string | null {
-  const pathMap: Record<string, string> = {
-    "/docs/core/provider": "src/providers/hero-ui-native/provider.md",
-    "/docs/core/theming": "src/styles/theme.md",
-    "/docs/core/custom-fonts": "src/styles/theme.md",
-    "/docs/changelog": "CHANGELOG.md",
-  };
-
-  // Check direct mapping first
-  if (pathMap[docPath]) {
-    return pathMap[docPath];
-  }
-
-  // Handle component paths
-  if (docPath.startsWith("/docs/components/")) {
-    const componentName = docPath.replace("/docs/components/", "");
-
-    return `src/components/${componentName}/${componentName}.md`;
-  }
-
-  return null;
-}
-
-// Get documentation content from GitHub
-docs.get("/content", async (c) => {
-  const endpoint = "get-docs-content";
-  const startTime = Date.now();
-  const analytics = c.get("analytics");
-
-  let path: string | undefined = undefined;
 
   try {
-    path = c.req.query("path");
+    // Path param from route /docs/* is like "native/getting-started/theming"
+    // Add /docs/ prefix and .mdx extension
+    path = `/docs/${path}.mdx`;
 
-    if (!path) {
-      analytics.trackError({
-        error: "Invalid request",
-        errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
-        properties: {
-          responseTime: Date.now() - startTime,
-          endpoint,
-        },
-      });
+    const docUrl = `https://v3.heroui.com${path}`;
 
-      return c.json(
-        {
-          error: "Invalid request",
-          details: "path query parameter is required",
-        },
-        400,
-      );
-    }
-
-    const githubPath = getGithubPath(path);
-
-    if (!githubPath) {
-      analytics.trackError({
-        error: "Failed to get GitHub path",
-        errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
-        properties: {
-          responseTime: Date.now() - startTime,
-          endpoint,
-          path,
-        },
-      });
-
-      return c.json(
-        {
-          error: "Documentation not found",
-          details: `No documentation available for path: ${path}`,
-        },
-        404,
-      );
-    }
-
-    // Fetch from GitHub
-    const branch = "beta";
-    const githubUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${branch}/${githubPath}`;
-
-    const response = await fetch(githubUrl);
+    const response = await fetch(docUrl);
 
     if (!response.ok) {
+      let errorBody: string | null = null;
+      try {
+        errorBody = await response.text();
+
+        if (errorBody && errorBody.length > 300) {
+          errorBody =
+            errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+        }
+      } catch {
+        // Ignore if we can't read the body
+      }
+
       analytics.trackError({
-        error: `Failed to fetch documentation from GitHub`,
-        errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
+        error: new Error(`${response.status}: ${response.statusText}`),
+        errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
         properties: {
           endpoint,
+          apiVersion: "v1",
           path,
+          url: docUrl,
           status: response.status,
           statusText: response.statusText,
-          url: githubUrl,
+          errorBody,
           responseTime: Date.now() - startTime,
         },
       });
 
       return c.json(
         {
-          error: "Failed to fetch documentation",
-          details: `GitHub returned ${response.status} for ${githubPath}`,
+          error: `${response.status} ${response.statusText}`,
+          status: response.status,
+          statusText: response.statusText,
+          url: docUrl,
         },
-        404,
+        response.status as 400 | 404 | 500,
       );
     }
 
     const content = await response.text();
+    const contentType = response.headers.get("content-type") || "text/plain";
 
     analytics.track({
-      event: AnalyticsEvent.GET_DOCS_CONTENT,
+      event: AnalyticsEvent.GET_DOCS,
       properties: {
         endpoint,
+        apiVersion: "v1",
         path,
-        url: githubUrl,
+        url: docUrl,
         length: content.length,
         responseTime: Date.now() - startTime,
       },
     });
 
-    // Set cache headers
-    c.header("Cache-Control", CACHE_CONTROL.VERSIONED);
-
     return c.json({
       path,
-      url: githubUrl
-        .replace("raw.githubusercontent.com", "github.com")
-        .replace(`/${branch}/`, `/blob/${branch}/`),
+      url: docUrl,
       content,
-      contentType: "markdown",
+      contentType,
     });
   } catch (error) {
+    const docUrl = `https://v3.heroui.com${path}`;
+
     analytics.trackError({
       error,
-      errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
+      errorEvent: AnalyticsErrorEvent.GET_DOCS_ERROR,
       properties: {
         endpoint,
-        responseTime: Date.now() - startTime,
+        apiVersion: "v1",
         path,
+        url: docUrl,
+        responseTime: Date.now() - startTime,
       },
     });
 
     return c.json(
       {
-        error: "Failed to fetch documentation",
-        details: error instanceof Error ? error.message : "Unknown error",
+        error: error instanceof Error ? error.message : String(error),
+        path,
+        url: docUrl,
       },
       500,
     );
