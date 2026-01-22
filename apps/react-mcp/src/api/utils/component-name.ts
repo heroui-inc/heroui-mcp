@@ -6,12 +6,24 @@
  * - "DateField" → "date-field"
  * - "Alert Dialog" → "alert-dialog"
  * - "Scroll Shadow" → "scroll-shadow"
+ * - "ComboBox" → "combobox" (special case - file is combobox.mdx, not combo-box.mdx)
  */
 export function componentNameToKebab(name: string): string {
+  const trimmed = name.trim();
+
+  // Special case mappings for components that don't follow standard PascalCase-to-kebab conversion
+  const specialCases: Record<string, string> = {
+    ComboBox: "combobox",
+    ListBox: "listbox",
+    TextArea: "textarea",
+  };
+
+  if (specialCases[trimmed]) {
+    return specialCases[trimmed];
+  }
+
   return (
-    name
-      // Trim leading/trailing whitespace
-      .trim()
+    trimmed
       // First, replace spaces with hyphens
       .replace(/\s+/g, "-")
       // Then convert PascalCase to kebab-case by adding hyphen before uppercase letters
