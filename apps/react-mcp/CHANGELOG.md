@@ -1,3 +1,12 @@
+## [1.0.2](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.0.1...react-mcp-v1.0.2) (2026-01-22)
+
+
+### Bug Fixes
+
+* remove component name exceptions ([713afd3](https://github.com/heroui-inc/heroui-mcp/commit/713afd35f50e39039e36bdb4924982edb27fd055))
+
+
+
 ## [1.0.1](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.0.0...react-mcp-v1.0.1) (2026-01-22)
 
 
