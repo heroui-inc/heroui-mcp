@@ -1,3 +1,13 @@
+## [1.0.1](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.0.0...react-mcp-v1.0.1) (2026-01-22)
+
+
+### Bug Fixes
+
+* special cases for component names ([1c0b1a6](https://github.com/heroui-inc/heroui-mcp/commit/1c0b1a6e37243afaea0766144b0c58e419279d94))
+* use v1 ctx endpoint ([8549cc2](https://github.com/heroui-inc/heroui-mcp/commit/8549cc23887de00b7101c52ebd3bffb875a32c2c))
+
+
+
 # [1.0.0](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.0.0-alpha.32...react-mcp-v1.0.0) (2026-01-21)
 
 
