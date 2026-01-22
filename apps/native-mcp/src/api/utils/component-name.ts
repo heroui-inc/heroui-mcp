@@ -6,23 +6,12 @@
  * - "DateField" → "date-field"
  * - "Alert Dialog" → "alert-dialog"
  * - "Scroll Shadow" → "scroll-shadow"
- * - "ComboBox" → "combobox" (special case - file is combobox.mdx, not combo-box.mdx)
- * - "ListBox" → "listbox" (special case - file is listbox.mdx, not list-box.mdx)
- * - "TextArea" → "textarea" (special case - file is textarea.mdx, not text-area.mdx)
+ * - "ComboBox" → "combo-box"
+ * - "ListBox" → "list-box"
+ * - "TextArea" → "text-area"
  */
 export function componentNameToKebab(name: string): string {
   const trimmed = name.trim();
-
-  // Special case mappings for components that don't follow standard PascalCase-to-kebab conversion
-  const specialCases: Record<string, string> = {
-    ComboBox: "combobox",
-    ListBox: "listbox",
-    TextArea: "textarea",
-  };
-
-  if (specialCases[trimmed]) {
-    return specialCases[trimmed];
-  }
 
   return (
     trimmed
