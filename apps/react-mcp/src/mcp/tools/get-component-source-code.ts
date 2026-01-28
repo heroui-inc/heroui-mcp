@@ -41,12 +41,16 @@ This shows internal implementation - use get_component_docs for usage examples.`
             githubUrl?: string;
             error?: string;
           }>;
+          _warning?: string;
         }>("/v1/components/source", config.apiBaseUrl, {
           method: "POST",
           body: JSON.stringify({components}),
         });
 
         let responseText = "";
+        if (response._warning) {
+          responseText += `${response._warning}\n\n`;
+        }
 
         response.results.forEach((result, index) => {
           if (index > 0) responseText += "\n\n---\n\n";

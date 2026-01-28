@@ -29,10 +29,16 @@ IMPORTANT: HeroUI Native uses Uniwind (Tailwind CSS for React Native) - ensure c
     const handler = async () => {
       try {
         // Always fetch default theme with both modes
-        const response = await fetchApi<any>("/v1/themes/variables?theme=default", config.apiBaseUrl);
+        const response = await fetchApi<any>(
+          "/v1/themes/variables?theme=default",
+          config.apiBaseUrl,
+        );
 
         // Format the response as structured text
         let responseText = `# HeroUI Native Default Theme Variables\n\n`;
+        if (response._warning) {
+          responseText += `${response._warning}\n\n`;
+        }
         responseText += `**Theme:** ${response.theme || "default"}\n\n`;
 
         responseText += formatThemeData(response);

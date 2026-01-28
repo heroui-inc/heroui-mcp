@@ -14,18 +14,26 @@ Example workflow: list_components → get_component_docs.`,
     server.registerTool(name, {description}, async () => {
       try {
         // Direct API call
-        const data = await fetchApi<{components: string[]; latestVersion: string}>(
-          "/v1/components",
-          config.apiBaseUrl,
-        );
+        const data = await fetchApi<{
+          components: string[];
+          latestVersion: string;
+          _warning?: string;
+        }>("/v1/components", config.apiBaseUrl);
         const components = data.components || [];
         const version = data.latestVersion || "latest";
+        const warning = data._warning;
+
+        let text = `# Available Components in HeroUI Native (${version})\n\n`;
+        if (warning) {
+          text += `${warning}\n\n`;
+        }
+        text += `## Component List:\n${components.map((c) => `- ${c}`).join("\n")}\n\n**Total:** ${components.length} components\n\n**Note:** HeroUI Native provides React Native components for building mobile applications.`;
 
         return {
           content: [
             {
               type: "text",
-              text: `# Available Components in HeroUI Native (${version})\n\n## Component List:\n${components.map((c) => `- ${c}`).join("\n")}\n\n**Total:** ${components.length} components\n\n**Note:** HeroUI Native provides React Native components for building mobile applications.`,
+              text,
             },
           ],
         };

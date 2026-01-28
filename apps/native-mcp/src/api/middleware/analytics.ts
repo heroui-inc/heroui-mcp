@@ -1,7 +1,6 @@
 import type {HonoContext} from "../types/context";
 import type {Context, Next} from "hono";
 
-import packageJson from "../../../package.json";
 import {AnalyticsService} from "../services/analytics";
 
 export const analyticsMiddleware = async (c: Context<HonoContext>, next: Next) => {
@@ -20,10 +19,13 @@ export const analyticsMiddleware = async (c: Context<HonoContext>, next: Next) =
     metadata.timezone = cf.timezone;
   }
 
-  // Add package version to metadata
+  const clientVersion = c.get("clientVersion");
+
   metadata = {
     ...(metadata || {}),
-    version: packageJson.version,
+    version: c.get("serverVersion"),
+    ...(clientVersion && {clientVersion}),
+    ...{versionMatch: clientVersion && c.get("serverVersion") === clientVersion},
   };
 
   const analytics = new AnalyticsService({bindings: c.env, metadata});
