@@ -194,9 +194,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
       });
     }
 
-    return c.json({
-      results: docResults,
-    });
+    return c.json({results: docResults});
   } catch (error) {
     analytics.trackError({
       error,

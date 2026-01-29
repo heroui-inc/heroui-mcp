@@ -4,6 +4,8 @@
  */
 import {API_BASE_URL} from "../constants";
 
+import {packageInfo} from "./package-info";
+
 export interface VersionCheckResult {
   isLatest: boolean;
   currentVersion?: string;
@@ -44,10 +46,10 @@ export async function fetchApi<T = any>(
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "X-Client-Version": packageInfo.version,
     ...((options?.headers as Record<string, string>) || {}),
   };
 
-  // Automatically add API key if present
   if (apiKey) {
     headers["X-API-Key"] = apiKey;
   }

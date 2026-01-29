@@ -85,16 +85,25 @@ Requested path: ${path}`,
           : path.startsWith("/")
             ? path.slice(1)
             : path;
-        const data = await fetchApi<DocContentResponse>(`/v1/docs/${apiPath}`, config.apiBaseUrl);
+        const data = await fetchApi<DocContentResponse & {_warning?: string}>(
+          `/v1/docs/${apiPath}`,
+          config.apiBaseUrl,
+        );
 
-        const {content, url, contentType} = data;
+        const {content, url, contentType, _warning} = data;
 
         // Format the response
+        let text = `# Documentation: ${path}\n\n`;
+        if (_warning) {
+          text += `${_warning}\n\n`;
+        }
+        text += `**URL:** ${url}\n**Content Type:** ${contentType}\n\n---\n\n${content}`;
+
         return {
           content: [
             {
               type: "text" as const,
-              text: `# Documentation: ${path}\n\n**URL:** ${url}\n**Content Type:** ${contentType}\n\n---\n\n${content}`,
+              text,
             },
           ],
         };
