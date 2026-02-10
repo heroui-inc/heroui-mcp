@@ -20,7 +20,7 @@ This guide covers:
 - useDisclosure → useOverlayState migration
 - Migration strategies and examples
 
-Use this tool to get hooks-specific migration information. For the main migration guide, use get_migration_guide. For component-specific guides, use get_component_guides. For styling migration, use get_styling_migration_guide.`,
+Use this tool to get hooks-specific migration information. For the main migration workflow, use get_migration_workflow. For component-specific guides, use get_component_migration_guides. For styling migration, use get_styling_migration_guide.`,
 
   exec(server, {name, description, config}) {
     const inputSchema = z.object({});
@@ -30,8 +30,8 @@ Use this tool to get hooks-specific migration information. For the main migratio
       const analytics = config.analytics;
 
       try {
-        const docUrl = getMigrationDocSourceUrl("hooks.mdx");
-        const content = await readMigrationDoc("hooks.mdx");
+        const docUrl = getMigrationDocSourceUrl("hooks.mdx", config.docsBaseUrl);
+        const content = await readMigrationDoc("hooks.mdx", config.docsBaseUrl);
 
         if (analytics) {
           analytics.track({
@@ -52,7 +52,7 @@ Use this tool to get hooks-specific migration information. For the main migratio
           ],
         };
       } catch (error) {
-        const docUrl = getMigrationDocSourceUrl("hooks.mdx");
+        const docUrl = getMigrationDocSourceUrl("hooks.mdx", config.docsBaseUrl);
 
         if (analytics) {
           analytics.trackError({

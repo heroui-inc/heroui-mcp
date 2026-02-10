@@ -7,6 +7,7 @@ import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export interface ToolConfig {
   apiBaseUrl?: string;
+  docsBaseUrl?: string;
   nodeEnv?: string;
   analytics?: AnalyticsService;
 }

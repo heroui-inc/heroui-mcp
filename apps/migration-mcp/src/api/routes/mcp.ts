@@ -28,6 +28,7 @@ export async function mcpHandler(c: Context<HonoContext>) {
     // Get environment variables from Cloudflare Worker bindings
     const config = {
       nodeEnv: c.env?.NODE_ENV,
+      docsBaseUrl: c.env?.MIGRATION_DOCS_BASE_URL,
       analytics,
     };
 

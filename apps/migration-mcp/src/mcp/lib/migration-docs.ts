@@ -1,20 +1,24 @@
 /**
- * Utility for reading migration documentation from GitHub
+ * Utility for reading migration documentation from the docs site
  */
 
-const GITHUB_BRANCH = "docs/migration";
-const GITHUB_REPO = "heroui-inc/heroui";
-const MIGRATION_DOCS_PATH = "apps/docs/content/docs/v2-to-v3-migration";
+const DEFAULT_DOCS_BASE_URL = "https://v3.heroui.com/docs/react/migration";
 
-function getGitHubRawUrl(filename: string): string {
-  return `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${MIGRATION_DOCS_PATH}/${filename}`;
+function getDocsSiteUrl(filename: string, baseUrl?: string): string {
+  const docsBase = baseUrl || DEFAULT_DOCS_BASE_URL;
+
+  // Migration docs are now directly under react/migration/
+  return `${docsBase}/${filename}`;
 }
 
 /**
- * Read migration doc from GitHub
+ * Read migration doc from the docs site
+ * The docs site automatically resolves <include> tags via Fumadocs remarkInclude
+ * @param filename - The filename to fetch (e.g., "agent-guide-incremental.mdx", "hooks.mdx", "index.mdx")
+ * @param baseUrl - Optional base URL for the docs site (defaults to production URL)
  */
-export async function readMigrationDoc(filename: string): Promise<string> {
-  const docUrl = getGitHubRawUrl(filename);
+export async function readMigrationDoc(filename: string, baseUrl?: string): Promise<string> {
+  const docUrl = getDocsSiteUrl(filename, baseUrl);
   const response = await fetch(docUrl);
 
   if (!response.ok) {
@@ -26,7 +30,9 @@ export async function readMigrationDoc(filename: string): Promise<string> {
 
 /**
  * Get the source URL for a migration doc (for display purposes)
+ * @param filename - The filename to get URL for
+ * @param baseUrl - Optional base URL for the docs site (defaults to production URL)
  */
-export function getMigrationDocSourceUrl(filename: string): string {
-  return getGitHubRawUrl(filename);
+export function getMigrationDocSourceUrl(filename: string, baseUrl?: string): string {
+  return getDocsSiteUrl(filename, baseUrl);
 }

@@ -27,9 +27,9 @@ Add to your MCP client configuration:
 
 ## Available Tools
 
-### `get_migration_guide`
+### `get_migration_workflow`
 
-Get the comprehensive main migration guide for upgrading from HeroUI v2 to v3.
+Get the comprehensive main migration workflow guide for upgrading from HeroUI v2 to v3.
 
 **Parameters:**
 - None
@@ -43,7 +43,7 @@ The complete migration guide including:
 - Component migration reference table
 - Migration checklist
 
-### `list_migration_guides`
+### `list_component_migration_guides`
 
 List all available component-specific migration guides.
 
@@ -53,7 +53,7 @@ List all available component-specific migration guides.
 **Returns:**
 A list of all component names that have migration guides available (e.g., `button`, `card`, `modal`, `input`, etc.)
 
-### `get_component_guides`
+### `get_component_migration_guides`
 
 Get migration guides for one or more HeroUI components.
 
@@ -70,17 +70,17 @@ Migration guides for each requested component, including:
 
 **Example Usage:**
 ```javascript
-// Get main migration guide
-get_migration_guide()
+// Get main migration workflow
+get_migration_workflow()
 
 // List all available component guides
-list_migration_guides()
+list_component_migration_guides()
 
 // Get migration guide for a single component
-get_component_guides({ components: ["button"] })
+get_component_migration_guides({ components: ["button"] })
 
 // Get migration guides for multiple components
-get_component_guides({ components: ["button", "card", "modal"] })
+get_component_migration_guides({ components: ["button", "card", "modal"] })
 ```
 
 ## Development

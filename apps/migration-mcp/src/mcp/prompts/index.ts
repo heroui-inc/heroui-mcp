@@ -4,6 +4,8 @@
 
 import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 
+import {z} from "zod";
+
 import {analyzeAndPlanPrompt, getAnalyzeAndPlanPrompt} from "./analyze-and-plan";
 import {getImplementMigrationPrompt, implementMigrationPrompt} from "./implement-migration";
 
@@ -11,17 +13,35 @@ import {getImplementMigrationPrompt, implementMigrationPrompt} from "./implement
  * Initialize all prompts with the server
  */
 export async function initializePrompts(server: McpServer): Promise<void> {
-  // Register analyze-and-plan prompt (no arguments)
-  server.prompt(analyzeAndPlanPrompt.name, analyzeAndPlanPrompt.description ?? "", async () => {
-    return getAnalyzeAndPlanPrompt();
-  });
+  // Register analyze-and-plan prompt (with optional migrationType argument)
+  server.prompt(
+    analyzeAndPlanPrompt.name,
+    {
+      migrationType: z
+        .enum(["full", "incremental"])
+        .optional()
+        .describe(
+          "Migration approach: 'full' (default) or 'incremental'. Full migration breaks the project during migration. Incremental migration allows v2 and v3 to coexist.",
+        ),
+    },
+    async (args) => {
+      return getAnalyzeAndPlanPrompt(args);
+    },
+  );
 
-  // Register implement-migration prompt (no arguments)
+  // Register implement-migration prompt (with optional migrationType argument)
   server.prompt(
     implementMigrationPrompt.name,
-    implementMigrationPrompt.description ?? "",
-    async () => {
-      return getImplementMigrationPrompt();
+    {
+      migrationType: z
+        .enum(["full", "incremental"])
+        .optional()
+        .describe(
+          "Migration approach: 'full' (default) or 'incremental'. Full migration breaks the project during migration. Incremental migration allows v2 and v3 to coexist.",
+        ),
+    },
+    async (args) => {
+      return getImplementMigrationPrompt(args);
     },
   );
 }

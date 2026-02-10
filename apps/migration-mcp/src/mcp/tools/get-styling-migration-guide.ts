@@ -22,7 +22,7 @@ This guide covers:
 - Style prop changes
 - Custom styling patterns
 
-Use this tool to get styling-specific migration information. For the main migration guide, use get_migration_guide. For component-specific guides, use get_component_guides.`,
+Use this tool to get styling-specific migration information. For the main migration workflow, use get_migration_workflow. For component-specific guides, use get_component_migration_guides.`,
 
   exec(server, {name, description, config}) {
     const inputSchema = z.object({});
@@ -32,8 +32,8 @@ Use this tool to get styling-specific migration information. For the main migrat
       const analytics = config.analytics;
 
       try {
-        const docUrl = getMigrationDocSourceUrl("styling.mdx");
-        const content = await readMigrationDoc("styling.mdx");
+        const docUrl = getMigrationDocSourceUrl("styling.mdx", config.docsBaseUrl);
+        const content = await readMigrationDoc("styling.mdx", config.docsBaseUrl);
 
         if (analytics) {
           analytics.track({
@@ -54,7 +54,7 @@ Use this tool to get styling-specific migration information. For the main migrat
           ],
         };
       } catch (error) {
-        const docUrl = getMigrationDocSourceUrl("styling.mdx");
+        const docUrl = getMigrationDocSourceUrl("styling.mdx", config.docsBaseUrl);
 
         if (analytics) {
           analytics.trackError({

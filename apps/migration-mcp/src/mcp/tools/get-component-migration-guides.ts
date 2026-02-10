@@ -11,46 +11,10 @@ import {z} from "zod";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../../api/types/analytics";
 import {getMigrationDocSourceUrl, readMigrationDoc} from "../lib/migration-docs";
 
-// Component migration guides available (from meta.json)
-const AVAILABLE_COMPONENTS = [
-  "accordion",
-  "alert",
-  "autocomplete",
-  "avatar",
-  "button",
-  "card",
-  "checkbox",
-  "chip",
-  "code",
-  "divider",
-  "dropdown",
-  "form",
-  "image",
-  "input",
-  "input-otp",
-  "kbd",
-  "link",
-  "listbox",
-  "modal",
-  "navbar",
-  "numberinput",
-  "popover",
-  "radio",
-  "ripple",
-  "select",
-  "skeleton",
-  "slider",
-  "snippet",
-  "spacer",
-  "spinner",
-  "switch",
-  "tabs",
-  "tooltip",
-  "user",
-] as const;
+import {AVAILABLE_COMPONENTS} from "./list-migration-guides";
 
 export const getComponentMigrationGuidesTool: Tool = {
-  name: "get_component_guides",
+  name: "get_component_migration_guides",
   description: `Get migration guides for multiple HeroUI components from v2 to v3.
 Accepts an array of component names and returns migration guides for each.
 Fetches the official component-specific migration documentation from the HeroUI v3 repository.
@@ -61,12 +25,11 @@ Each component guide covers:
 - Breaking changes
 - Migration steps
 
-Use list_migration_guides to see all available component migration guides.
-Example: get_component_guides({ components: ["button", "card"] })`,
+Use list_component_migration_guides to see all available component migration guides.
+Example: get_component_migration_guides({ components: ["button", "card"] })`,
 
   exec(server, {name, description, config}) {
-    // Create input schema with array of component enums
-    // Convert const array to tuple for z.enum
+    // Create enum from AVAILABLE_COMPONENTS for validation
     const componentTuple = [...AVAILABLE_COMPONENTS] as [string, ...string[]];
     const componentEnum = z.enum(componentTuple);
 
@@ -75,9 +38,10 @@ Example: get_component_guides({ components: ["button", "card"] })`,
         .array(componentEnum)
         .min(1)
         .describe(
-          `Array of component names (kebab-case) from list_migration_guides.
+          `Array of component names (kebab-case) from list_component_migration_guides.
 Examples: ["button"], ["card", "modal"], ["input", "select", "checkbox"].
-Use list_migration_guides to see all available component migration guides.`,
+Use list_component_migration_guides to see all available component migration guides.
+Invalid component names will be rejected at validation time.`,
         ),
     });
 
@@ -90,7 +54,7 @@ Use list_migration_guides to see all available component migration guides.`,
           content: [
             {
               type: "text",
-              text: "Error: Please provide at least one component name.\n\nUse list_migration_guides to see all available component migration guides.",
+              text: "Error: Please provide at least one component name.\n\nUse list_component_migration_guides to see all available component migration guides.",
             },
           ],
         };
@@ -109,8 +73,8 @@ Use list_migration_guides to see all available component migration guides.`,
             const normalizedName = componentName.toLowerCase().trim();
 
             try {
-              const docUrl = getMigrationDocSourceUrl(`${normalizedName}.mdx`);
-              const content = await readMigrationDoc(`${normalizedName}.mdx`);
+              const docUrl = getMigrationDocSourceUrl(`${normalizedName}.mdx`, config.docsBaseUrl);
+              const content = await readMigrationDoc(`${normalizedName}.mdx`, config.docsBaseUrl);
 
               results.push({
                 component: componentName,
@@ -142,7 +106,7 @@ Use list_migration_guides to see all available component migration guides.`,
               errorEvent: AnalyticsErrorEvent.GET_COMPONENT_GUIDES_ERROR,
               fallbackMessage: "Some component guides failed to fetch",
               properties: {
-                endpoint: "get_component_guides",
+                endpoint: "get_component_migration_guides",
                 responseTime: Date.now() - startTime,
                 components: components,
                 successCount,
@@ -154,7 +118,7 @@ Use list_migration_guides to see all available component migration guides.`,
             analytics.track({
               event: AnalyticsEvent.GET_COMPONENT_GUIDES,
               properties: {
-                endpoint: "get_component_guides",
+                endpoint: "get_component_migration_guides",
                 responseTime: Date.now() - startTime,
                 components: components,
                 componentsCount: components.length,
@@ -192,7 +156,7 @@ Use list_migration_guides to see all available component migration guides.`,
             errorEvent: AnalyticsErrorEvent.GET_COMPONENT_GUIDES_ERROR,
             fallbackMessage: "Failed to get component guides",
             properties: {
-              endpoint: "get_component_guides",
+              endpoint: "get_component_migration_guides",
               responseTime: Date.now() - startTime,
               components: components,
             },
