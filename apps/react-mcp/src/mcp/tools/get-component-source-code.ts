@@ -13,7 +13,7 @@ Returns the internal implementation for learning purposes or debugging.
 Shows how the component is built using React Aria Components.
 Use this to understand component internals, not for copying implementation.
 The source shows accessibility features, keyboard handling, and ARIA attributes.
-Note: For using components, refer to examples via get_component_examples.
+Note: For using components, refer to examples via get_component_docs.
 IMPORTANT: Do NOT copy this code directly - use the component via @heroui/react imports.
 This shows v3 beta implementation which uses React Aria Components as foundation.
 GitHub links are provided for viewing the source in context.`,
@@ -27,7 +27,7 @@ GitHub links are provided for viewing the source in context.`,
     const inputSchema = z.object({
       components: z.array(z.enum(ctx.componentList as [string, ...string[]])).min(1)
         .describe(`Array of component names from list_components.
-This shows internal implementation - use get_component_examples for usage.`),
+This shows internal implementation - use get_component_docs for usage examples.`),
     });
 
     const handler = async ({components}: z.infer<typeof inputSchema>) => {
@@ -41,12 +41,16 @@ This shows internal implementation - use get_component_examples for usage.`),
             githubUrl?: string;
             error?: string;
           }>;
-        }>("/components/source", config.apiBaseUrl, {
+          _warning?: string;
+        }>("/v1/components/source", config.apiBaseUrl, {
           method: "POST",
           body: JSON.stringify({components}),
         });
 
         let responseText = "";
+        if (response._warning) {
+          responseText += `${response._warning}\n\n`;
+        }
 
         response.results.forEach((result, index) => {
           if (index > 0) responseText += "\n\n---\n\n";
@@ -84,6 +88,6 @@ This shows internal implementation - use get_component_examples for usage.`),
     };
 
     // Register tool
-    server.tool(name, description, inputSchema.shape, handler as any);
+    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
   },
 };

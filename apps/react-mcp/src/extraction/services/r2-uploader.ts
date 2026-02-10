@@ -4,12 +4,7 @@
  * Handles uploading extracted component data to Cloudflare R2
  */
 
-import {
-  GetObjectCommand,
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import {GetObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
 export interface R2Config {
   accountId: string;
@@ -37,59 +32,11 @@ export class R2Uploader {
   }
 
   /**
-   * Upload component data to R2
-   * Stores in: react/components/{version}.json
-   */
-  async uploadComponentData(version: string, data: unknown): Promise<void> {
-    const key = `react/components/${version}.json`;
-    const body = JSON.stringify(data, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Uploaded ${key} to R2`);
-    } catch (error) {
-      console.error(`❌ Failed to upload ${key}:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Upload theme data to R2
-   * Stores in: react/theme/{version}.json
-   */
-  async uploadThemeData(version: string, data: unknown): Promise<void> {
-    const key = `react/theme/${version}.json`;
-    const body = JSON.stringify(data, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Uploaded ${key} to R2`);
-    } catch (error) {
-      console.error(`❌ Failed to upload ${key}:`, error);
-      throw error;
-    }
-  }
-
-  /**
    * Upload latest version data
-   * Stores in: react/latest/{type}.json
+   * Stores in: react/v1/latest/{type}.json
    */
   async uploadLatestVersion(type: "components" | "theme", data: unknown): Promise<void> {
-    const key = `react/latest/${type}.json`;
+    const key = `react/v1/latest/${type}.json`;
     const body = JSON.stringify(data, null, 2);
 
     try {
@@ -109,36 +56,9 @@ export class R2Uploader {
   }
 
   /**
-   * Update version metadata
-   * Stores in: react/versions.json
+   * Read data from R2
    */
-  async updateVersionMetadata(metadata: unknown): Promise<void> {
-    const key = "react/versions.json";
-    const body = JSON.stringify(metadata, null, 2);
-
-    try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-          Body: body,
-          ContentType: "application/json",
-        }),
-      );
-      console.log(`✅ Updated version metadata in R2`);
-    } catch (error) {
-      console.error(`❌ Failed to update metadata:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get current version metadata
-   * Reads from: react/versions.json
-   */
-  async getVersionMetadata(): Promise<unknown> {
-    const key = "react/versions.json";
-
+  async readData<T>(key: string): Promise<T | null> {
     try {
       const response = await this.client.send(
         new GetObjectCommand({
@@ -150,23 +70,18 @@ export class R2Uploader {
       if (response.Body) {
         const text = await response.Body.transformToString();
 
-        return JSON.parse(text);
+        return JSON.parse(text) as T;
       }
 
-      return {};
+      return null;
     } catch (error: any) {
       if (error.name === "NoSuchKey") {
-        console.log("No existing metadata found, starting fresh");
-
-        return {};
+        return null;
       }
       throw error;
     }
   }
 
-  /**
-   * Upload generic data to R2
-   */
   async uploadData(key: string, data: any): Promise<void> {
     try {
       await this.client.send(
@@ -185,90 +100,36 @@ export class R2Uploader {
   }
 
   /**
-   * List all versions for a library
+   * Upload combined context data for /ctx endpoint
+   * Stores in: react/v1/latest/ctx.json
+   * Contains: components, docs, version, timestamp
    */
-  async listVersions(library: string): Promise<string[]> {
-    const prefix = `react/${library}/`;
-
-    try {
-      const response = await this.client.send(
-        new ListObjectsV2Command({
-          Bucket: this.bucketName,
-          Prefix: prefix,
-        }),
-      );
-
-      if (!response.Contents) {
-        return [];
-      }
-
-      const versions = response.Contents.map((obj) => obj.Key || "")
-        .filter((key) => key.endsWith(".json"))
-        .map((key) => key.replace(prefix, "").replace(".json", ""));
-
-      // Sort versions semantically (newest first)
-      return versions.sort((a, b) => {
-        // Remove 'v' prefix for comparison
-        const versionA = a.replace(/^v/, "");
-        const versionB = b.replace(/^v/, "");
-
-        // Split into parts for semantic comparison
-        const partsA = versionA.split(/[.-]/).map((p) => {
-          const num = parseInt(p, 10);
-
-          return isNaN(num) ? p : num;
-        });
-        const partsB = versionB.split(/[.-]/).map((p) => {
-          const num = parseInt(p, 10);
-
-          return isNaN(num) ? p : num;
-        });
-
-        // Compare each part
-        for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
-          const partA = partsA[i] ?? 0;
-          const partB = partsB[i] ?? 0;
-
-          // Handle string vs number comparison
-          if (typeof partA === "string" && typeof partB === "string") {
-            if (partA < partB) return 1; // Reverse for newest first
-            if (partA > partB) return -1;
-          } else if (typeof partA === "number" && typeof partB === "number") {
-            if (partA < partB) return 1; // Reverse for newest first
-            if (partA > partB) return -1;
-          } else {
-            // Numbers come before strings (e.g., "31" before "alpha")
-            return typeof partA === "number" ? 1 : -1;
-          }
-        }
-
-        return 0;
-      });
-    } catch (error) {
-      console.error(`❌ Failed to list versions:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Check if a version exists
-   */
-  async versionExists(type: "components" | "theme", version: string): Promise<boolean> {
-    const key = `react/${type}/${version}.json`;
+  async uploadContext(ctxData: {
+    components: string[];
+    docs: {
+      paths: string[];
+      categories: Array<{
+        name: string;
+        docs: Array<{title: string; path: string; description: string}>;
+      }>;
+    };
+    version: string;
+    timestamp: number;
+  }): Promise<void> {
+    const key = "react/v1/latest/ctx.json";
 
     try {
       await this.client.send(
-        new GetObjectCommand({
+        new PutObjectCommand({
           Bucket: this.bucketName,
           Key: key,
+          Body: JSON.stringify(ctxData, null, 2),
+          ContentType: "application/json",
         }),
       );
-
-      return true;
-    } catch (error: any) {
-      if (error.name === "NoSuchKey") {
-        return false;
-      }
+      console.log(`✅ Uploaded ${key} to R2`);
+    } catch (error) {
+      console.error(`❌ Failed to upload ${key}:`, error);
       throw error;
     }
   }

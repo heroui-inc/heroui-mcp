@@ -116,7 +116,12 @@ export class SimpleGitHubClient implements GitHubClient {
         const items = await this.listFiles(owner, repo, path, ref);
 
         for (const item of items) {
-          if (item.type === "file" && (item.name.endsWith(".md") || item.name.endsWith(".mdx"))) {
+          if (
+            item.type === "file" &&
+            (item.name.endsWith(".md") || item.name.endsWith(".mdx")) &&
+            item.name !== "index.mdx" &&
+            item.name !== "index.md"
+          ) {
             files.push(item.path);
           } else if (item.type === "dir") {
             await processDirectory(item.path);

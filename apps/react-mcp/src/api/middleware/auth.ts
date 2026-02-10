@@ -3,6 +3,7 @@ import type {HonoContext} from "../types/context";
 import type {Context, Next} from "hono";
 
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
+import {getApp} from "../utils/get-client";
 
 /**
  * Hybrid auth middleware for all environments
@@ -28,6 +29,8 @@ export const authMiddleware = async (c: Context<HonoContext>, next: Next) => {
 
   const startTime = Date.now();
   const analytics = c.get("analytics");
+  const app = getApp(c);
+  const apiVersion = c.req.path.startsWith("/v1/") ? "v1" : "legacy";
 
   try {
     // Determine environment and connection method
@@ -72,6 +75,8 @@ export const authMiddleware = async (c: Context<HonoContext>, next: Next) => {
         event: AnalyticsErrorEvent.AUTH_FAILED,
         properties: {
           endpoint: "auth",
+          app,
+          apiVersion,
           responseTime: Date.now() - startTime,
           errorCode: result.error.code,
           errorMessage: result.error.message,
@@ -98,6 +103,8 @@ export const authMiddleware = async (c: Context<HonoContext>, next: Next) => {
       event: AnalyticsEvent.AUTH_SUCCESS,
       properties: {
         endpoint: "auth",
+        app,
+        apiVersion,
         responseTime: Date.now() - startTime,
         apiKeyId: result.data.apiKeyId,
         apiKeyName: result.data.apiKey.name,
@@ -115,6 +122,8 @@ export const authMiddleware = async (c: Context<HonoContext>, next: Next) => {
       fallbackMessage: "Authentication service unavailable",
       properties: {
         endpoint: "auth",
+        app,
+        apiVersion,
         responseTime: Date.now() - startTime,
       },
     });

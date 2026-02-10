@@ -121,74 +121,39 @@ Add to your Claude Desktop configuration:
 }
 ```
 
-## IDE Rules Setup (Optional)
-
-For better accuracy when working with HeroUI components, add the HeroUI rules file to your IDE:
-
-### Cursor / Windsurf / Claude Code
-
-Copy `heroui-web-rules.mdc` to your project's `.cursor/rules/` directory:
-
-```bash
-# Create rules directory if it doesn't exist
-mkdir -p .cursor/rules
-
-# Copy the HeroUI rules file
-curl -o .cursor/rules/heroui-web-rules.mdc https://raw.githubusercontent.com/heroui-inc/heroui-mcp/main/heroui-web-rules.mdc
-```
-
-This provides your AI assistant with:
-- Correct HeroUI v3 component patterns
-- MCP tool usage guidance
-- Theme customization rules
-- Best practices for implementation
-
 ## Usage
 
 Once configured, you can ask your AI assistant questions like:
 
-- "Help me install HeroUI v3 in my Next.js app"
-- "Show me all HeroUI components"
-- "What props does the Button component have?"
-- "Give me an example of using the Card component"
-- "Check if I'm using the latest version of HeroUI"
+- "Show me the HeroUI v3 installation guide"
+- "Show me all HeroUI v3 components"
+- "Get the complete documentation for the Button component"
+- "Show me examples of using the Card component"
 - "Get the source code for the Button component"
 - "Show me the CSS styles for Card"
-- "What are the theme variables for dark mode?"
-- "Explain HeroUI's color customization guide"
+- "What are the theme variables?"
+- "Explain HeroUI's theming guide"
 
 ## Available Tools
 
 The MCP server provides these tools to AI assistants:
 
-### `installation`
-
-Get complete installation guide for @heroui/react v3 in your React/Next.js project.
-
-```javascript
-// Parameters
-{
-  framework: "next-app" | "next-pages" | "vite" | "general",  // Required
-  packageManager?: "npm" | "pnpm" | "yarn" | "bun"            // Optional, defaults to npm
-}
-```
-
 ### `list_components`
 
-List all available HeroUI components (always returns latest version).
+List all available HeroUI v3 components (always returns latest version).
 
 ```javascript
 // No parameters required
 ```
 
-### `get_component_info`
+### `get_component_docs`
 
-Get complete information about HeroUI components including description, anatomy, props, and examples.
+Get complete component documentation (including examples, props, usage) directly from v3.heroui.com. This tool consolidates component information, props, and examples into a single call.
 
 ```javascript
 // Parameters
 {
-  components: ["Button"]  // Required - array of component names
+  components: ["Button"]  // Required - array of component names (case-sensitive)
 }
 
 // Examples
@@ -200,41 +165,11 @@ Get complete information about HeroUI components including description, anatomy,
 }
 ```
 
-### `get_component_props`
-
-Get detailed props information for HeroUI components.
-
-```javascript
-// Parameters
-{
-  components: ["Button"]  // Required - array of component names
-}
-
-// Examples
-{
-  components: ["Button", "Card"]  // Get props for multiple components
-}
-```
-
-### `get_component_examples`
-
-Get usage examples for HeroUI components.
-
-```javascript
-// Parameters
-{
-  components: ["Button"]  // Required - array of component names
-}
-
-// Examples
-{
-  components: ["Card", "Button"]  // Get examples for multiple components
-}
-```
+**Note:** Always use `list_components` first to verify component names before calling this tool.
 
 ### `get_component_source_code`
 
-Get the React/TypeScript source code (.tsx) for HeroUI components.
+Get the React/TypeScript source code (.tsx) for HeroUI components. Returns the internal implementation for learning purposes or debugging.
 
 ```javascript
 // Parameters
@@ -248,9 +183,11 @@ Get the React/TypeScript source code (.tsx) for HeroUI components.
 }
 ```
 
+**Note:** This shows internal implementation - use `get_component_docs` for usage examples.
+
 ### `get_component_source_styles`
 
-Get the CSS styles (.css) for HeroUI components.
+Get the CSS styles (.css) for HeroUI components. Returns the complete CSS implementation including all variants and states.
 
 ```javascript
 // Parameters
@@ -264,29 +201,34 @@ Get the CSS styles (.css) for HeroUI components.
 }
 ```
 
-### `get_theme_info`
-
-Get HeroUI theme variables with an optimized structure that extracts common variables (base and calculated) shared between light and dark modes.
-
-```javascript
-// Parameters
-{
-  theme?: "default",   // Optional, defaults to "default"
-  mode?: "light" | "dark" | "both", // Optional, defaults to "both"
-  category?: "colors" | "typography" | "spacing" | "borders" | "shadows" | "animations" | "all" // Optional
-}
-```
+**Note:** These are framework-agnostic styles from @heroui/styles package. For React components, prefer using @heroui/react.
 
 ### `get_docs`
 
-Get HeroUI v3 documentation content for guides, principles, and component docs.
+Get HeroUI v3 React documentation content for guides, principles, and release notes (NOT component docs). Fetches official documentation from v3.heroui.com.
 
 ```javascript
 // Parameters
 {
-  path: string  // Required - documentation path (e.g., "/docs/introduction", "/docs/components/button")
+  path: string  // Required - exact documentation path
+}
+
+// Examples
+{
+  path: "/docs/react/getting-started/theming"  // Get theming guide
+}
+{
+  path: "/docs/react/releases/v3-0-0-beta-3"  // Release notes
 }
 ```
+
+**Note:** For component documentation, use `get_component_docs` instead. All React documentation paths start with `/docs/react/` prefix.
+
+### `get_theme_variables`
+
+Get HeroUI v3 default theme variables and design tokens (actual variable values). Includes both light and dark mode variables for all categories.
+
+**Note:** For theme documentation and guides, use `get_docs({ path: "/docs/react/getting-started/theming" })` instead.
 
 
 ## Troubleshooting

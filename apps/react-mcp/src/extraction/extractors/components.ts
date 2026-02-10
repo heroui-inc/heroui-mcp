@@ -7,28 +7,13 @@ import type {ComponentDataset} from "../../shared/types/data";
 import type {GitHubClient} from "../services/github-client";
 
 import {SimpleGitHubClient} from "../services/github-client";
+import {parseAllDocsFromLlmsTxt, parseLlmsTxt} from "../utils/llms-parser";
+import {findComponentFilePath} from "../utils/url-to-path";
 
 import {BaseExtractor} from "./base";
 import {HeroUIParser} from "./heroui-parser";
 
 // Component-specific types
-export interface PropDefinition {
-  name: string;
-  type: string;
-  default?: unknown;
-  description: string;
-}
-
-export interface ComponentExample {
-  name: string;
-  content: string;
-}
-
-export interface CssClass {
-  name: string;
-  description: string;
-}
-
 export interface ComponentSourceLinks {
   source?: string;
   styles?: string;
@@ -37,19 +22,6 @@ export interface ComponentSourceLinks {
 
 export interface ComponentDefinition {
   name: string;
-  description: string;
-  importStatement: string;
-  anatomy?: string;
-  props: Record<string, PropDefinition>;
-  subComponents?: Record<
-    string,
-    {
-      name: string;
-      props: Record<string, PropDefinition>;
-    }
-  >;
-  examples?: ComponentExample[];
-  cssClasses?: CssClass[];
   links?: ComponentSourceLinks;
 }
 
@@ -81,58 +53,114 @@ export class ComponentExtractor extends BaseExtractor {
     return "components";
   }
 
-  async extract(): Promise<{data: ComponentDataset}> {
-    console.log("🔍 Extracting heroui-react from GitHub...");
-    console.log("📍 Repository: heroui-inc/heroui@v3");
+  async extract(): Promise<{
+    data: ComponentDataset;
+    docsPaths?: {
+      paths: string[];
+      categories: Array<{
+        name: string;
+        docs: Array<{title: string; path: string; description: string}>;
+      }>;
+    };
+  }> {
+    console.log("🔍 Extracting HeroUI React components from llms.txt...");
 
-    // Get documentation files
-    const docFiles = await this.github.getDocsFiles(
-      "heroui-inc",
-      "heroui",
-      "apps/docs/content/docs/components",
-      "v3",
-    );
+    // Step 1: Fetch llms.txt
+    const llmsResponse = await fetch("https://v3.heroui.com/react/llms.txt");
+    if (!llmsResponse.ok) {
+      throw new Error(`Failed to fetch llms.txt: ${llmsResponse.status}`);
+    }
+    const llmsContent = await llmsResponse.text();
 
-    console.log(`📄 Found ${docFiles.length} documentation files`);
+    // Step 2: Parse component URLs
+    const componentUrls = parseLlmsTxt(llmsContent);
+    console.log(`📄 Found ${componentUrls.length} components in llms.txt`);
 
-    // Extract components
+    // Step 3: Convert URLs to file paths and fetch
     const components: Record<string, ComponentDefinition> = {};
-
-    // Add delay between requests to avoid rate limiting
+    const CONCURRENCY = process.env.GITHUB_TOKEN ? 10 : 3;
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-    const DELAY_MS = process.env.GITHUB_TOKEN ? 100 : 500;
+    const DELAY_MS = process.env.GITHUB_TOKEN ? 50 : 200;
 
-    for (const filePath of docFiles) {
+    const processComponent = async (componentUrl: {
+      title: string;
+      url: string;
+      description?: string;
+      category?: string;
+    }): Promise<void> => {
       try {
-        console.log(`   Processing ${filePath}...`);
+        // Extract component name from URL
+        const componentName = componentUrl.url.split("/").pop() || componentUrl.title;
 
-        await delay(DELAY_MS);
+        // Find the actual file path (handles category folders)
+        const filePath = await findComponentFilePath(this.github, componentUrl.url, componentName);
 
+        if (!filePath) {
+          console.log(`   ⚠️  File not found for ${componentName}`);
+
+          return;
+        }
+
+        console.log(`   Processing ${componentName}...`);
+
+        // Fetch and parse the file
         const content = await this.github.fetchFile("heroui-inc", "heroui", filePath, "v3");
-
         const component = await this.parser.parseContent(content, filePath);
 
-        if (component && Object.keys(component.props).length > 0) {
+        if (component && component.name) {
           components[component.name] = component;
-          console.log(`      ✓ ${component.name} (${Object.keys(component.props).length} props)`);
-
-          if (component.subComponents) {
-            for (const [subName, subComp] of Object.entries(component.subComponents)) {
-              console.log(
-                `        ✓ ${component.name}.${subName} (${Object.keys(subComp.props).length} props)`,
-              );
-            }
-          }
         } else {
-          console.log("      ⚠️  (no props found)");
+          console.log(`      ⚠️  (component name not found)`);
         }
       } catch (error) {
         console.log(`      ❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`);
       }
+    };
+
+    // Process components in batches
+    for (let i = 0; i < componentUrls.length; i += CONCURRENCY) {
+      const batch = componentUrls.slice(i, i + CONCURRENCY);
+      await Promise.allSettled(batch.map(processComponent));
+
+      if (i + CONCURRENCY < componentUrls.length) {
+        await delay(DELAY_MS);
+      }
     }
+
+    // Extract docs paths from llms.txt
+    console.log("🔄 Extracting docs paths from llms.txt...");
+    const docUrls = parseAllDocsFromLlmsTxt(llmsContent);
+
+    // Group by category
+    const categoriesMap = new Map<
+      string,
+      Array<{title: string; path: string; description: string}>
+    >();
+    for (const docUrl of docUrls) {
+      const category = docUrl.category || "General";
+      if (!categoriesMap.has(category)) {
+        categoriesMap.set(category, []);
+      }
+      const categoryDocs = categoriesMap.get(category)!;
+      categoryDocs.push({
+        title: docUrl.title,
+        path: docUrl.url,
+        description: docUrl.description || "",
+      });
+    }
+
+    // Convert map to array format
+    const categories = Array.from(categoriesMap.entries()).map(([name, docs]) => ({
+      name,
+      docs,
+    }));
 
     return {
       data: components as ComponentDataset,
+      docsPaths: {
+        paths: categories.flatMap((cat) => cat.docs.map((doc) => doc.path)),
+        categories,
+      },
     };
   }
 }

@@ -7,21 +7,10 @@
 import {ComponentExtractor} from "../src/extraction/extractors/components";
 
 async function main() {
-  // Parse arguments
-  const force = process.argv.includes("--force");
-  const versionArg = process.argv.find((arg) => arg.startsWith("--version="))?.split("=")[1];
-  const specificVersion =
-    versionArg && versionArg !== "true" && versionArg !== "false" ? versionArg : undefined;
-
-  // Handle --help
   if (process.argv.includes("--help")) {
-    console.log(`Usage: extract-components [--force] [--version=VERSION]
+    console.log(`Usage: extract-components
 
 Extracts HeroUI component documentation from GitHub and uploads to R2
-
-Options:
-  --force           Force re-extraction even if version exists
-  --version=VERSION Extract specific version
 
 Environment variables:
   GITHUB_TOKEN              GitHub personal access token (optional, for rate limits)
@@ -33,9 +22,8 @@ Environment variables:
     process.exit(0);
   }
 
-  // Run extraction
   const extractor = new ComponentExtractor();
-  await extractor.run(force, specificVersion);
+  await extractor.run();
 }
 
 main().catch(console.error);

@@ -1,3 +1,52 @@
+## [1.0.2](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.0.1...native-mcp-v1.0.2) (2026-01-22)
+
+
+### Bug Fixes
+
+* remove component name exceptions ([713afd3](https://github.com/heroui-inc/heroui-mcp/commit/713afd35f50e39039e36bdb4924982edb27fd055))
+
+
+
+## [1.0.1](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.0.0...native-mcp-v1.0.1) (2026-01-22)
+
+
+### Bug Fixes
+
+* special cases for component names ([1c0b1a6](https://github.com/heroui-inc/heroui-mcp/commit/1c0b1a6e37243afaea0766144b0c58e419279d94))
+* use v1 ctx endpoint ([8549cc2](https://github.com/heroui-inc/heroui-mcp/commit/8549cc23887de00b7101c52ebd3bffb875a32c2c))
+
+
+
+# [1.0.0](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.0.0-alpha.15...native-mcp-v1.0.0) (2026-01-21)
+
+
+### Bug Fixes
+
+* bump mcp sdk ([35cbc3b](https://github.com/heroui-inc/heroui-mcp/commit/35cbc3b872d6729752aaff0b2bc1cd7291914e97))
+* changelogs using wrong tag ([3e4c011](https://github.com/heroui-inc/heroui-mcp/commit/3e4c0116aafd00bfc8301178876601f538074c45))
+* components tool batch issue ([fe3968b](https://github.com/heroui-inc/heroui-mcp/commit/fe3968b7904cbbb8ebff30830b2a2ea7d939328c))
+* docs-paths extraction ([b19eb7a](https://github.com/heroui-inc/heroui-mcp/commit/b19eb7a873c7e33a43e41ec61ef5e018724a7d08))
+* duplicate r2 version data ([a71ceee](https://github.com/heroui-inc/heroui-mcp/commit/a71ceee2258a4fafb36038c5125f01c9b876fa51))
+* input component name spaces parsing ([61725f6](https://github.com/heroui-inc/heroui-mcp/commit/61725f6af5f3b5f9c0cdd86e09b860a022932800))
+* **native-mcp:** get docs from v3 website ([6936f30](https://github.com/heroui-inc/heroui-mcp/commit/6936f30cb45255f17e3ffd0b54705c8b5accc4f6))
+* **native-mcp:** improve docs tool error ([7209ad9](https://github.com/heroui-inc/heroui-mcp/commit/7209ad93fa41952330dc5e34946ac14dca4d414c))
+* **native-mcp:** remove outdated installation tool ([bd43691](https://github.com/heroui-inc/heroui-mcp/commit/bd43691bcee58bbec595305ade07734c60093f7c))
+* remove unused theme guides extraction ([0c73c3f](https://github.com/heroui-inc/heroui-mcp/commit/0c73c3f8523d4665fc48ac06f2b6ac999977b8b9))
+* replace depracted methods ([0465c4b](https://github.com/heroui-inc/heroui-mcp/commit/0465c4b76d16008638c5fd4ede30dd75740a5321))
+* switch to v1 routes ([9c1ee2f](https://github.com/heroui-inc/heroui-mcp/commit/9c1ee2ff9def9d94dde83d402e13db7255d0bcdb))
+* update analytics event names ([2868c7a](https://github.com/heroui-inc/heroui-mcp/commit/2868c7a8c4129f1c2b86666cc81a67110e078ca4))
+* update extraction workflows ([d254057](https://github.com/heroui-inc/heroui-mcp/commit/d254057a2e5a4f877a71818896d4ca1e97e1664b))
+* use --force on extraction dispatch trigger ([53698d2](https://github.com/heroui-inc/heroui-mcp/commit/53698d226f283d3076f0f14e0ab0b01b39361612))
+
+
+### Features
+
+* **native-mcp:** use v3 docs as data source ([b89f2c6](https://github.com/heroui-inc/heroui-mcp/commit/b89f2c69a665c43964db993207f61acf6fdeae98))
+* parallel extractions ([8aeb058](https://github.com/heroui-inc/heroui-mcp/commit/8aeb058e2f6c8cbf853d58ec99172afc9635bab1))
+* versioned endpoints ([194109c](https://github.com/heroui-inc/heroui-mcp/commit/194109c6c7e61ffe95313560714fa692e274fe66))
+
+
+
 # [1.0.0-alpha.15](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.0.0-alpha.15...native-mcp-v1.0.0-alpha.15) (2025-11-14)
 
 

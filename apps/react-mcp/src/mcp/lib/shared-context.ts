@@ -5,7 +5,7 @@ import {fetchApi} from "./fetch";
 let cachedContext: SharedContext | null = null;
 
 /**
- * Fetch shared initialization context from the /ctx endpoint
+ * Fetch shared initialization context from the /v1/ctx endpoint
  * This is called once during MCP server initialization to populate
  * all tool input schemas with dynamic enums.
  */
@@ -18,7 +18,6 @@ export async function getSharedContext(apiBaseUrl?: string): Promise<SharedConte
   try {
     const response = await fetchApi<{
       components: string[];
-      themes: string[];
       docs: {
         paths: string[];
         categories: Array<{
@@ -28,12 +27,11 @@ export async function getSharedContext(apiBaseUrl?: string): Promise<SharedConte
       };
       version: string;
       timestamp: number;
-    }>("/ctx", apiBaseUrl);
+    }>("/v1/ctx", apiBaseUrl);
 
     // Cache the context
     cachedContext = {
       componentList: response.components || [],
-      themeList: response.themes || ["default"],
       docPaths: response.docs?.paths || [],
       version: response.version || "unknown",
       timestamp: response.timestamp || Date.now(),
@@ -46,7 +44,6 @@ export async function getSharedContext(apiBaseUrl?: string): Promise<SharedConte
     // Return empty fallback context
     return {
       componentList: [],
-      themeList: ["default"],
       docPaths: [],
       version: "unknown",
       timestamp: Date.now(),

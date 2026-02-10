@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Tool} from "../types";
+import type {DocsContext, Tool} from "../types";
 
 import {z} from "zod";
 
@@ -12,53 +12,42 @@ interface DocContentResponse {
   contentType: string;
 }
 
-interface DocsContext {
-  availablePaths: string;
-  pathsList: string[];
-}
-
 export const getDocsTool: Tool<DocsContext> = {
   name: "get_docs",
-  description: `Get HeroUI v3 documentation content for guides, principles, and component docs.
+  description: `Get HeroUI v3 React documentation content for guides, principles, and release notes (NOT component docs).
 Fetches official documentation from v3.heroui.com.
 Returns the complete MDX content of documentation pages.
-Use for understanding concepts, design principles, implementation guides.
-The path parameter description shows ALL available documentation paths.
-Documentation covers: design principles, quick start, components, handbook (theming, colors, styling, animation).
-IMPORTANT: Always use exact paths shown in the available paths list - DO NOT guess paths.
-Example paths: /docs/introduction, /docs/components/button, /docs/handbook/theming.
+Use for understanding concepts, design principles, implementation guides, and version history.
+Documentation covers: getting started, theming, colors, styling, animation, release notes.
+IMPORTANT: For component documentation, use get_component_docs instead.
+Example paths: /docs/react/getting-started/theming, /docs/react/releases/v3-0-0-beta-3.
+All React documentation paths start with /docs/react/ prefix.
 Returns MDX content which may include code examples and explanations.
-This is v3 beta documentation - ensure you're working with HeroUI v3, not v2.`,
+This is v3 beta documentation - ensure you're working with HeroUI v3, not v2.
+NOTE: For HeroUI Native documentation, use the @heroui/native-mcp server instead.`,
 
   async ctx(shared) {
-    const pathsList = shared?.docPaths || [];
-    let availablePaths = "Available documentation paths:\n\n";
-
-    if (pathsList.length > 0) {
-      // Simple list format since we have paths from shared context
-      pathsList.forEach((path) => {
-        availablePaths += `  - ${path}\n`;
-      });
-    } else {
-      availablePaths =
-        "Documentation paths available (examples):\n  - /docs/introduction\n  - /docs/components/button\n  - /docs/handbook/theming";
-    }
+    // Filter out component paths - those are handled by get_component_docs
+    const docPaths = (shared?.docPaths || []).filter(
+      (path) => !path.startsWith("/docs/react/components"),
+    );
 
     return {
-      availablePaths,
-      pathsList,
+      docPaths,
     };
   },
-  exec(server, {config, name, description, ctx}) {
-    // Create input schema with available paths in description
-    const inputSchema = z.object({
-      path: z.string().describe(`The exact documentation path to fetch.
-Must be one of the paths listed below - DO NOT guess paths.
-Paths always start with /docs/.
-Component docs use pattern: /docs/components/{component-name}
-Handbook docs use pattern: /docs/handbook/{topic}
 
-${ctx.availablePaths}`),
+  exec(server, {config, name, description, ctx}) {
+    // Create input schema with dynamic doc paths enum
+    // Fallback to string if not enough paths available (shouldn't happen in production)
+    const pathSchema =
+      ctx.docPaths.length >= 2 ? z.enum(ctx.docPaths as [string, ...string[]]) : z.string();
+
+    const inputSchema = z.object({
+      path: pathSchema.describe(`The documentation path to fetch.
+DO NOT guess paths - use one of the available paths from the enum.
+NOTE: For component docs, use get_component_docs instead.
+NOTE: Paths containing /native/ are for HeroUI Native docs and require @heroui/native-mcp server.`),
     });
 
     const handler = async ({path}: z.infer<typeof inputSchema>) => {
@@ -73,51 +62,108 @@ ${ctx.availablePaths}`),
         };
       }
 
-      try {
-        // Fetch documentation content from the API
-        const data = await fetchApi<DocContentResponse>(
-          `/docs/content?path=${encodeURIComponent(path)}`,
-          config.apiBaseUrl,
-        );
-
-        const {content, url, contentType} = data;
-
-        // Format the response
+      // Check if path includes /native/ - these are handled by native-mcp
+      if (path.toLowerCase().includes("/native/")) {
         return {
           content: [
             {
               type: "text" as const,
-              text: `# Documentation: ${path}\n\n**URL:** ${url}\n**Content Type:** ${contentType}\n\n---\n\n${content}`,
+              text: `Error: The requested path includes '/native/' which refers to HeroUI Native documentation.
+
+HeroUI Native documentation is handled by a separate MCP server (@heroui/native-mcp).
+Please use the native-mcp server instead to access Native component documentation.
+
+Requested path: ${path}`,
+            },
+          ],
+        };
+      }
+
+      // Warn if trying to use component docs path
+      if (path.includes("/components/")) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `Error: Component documentation should be fetched using get_component_docs tool instead.
+For component docs, use: get_component_docs({components: ["ComponentName"]})
+
+Requested path: ${path}`,
+            },
+          ],
+        };
+      }
+
+      try {
+        // Fetch documentation content from the API
+        // The API route is mounted at /v1/docs, so we need to strip /docs/ prefix
+        // Input: /docs/react/getting-started/theming
+        // API expects: react/getting-started/theming (route is /v1/docs/:path(*))
+        const apiPath = path.startsWith("/docs/")
+          ? path.slice(6)
+          : path.startsWith("/")
+            ? path.slice(1)
+            : path;
+        const data = await fetchApi<DocContentResponse & {_warning?: string}>(
+          `/v1/docs/${apiPath}`,
+          config.apiBaseUrl,
+        );
+
+        const {content, url, contentType, _warning} = data;
+
+        // Format the response
+        let text = `# Documentation: ${path}\n\n`;
+        if (_warning) {
+          text += `${_warning}\n\n`;
+        }
+        text += `**URL:** ${url}\n**Content Type:** ${contentType}\n\n---\n\n${content}`;
+
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text,
             },
           ],
         };
       } catch (error) {
-        // Check if it's a 404 error
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        const is404 = errorMessage.includes("404") || errorMessage.includes("not found");
+        const statusCode = (error as any)?.status;
 
-        if (is404) {
+        if (statusCode === 404) {
           return {
             content: [
               {
                 type: "text" as const,
-                text: `Error: Documentation not found at path: ${path}\n\nAvailable paths:\n${ctx.pathsList.slice(0, 10).join("\n")}\n\nUse one of these paths or check the description for more available paths.`,
+                text: `Error: Documentation not found at path: ${path}\n\nExample paths:\n  - /docs/react/getting-started/theming\n  - /docs/react/releases/v3-0-0-beta-3\n\nAll React documentation paths start with /docs/react/ prefix.`,
               },
             ],
           };
         }
 
+        if (statusCode === 500) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `Error: Server error while fetching documentation. Please try again later.\n\nRequested path: ${path}`,
+              },
+            ],
+          };
+        }
+
+        // Generic error fallback
         return {
           content: [
             {
               type: "text" as const,
-              text: `Error: Unable to fetch documentation content. ${errorMessage}`,
+              text: `Error: Unable to fetch documentation content. ${errorMessage}\n\nRequested path: ${path}`,
             },
           ],
         };
       }
     };
 
-    server.tool(name, description, inputSchema.shape, handler as any);
+    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
   },
 };

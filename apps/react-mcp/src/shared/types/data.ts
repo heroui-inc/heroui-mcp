@@ -1,5 +1,22 @@
 // Component Data Types (shared across services and lib)
-interface ComponentProp {
+interface ComponentSourceLinks {
+  source?: string;
+  styles?: string;
+  [key: string]: string | undefined | boolean;
+}
+
+// V1 API - Minimal component data structure
+export interface ComponentData {
+  name: string;
+  links?: ComponentSourceLinks;
+}
+
+export interface ComponentDataset {
+  [componentName: string]: ComponentData;
+}
+
+// Legacy API - Full component data structure
+export interface ComponentProp {
   name: string;
   type: string;
   description?: string;
@@ -17,13 +34,7 @@ interface CssClass {
   description: string;
 }
 
-interface ComponentSourceLinks {
-  source?: string;
-  styles?: string;
-  [key: string]: string | undefined | boolean;
-}
-
-export interface ComponentData {
+export interface LegacyComponentData {
   name: string;
   description?: string;
   importStatement?: string;
@@ -41,8 +52,8 @@ export interface ComponentData {
   links?: ComponentSourceLinks;
 }
 
-export interface ComponentDataset {
-  [componentName: string]: ComponentData;
+export interface LegacyComponentDataset {
+  [componentName: string]: LegacyComponentData;
 }
 
 export interface VersionInfo {

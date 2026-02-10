@@ -7,9 +7,9 @@
 // Import polyfills first - must be before AWS SDK imports
 import "../lib/domparser-polyfill";
 
-import type {ComponentData, ComponentDataset, VersionInfo} from "../../shared/types/data";
+import type {ComponentData, ComponentDataset} from "../../shared/types/data";
 
-import {GetObjectCommand, ListObjectsV2Command, S3Client} from "@aws-sdk/client-s3";
+import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
 import {ErrorCode, ErrorMessages, MCPError} from "../utils/error-handler";
 
@@ -145,17 +145,13 @@ class ComponentService {
   /**
    * List all available components for a library
    */
-  async listComponents(library: string, version?: string): Promise<string[]> {
+  async listComponents(library: string): Promise<string[]> {
     try {
-      const versionToUse = version || "latest";
-      const key =
-        versionToUse === "latest"
-          ? `react/latest/components.json`
-          : `react/components/${versionToUse}.json`;
+      const key = `react/v1/latest/components.json`;
       const data = await this.getFromR2<ComponentDataset>(key);
 
       if (!data) {
-        throw new Error(`No data found for ${library}@${versionToUse}`);
+        throw new Error(`No data found for ${library}`);
       }
 
       return Object.keys(data).sort();
@@ -171,14 +167,9 @@ class ComponentService {
   async getComponents(
     library: string,
     componentNames: string[],
-    version?: string,
   ): Promise<Array<{component: string; data: ComponentData | null; error?: string}>> {
     try {
-      const versionToUse = version || "latest";
-      const key =
-        versionToUse === "latest"
-          ? `react/latest/components.json`
-          : `react/components/${versionToUse}.json`;
+      const key = `react/v1/latest/components.json`;
       const dataset = await this.getFromR2<ComponentDataset>(key);
 
       if (!dataset) {
@@ -221,13 +212,9 @@ class ComponentService {
   /**
    * Get all components for a library
    */
-  async getAllComponents(library: string, version?: string): Promise<ComponentDataset | null> {
+  async getAllComponents(library: string): Promise<ComponentDataset | null> {
     try {
-      const versionToUse = version || "latest";
-      const key =
-        versionToUse === "latest"
-          ? `react/latest/components.json`
-          : `react/components/${versionToUse}.json`;
+      const key = `react/v1/latest/components.json`;
       const data = await this.getFromR2<ComponentDataset>(key);
 
       return data;
@@ -239,174 +226,60 @@ class ComponentService {
   }
 
   /**
-   * Get version information
+   * Get the latest version from ctx.json (single source of truth)
    */
-  async getVersionInfo(): Promise<Record<string, VersionInfo>> {
+  async getLatestVersion(): Promise<string | null> {
     try {
-      const data = await this.getFromR2<Record<string, VersionInfo>>("react/versions.json");
+      const ctxData = await this.getContext();
 
-      return data || {};
+      return ctxData?.version || null;
     } catch (error) {
-      console.error("Error getting version info:", error);
-
-      return {};
-    }
-  }
-
-  /**
-   * Get the latest version for a library
-   */
-  async getLatestVersion(library: string): Promise<string | null> {
-    try {
-      const versionInfo = await this.getVersionInfo();
-
-      return versionInfo[library]?.current || null;
-    } catch (error) {
-      console.error(`Error getting latest version for ${library}:`, error);
+      console.error("Error getting latest version:", error);
 
       return null;
     }
   }
 
-  /**
-   * List available versions for a library
-   */
-  async listVersions(library: string): Promise<string[]> {
-    try {
-      // List all objects in the react/components directory to get actual versions
-      const command = new ListObjectsV2Command({
-        Bucket: this.bucketName,
-        Prefix: `react/components/`,
-        Delimiter: "/",
-      });
-
-      const response = await this.s3Client.send(command);
-
-      if (!response.Contents || response.Contents.length === 0) {
-        // Fallback to metadata if no version files found
-        const versionInfo = await this.getVersionInfo();
-        const libraryInfo = versionInfo[library];
-
-        if (libraryInfo && libraryInfo.current) {
-          return [libraryInfo.current, "latest"];
-        }
-
-        return ["latest"];
-      }
-
-      // Extract version numbers from file keys
-      const versions = response.Contents.map((obj) => obj.Key || "")
-        .filter((key) => key.endsWith(".json"))
-        .map((key) => {
-          // Extract version from path like "react/components/v3.0.0-alpha.33.json"
-          const match = key.match(/^react\/components\/(.+)\.json$/);
-
-          return match ? match[1] : null;
-        })
-        .filter((v): v is string => v !== null)
-        .sort((a, b) => {
-          // Sort versions properly (newest first)
-          // Handle semantic versioning with alpha/beta tags
-          return this.compareVersions(b, a);
-        });
-
-      // Return the latest version first
-      if (versions.length > 0) {
-        return [versions[0], "latest"];
-      }
-
-      return ["latest"];
-    } catch (error) {
-      console.error(`Error listing versions for ${library}:`, error);
-
-      return ["latest"];
-    }
-  }
-
-  /**
-   * Compare semantic versions including pre-release tags
-   */
-  private compareVersions(a: string, b: string): number {
-    // Remove 'v' prefix if present
-    const cleanA = a.replace(/^v/, "");
-    const cleanB = b.replace(/^v/, "");
-
-    // Parse semantic version parts
-    const parseVersion = (v: string) => {
-      const match = v.match(/^(\d+)\.(\d+)\.(\d+)(?:-(alpha|beta|rc)\.(\d+))?/);
-      if (!match) return {major: 0, minor: 0, patch: 0, prerelease: "", prereleaseNum: 0};
-
-      return {
-        major: parseInt(match[1], 10),
-        minor: parseInt(match[2], 10),
-        patch: parseInt(match[3], 10),
-        prerelease: match[4] || "",
-        prereleaseNum: parseInt(match[5] || "0", 10),
-      };
-    };
-
-    const vA = parseVersion(cleanA);
-    const vB = parseVersion(cleanB);
-
-    // Compare major.minor.patch
-    if (vA.major !== vB.major) return vA.major - vB.major;
-    if (vA.minor !== vB.minor) return vA.minor - vB.minor;
-    if (vA.patch !== vB.patch) return vA.patch - vB.patch;
-
-    // If one is stable and other is prerelease, stable wins
-    if (!vA.prerelease && vB.prerelease) return 1;
-    if (vA.prerelease && !vB.prerelease) return -1;
-
-    // Both are prerelease, compare type (alpha < beta < rc)
-    if (vA.prerelease && vB.prerelease) {
-      const order = {alpha: 0, beta: 1, rc: 2};
-      const orderA = order[vA.prerelease as keyof typeof order] ?? 0;
-      const orderB = order[vB.prerelease as keyof typeof order] ?? 0;
-
-      if (orderA !== orderB) return orderA - orderB;
-
-      // Same prerelease type, compare numbers
-      return vA.prereleaseNum - vB.prereleaseNum;
-    }
-
-    return 0;
-  }
-
-  /**
-   * Check version status
-   */
-  async checkVersion(pkg: "heroui" | "mcp", currentVersion?: string): Promise<{message: string}> {
-    try {
-      const versionInfo = await this.getVersionInfo();
-      const packageInfo = versionInfo[pkg];
-
-      if (!packageInfo) {
-        return {message: `Unable to get version information for ${pkg}`};
-      }
-
-      const latestVersion = packageInfo.current;
-
-      if (!currentVersion) {
-        return {message: `Latest ${pkg} version: ${latestVersion}`};
-      }
-
-      if (currentVersion === latestVersion) {
-        return {message: `✓ You're using the latest version of ${pkg} (${latestVersion})`};
-      } else {
-        return {message: `Update available for ${pkg}: ${currentVersion} → ${latestVersion}`};
-      }
-    } catch (error) {
-      console.error(`Error checking version for ${pkg}:`, error);
-
-      return {message: `Error checking version for ${pkg}`};
-    }
-  }
-
-  /**
-   * Clear cache
-   */
   clearCache(): void {
     this.cache.clear();
+  }
+
+  /**
+   * Get combined context data from ctx.json
+   */
+  async getContext(): Promise<{
+    components: string[];
+    docs: {
+      paths: string[];
+      categories: Array<{
+        name: string;
+        docs: Array<{title: string; path: string; description: string}>;
+      }>;
+    };
+    version: string;
+    timestamp: number;
+  } | null> {
+    try {
+      const key = "react/v1/latest/ctx.json";
+      const data = await this.getFromR2<{
+        components: string[];
+        docs: {
+          paths: string[];
+          categories: Array<{
+            name: string;
+            docs: Array<{title: string; path: string; description: string}>;
+          }>;
+        };
+        version: string;
+        timestamp: number;
+      }>(key);
+
+      return data;
+    } catch (error) {
+      console.error("Error getting context from ctx.json:", error);
+
+      return null;
+    }
   }
 }
 

@@ -34,7 +34,13 @@ describe("Main API Application", () => {
 
   describe("CORS Middleware", () => {
     it("should add CORS headers to all responses", async () => {
-      const endpoints = ["/", "/health", "/components", "/themes", "/versions", "/docs/available"];
+      const endpoints = [
+        "/",
+        "/health",
+        "/components",
+        "/themes/variables",
+        "/docs/getting-started/theming",
+      ];
 
       for (const endpoint of endpoints) {
         const res = await SELF.fetch(`http://localhost:8787${endpoint}`);
@@ -57,40 +63,6 @@ describe("Main API Application", () => {
       const contentType = res.headers.get("content-type");
       expect(contentType).toBeTruthy();
       expect(contentType?.includes("application/json")).toBe(true);
-    });
-
-    it("should handle missing Content-Type header in POST requests", async () => {
-      const res = await SELF.fetch("http://localhost:8787/components", {
-        method: "POST",
-        body: JSON.stringify({components: ["Button"]}),
-        // Intentionally omit Content-Type header
-      });
-
-      // Should handle gracefully, not return 500
-      expect(res.status).toBeLessThan(500);
-    });
-  });
-
-  describe("Request Size Limits", () => {
-    it("should handle reasonable request sizes", async () => {
-      const largeComponentArray = Array(50).fill("Button");
-      const res = await SELF.fetch("http://localhost:8787/components", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({components: largeComponentArray}),
-      });
-
-      expect(res.status).toBe(200);
-    });
-
-    it("should handle empty request body gracefully", async () => {
-      const res = await SELF.fetch("http://localhost:8787/components", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: "",
-      });
-
-      expect(res.status).toBe(500); // Hono throws 500 for malformed JSON before validation
     });
   });
 });

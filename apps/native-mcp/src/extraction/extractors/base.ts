@@ -49,7 +49,7 @@ export abstract class BaseExtractor {
 
       return packageJson.version;
     } catch (error) {
-      console.error("Failed to fetch version from GitHub, using fallback");
+      console.error("Failed to fetch version from GitHub");
 
       throw error;
     }
@@ -58,7 +58,16 @@ export abstract class BaseExtractor {
   /**
    * Extract data from source
    */
-  abstract extract(ref?: string): Promise<{data: any}>;
+  abstract extract(ref?: string): Promise<{
+    data: any;
+    docsPaths?: {
+      paths: string[];
+      categories: Array<{
+        name: string;
+        docs: Array<{title: string; path: string; description: string}>;
+      }>;
+    };
+  }>;
 
   /**
    * Get the storage key for this extraction type
@@ -70,93 +79,69 @@ export abstract class BaseExtractor {
    */
   abstract getStorageType(): "components" | "theme";
 
-  /**
-   * Run the extraction and upload process
-   */
-  async run(force: boolean = false, specificVersion?: string): Promise<void> {
+  async run(): Promise<void> {
     const startTime = Date.now();
     console.log(`🚀 Starting ${this.getStorageKey()} extraction...`);
 
     try {
-      // Determine GitHub ref to use
-      // If specificVersion is provided and looks like a tag (starts with 'v'), use it as ref
-      // Otherwise, use 'beta' as default
-      let githubRef = "beta";
-      if (specificVersion && specificVersion.startsWith("v")) {
-        githubRef = specificVersion;
-      }
-
-      // Set the ref for this extraction
-      this.setGitHubRef(githubRef);
-
-      // Get version from GitHub first (or use specific version if provided)
-      const githubVersion = specificVersion || (await this.getVersionFromGitHub(githubRef));
+      const githubVersion = await this.getVersionFromGitHub();
       const versionWithPrefix = githubVersion.startsWith("v") ? githubVersion : `v${githubVersion}`;
 
-      console.log(`📍 Target version: ${versionWithPrefix}`);
-      console.log(`📍 Using GitHub ref: ${githubRef}`);
+      console.log(`📍 Version: ${versionWithPrefix}`);
+      console.log(`📍 Using GitHub ref: ${this.githubRef}`);
 
       const storageType = this.getStorageType();
 
-      // Check if version exists in R2 (unless forced)
-      if (!force) {
-        console.log("🔍 Checking if version exists in R2...");
-        const exists = await this.r2.versionExists(storageType, versionWithPrefix);
-        if (exists) {
-          console.log(
-            `ℹ️  Version ${versionWithPrefix} already exists in R2. Use --force to overwrite.`,
-          );
-
-          return;
-        }
-        console.log("✓ Version not found in R2, proceeding with extraction");
-      } else {
-        console.log("⚠️  Force flag detected, skipping version check");
-      }
-
-      // Extract data from GitHub
-      console.log("🔄 Starting extraction from GitHub...");
-      const {data} = await this.extract(githubRef);
+      console.log("🔄 Starting extraction...");
+      const extractResult = await this.extract(this.githubRef);
+      const {data, docsPaths} = extractResult;
 
       if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
         console.error("❌ No data extracted");
         process.exit(1);
       }
 
-      // Log extraction results
       if (storageType === "components" && typeof data === "object") {
-        console.log(
-          `📦 Extracted ${Object.keys(data).length} components for version ${versionWithPrefix}`,
-        );
+        console.log(`📦 Extracted ${Object.keys(data).length} components`);
+        // Skip uploading components.json - component list is in ctx.json
       } else if (storageType === "theme") {
-        console.log(`📦 Extracted theme system for version ${versionWithPrefix}`);
+        console.log(`📦 Extracted theme system`);
+        // Upload theme.json (still needed for theme system data)
+        await this.r2.uploadLatestVersion(storageType, data);
       }
 
-      // Upload versioned data
-      if (storageType === "components") {
-        await this.r2.uploadComponentData(versionWithPrefix, data);
-      } else {
-        await this.r2.uploadThemeData(versionWithPrefix, data);
+      // Handle ctx.json creation for components
+      if (storageType === "components" && docsPaths) {
+        try {
+          const {categories, paths} = docsPaths;
+
+          // Create and upload ctx.json with all initialization data
+          console.log("🔄 Creating ctx.json...");
+          const componentDataset = data as Record<string, {name: string}>;
+          const componentList = Object.keys(componentDataset).sort();
+
+          // Create ctx data
+          const ctxData = {
+            components: componentList,
+            docs: {
+              paths,
+              categories,
+            },
+            version: versionWithPrefix,
+            timestamp: Date.now(),
+          };
+
+          await this.r2.uploadContext(ctxData);
+          console.log(`✅ Uploaded ctx.json to R2`);
+        } catch (error) {
+          console.warn("⚠️  Failed to upload ctx.json:", error);
+        }
       }
 
-      // Upload as latest
-      await this.r2.uploadLatestVersion(storageType, data);
-
-      // Update metadata
-      const metadata = ((await this.r2.getVersionMetadata()) as any) || {};
       const extractDuration = Date.now() - startTime;
       const storageKey = this.getStorageKey();
 
-      metadata[storageKey] = {
-        current: versionWithPrefix,
-        lastExtracted: new Date().toISOString(),
-        extractDuration,
-      };
-      await this.r2.updateVersionMetadata(metadata);
-
-      console.log(
-        `✅ Successfully uploaded ${storageKey} data to R2 (version: ${versionWithPrefix})`,
-      );
+      console.log(`✅ Successfully uploaded ${storageKey} data to R2`);
       console.log(`⏱️  Extraction took ${(extractDuration / 1000).toFixed(2)} seconds`);
     } catch (error) {
       console.error("❌ Extraction failed:", error);

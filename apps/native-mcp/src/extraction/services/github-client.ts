@@ -13,12 +13,6 @@ export interface GitHubClient {
   fetchFile(owner: string, repo: string, path: string, ref: string): Promise<string>;
   getPackageVersion(owner: string, repo: string, packagePath: string, ref: string): Promise<string>;
   listFiles(owner: string, repo: string, dirPath: string, ref: string): Promise<GitHubFile[]>;
-  getComponentFiles(
-    owner: string,
-    repo: string,
-    componentsPath: string,
-    ref: string,
-  ): Promise<string[]>;
 }
 
 export class SimpleGitHubClient implements GitHubClient {
@@ -108,43 +102,5 @@ export class SimpleGitHubClient implements GitHubClient {
       path: item.path,
       type: item.type === "file" ? "file" : "dir",
     }));
-  }
-
-  /**
-   * Get all component markdown files from the components directory
-   */
-  async getComponentFiles(
-    owner: string,
-    repo: string,
-    componentsPath: string,
-    ref: string,
-  ): Promise<string[]> {
-    const componentFiles: string[] = [];
-
-    try {
-      // List all directories in the components path
-      const items = await this.listFiles(owner, repo, componentsPath, ref);
-
-      for (const item of items) {
-        if (item.type === "dir") {
-          // Look for a markdown file with the same name as the directory
-          const mdFile = `${item.path}/${item.name}.md`;
-
-          try {
-            // Try to fetch the file to verify it exists
-            await this.fetchFile(owner, repo, mdFile, ref);
-            componentFiles.push(mdFile);
-            console.log(`   Found component doc: ${item.name}/${item.name}.md`);
-          } catch {
-            // File doesn't exist, skip
-            console.log(`   No doc file for: ${item.name}`);
-          }
-        }
-      }
-    } catch (error) {
-      console.warn(`Warning: Could not process components directory ${componentsPath}: ${error}`);
-    }
-
-    return componentFiles;
   }
 }

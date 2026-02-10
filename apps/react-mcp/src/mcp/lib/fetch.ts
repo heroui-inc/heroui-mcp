@@ -4,6 +4,8 @@
  */
 import {API_BASE_URL} from "../constants";
 
+import {packageInfo} from "./package-info";
+
 export interface VersionCheckResult {
   isLatest: boolean;
   currentVersion?: string;
@@ -44,10 +46,10 @@ export async function fetchApi<T = any>(
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "X-Client-Version": packageInfo.version,
     ...((options?.headers as Record<string, string>) || {}),
   };
 
-  // Automatically add API key if present
   if (apiKey) {
     headers["X-API-Key"] = apiKey;
   }
@@ -58,8 +60,23 @@ export async function fetchApi<T = any>(
   });
 
   if (!response.ok) {
-    const error = new Error(`API error: ${response.status} ${response.statusText}`) as any;
+    let errorBody: string | null = null;
+    try {
+      errorBody = await response.text();
+
+      if (errorBody && errorBody.length > 300) {
+        errorBody =
+          errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+      }
+    } catch {
+      // Ignore if we can't read the body
+    }
+
+    const error = new Error(`${response.status}: ${response.statusText}`) as any;
     error.status = response.status;
+    error.statusText = response.statusText;
+    error.url = url;
+    error.body = errorBody;
     throw error;
   }
 

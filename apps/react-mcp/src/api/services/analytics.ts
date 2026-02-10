@@ -2,8 +2,6 @@ import type {AnalyticsErrorEvent, AnalyticsEvent, AnalyticsProperties} from "../
 
 import {Analytics as BaseAnalytics} from "@heroui/analytics";
 
-const ANALYTICS_APP = "react-mcp";
-
 export class AnalyticsService extends BaseAnalytics<
   AnalyticsEvent,
   AnalyticsErrorEvent,
@@ -43,11 +41,15 @@ export class AnalyticsService extends BaseAnalytics<
     event: AnalyticsEvent | AnalyticsErrorEvent;
     properties: AnalyticsProperties;
   }) {
-    const enrichedProperties: AnalyticsProperties = {
-      ...properties,
+    // Extract app from properties, default to "react-mcp" if not provided
+    const {app, ...restProperties} = properties;
+    const appValue: string = (app as string) || "react-mcp";
+
+    const enrichedProperties = {
+      ...restProperties,
       ...(this.metadata ?? {}),
-      app: ANALYTICS_APP,
-    };
+      app: appValue,
+    } as AnalyticsProperties;
 
     super.track({
       distinctId: this.distinctId ?? undefined,
@@ -67,11 +69,15 @@ export class AnalyticsService extends BaseAnalytics<
     fallbackMessage?: string;
     properties: AnalyticsProperties;
   }) {
-    const enrichedProperties: AnalyticsProperties = {
-      ...properties,
+    // Extract app from properties, default to "react-mcp" if not provided
+    const {app, ...restProperties} = properties;
+    const appValue: string = (app as string) || "react-mcp";
+
+    const enrichedProperties = {
+      ...restProperties,
       ...(this.metadata ?? {}),
-      app: ANALYTICS_APP,
-    };
+      app: appValue,
+    } as AnalyticsProperties;
 
     super.trackError({
       distinctId: this.distinctId ?? undefined,

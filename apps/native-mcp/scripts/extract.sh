@@ -1,10 +1,9 @@
 #!/bin/bash
 
 # Unified extraction script for all environments
-# Usage: extract.sh [environment] [target] [options]
+# Usage: extract.sh [environment] [target]
 #   environment: development | staging | production
 #   target: components | theme | both
-#   options: --force | --version=VERSION
 
 set -e
 
@@ -21,13 +20,11 @@ if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
     echo "Arguments:"
     echo "  environment: development | staging | production (default: development)"
     echo "  target: components | theme | both (default: both)"
-    echo "  options: --force | --version=VERSION"
     echo ""
     echo "Examples:"
     echo "  $0 development components             # Extract components to development bucket"
     echo "  $0 development theme                  # Extract theme to development bucket"
     echo "  $0 development both                   # Extract both to development bucket"
-    echo "  $0 development components --force     # Force re-extraction"
     echo ""
     echo "Required environment variables:"
     echo "  CLOUDFLARE_ACCOUNT_ID"
@@ -39,16 +36,13 @@ fi
 # Parse arguments
 NODE_ENV=${1:-development}
 TARGET=${2:-both}
-shift 2 2>/dev/null || true
-OPTIONS="$@"
 
 # Validate environment
 if [[ ! "$NODE_ENV" =~ ^(development|staging|production)$ ]]; then
     echo -e "${RED}Error: Invalid environment '$NODE_ENV'${NC}"
-    echo "Usage: $0 [environment] [target] [options]"
+    echo "Usage: $0 [environment] [target]"
     echo "  environment: development | staging | production"
     echo "  target: components | theme | both"
-    echo "  options: --force | --version=VERSION"
     exit 1
 fi
 
@@ -62,7 +56,6 @@ fi
 echo -e "${GREEN}🚀 Starting extraction${NC}"
 echo "Environment: $NODE_ENV"
 echo "Target: $TARGET"
-echo "Options: $OPTIONS"
 
 # Set bucket name based on environment
 case "$NODE_ENV" in
@@ -113,40 +106,18 @@ if [ -z "$GITHUB_TOKEN" ]; then
     echo ""
 fi
 
-# Parse options to properly handle version and force flags
-FORCE_FLAG=""
-VERSION_FLAG=""
-
-for option in $OPTIONS; do
-    case $option in
-        --force)
-            FORCE_FLAG="--force"
-            ;;
-        --version=*)
-            # Extract version value and validate it's not a boolean
-            VERSION_VALUE="${option#*=}"
-            # Check if version is not "true" or "false" (common mistake from CI)
-            if [[ "$VERSION_VALUE" != "true" && "$VERSION_VALUE" != "false" && -n "$VERSION_VALUE" ]]; then
-                VERSION_FLAG="--version=$VERSION_VALUE"
-            fi
-            ;;
-    esac
-done
-
-# Combine flags for extraction scripts
-EXTRACT_FLAGS="$FORCE_FLAG $VERSION_FLAG"
 
 # Execute extraction based on target
 case "$TARGET" in
     components)
         echo -e "${GREEN}Extracting HeroUI Native components...${NC}"
-        pnpm exec tsx scripts/extract-components.ts $EXTRACT_FLAGS
+        pnpm exec tsx scripts/extract-components.ts
         ;;
     both|all)
         echo -e "${GREEN}Extracting both components and theme...${NC}"
-        pnpm exec tsx scripts/extract-components.ts $EXTRACT_FLAGS
+        pnpm exec tsx scripts/extract-components.ts
         if [ $? -eq 0 ]; then
-            pnpm exec tsx scripts/extract-theme.ts $EXTRACT_FLAGS
+            pnpm exec tsx scripts/extract-theme.ts
         else
             echo -e "${RED}Component extraction failed, skipping theme extraction${NC}"
             exit 1
@@ -154,7 +125,7 @@ case "$TARGET" in
         ;;
     theme)
         echo -e "${GREEN}Extracting HeroUI Native theme system...${NC}"
-        pnpm exec tsx scripts/extract-theme.ts $EXTRACT_FLAGS
+        pnpm exec tsx scripts/extract-theme.ts
         ;;
 esac
 

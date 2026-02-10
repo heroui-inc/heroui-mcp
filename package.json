@@ -44,11 +44,7 @@
     "inspect:react": "pnpm --filter @heroui/react-mcp run inspect",
     "inspect:migration": "pnpm --filter @heroui/migration-mcp run inspect",
     "extract:native": "pnpm --filter @heroui/native-mcp run extract:dev",
-    "extract:native:components": "pnpm --filter @heroui/native-mcp run extract:dev:components",
-    "extract:native:theme": "pnpm --filter @heroui/native-mcp run extract:dev:theme",
-    "extract:react": "pnpm --filter @heroui/react-mcp run extract:dev",
-    "extract:react:components": "pnpm --filter @heroui/react-mcp run extract:dev:components",
-    "extract:react:theme": "pnpm --filter @heroui/react-mcp run extract:dev:theme"
+    "extract:react": "pnpm --filter @heroui/react-mcp run extract:dev"
   },
   "devDependencies": {
     "@types/node": "^22.18.6",

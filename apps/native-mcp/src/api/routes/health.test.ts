@@ -8,7 +8,7 @@ import {describe, expect, it} from "vitest";
 describe("Health API", () => {
   describe("GET /", () => {
     it("should return health status", async () => {
-      const res = await SELF.fetch("http://localhost:8788/");
+      const res = await SELF.fetch("http://localhost:8788/health");
 
       expect(res.status).toBe(200);
 
