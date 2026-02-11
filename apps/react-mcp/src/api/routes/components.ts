@@ -123,9 +123,14 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
               },
             });
 
+            const errorMessage =
+              response.status === 404 || response.status === 500
+                ? "Component not found"
+                : `${response.status} ${response.statusText}`;
+
             return {
               component,
-              error: `${response.status} ${response.statusText}`,
+              error: errorMessage,
               status: response.status,
               statusText: response.statusText,
               url: docUrl,
@@ -168,9 +173,18 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
             },
           });
 
+          const errMsg = error instanceof Error ? error.message : String(error);
+          const errorMessage =
+            errMsg.includes("404") ||
+            errMsg.includes("500") ||
+            errMsg.toLowerCase().includes("not found") ||
+            errMsg.toLowerCase().includes("internal server error")
+              ? "Component not found"
+              : errMsg;
+
           return {
             component,
-            error: error instanceof Error ? error.message : String(error),
+            error: errorMessage,
             url: docUrl,
           };
         }
