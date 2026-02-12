@@ -17,15 +17,27 @@ jobs:
   set-environment:
     name: Set Environment
     runs-on: ubuntu-latest
-    if: github.event_name == 'repository_dispatch'
+    if: github.event_name == 'repository_dispatch' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
       bucket-name: ${{ steps.set-env.outputs.bucket-name }}
     steps:
-      - name: Determine environment from Vercel deployment
+      - name: Determine environment from trigger type
         id: set-env
         run: |
-          ENV="${{ github.event.client_payload.environment }}"
+          # For workflow_dispatch (manual), default to production
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            ENV="production"
+          # For push: main -> production, develop -> staging
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              ENV="production"
+            else
+              ENV="preview"
+            fi
+          else
+            ENV="${{ github.event.client_payload.environment }}"
+          fi
           
           if [[ -z "$ENV" ]]; then
             echo "❌ Error: No environment in deployment payload. Extraction requires Vercel deployment."
