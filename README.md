@@ -79,10 +79,6 @@ pnpm test                     # Run tests
 ```bash
 pnpm extract:react            # Extract React component data
 pnpm extract:native           # Extract Native component data
-pnpm extract:react:components # Extract React components only
-pnpm extract:react:theme      # Extract React theme only
-pnpm extract:native:components # Extract Native components only
-pnpm extract:native:theme     # Extract Native theme only
 ```
 
 **Code Quality:**

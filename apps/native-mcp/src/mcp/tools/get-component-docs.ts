@@ -51,12 +51,16 @@ DO NOT guess names - always verify with list_components first.`),
             status?: number;
             statusText?: string;
           }>;
+          _warning?: string;
         }>("/v1/components/docs", config.apiBaseUrl, {
           method: "POST",
           body: JSON.stringify({components}),
         });
 
         let responseText = "";
+        if (response._warning) {
+          responseText += `${response._warning}\n\n`;
+        }
 
         response.results.forEach((result, index) => {
           if (index > 0) responseText += "\n\n---\n\n";

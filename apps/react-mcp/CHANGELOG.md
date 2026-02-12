@@ -1,3 +1,17 @@
+# [1.1.0](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.0.2...react-mcp-v1.1.0) (2026-02-12)
+
+
+### Bug Fixes
+
+* add component not found error msg on get component docs fail ([39b3eed](https://github.com/heroui-inc/heroui-mcp/commit/39b3eedaf69e16c8e6952920c52c771c5cc0b41f))
+
+
+### Features
+
+* check mcp user client version ([491876e](https://github.com/heroui-inc/heroui-mcp/commit/491876ec8ee6aabb1a53c48a703c10cd9ff92d8e))
+
+
+
 ## [1.0.2](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.0.1...react-mcp-v1.0.2) (2026-01-22)
 
 

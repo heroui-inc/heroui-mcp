@@ -18,6 +18,7 @@ import {
 import {analyticsMiddleware} from "./middleware/analytics";
 import {authMiddleware} from "./middleware/auth";
 import {corsMiddleware} from "./middleware/cors";
+import {versionCheckMiddleware} from "./middleware/version-check";
 import {components} from "./routes/components";
 import {ctx} from "./routes/ctx";
 import {docs} from "./routes/docs";
@@ -26,8 +27,8 @@ import {themes} from "./routes/themes";
 
 const app = new Hono<HonoContext>();
 
-// Apply middleware globally
 app.use("*", corsMiddleware);
+app.use("*", versionCheckMiddleware);
 app.use("*", analyticsMiddleware);
 // Hybrid auth middleware (uses analytics from context):
 // - Local dev: HTTP to localhost:8789

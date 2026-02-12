@@ -10,59 +10,38 @@ on:
       - 'apps/native-mcp/src/**'
       - '.github/workflows/extraction-pipeline-native.yml'
   repository_dispatch:
-    types: [native-version-bump]
+    types: [native-docs-deployed]
   workflow_dispatch:
 
 jobs:
-  dispatch-branches:
-    name: Trigger Extraction on Main and Develop
-    runs-on: ubuntu-latest
-    if: github.event_name == 'repository_dispatch'
-    steps:
-      - name: Trigger workflow on main branch
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'extraction-pipeline-native.yml',
-              ref: 'main',
-            });
-
-      - name: Trigger workflow on develop branch
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'extraction-pipeline-native.yml',
-              ref: 'develop',
-            });
-
   set-environment:
     name: Set Environment
     runs-on: ubuntu-latest
-    if: github.event_name != 'repository_dispatch'
+    if: github.event_name == 'repository_dispatch'
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
       bucket-name: ${{ steps.set-env.outputs.bucket-name }}
     steps:
-      - name: Determine environment
+      - name: Determine environment from Vercel deployment
         id: set-env
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          ENV="${{ github.event.client_payload.environment }}"
+          
+          if [[ -z "$ENV" ]]; then
+            echo "❌ Error: No environment in deployment payload. Extraction requires Vercel deployment."
+            exit 1
+          fi
+          
+          if [[ "$ENV" == "production" ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "bucket-name=heroui-mcp-data" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          elif [[ "$ENV" == "preview" ]]; then
             echo "environment=staging" >> $GITHUB_OUTPUT
             echo "bucket-name=heroui-mcp-data-staging" >> $GITHUB_OUTPUT
           else
-            echo "environment=development" >> $GITHUB_OUTPUT
-            echo "bucket-name=heroui-mcp-data-dev" >> $GITHUB_OUTPUT
+            echo "❌ Error: Unknown environment: $ENV"
+            echo "Expected: 'production' or 'preview'"
+            exit 1
           fi
 
   extract:

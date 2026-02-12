@@ -6,7 +6,6 @@ import packageJson from "../../../package.json";
 
 const health = new Hono<HonoContext>();
 
-// Root endpoint - API info
 health.get("/", (c) => {
   return c.json({
     name: "HeroUI Native MCP API",
@@ -35,7 +34,6 @@ health.get("/", (c) => {
   });
 });
 
-// Health check
 health.get("/health", (c) => {
   return c.json({
     status: "healthy",

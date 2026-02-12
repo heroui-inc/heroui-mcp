@@ -18,6 +18,8 @@ interface Bindings {
 interface Variables {
   analytics: AnalyticsService;
   userId?: string;
+  clientVersion?: string;
+  serverVersion?: string;
 }
 
 export interface HonoContext {

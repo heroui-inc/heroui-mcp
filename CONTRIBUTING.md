@@ -66,7 +66,7 @@ Test using the build output directly. For example, in Cursor, add the following 
 "heroui-react": {
   "command": "/path/to/repo/mcp/apps/react-mcp/dist/stdio.js",
   "env": {
-    "HEROUI_NATIVE_API_URL": "http://localhost:8787"
+    "HEROUI_API_URL": "http://localhost:8787"
   }
 }
 ```
@@ -75,13 +75,7 @@ Remember to start the API server with `pnpm dev:react` as well.
 
 ### Deploying API to Cloudflare
 
-```bash
-# Deploy to staging
-pnpm deploy:api:staging
-
-# Deploy to production
-pnpm deploy:api:production
-```
+Deployment is automatic through GitHub Actions
 
 ## 🧪 Testing
 
@@ -168,7 +162,6 @@ pnpm format
 
 ## 📋 Available Scripts
 
-
 ### 🔨 Build Commands
 
 ```bash
@@ -204,9 +197,11 @@ The Inspector provides a web interface for testing MCP tools interactively.
 ### 📦 Data Extraction Commands
 
 ```bash
-pnpm extract:react            # Extract React MCP data
-pnpm extract:native           # Extract Native MCP data
+pnpm extract:react            # Extract React MCP data (components + theme)
+pnpm extract:native           # Extract Native MCP data (components + theme)
 ```
+
+For granular extraction (components or theme only), run from within the app directory. See `apps/react-mcp/scripts/extract.sh` or `apps/native-mcp/scripts/extract.sh` for usage.
 
 ### ✅ Code Quality Commands
 
@@ -270,27 +265,6 @@ NODE_ENV=production
 
 Environment variables are configured in `wrangler.toml` for API servers.
 
-## 🌐 Cloudflare Workers Deployment
-
-Deploy the API to Cloudflare Workers:
-
-1. **Configure Wrangler** (if not already done):
-
-   ```bash
-   wrangler login
-   ```
-
-2. **Deploy to staging**:
-
-   ```bash
-   pnpm deploy:api:staging
-   ```
-
-3. **Deploy to production**:
-   ```bash
-   pnpm deploy:api:production
-   ```
-
 ## 📊 Data Management
 
 ### Component Data Extraction
@@ -332,32 +306,32 @@ The extraction scripts fetch documentation directly from `v3.heroui.com`:
 
 ### Adding New Tools
 
-To add a new tool to the MCP server:
+To add a new tool to the MCP server (from `apps/react-mcp` or `apps/native-mcp`):
 
 1. Create a new tool file in `src/mcp/tools/`:
 
 ```typescript
 // src/mcp/tools/my-tool.ts
-import type {Tool} from "../types";
-import {z} from "zod";
-import {fetchApi} from "../lib/fetch";
+import type { Tool } from "../types";
+import { z } from "zod";
+import { fetchApi } from "../lib/fetch";
 
 export const myTool: Tool = {
   name: "my_tool",
   description: "Description of your tool",
-  
+
   async ctx(shared) {
     // Optional: Initialize tool-specific context from shared context
     return {
       // Tool-specific context
     };
   },
-  
-  exec(server, {config, name, description, ctx}) {
+
+  exec(server, { config, name, description, ctx }) {
     const inputSchema = z.object({
       // Define your parameters
     });
-    
+
     const handler = async (args: z.infer<typeof inputSchema>) => {
       // Implementation
       const data = await fetchApi("/endpoint", config.apiBaseUrl);
@@ -370,8 +344,8 @@ export const myTool: Tool = {
         ],
       };
     };
-    
-    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
+
+    server.registerTool(name, { description, inputSchema: inputSchema.shape }, handler as any);
   },
 };
 ```
@@ -379,7 +353,7 @@ export const myTool: Tool = {
 2. Register the tool in `src/mcp/tools/index.ts`:
 
 ```typescript
-import {myTool} from "./my-tool";
+import { myTool } from "./my-tool";
 
 const tools: Tool[] = [
   // ... existing tools
@@ -391,22 +365,22 @@ const tools: Tool[] = [
 
 ```typescript
 // src/api/routes/my-route.ts
-import {Hono} from "hono";
+import { Hono } from "hono";
 
 const myRoute = new Hono();
 
 myRoute.get("/", async (c) => {
   // Implementation
-  return c.json({data: "..."});
+  return c.json({ data: "..." });
 });
 
-export {myRoute};
+export { myRoute };
 ```
 
 4. Mount the route in `src/api/index.ts`:
 
 ```typescript
-import {myRoute} from "./routes/my-route";
+import { myRoute } from "./routes/my-route";
 
 app.route("/my-route", myRoute);
 ```

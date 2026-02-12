@@ -33,6 +33,7 @@ Or add manually to Cursor Settings → Features → MCP Servers:
 ### Claude Code
 
 **Quick Install (CLI)**:
+
 ```bash
 claude mcp add heroui-react -- npx -y @heroui/react-mcp@latest
 ```
@@ -56,6 +57,7 @@ Or manually add to your Claude Code configuration:
 ### Codex
 
 **Quick Install (CLI)**:
+
 ```bash
 codex mcp add heroui-react -- npx -y @heroui/react-mcp@latest
 ```
@@ -230,7 +232,6 @@ Get HeroUI v3 default theme variables and design tokens (actual variable values)
 
 **Note:** For theme documentation and guides, use `get_docs({ path: "/docs/react/getting-started/theming" })` instead.
 
-
 ## Troubleshooting
 
 ### MCP server not found
@@ -240,10 +241,6 @@ Ensure you have Node.js 22+ installed. The package will be automatically downloa
 ### Connection issues
 
 If you're behind a corporate firewall, you may need to configure proxy settings or use a custom API URL.
-
-### Need help?
-
-Check our [troubleshooting guide](https://github.com/heroui-inc/heroui-mcp/blob/main/TROUBLESHOOTING.md) or ask in our [Discord community](https://discord.gg/9b6yyZKmH4).
 
 ## Contributing
 
