@@ -6,6 +6,7 @@ import {zValidator} from "@hono/zod-validator";
 import {Hono} from "hono";
 import {z} from "zod";
 
+import {HEROUI_REACT_GITHUB_BASE} from "../../../extraction/constants";
 import {REACT_LIBRARY_NAME} from "../../contants";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../../types/analytics";
 import {getLegacyComponentService} from "../services/component-adapter";
@@ -395,8 +396,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
-    const branch = "v3";
-    const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
+    const baseUrl = HEROUI_REACT_GITHUB_BASE;
 
     const sourceResults = await Promise.all(
       results.map(async (result) => {
@@ -504,8 +504,7 @@ components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c
     const results = await service.getComponents(LIBRARY_NAME, componentNames);
     const latestVersion = await service.getLatestVersion(LIBRARY_NAME);
 
-    const branch = "v3";
-    const baseUrl = `https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/${branch}`;
+    const baseUrl = HEROUI_REACT_GITHUB_BASE;
 
     const styleResults = await Promise.all(
       results.map(async (result) => {

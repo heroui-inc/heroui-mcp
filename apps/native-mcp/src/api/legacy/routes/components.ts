@@ -5,6 +5,7 @@ import {zValidator} from "@hono/zod-validator";
 import {Hono} from "hono";
 import {z} from "zod";
 
+import {HEROUI_NATIVE_GITHUB_BASE} from "../../../extraction/constants";
 import {CACHE_CONTROL} from "../../constants";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../../types/analytics";
 import {getLegacyComponentService} from "../services/component-adapter";
@@ -303,7 +304,7 @@ components.post("/examples", zValidator("json", ExamplesRequestSchema), async (c
 
   try {
     const latestVersion = await (await getLegacyComponentService(c.env)).getLatestVersion();
-    const baseUrl = "https://raw.githubusercontent.com/heroui-inc/heroui-native/beta";
+    const baseUrl = HEROUI_NATIVE_GITHUB_BASE;
     const examplesPath = `${baseUrl}/example/src/app/(home)/components`;
 
     // Helper function to simplify import paths in content

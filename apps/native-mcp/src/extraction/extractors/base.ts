@@ -2,12 +2,17 @@
  * Base extractor with shared logic for all extraction types
  */
 
+import {
+  HEROUI_NATIVE_GITHUB_BASE,
+  HEROUI_NATIVE_GITHUB_RAW_BASE,
+  HEROUI_NATIVE_TARGET_BRANCH,
+} from "../constants";
 import {R2Uploader} from "../services/r2-uploader";
 
 export abstract class BaseExtractor {
   protected r2: R2Uploader;
-  protected githubBase = "https://raw.githubusercontent.com/heroui-inc/heroui-native/beta";
-  protected githubRef = "beta";
+  protected githubBase = HEROUI_NATIVE_GITHUB_BASE;
+  protected githubRef = HEROUI_NATIVE_TARGET_BRANCH;
 
   constructor() {
     // Validate environment variables
@@ -31,7 +36,7 @@ export abstract class BaseExtractor {
    */
   protected setGitHubRef(ref: string): void {
     this.githubRef = ref;
-    this.githubBase = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${ref}`;
+    this.githubBase = `${HEROUI_NATIVE_GITHUB_RAW_BASE}/${ref}`;
   }
 
   /**
@@ -40,7 +45,7 @@ export abstract class BaseExtractor {
   protected async getVersionFromGitHub(ref?: string): Promise<string> {
     try {
       const refToUse = ref || this.githubRef;
-      const url = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${refToUse}/package.json`;
+      const url = `${HEROUI_NATIVE_GITHUB_RAW_BASE}/${refToUse}/package.json`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to fetch package.json: ${response.status}`);
