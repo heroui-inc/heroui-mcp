@@ -5,6 +5,8 @@
 
 import * as path from "path";
 
+import {HEROUI_NATIVE_TARGET_BRANCH} from "../constants";
+
 export interface NativeComponentDefinition {
   name: string;
   links?: {
@@ -16,7 +18,7 @@ export interface NativeComponentDefinition {
 export class NativeParser {
   private readonly githubRef: string;
 
-  constructor(ref: string = "beta") {
+  constructor(ref: string = HEROUI_NATIVE_TARGET_BRANCH) {
     this.githubRef = ref;
   }
 

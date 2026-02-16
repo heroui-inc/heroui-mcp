@@ -2,6 +2,7 @@ import type {HonoContext} from "../../types/context";
 
 import {Hono} from "hono";
 
+import {HEROUI_NATIVE_GITHUB_BASE} from "../../../extraction/constants";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../../types/analytics";
 import {getLegacyComponentService} from "../services/component-adapter";
 import {getLegacyThemeService} from "../services/theme-adapter";
@@ -23,9 +24,7 @@ ctx.get("/", async (c) => {
       componentService.listComponents(),
       componentService.listExamples(),
       themeService.getAvailableThemes(),
-      fetch("https://raw.githubusercontent.com/heroui-inc/heroui-native/beta/README.md").then(
-        (res) => res.text(),
-      ),
+      fetch(`${HEROUI_NATIVE_GITHUB_BASE}/README.md`).then((res) => res.text()),
       componentService.getLatestVersion(),
     ]);
 

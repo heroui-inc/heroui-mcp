@@ -2,11 +2,12 @@
  * Base extractor with shared logic for all extraction types
  */
 
+import {HEROUI_REACT_GITHUB_BASE} from "../constants";
 import {R2Uploader} from "../services/r2-uploader";
 
 export abstract class BaseExtractor {
   protected r2: R2Uploader;
-  protected githubBase = "https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3";
+  protected githubBase = HEROUI_REACT_GITHUB_BASE;
 
   constructor() {
     const requiredVars = ["CLOUDFLARE_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY"];
