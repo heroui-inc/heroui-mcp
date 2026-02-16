@@ -7,6 +7,10 @@ import type {HonoContext} from "../../types/context";
 
 import {Hono} from "hono";
 
+import {
+  HEROUI_NATIVE_GITHUB_BASE,
+  HEROUI_NATIVE_TARGET_BRANCH,
+} from "../../../extraction/constants";
 import {CACHE_CONTROL} from "../../constants";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../../types/analytics";
 
@@ -33,8 +37,7 @@ docs.get("/available", async (c) => {
 
   try {
     // Fetch README.md from heroui-native repository
-    const branch = "beta";
-    const readmeUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${branch}/README.md`;
+    const readmeUrl = `${HEROUI_NATIVE_GITHUB_BASE}/README.md`;
     const response = await fetch(readmeUrl);
 
     if (!response.ok) {
@@ -283,8 +286,7 @@ docs.get("/content", async (c) => {
     }
 
     // Fetch from GitHub
-    const branch = "beta";
-    const githubUrl = `https://raw.githubusercontent.com/heroui-inc/heroui-native/${branch}/${githubPath}`;
+    const githubUrl = `${HEROUI_NATIVE_GITHUB_BASE}/${githubPath}`;
 
     const response = await fetch(githubUrl);
 
@@ -333,7 +335,7 @@ docs.get("/content", async (c) => {
       path,
       url: githubUrl
         .replace("raw.githubusercontent.com", "github.com")
-        .replace(`/${branch}/`, `/blob/${branch}/`),
+        .replace(`/${HEROUI_NATIVE_TARGET_BRANCH}/`, `/blob/${HEROUI_NATIVE_TARGET_BRANCH}/`),
       content,
       contentType: "markdown",
     });

@@ -1,7 +1,7 @@
-import {dirname} from "path";
-import {fileURLToPath} from "url";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
-import {FlatCompat} from "@eslint/eslintrc";
+import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import typescriptPlugin from "@typescript-eslint/eslint-plugin";
 import typescriptParser from "@typescript-eslint/parser";
@@ -55,7 +55,7 @@ export const baseConfig = [
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": "error",
       "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
-      "import/newline-after-import": ["error", {count: 1}],
+      "import/newline-after-import": ["error", { count: 1 }],
       "import/no-duplicates": "error",
       "import/order": [
         "error",
@@ -91,7 +91,10 @@ export const baseConfig = [
       "no-process-exit": "off",
       "no-unused-vars": "off",
       "object-curly-spacing": ["error", "never"],
-      "padding-line-between-statements": ["warn", {blankLine: "always", next: "return", prev: "*"}],
+      "padding-line-between-statements": [
+        "warn",
+        { blankLine: "always", next: "return", prev: "*" },
+      ],
       "prettier/prettier": "error",
       "sort-destructure-keys/sort-destructure-keys": "off",
       "sort-imports": [
@@ -176,7 +179,6 @@ export const baseConfig = [
       "**/data/**/*.json",
       "!.vscode/**",
       "!scripts/**",
-      "scripts/check-versions-ci.mjs",
       "eslint.config.js",
       "tsup.config.ts",
     ],

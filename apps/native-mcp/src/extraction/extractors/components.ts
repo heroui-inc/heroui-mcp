@@ -4,6 +4,7 @@
 
 import type {NativeComponentDefinition} from "./native-parser";
 
+import {HEROUI_NATIVE_TARGET_BRANCH} from "../constants";
 import {parseAllDocsFromLlmsTxt, parseLlmsTxt} from "../utils/llms-parser";
 
 import {BaseExtractor} from "./base";
@@ -20,7 +21,7 @@ export class ComponentExtractor extends BaseExtractor {
 
   constructor() {
     super();
-    this.parser = new NativeParser("beta");
+    this.parser = new NativeParser(HEROUI_NATIVE_TARGET_BRANCH);
   }
 
   getStorageKey(): string {
@@ -31,7 +32,7 @@ export class ComponentExtractor extends BaseExtractor {
     return "components";
   }
 
-  async extract(ref: string = "beta"): Promise<{
+  async extract(ref: string = HEROUI_NATIVE_TARGET_BRANCH): Promise<{
     data: NativeComponentDataset;
     docsPaths?: {
       paths: string[];

@@ -5,6 +5,8 @@
 
 import type {Theme, ThemeSystem} from "@shared/types/theme";
 
+import {HEROUI_NATIVE_TARGET_BRANCH} from "../constants";
+
 import {BaseExtractor} from "./base";
 import {ThemeParser} from "./theme-parser";
 
@@ -27,7 +29,7 @@ export class ThemeExtractor extends BaseExtractor {
     return "theme";
   }
 
-  async extract(ref: string = "beta"): Promise<{
+  async extract(ref: string = HEROUI_NATIVE_TARGET_BRANCH): Promise<{
     data: ThemeSystem;
     docsPaths?: undefined;
   }> {
