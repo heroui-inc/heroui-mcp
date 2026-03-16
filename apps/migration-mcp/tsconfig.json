@@ -1,0 +1,15 @@
+{
+  "extends": "@heroui/config/tsconfig/cloudflare-worker.json",
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    "types": ["@cloudflare/workers-types"],
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "package.json"],
+  "exclude": ["node_modules", "dist"]
+}
+

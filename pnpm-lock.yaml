@@ -24,6 +24,52 @@ importers:
         specifier: ^5.9.2
         version: 5.9.3
 
+  apps/migration-mcp:
+    dependencies:
+      '@heroui/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
+      '@heroui/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@hono/mcp':
+        specifier: ^0.1.5
+        version: 0.1.5(@modelcontextprotocol/sdk@1.25.1(hono@4.10.2)(zod@3.25.76))(hono@4.10.2)
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.18.1
+        version: 1.25.1(hono@4.10.2)(zod@3.25.76)
+      hono:
+        specifier: ^4.10.2
+        version: 4.10.2
+      posthog-node:
+        specifier: ^5.9.1
+        version: 5.10.0
+      zod:
+        specifier: ^3.25.0
+        version: 3.25.76
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20250920.0
+        version: 4.20251011.0
+      '@types/node':
+        specifier: ^22.18.6
+        version: 22.18.11
+      dotenv-cli:
+        specifier: ^10.0.0
+        version: 10.0.0
+      eslint:
+        specifier: ^9.36.0
+        version: 9.38.0(jiti@2.6.1)
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
+      wrangler:
+        specifier: ^4.38.3
+        version: 4.43.0(@cloudflare/workers-types@4.20251011.0)
+
   apps/native-mcp:
     dependencies:
       '@aws-sdk/client-s3':
@@ -1139,6 +1185,12 @@ packages:
     resolution: {integrity: sha512-rc1hOQtjIWGxcxpb9aHAfLpIctjEnsDehj0DAiVfBlmT84uvR0uUtN2hEi/ecvWVjXUGf5qPF4qEgiLOx1YIMQ==}
     engines: {node: '>=6'}
     hasBin: true
+
+  '@hono/mcp@0.1.5':
+    resolution: {integrity: sha512-q6Yurx9VUwVEpqnwVXtzIYaq4kgQgWWq9lYLM7NFS2W0sg1RzL+RdKh6jO4/dGyvBLKrahPd2v+NC6rr0XWBvQ==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.12.0
+      hono: '>=4.0.0'
 
   '@hono/node-server@1.19.7':
     resolution: {integrity: sha512-vUcD0uauS7EU2caukW8z5lJKtoGMokxNbJtBiwHgpqxEXokaHCBkQUmCHhjFB1VUTWdqj25QoMkMKzgjq+uhrw==}
@@ -7061,6 +7113,11 @@ snapshots:
       long: 5.3.2
       protobufjs: 7.5.4
       yargs: 17.7.2
+
+  '@hono/mcp@0.1.5(@modelcontextprotocol/sdk@1.25.1(hono@4.10.2)(zod@3.25.76))(hono@4.10.2)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.25.1(hono@4.10.2)(zod@3.25.76)
+      hono: 4.10.2
 
   '@hono/node-server@1.19.7(hono@4.10.2)':
     dependencies:
