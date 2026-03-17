@@ -5,8 +5,6 @@ export interface AuthWorkerSuccessResponse {
     apiKeyId: string;
     user: {
       id: string;
-      email: string;
-      name: string | null;
       createdAt: number;
     };
     apiKey: {

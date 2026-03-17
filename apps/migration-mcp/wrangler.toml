@@ -1,0 +1,60 @@
+name = "migration-mcp"
+
+# ------------------------------------------------------------
+# -- General
+# ------------------------------------------------------------
+main = "src/api.ts"
+compatibility_date = "2025-10-08"
+compatibility_flags = ["nodejs_compat"]
+
+# ------------------------------------------------------------
+# -- Development Environment
+# ------------------------------------------------------------
+[env.development]
+# Local development configuration
+
+[env.development.vars]
+NODE_ENV = "development"
+POSTHOG_HOST = "https://us.i.posthog.com"
+MIGRATION_DOCS_BASE_URL = "https://v3.heroui.com/docs/react/migration"
+
+# ------------------------------------------------------------
+# -- Staging Environment
+# ------------------------------------------------------------
+[env.staging]
+routes = [
+  { pattern = "staging-migration-mcp.heroui.com", custom_domain = true }
+]
+
+[env.staging.vars]
+NODE_ENV = "staging"
+POSTHOG_HOST = "https://us.i.posthog.com"
+MIGRATION_DOCS_BASE_URL = "https://heroui-git-docs-migration-heroui.vercel.app/docs/react/migration"
+
+# ------------------------------------------------------------
+# -- Production Environment
+# ------------------------------------------------------------
+[env.production]
+routes = [
+  { pattern = "migration-mcp.heroui.com", custom_domain = true }
+]
+
+[env.production.vars]
+NODE_ENV = "production"
+POSTHOG_HOST = "https://us.i.posthog.com"
+MIGRATION_DOCS_BASE_URL = "https://v3.heroui.com/docs/react/migration"
+
+# ------------------------------------------------------------
+# -- Worker Settings
+# ------------------------------------------------------------
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[placement]
+mode = "smart"
+
+[limits]
+# 60 second timeout for MCP operations
+cpu_ms = 60000
+
