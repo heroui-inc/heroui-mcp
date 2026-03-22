@@ -19,7 +19,7 @@ Access HeroUI component documentation directly in your AI assistant via Model Co
 
 Or add manually to Cursor Settings → Features → MCP Servers:
 
-```json
+```javascript
 {
   "mcpServers": {
     "heroui": {
@@ -43,7 +43,7 @@ Or manually add to your Claude Code configuration:
 **macOS**: `~/Library/Application Support/Claude/claude_mcp_settings.json`
 **Windows**: `%APPDATA%\Claude\claude_mcp_settings.json`
 
-```json
+```javascript
 {
   "mcpServers": {
     "heroui": {
@@ -79,7 +79,7 @@ For more configuration options, see the [Codex MCP documentation](https://develo
 
 Add to Windsurf configuration → MCP Servers:
 
-```json
+```javascript
 {
   "mcpServers": {
     "heroui": {
@@ -94,7 +94,7 @@ Add to Windsurf configuration → MCP Servers:
 
 Add to your VS Code settings:
 
-```json
+```javascript
 {
   "mcp.servers": {
     "heroui": {
@@ -112,7 +112,7 @@ Add to your Claude Desktop configuration:
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-```json
+```javascript
 {
   "mcpServers": {
     "heroui": {
@@ -144,7 +144,7 @@ The MCP server provides these tools to AI assistants:
 
 List all available HeroUI v3 components (always returns latest version).
 
-```json
+```javascript
 // No parameters required
 ```
 
@@ -152,7 +152,7 @@ List all available HeroUI v3 components (always returns latest version).
 
 Get complete component documentation (including examples, props, usage) directly from v3.heroui.com. This tool consolidates component information, props, and examples into a single call.
 
-```json
+```javascript
 // Parameters
 {
   components: ["Button"]  // Required - array of component names (case-sensitive)
@@ -173,7 +173,7 @@ Get complete component documentation (including examples, props, usage) directly
 
 Get the React/TypeScript source code (.tsx) for HeroUI components. Returns the internal implementation for learning purposes or debugging.
 
-```json
+```javascript
 // Parameters
 {
   components: ["Button"]  // Required - array of component names
@@ -191,7 +191,7 @@ Get the React/TypeScript source code (.tsx) for HeroUI components. Returns the i
 
 Get the CSS styles (.css) for HeroUI components. Returns the complete CSS implementation including all variants and states.
 
-```json
+```javascript
 // Parameters
 {
   components: ["Button"]  // Required - array of component names
@@ -209,7 +209,7 @@ Get the CSS styles (.css) for HeroUI components. Returns the complete CSS implem
 
 Get HeroUI v3 React documentation content for guides, principles, and release notes (NOT component docs). Fetches official documentation from v3.heroui.com.
 
-```json
+```javascript
 // Parameters
 {
   path: string  // Required - exact documentation path
