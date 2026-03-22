@@ -23,20 +23,14 @@ async function createServer(): Promise<McpServer> {
       version: packageInfo.version,
     },
     {
-      instructions: `## HeroUI React MCP Tools - v3 Beta Documentation
+      instructions: `## HeroUI React MCP Tools - v3 Documentation
 
-These tools provide documentation for **HeroUI v3 (Beta)** React components.
+These tools provide documentation for **HeroUI v3** React components.
 
 ### ⚠️ IMPORTANT: Version Information
-• **Current Support:** HeroUI v3 (Beta) ONLY
+• **Current Support:** HeroUI v3 ONLY
 • **HeroUI v2:** NOT supported by this MCP
-• **Migration from v2 to v3:** NOT available yet (coming when v3 is stable)
-• **Status:** v3 is in BETA - expect breaking changes
-
-### 🚫 Migration Notice
-**Migration from HeroUI v2 to v3 is NOT supported yet.**
-A migration tool will be available in the future when v3 reaches stable release.
-For now, v3 should only be used for new projects.
+• **Migration from v2 to v3:** Available at https://heroui.com/docs/react/migration
 
 ### Getting Started
 Use the \`get_docs\` tool to fetch the official installation guide:
@@ -75,8 +69,7 @@ Always follow this order when implementing HeroUI v3 components:
 • Theme: Use get_theme_variables() for theme variable values, or get_docs({ path: "/docs/react/getting-started/theming" }) for theming guides
 
 ### Pro Tips
-• This MCP is for v3 ONLY - v2 docs are at https://heroui.com
-• v3 is BETA - use for experimentation and new projects`,
+• This MCP is for v3 ONLY - v2 docs are at https://v2.heroui.com`,
       capabilities: {
         tools: {
           listChanged: true,

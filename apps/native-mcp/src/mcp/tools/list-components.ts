@@ -4,7 +4,7 @@ import {fetchApi} from "../lib/fetch";
 
 export const listComponentsTool: Tool = {
   name: "list_components",
-  description: `List all available components in HeroUI Native (Beta).
+  description: `List all available components in HeroUI Native.
 Returns the component names exactly as they should be used in imports and other tool calls.
 HeroUI Native components are React Native components for mobile development.
 Always call this first before using any component to verify it exists.

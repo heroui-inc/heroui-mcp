@@ -220,7 +220,7 @@ Get HeroUI v3 React documentation content for guides, principles, and release no
   path: "/docs/react/getting-started/theming"  // Get theming guide
 }
 {
-  path: "/docs/react/releases/v3-0-0-beta-3"  // Release notes
+  path: "/docs/react/releases/v3-0-0"  // Release notes
 }
 ```
 
