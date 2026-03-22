@@ -109,7 +109,7 @@ These can be done before switching HeroUI dependencies:
 
 1. **Update dependencies**
    - Remove \`@heroui/react\` and \`@heroui/theme\` (v2)
-   - Install \`@heroui/react@beta\` and \`@heroui/styles@beta\` (v3)
+   - Install \`@heroui/react\` and \`@heroui/styles\` (v3)
    - Remove \`framer-motion\` if present
    - Update CSS imports (add \`@import "@heroui/styles";\`)
    - Remove HeroUIProvider from app root
@@ -136,7 +136,7 @@ After dependency switch and component verification:
 **Prerequisites:**
 - All component code has been migrated to v3 APIs
 - Component hooks have been replaced with compound components (done during component migration)
-- Dependencies have been switched to v3 (\`@heroui/react@beta\`, \`@heroui/styles@beta\`)
+- Dependencies have been switched to v3 (\`@heroui/react\`, \`@heroui/styles\`)
 - HeroUIProvider has been removed
 - CSS imports have been updated
 - Typecheck/lint passes (do NOT build to verify)
@@ -165,7 +165,7 @@ After hooks migration:
 **Prerequisites:**
 - All component code has been migrated to v3 APIs
 - All hooks have been migrated (component hooks → compound components, useDisclosure → useOverlayState)
-- Dependencies have been switched to v3 (\`@heroui/react@beta\`, \`@heroui/styles@beta\`)
+- Dependencies have been switched to v3 (\`@heroui/react\`, \`@heroui/styles\`)
 - HeroUIProvider has been removed
 - CSS imports have been updated
 - Typecheck/lint passes (do NOT build to verify)
@@ -259,12 +259,12 @@ This prompt guides you to implement component migrations using an incremental co
 Before starting component migration:
 
 1. **Identify coexistence strategy**
-   - **Strategy A (pnpm aliases)**: Check for aliases like \`"@heroui-v3/react": "npm:@heroui/react@beta"\` in package.json
-   - **Strategy B (component packages)**: Check for component-specific packages like \`@heroui/button\`, \`@heroui/card\` alongside \`@heroui/react@beta\`
+   - **Strategy A (pnpm aliases)**: Check for aliases like \`"@heroui-v3/react": "npm:@heroui/react"\` in package.json
+   - **Strategy B (component packages)**: Check for component-specific packages like \`@heroui/button\`, \`@heroui/card\` alongside \`@heroui/react\`
 
 2. **Verify setup**:
    - Strategy A: Both \`@heroui/react\` (v2) and \`@heroui-v3/react\` (v3 alias) are installed
-   - Strategy B: \`@heroui/react@beta\` (v3) and component packages like \`@heroui/button\` (v2) are installed
+   - Strategy B: \`@heroui/react\` (v3) and component packages like \`@heroui/button\` (v2) are installed
    - CSS is configured for both versions (both CSS imports present, correct order)
 
 3. **🛑 CHECKPOINT: Stop and wait for user approval**

@@ -90,12 +90,12 @@ This prompt guides you to analyze the codebase and create an incremental migrati
 
 1. **Fetch the agent guide** using \`get_migration_workflow({ migrationType: "incremental" })\` tool
 2. **Identify coexistence strategy**:
-   - **Strategy A (pnpm aliases)**: Check for aliases like \`"@heroui-v3/react": "npm:@heroui/react@beta"\` in package.json
-   - **Strategy B (component packages)**: Check for component-specific packages like \`@heroui/button\`, \`@heroui/card\` alongside \`@heroui/react@beta\`
+   - **Strategy A (pnpm aliases)**: Check for aliases like \`"@heroui-v3/react": "npm:@heroui/react"\` in package.json
+   - **Strategy B (component packages)**: Check for component-specific packages like \`@heroui/button\`, \`@heroui/card\` alongside \`@heroui/react\`
 
 3. **Verify coexistence setup**:
    - Strategy A: Both \`@heroui/react\` (v2) and \`@heroui-v3/react\` (v3 alias) are installed
-   - Strategy B: \`@heroui/react@beta\` (v3) and component packages like \`@heroui/button\` (v2) are installed
+   - Strategy B: \`@heroui/react\` (v3) and component packages like \`@heroui/button\` (v2) are installed
    - CSS is configured for both versions (both CSS imports present)
 
 4. **Follow the guide's instructions** to:

@@ -144,7 +144,7 @@ The MCP server provides these tools to AI assistants:
 
 List all available HeroUI v3 components (always returns latest version).
 
-```javascript
+```json
 // No parameters required
 ```
 
@@ -152,7 +152,7 @@ List all available HeroUI v3 components (always returns latest version).
 
 Get complete component documentation (including examples, props, usage) directly from v3.heroui.com. This tool consolidates component information, props, and examples into a single call.
 
-```javascript
+```json
 // Parameters
 {
   components: ["Button"]  // Required - array of component names (case-sensitive)
@@ -173,7 +173,7 @@ Get complete component documentation (including examples, props, usage) directly
 
 Get the React/TypeScript source code (.tsx) for HeroUI components. Returns the internal implementation for learning purposes or debugging.
 
-```javascript
+```json
 // Parameters
 {
   components: ["Button"]  // Required - array of component names
@@ -191,7 +191,7 @@ Get the React/TypeScript source code (.tsx) for HeroUI components. Returns the i
 
 Get the CSS styles (.css) for HeroUI components. Returns the complete CSS implementation including all variants and states.
 
-```javascript
+```json
 // Parameters
 {
   components: ["Button"]  // Required - array of component names
@@ -209,7 +209,7 @@ Get the CSS styles (.css) for HeroUI components. Returns the complete CSS implem
 
 Get HeroUI v3 React documentation content for guides, principles, and release notes (NOT component docs). Fetches official documentation from v3.heroui.com.
 
-```javascript
+```json
 // Parameters
 {
   path: string  // Required - exact documentation path
@@ -220,7 +220,7 @@ Get HeroUI v3 React documentation content for guides, principles, and release no
   path: "/docs/react/getting-started/theming"  // Get theming guide
 }
 {
-  path: "/docs/react/releases/v3-0-0-beta-3"  // Release notes
+  path: "/docs/react/releases/v3-0-0"  // Release notes
 }
 ```
 
