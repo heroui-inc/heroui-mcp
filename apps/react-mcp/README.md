@@ -19,7 +19,7 @@ Access HeroUI component documentation directly in your AI assistant via Model Co
 
 Or add manually to Cursor Settings → Features → MCP Servers:
 
-```javascript
+```json
 {
   "mcpServers": {
     "heroui": {
@@ -43,7 +43,7 @@ Or manually add to your Claude Code configuration:
 **macOS**: `~/Library/Application Support/Claude/claude_mcp_settings.json`
 **Windows**: `%APPDATA%\Claude\claude_mcp_settings.json`
 
-```javascript
+```json
 {
   "mcpServers": {
     "heroui": {
@@ -79,7 +79,7 @@ For more configuration options, see the [Codex MCP documentation](https://develo
 
 Add to Windsurf configuration → MCP Servers:
 
-```javascript
+```json
 {
   "mcpServers": {
     "heroui": {
@@ -94,7 +94,7 @@ Add to Windsurf configuration → MCP Servers:
 
 Add to your VS Code settings:
 
-```javascript
+```json
 {
   "mcp.servers": {
     "heroui": {
@@ -112,7 +112,7 @@ Add to your Claude Desktop configuration:
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-```javascript
+```json
 {
   "mcpServers": {
     "heroui": {
