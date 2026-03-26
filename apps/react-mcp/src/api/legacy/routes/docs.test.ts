@@ -18,7 +18,7 @@ describe("Legacy Docs API", () => {
       expect(data).toHaveProperty("baseUrl");
       expect(data).toHaveProperty("categories");
       expect(data).toHaveProperty("total");
-      expect(data.baseUrl).toBe("https://v3.heroui.com");
+      expect(data.baseUrl).toBe("https://heroui.com");
       expect(Array.isArray(data.categories)).toBe(true);
       expect(typeof data.total).toBe("number");
     });

@@ -132,7 +132,7 @@ describe("Legacy Context API", () => {
       if (res.status === 200 && data.docs.paths.length > 0) {
         // Verify that paths are normalized to path format (not full URLs)
         // The legacy ctx route transforms full URLs from llms.txt to paths
-        // e.g., https://v3.heroui.com/docs/react/components -> /docs/react/components
+        // e.g., https://heroui.com/docs/react/components -> /docs/react/components
         data.docs.paths.forEach((path: string) => {
           expect(path).toMatch(/^\/docs\//);
         });

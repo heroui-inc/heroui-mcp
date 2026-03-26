@@ -269,10 +269,10 @@ Environment variables are configured in `wrangler.toml` for API servers.
 
 ### Component Data Extraction
 
-The server extracts component data directly from `v3.heroui.com` and stores it in Cloudflare R2:
+The server extracts component data directly from `heroui.com` and stores it in Cloudflare R2:
 
-- **React MCP**: Fetches component documentation from `https://v3.heroui.com/docs/react/components/` using `llms.txt` manifest
-- **Native MCP**: Fetches component documentation from `https://v3.heroui.com/docs/native/components/` using `llms.txt` manifest
+- **React MCP**: Fetches component documentation from `https://heroui.com/docs/react/components/` using `llms.txt` manifest
+- **Native MCP**: Fetches component documentation from `https://heroui.com/docs/native/components/` using `llms.txt` manifest
 
 Data is stored as `ctx.json` in R2, containing components list, documentation paths, version, and timestamp.
 
@@ -296,7 +296,7 @@ Data is automatically extracted via GitHub Actions when:
 
 ### Rate Limiting
 
-The extraction scripts fetch documentation directly from `v3.heroui.com`:
+The extraction scripts fetch documentation directly from `heroui.com`:
 
 - Documentation is fetched from public URLs (no authentication required)
 - Rate limiting is handled by the documentation server
@@ -345,7 +345,11 @@ export const myTool: Tool = {
       };
     };
 
-    server.registerTool(name, { description, inputSchema: inputSchema.shape }, handler as any);
+    server.registerTool(
+      name,
+      { description, inputSchema: inputSchema.shape },
+      handler as any,
+    );
   },
 };
 ```
@@ -396,7 +400,7 @@ Each MCP package follows a unified architecture:
 
 2. **REST API** - Cloudflare Worker
    - Serves component data from R2 storage
-   - Fetches documentation directly from v3.heroui.com when needed
+   - Fetches documentation directly from heroui.com when needed
    - Provides analytics and authentication middleware
 
 3. **R2 Storage** - Cloudflare R2 bucket
@@ -404,7 +408,7 @@ Each MCP package follows a unified architecture:
    - Single source of truth for component metadata
 
 4. **Data Extraction** - CLI scripts
-   - Fetches component data from v3.heroui.com using `llms.txt` manifest
+   - Fetches component data from heroui.com using `llms.txt` manifest
    - Extracts minimal metadata (name, links) from component documentation
    - Uploads consolidated `ctx.json` to R2
 

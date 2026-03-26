@@ -15,7 +15,7 @@ interface DocContentResponse {
 export const getDocsTool: Tool<DocsContext> = {
   name: "get_docs",
   description: `Get HeroUI v3 React documentation content for guides, principles, and release notes (NOT component docs).
-Fetches official documentation from v3.heroui.com.
+Fetches official documentation from heroui.com.
 Returns the complete MDX content of documentation pages.
 Use for understanding concepts, design principles, implementation guides, and version history.
 Documentation covers: getting started, theming, colors, styling, animation, release notes.

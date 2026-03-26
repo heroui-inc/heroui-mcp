@@ -16,7 +16,7 @@ compatibility_flags = ["nodejs_compat"]
 [env.development.vars]
 NODE_ENV = "development"
 POSTHOG_HOST = "https://us.i.posthog.com"
-MIGRATION_DOCS_BASE_URL = "https://v3.heroui.com/docs/react/migration"
+MIGRATION_DOCS_BASE_URL = "https://heroui.com/docs/react/migration"
 
 # ------------------------------------------------------------
 # -- Staging Environment
@@ -42,7 +42,7 @@ routes = [
 [env.production.vars]
 NODE_ENV = "production"
 POSTHOG_HOST = "https://us.i.posthog.com"
-MIGRATION_DOCS_BASE_URL = "https://v3.heroui.com/docs/react/migration"
+MIGRATION_DOCS_BASE_URL = "https://heroui.com/docs/react/migration"
 
 # ------------------------------------------------------------
 # -- Worker Settings

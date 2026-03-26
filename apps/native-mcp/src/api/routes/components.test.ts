@@ -49,7 +49,7 @@ describe("Components API", () => {
         expect(result).toHaveProperty("contentType");
         expect(typeof result.url).toBe("string");
         if (result.url) {
-          expect(result.url.includes("v3.heroui.com")).toBe(true);
+          expect(result.url.includes("heroui.com")).toBe(true);
         }
       }
     });
