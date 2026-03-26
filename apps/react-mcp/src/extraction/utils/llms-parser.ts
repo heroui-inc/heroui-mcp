@@ -46,14 +46,14 @@ export function parseAllDocsFromLlmsTxt(content: string): DocUrl[] {
       continue;
     }
 
-    // Parse doc links: - [Title](https://heroui.com/docs/react/...): Description
+    // Parse doc links: - [Title](https://www.heroui.com/docs/react/...): Description
     const match = trimmed.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
     if (match) {
       const [, title, url, description] = match;
 
       let path = url;
-      if (url.startsWith("https://heroui.com")) {
-        path = url.replace("https://heroui.com", "");
+      if (url.startsWith("https://www.heroui.com")) {
+        path = url.replace("https://www.heroui.com", "");
       }
 
       // Include all React docs
