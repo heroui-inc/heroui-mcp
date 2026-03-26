@@ -14,7 +14,7 @@ export type {NativeComponentDefinition};
 export type NativeComponentDataset = Record<string, NativeComponentDefinition>;
 
 /**
- * Component extractor - extracts HeroUI Native component documentation from v3.heroui.com
+ * Component extractor - extracts HeroUI Native component documentation from heroui.com
  */
 export class ComponentExtractor extends BaseExtractor {
   private parser: NativeParser;
@@ -43,13 +43,13 @@ export class ComponentExtractor extends BaseExtractor {
     };
   }> {
     console.log("🔍 Extracting HeroUI Native from llms.txt...");
-    console.log(`📍 Fetching docs from v3.heroui.com`);
+    console.log(`📍 Fetching docs from heroui.com`);
 
     // Update parser with the correct ref
     this.parser = new NativeParser(ref);
 
     // Step 1: Fetch llms.txt
-    const llmsResponse = await fetch("https://v3.heroui.com/native/llms.txt");
+    const llmsResponse = await fetch("https://heroui.com/native/llms.txt");
     if (!llmsResponse.ok) {
       throw new Error(`Failed to fetch llms.txt: ${llmsResponse.status}`);
     }
@@ -59,9 +59,9 @@ export class ComponentExtractor extends BaseExtractor {
     const componentUrls = parseLlmsTxt(llmsContent);
     console.log(`📄 Found ${componentUrls.length} components in llms.txt`);
 
-    // Step 3: Fetch component docs from v3.heroui.com
+    // Step 3: Fetch component docs from heroui.com
     const components: NativeComponentDataset = {};
-    const CONCURRENCY = 10; // Fetch from v3.heroui.com (no GitHub rate limits)
+    const CONCURRENCY = 10; // Fetch from heroui.com (no GitHub rate limits)
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     const DELAY_MS = 50; // Small delay between batches
 
@@ -77,8 +77,8 @@ export class ComponentExtractor extends BaseExtractor {
 
         console.log(`   Processing ${componentName}...`);
 
-        // Fetch component docs directly from v3.heroui.com
-        const docUrl = `https://v3.heroui.com${componentUrl.url}.mdx`;
+        // Fetch component docs directly from heroui.com
+        const docUrl = `https://heroui.com${componentUrl.url}.mdx`;
         const response = await fetch(docUrl);
 
         if (!response.ok) {

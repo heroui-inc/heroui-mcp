@@ -81,7 +81,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
     const docResults = await Promise.all(
       componentNames.map(async (component) => {
         const kebabName = componentNameToKebab(component);
-        const docUrl = `https://v3.heroui.com/docs/native/components/${kebabName}.mdx`;
+        const docUrl = `https://heroui.com/docs/native/components/${kebabName}.mdx`;
 
         try {
           const response = await fetch(docUrl);

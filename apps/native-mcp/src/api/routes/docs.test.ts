@@ -30,7 +30,7 @@ describe("Docs API", () => {
         expect(data).toHaveProperty("contentType");
         expect(typeof data.url).toBe("string");
         if (data.url) {
-          expect(data.url.includes("v3.heroui.com")).toBe(true);
+          expect(data.url.includes("heroui.com")).toBe(true);
         }
       }
     });

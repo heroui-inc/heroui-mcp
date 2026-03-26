@@ -66,7 +66,7 @@ export class ComponentExtractor extends BaseExtractor {
     console.log("🔍 Extracting HeroUI React components from llms.txt...");
 
     // Step 1: Fetch llms.txt
-    const llmsResponse = await fetch("https://v3.heroui.com/react/llms.txt");
+    const llmsResponse = await fetch("https://heroui.com/react/llms.txt");
     if (!llmsResponse.ok) {
       throw new Error(`Failed to fetch llms.txt: ${llmsResponse.status}`);
     }

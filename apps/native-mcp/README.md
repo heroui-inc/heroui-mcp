@@ -146,7 +146,7 @@ List all available HeroUI Native components (always returns latest version).
 
 ### `get_component_docs`
 
-Get complete component documentation (including examples, props, usage) directly from v3.heroui.com. This tool consolidates component information, props, and examples into a single call.
+Get complete component documentation (including examples, props, usage) directly from heroui.com. This tool consolidates component information, props, and examples into a single call.
 
 ```javascript
 // Parameters
@@ -167,7 +167,7 @@ Get complete component documentation (including examples, props, usage) directly
 
 ### `get_docs`
 
-Get HeroUI Native documentation content for guides, principles, and release notes (NOT component docs). Fetches official documentation from v3.heroui.com.
+Get HeroUI Native documentation content for guides, principles, and release notes (NOT component docs). Fetches official documentation from heroui.com.
 
 ```javascript
 // Parameters

@@ -90,7 +90,7 @@ The migrationType parameter allows you to choose between "full" (default) and "i
             content: [
               {
                 type: "text",
-                text: `Agent migration guide not yet available.\n\nThe documentation is being prepared and will be available soon. Please check https://v3.heroui.com for the latest migration information.`,
+                text: `Agent migration guide not yet available.\n\nThe documentation is being prepared and will be available soon. Please check https://heroui.com for the latest migration information.`,
               },
             ],
           };

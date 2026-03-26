@@ -54,7 +54,7 @@ docs.get("*", async (c) => {
     // Add /docs/ prefix and .mdx extension
     path = `/docs/${path}.mdx`;
 
-    const docUrl = `https://v3.heroui.com${path}`;
+    const docUrl = `https://heroui.com${path}`;
 
     const response = await fetch(docUrl);
 
@@ -119,7 +119,7 @@ docs.get("*", async (c) => {
       contentType,
     });
   } catch (error) {
-    const docUrl = `https://v3.heroui.com${path}`;
+    const docUrl = `https://heroui.com${path}`;
 
     analytics.trackError({
       error,

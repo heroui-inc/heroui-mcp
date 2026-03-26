@@ -37,7 +37,7 @@ ctx.get("/", async (c) => {
     const [components, themes, docsResponse, version] = await Promise.allSettled([
       componentService.listComponents(LIBRARY_NAME),
       themeService.getAvailableThemes(),
-      fetch("https://v3.heroui.com/llms.txt").then((res) => res.text()),
+      fetch("https://heroui.com/llms.txt").then((res) => res.text()),
       componentService.getLatestVersion(LIBRARY_NAME),
     ]);
 
@@ -81,8 +81,8 @@ ctx.get("/", async (c) => {
             const [, title, url, description = ""] = match;
 
             let path = url;
-            if (url.startsWith("https://v3.heroui.com")) {
-              path = url.replace("https://v3.heroui.com", "");
+            if (url.startsWith("https://heroui.com")) {
+              path = url.replace("https://heroui.com", "");
             }
             currentCategory.docs.push({
               title,
