@@ -38,7 +38,7 @@ R2_BUCKET_NAME = "heroui-mcp-data-dev"
 
 [[env.development.services]]
 binding = "PLATFORM_API"
-service = "heroui-platform-api-development"
+service = "heroui-mcp-api-development"
 
 # ------------------------------------------------------------
 # -- Staging Environment
@@ -60,7 +60,7 @@ R2_BUCKET_NAME = "heroui-mcp-data-staging"
 
 [[env.staging.services]]
 binding = "PLATFORM_API"
-service = "heroui-platform-api-staging"
+service = "heroui-mcp-api-staging"
 
 # ------------------------------------------------------------
 # -- Production Environment
@@ -81,7 +81,7 @@ R2_BUCKET_NAME = "heroui-mcp-data"
 
 [[env.production.services]]
 binding = "PLATFORM_API"
-service = "heroui-platform-api-production"
+service = "heroui-mcp-api-production"
 
 # ------------------------------------------------------------
 # -- Worker Settings
