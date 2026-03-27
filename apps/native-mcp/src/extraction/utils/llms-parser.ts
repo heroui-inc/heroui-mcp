@@ -47,15 +47,15 @@ export function parseAllDocsFromLlmsTxt(content: string): DocUrl[] {
       continue;
     }
 
-    // Parse doc links: - [Title](https://v3.heroui.com/docs/native/...): Description
+    // Parse doc links: - [Title](https://www.heroui.com/docs/native/...): Description
     const match = trimmed.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
     if (match) {
       const [, title, url, description] = match;
 
       // Extract path from absolute URL
       let path = url;
-      if (url.startsWith("https://v3.heroui.com")) {
-        path = url.replace("https://v3.heroui.com", "");
+      if (url.startsWith("https://www.heroui.com")) {
+        path = url.replace("https://www.heroui.com", "");
       }
 
       // Include all Native docs

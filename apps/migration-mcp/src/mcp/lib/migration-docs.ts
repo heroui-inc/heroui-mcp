@@ -2,7 +2,7 @@
  * Utility for reading migration documentation from the docs site
  */
 
-const DEFAULT_DOCS_BASE_URL = "https://v3.heroui.com/docs/react/migration";
+const DEFAULT_DOCS_BASE_URL = "https://heroui.com/docs/react/migration";
 
 function getDocsSiteUrl(filename: string, baseUrl?: string): string {
   const docsBase = baseUrl || DEFAULT_DOCS_BASE_URL;

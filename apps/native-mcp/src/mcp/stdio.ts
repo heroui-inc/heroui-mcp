@@ -22,13 +22,12 @@ async function createServer(): Promise<McpServer> {
       version: packageInfo.version,
     },
     {
-      instructions: `## HeroUI Native MCP Tools - Beta Documentation
+      instructions: `## HeroUI Native MCP Tools - Documentation
 
-These tools provide documentation for **HeroUI Native (Beta)** React Native components.
+These tools provide documentation for **HeroUI Native** React Native components.
 
 ### ⚠️ IMPORTANT: Version Information
-• **Current Support:** HeroUI Native (Beta) ONLY
-• **Status:** Beta - expect breaking changes
+• **Current Support:** HeroUI Native ONLY
 • **Target Platform:** React Native (iOS & Android)
 • **Built With:** React Native Reanimated, Uniwind (Tailwind CSS for React Native)
 
@@ -60,8 +59,7 @@ Always follow this order when implementing HeroUI Native components:
 • Theme: Use \`get_theme_variables()\` for default theme variable values.
 
 ### Pro Tips
-• This MCP is for HeroUI Native Beta
-• Beta status - use for experimentation and new projects
+• This MCP is for HeroUI Native
 • Examples are included in component docs - no separate examples tool needed`,
       capabilities: {
         tools: {

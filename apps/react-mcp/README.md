@@ -150,7 +150,7 @@ List all available HeroUI v3 components (always returns latest version).
 
 ### `get_component_docs`
 
-Get complete component documentation (including examples, props, usage) directly from v3.heroui.com. This tool consolidates component information, props, and examples into a single call.
+Get complete component documentation (including examples, props, usage) directly from heroui.com. This tool consolidates component information, props, and examples into a single call.
 
 ```javascript
 // Parameters
@@ -207,7 +207,7 @@ Get the CSS styles (.css) for HeroUI components. Returns the complete CSS implem
 
 ### `get_docs`
 
-Get HeroUI v3 React documentation content for guides, principles, and release notes (NOT component docs). Fetches official documentation from v3.heroui.com.
+Get HeroUI v3 React documentation content for guides, principles, and release notes (NOT component docs). Fetches official documentation from heroui.com.
 
 ```javascript
 // Parameters
@@ -220,7 +220,7 @@ Get HeroUI v3 React documentation content for guides, principles, and release no
   path: "/docs/react/getting-started/theming"  // Get theming guide
 }
 {
-  path: "/docs/react/releases/v3-0-0-beta-3"  // Release notes
+  path: "/docs/react/releases/v3-0-0"  // Release notes
 }
 ```
 

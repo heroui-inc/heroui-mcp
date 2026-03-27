@@ -18,7 +18,7 @@ interface DocCategory {
   docs: DocSection[];
 }
 
-// Get available documentation paths from v3.heroui.com
+// Get available documentation paths from heroui.com
 docs.get("/available", async (c) => {
   const endpoint = "list-docs";
   const startTime = Date.now();
@@ -26,7 +26,7 @@ docs.get("/available", async (c) => {
 
   try {
     // Fetch the llms.txt file from HeroUI v3 docs
-    const response = await fetch("https://v3.heroui.com/llms.txt");
+    const response = await fetch("https://heroui.com/llms.txt");
 
     if (!response.ok) {
       analytics.trackError({
@@ -37,7 +37,7 @@ docs.get("/available", async (c) => {
           apiVersion: "legacy",
           status: response.status,
           statusText: response.statusText,
-          url: "https://v3.heroui.com/llms.txt",
+          url: "https://heroui.com/llms.txt",
           responseTime: Date.now() - startTime,
         },
       });
@@ -103,7 +103,7 @@ docs.get("/available", async (c) => {
     });
 
     return c.json({
-      baseUrl: "https://v3.heroui.com",
+      baseUrl: "https://heroui.com",
       categories,
       total,
     });
@@ -183,7 +183,7 @@ docs.get("/content", async (c) => {
       // Add .mdx extension if not present
       const pathWithExt =
         cleanPath.endsWith(".mdx") || cleanPath.endsWith(".md") ? cleanPath : `${cleanPath}.mdx`;
-      docUrl = `https://v3.heroui.com${pathWithExt}`;
+      docUrl = `https://heroui.com${pathWithExt}`;
     }
 
     const response = await fetch(docUrl);
@@ -219,7 +219,7 @@ docs.get("/content", async (c) => {
       }
 
       analytics.trackError({
-        error: "Failed to fetch documentation from v3.heroui.com",
+        error: "Failed to fetch documentation from heroui.com",
         errorEvent: AnalyticsErrorEvent.GET_DOCS_CONTENT_ERROR,
         properties: {
           endpoint,

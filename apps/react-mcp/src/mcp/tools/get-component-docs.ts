@@ -7,7 +7,7 @@ import {fetchApi} from "../lib/fetch";
 
 export const getComponentDocsTool: Tool<ComponentContext> = {
   name: "get_component_docs",
-  description: `Get complete component documentation (including examples, props, usage) directly from v3.heroui.com.
+  description: `Get complete component documentation (including examples, props, usage) directly from heroui.com.
 Accepts an array of component names and returns the full MDX documentation for each component.
 Returns raw markdown content from the component's .mdx file, which includes:
 - Import statements

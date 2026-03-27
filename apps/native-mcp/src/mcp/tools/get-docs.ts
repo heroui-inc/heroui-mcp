@@ -15,15 +15,15 @@ interface DocContentResponse {
 export const getDocsTool: Tool<DocsContext> = {
   name: "get_docs",
   description: `Get HeroUI Native documentation content for guides, principles, and release notes (NOT component docs).
-Fetches official documentation from v3.heroui.com.
+Fetches official documentation from heroui.com.
 Returns the complete MDX content of documentation pages.
 Use for understanding concepts, design principles, implementation guides, and version history.
 Documentation covers: getting started, theming, colors, styling, animation, release notes.
 IMPORTANT: For component documentation, use get_component_docs instead.
-Example paths: /docs/native/getting-started/theming, /docs/native/releases/beta-11.
+Example paths: /docs/native/getting-started/theming, /docs/native/releases/v1-0-0.
 All Native documentation paths start with /docs/native/ prefix.
 Returns MDX content which may include code examples and explanations.
-This is beta documentation for HeroUI Native.`,
+This is documentation for HeroUI Native.`,
 
   async ctx(shared) {
     // Filter out component paths - those are handled by get_component_docs
@@ -116,7 +116,7 @@ Requested path: ${path}`,
             content: [
               {
                 type: "text" as const,
-                text: `Error: Documentation not found at path: ${path}\n\nExample paths:\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/beta-12\n\nAll Native documentation paths start with /docs/native/ prefix.`,
+                text: `Error: Documentation not found at path: ${path}\n\nExample paths:\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/v1-0-0\n\nAll Native documentation paths start with /docs/native/ prefix.`,
               },
             ],
           };
@@ -135,7 +135,7 @@ Requested path: ${path}`,
               content: [
                 {
                   type: "text" as const,
-                  text: `Error: Documentation not found at path: ${path}\n\nExample paths:\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/beta-12\n  - /docs/native/getting-started/colors\n  - /docs/native/components/button\n\nAll Native documentation paths start with /docs/native/ prefix.\nFor component documentation, use get_component_docs instead.`,
+                  text: `Error: Documentation not found at path: ${path}\n\nExample paths:\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/v1-0-0\n  - /docs/native/getting-started/colors\n  - /docs/native/components/button\n\nAll Native documentation paths start with /docs/native/ prefix.\nFor component documentation, use get_component_docs instead.`,
                 },
               ],
             };
@@ -157,7 +157,7 @@ Requested path: ${path}`,
           content: [
             {
               type: "text" as const,
-              text: `Error: Unable to fetch documentation content. ${errorMessage}\n\nRequested path: ${path}\n\nExample paths:\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/beta-12\n\nAll Native documentation paths start with /docs/native/ prefix.`,
+              text: `Error: Unable to fetch documentation content. ${errorMessage}\n\nRequested path: ${path}\n\nExample paths:\n  - /docs/native/getting-started/theming\n  - /docs/native/releases/v1-0-0\n\nAll Native documentation paths start with /docs/native/ prefix.`,
             },
           ],
         };

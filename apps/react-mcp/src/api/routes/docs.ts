@@ -53,7 +53,7 @@ docs.get("*", async (c) => {
 
     path = `/docs/${transformedPath}.mdx`;
 
-    const docUrl = `https://v3.heroui.com${path}`;
+    const docUrl = `https://heroui.com${path}`;
 
     const response = await fetch(docUrl);
 
@@ -120,7 +120,7 @@ docs.get("*", async (c) => {
       contentType,
     });
   } catch (error) {
-    const docUrl = `https://v3.heroui.com${path}`;
+    const docUrl = `https://heroui.com${path}`;
 
     analytics.trackError({
       error,

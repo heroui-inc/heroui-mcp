@@ -15,15 +15,15 @@ interface DocContentResponse {
 export const getDocsTool: Tool<DocsContext> = {
   name: "get_docs",
   description: `Get HeroUI v3 React documentation content for guides, principles, and release notes (NOT component docs).
-Fetches official documentation from v3.heroui.com.
+Fetches official documentation from heroui.com.
 Returns the complete MDX content of documentation pages.
 Use for understanding concepts, design principles, implementation guides, and version history.
 Documentation covers: getting started, theming, colors, styling, animation, release notes.
 IMPORTANT: For component documentation, use get_component_docs instead.
-Example paths: /docs/react/getting-started/theming, /docs/react/releases/v3-0-0-beta-3.
+Example paths: /docs/react/getting-started/theming, /docs/react/releases/v3-0-0-rc-1.
 All React documentation paths start with /docs/react/ prefix.
 Returns MDX content which may include code examples and explanations.
-This is v3 beta documentation - ensure you're working with HeroUI v3, not v2.
+This is v3 documentation - ensure you're working with HeroUI v3, not v2.
 NOTE: For HeroUI Native documentation, use the @heroui/native-mcp server instead.`,
 
   async ctx(shared) {
@@ -135,7 +135,7 @@ Requested path: ${path}`,
             content: [
               {
                 type: "text" as const,
-                text: `Error: Documentation not found at path: ${path}\n\nExample paths:\n  - /docs/react/getting-started/theming\n  - /docs/react/releases/v3-0-0-beta-3\n\nAll React documentation paths start with /docs/react/ prefix.`,
+                text: `Error: Documentation not found at path: ${path}\n\nExample paths:\n  - /docs/react/getting-started/theming\n  - /docs/react/releases/v3-0-0\n\nAll React documentation paths start with /docs/react/ prefix.`,
               },
             ],
           };
