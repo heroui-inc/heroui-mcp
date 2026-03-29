@@ -34,10 +34,10 @@ importers:
         version: link:../../packages/config
       '@hono/mcp':
         specifier: ^0.1.5
-        version: 0.1.5(@modelcontextprotocol/sdk@1.25.1(hono@4.10.2)(zod@3.25.76))(hono@4.10.2)
+        version: 0.1.5(@modelcontextprotocol/sdk@1.28.0(zod@3.25.76))(hono@4.10.2)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.18.1
-        version: 1.25.1(hono@4.10.2)(zod@3.25.76)
+        specifier: ^1.28.0
+        version: 1.28.0(zod@3.25.76)
       hono:
         specifier: ^4.10.2
         version: 4.10.2
@@ -82,8 +82,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config
       '@modelcontextprotocol/sdk':
-        specifier: ^1.25.1
-        version: 1.25.1(hono@4.10.2)(zod@3.25.76)
+        specifier: ^1.28.0
+        version: 1.28.0(zod@3.25.76)
       '@xmldom/xmldom':
         specifier: ^0.8.11
         version: 0.8.11
@@ -158,8 +158,8 @@ importers:
         specifier: ^0.7.4
         version: 0.7.4(hono@4.10.2)(zod@3.25.76)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.25.1
-        version: 1.25.1(hono@4.10.2)(zod@3.25.76)
+        specifier: ^1.28.0
+        version: 1.28.0(zod@3.25.76)
       '@xmldom/xmldom':
         specifier: ^0.8.11
         version: 0.8.11
@@ -314,7 +314,7 @@ importers:
         version: 0.10.17(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))
       '@mastra/mcp':
         specifier: 0.14.0
-        version: 0.14.0(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(@types/json-schema@7.0.15)(hono@4.10.2)(zod@3.25.76)
+        version: 0.14.0(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(@types/json-schema@7.0.15)(zod@3.25.76)
       '@mastra/memory':
         specifier: 0.15.8
         version: 0.15.8(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(react@19.2.0)(zod@3.25.76)
@@ -1192,8 +1192,8 @@ packages:
       '@modelcontextprotocol/sdk': ^1.12.0
       hono: '>=4.0.0'
 
-  '@hono/node-server@1.19.7':
-    resolution: {integrity: sha512-vUcD0uauS7EU2caukW8z5lJKtoGMokxNbJtBiwHgpqxEXokaHCBkQUmCHhjFB1VUTWdqj25QoMkMKzgjq+uhrw==}
+  '@hono/node-server@1.19.11':
+    resolution: {integrity: sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -1473,8 +1473,8 @@ packages:
       '@mastra/core': '>=0.22.0-0 <0.23.0-0'
       zod: ^3.25.0 || ^4.0.0
 
-  '@modelcontextprotocol/sdk@1.25.1':
-    resolution: {integrity: sha512-yO28oVFFC7EBoiKdAn+VqRm+plcfv4v0xp6osG/VsCB0NlPZWi87ajbCZZ8f/RvOFLEu7//rSRmuZZ7lMoe3gQ==}
+  '@modelcontextprotocol/sdk@1.28.0':
+    resolution: {integrity: sha512-gmloF+i+flI8ouQK7MWW4mOwuMh4RePBuPFAEPC6+pdqyWOUMDOixb6qZ69owLJpz6XmyllCouc4t8YWO+E2Nw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
@@ -3107,6 +3107,10 @@ packages:
     resolution: {integrity: sha512-02qvAaxv8tp7fBa/mw1ga98OGm+eCbqzJOKoRt70sLmfEEi+jyBYVTDGfCL/k06/4EMk/z01gCe7HoCH/f2LTg==}
     engines: {node: '>=18'}
 
+  body-parser@2.2.2:
+    resolution: {integrity: sha512-oP5VkATKlNwcgvxi0vM0p/D3n2C3EReYVX+DNYs5TjZFn/oQt2j+4sVJtSMr18pdRr8wjTcBl6LoV+FUwzPmNA==}
+    engines: {node: '>=18'}
+
   bowser@2.12.1:
     resolution: {integrity: sha512-z4rE2Gxh7tvshQ4hluIT7XcFrgLIQaw9X3A+kTTRdovCz5PMukm/0QC/BKSYPj3omF5Qfypn9O/c5kgpmvYUCw==}
 
@@ -3772,8 +3776,8 @@ packages:
     resolution: {integrity: sha512-JhFGDVJ7tmDJItKhYgJCGLOWjuK9vPxiXoUFLwLDc99NlmklilbiQJwoctZtt13+xMw91MCk/REan6MWHqDjyA==}
     engines: {node: '>=12.0.0'}
 
-  express-rate-limit@7.5.1:
-    resolution: {integrity: sha512-7iN8iPMDzOMHPUYllBEsQdWVB6fPDMPqwjBaFrgr4Jgr/+okjvzAy+UHlYYL/Vs0OsOrMkwS6PJDkFlJwoxUnw==}
+  express-rate-limit@8.3.1:
+    resolution: {integrity: sha512-D1dKN+cmyPWuvB+G2SREQDzPY1agpBIcTa9sJxOPMCNeH3gwzhqJRDWCXW3gg0y//+LQ/8j52JbMROWyrKdMdw==}
     engines: {node: '>= 16'}
     peerDependencies:
       express: '>= 4.11'
@@ -3782,8 +3786,8 @@ packages:
     resolution: {integrity: sha512-28HqgMZAmih1Czt9ny7qr6ek2qddF4FclbMzwhCREB6OFfH+rXAnuNCwo1/wFvrtbgsQDb4kSbX9de9lFbrXnA==}
     engines: {node: '>= 0.10.0'}
 
-  express@5.1.0:
-    resolution: {integrity: sha512-DT9ck5YIRU+8GYzzU5kT3eHGA5iL+1Zd0EutOmTE9Dtk+Tvuzd23VBU+ec7HPNSTxXYO55gPV/hq4pSBJDjFpA==}
+  express@5.2.1:
+    resolution: {integrity: sha512-hIS4idWWai69NezIdRt2xFVofaF4j+6INOpJlVOLDO8zXGpUVEVzIYk12UUi2JzjEzWL3IOAxcTubgz9Po0yXw==}
     engines: {node: '>= 18'}
 
   exsolve@1.0.7:
@@ -4121,6 +4125,10 @@ packages:
     resolution: {integrity: sha512-p6fyzl+mQo6uhESLxbF5WlBOAJMDh36PljwlKtP5V1v09NxlqGru3ShK+4wKhSuhuYf8qxMmrivHOa/M7q0sMg==}
     engines: {node: '>=16.9.0'}
 
+  hono@4.12.9:
+    resolution: {integrity: sha512-wy3T8Zm2bsEvxKZM5w21VdHDDcwVS1yUFFY6i8UobSsKfFceT7TOwhbhfKsDyx7tYQlmRM5FLpIuYvNFyjctiA==}
+    engines: {node: '>=16.9.0'}
+
   hosted-git-info@8.1.0:
     resolution: {integrity: sha512-Rw/B2DNQaPBICNXEm8balFz9a6WpZrkCGpcWFpy7nCj+NyhSdqXipmfvtmWt9xGfp0wZnBxB+iVpLmQMYt47Tw==}
     engines: {node: ^18.17.0 || >=20.5.0}
@@ -4174,6 +4182,10 @@ packages:
   internal-slot@1.1.0:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
     engines: {node: '>= 0.4'}
+
+  ip-address@10.1.0:
+    resolution: {integrity: sha512-XXADHxXmvT9+CRxhXg56LJovE+bmWnEWB78LB83VZTprKTmaC5QfruXocxzTZ2Kl0DNwKuBdlIhjL8LeY8Sf8Q==}
+    engines: {node: '>= 12'}
 
   ip-regex@4.3.0:
     resolution: {integrity: sha512-B9ZWJxHHOHUhUjCPrMpLD4xEq35bUTClHM1S6CBU5ixQnkZmwipwgc96vAd7AAGM9TGHvJR+Uss+/Ak6UphK+Q==}
@@ -5030,6 +5042,10 @@ packages:
 
   qs@6.14.0:
     resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
+    engines: {node: '>=0.6'}
+
+  qs@6.15.0:
+    resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
     engines: {node: '>=0.6'}
 
   quansync@0.2.11:
@@ -6041,7 +6057,7 @@ snapshots:
       '@ai-sdk/provider': 1.1.3
       '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
       zod: 3.25.76
-      zod-to-json-schema: 3.24.6(zod@3.25.76)
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
 
   '@ai-sdk/xai@2.0.26(zod@3.25.76)':
     dependencies:
@@ -7020,14 +7036,14 @@ snapshots:
       protobufjs: 7.5.4
       yargs: 17.7.2
 
-  '@hono/mcp@0.1.5(@modelcontextprotocol/sdk@1.25.1(hono@4.10.2)(zod@3.25.76))(hono@4.10.2)':
+  '@hono/mcp@0.1.5(@modelcontextprotocol/sdk@1.28.0(zod@3.25.76))(hono@4.10.2)':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.25.1(hono@4.10.2)(zod@3.25.76)
+      '@modelcontextprotocol/sdk': 1.28.0(zod@3.25.76)
       hono: 4.10.2
 
-  '@hono/node-server@1.19.7(hono@4.10.2)':
+  '@hono/node-server@1.19.11(hono@4.12.9)':
     dependencies:
-      hono: 4.10.2
+      hono: 4.12.9
 
   '@hono/zod-validator@0.7.4(hono@4.10.2)(zod@3.25.76)':
     dependencies:
@@ -7343,11 +7359,11 @@ snapshots:
       pino: 9.14.0
       pino-pretty: 13.1.2
 
-  '@mastra/mcp@0.14.0(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(@types/json-schema@7.0.15)(hono@4.10.2)(zod@3.25.76)':
+  '@mastra/mcp@0.14.0(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(@types/json-schema@7.0.15)(zod@3.25.76)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 14.2.1(@types/json-schema@7.0.15)
       '@mastra/core': 0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)
-      '@modelcontextprotocol/sdk': 1.25.1(hono@4.10.2)(zod@3.25.76)
+      '@modelcontextprotocol/sdk': 1.28.0(zod@3.25.76)
       date-fns: 4.1.0
       exit-hook: 4.0.0
       fast-deep-equal: 3.1.3
@@ -7358,7 +7374,6 @@ snapshots:
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - '@types/json-schema'
-      - hono
       - supports-color
 
   '@mastra/memory@0.15.8(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(react@19.2.0)(zod@3.25.76)':
@@ -7389,16 +7404,16 @@ snapshots:
       zod: 3.25.76
       zod-from-json-schema: 0.5.0
       zod-from-json-schema-v3: zod-from-json-schema@0.0.5
-      zod-to-json-schema: 3.24.6(zod@3.25.76)
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
 
   '@mastra/server@0.22.2(@mastra/core@0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76))(zod@3.25.76)':
     dependencies:
       '@mastra/core': 0.22.2(openapi-types@12.1.3)(react@19.2.0)(zod@3.25.76)
       zod: 3.25.76
 
-  '@modelcontextprotocol/sdk@1.25.1(hono@4.10.2)(zod@3.25.76)':
+  '@modelcontextprotocol/sdk@1.28.0(zod@3.25.76)':
     dependencies:
-      '@hono/node-server': 1.19.7(hono@4.10.2)
+      '@hono/node-server': 1.19.11(hono@4.12.9)
       ajv: 8.17.1
       ajv-formats: 3.0.1(ajv@8.17.1)
       content-type: 1.0.5
@@ -7406,8 +7421,9 @@ snapshots:
       cross-spawn: 7.0.6
       eventsource: 3.0.7
       eventsource-parser: 3.0.6
-      express: 5.1.0
-      express-rate-limit: 7.5.1(express@5.1.0)
+      express: 5.2.1
+      express-rate-limit: 8.3.1(express@5.2.1)
+      hono: 4.12.9
       jose: 6.1.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.0
@@ -7415,7 +7431,6 @@ snapshots:
       zod: 3.25.76
       zod-to-json-schema: 3.25.1(zod@3.25.76)
     transitivePeerDependencies:
-      - hono
       - supports-color
 
   '@napi-rs/wasm-runtime@0.2.12':
@@ -9310,6 +9325,20 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  body-parser@2.2.2:
+    dependencies:
+      bytes: 3.1.2
+      content-type: 1.0.5
+      debug: 4.4.3
+      http-errors: 2.0.0
+      iconv-lite: 0.7.0
+      on-finished: 2.4.1
+      qs: 6.15.0
+      raw-body: 3.0.1
+      type-is: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
+
   bowser@2.12.1: {}
 
   brace-expansion@1.1.12:
@@ -10100,9 +10129,10 @@ snapshots:
 
   expect-type@1.2.2: {}
 
-  express-rate-limit@7.5.1(express@5.1.0):
+  express-rate-limit@8.3.1(express@5.2.1):
     dependencies:
-      express: 5.1.0
+      express: 5.2.1
+      ip-address: 10.1.0
 
   express@4.21.2:
     dependencies:
@@ -10140,15 +10170,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  express@5.1.0:
+  express@5.2.1:
     dependencies:
       accepts: 2.0.0
-      body-parser: 2.2.0
+      body-parser: 2.2.2
       content-disposition: 1.0.0
       content-type: 1.0.5
       cookie: 0.7.2
       cookie-signature: 1.2.2
       debug: 4.4.3
+      depd: 2.0.0
       encodeurl: 2.0.0
       escape-html: 1.0.3
       etag: 1.8.1
@@ -10503,6 +10534,8 @@ snapshots:
 
   hono@4.10.2: {}
 
+  hono@4.12.9: {}
+
   hosted-git-info@8.1.0:
     dependencies:
       lru-cache: 10.4.3
@@ -10561,6 +10594,8 @@ snapshots:
       es-errors: 1.3.0
       hasown: 2.0.2
       side-channel: 1.1.0
+
+  ip-address@10.1.0: {}
 
   ip-regex@4.3.0: {}
 
@@ -11393,6 +11428,10 @@ snapshots:
       side-channel: 1.1.0
 
   qs@6.14.0:
+    dependencies:
+      side-channel: 1.1.0
+
+  qs@6.15.0:
     dependencies:
       side-channel: 1.1.0
 
