@@ -14,15 +14,18 @@ import {getImplementMigrationPrompt, implementMigrationPrompt} from "./implement
  */
 export async function initializePrompts(server: McpServer): Promise<void> {
   // Register analyze-and-plan prompt (with optional migrationType argument)
-  server.prompt(
+  server.registerPrompt(
     analyzeAndPlanPrompt.name,
     {
-      migrationType: z
-        .enum(["full", "incremental"])
-        .optional()
-        .describe(
-          "Migration approach: 'full' (default) or 'incremental'. Full migration breaks the project during migration. Incremental migration allows v2 and v3 to coexist.",
-        ),
+      description: analyzeAndPlanPrompt.description,
+      argsSchema: {
+        migrationType: z
+          .enum(["full", "incremental"])
+          .optional()
+          .describe(
+            "Migration approach: 'full' (default) or 'incremental'. Full migration breaks the project during migration. Incremental migration allows v2 and v3 to coexist.",
+          ),
+      },
     },
     async (args) => {
       return getAnalyzeAndPlanPrompt(args);
@@ -30,15 +33,18 @@ export async function initializePrompts(server: McpServer): Promise<void> {
   );
 
   // Register implement-migration prompt (with optional migrationType argument)
-  server.prompt(
+  server.registerPrompt(
     implementMigrationPrompt.name,
     {
-      migrationType: z
-        .enum(["full", "incremental"])
-        .optional()
-        .describe(
-          "Migration approach: 'full' (default) or 'incremental'. Full migration breaks the project during migration. Incremental migration allows v2 and v3 to coexist.",
-        ),
+      description: implementMigrationPrompt.description,
+      argsSchema: {
+        migrationType: z
+          .enum(["full", "incremental"])
+          .optional()
+          .describe(
+            "Migration approach: 'full' (default) or 'incremental'. Full migration breaks the project during migration. Incremental migration allows v2 and v3 to coexist.",
+          ),
+      },
     },
     async (args) => {
       return getImplementMigrationPrompt(args);
