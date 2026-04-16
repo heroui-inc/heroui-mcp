@@ -30,7 +30,7 @@ Example workflow: list_components → get_component_docs → get_component_sourc
         if (warning) {
           text += `${warning}\n\n`;
         }
-        text += `⚠️ **Version Notice:**\n- This is HeroUI v3 - NOT v2\n- Migration from v2 is available at https://heroui.com/docs/react/migration\n- v3 uses compound components (different from v2)\n\n## Component List:\n${components.map((c) => `- ${c}`).join("\n")}\n\n**Total:** ${components.length} components`;
+        text += `## Component List:\n${components.map((c) => `- ${c}`).join("\n")}\n\n**Total:** ${components.length} components`;
 
         return {
           content: [
