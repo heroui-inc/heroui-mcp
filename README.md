@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/heroui-inc-heroui-mcp-badge.png)](https://mseep.ai/app/heroui-inc-heroui-mcp)
+
 # HeroUI MCP Monorepo
 
 Model Context Protocol (MCP) servers for the HeroUI design system. Access HeroUI component documentation directly in your AI assistant.
