@@ -14,6 +14,7 @@ config({path: resolve(__dirname, "../.env")});
 // Shared memory storage
 const memory = new Memory({
   storage: new LibSQLStore({
+    id: "heroui-mcp-memory-store",
     url: "file:../../memory.db",
   }),
 });
@@ -83,22 +84,24 @@ const nativeMcpClient = new MCPClient({
 
 // React Agent
 export const reactAgent = new Agent({
+  id: "heroui-react-mcp-test-agent",
   instructions: `You are a HeroUI React testing assistant. Help test MCP tools by querying component information and documentation for the React component library.`,
   memory,
   model: getModel(),
   name: "HeroUI React MCP Test Agent",
   tools: async () => {
-    return await reactMcpClient.getTools();
+    return await reactMcpClient.listTools();
   },
 });
 
 // Native Agent
 export const nativeAgent = new Agent({
+  id: "heroui-native-mcp-test-agent",
   instructions: `You are a HeroUI React Native testing assistant. Help test MCP tools by querying component information and documentation for the React Native component library.`,
   memory,
   model: getModel(),
   name: "HeroUI Native MCP Test Agent",
   tools: async () => {
-    return await nativeMcpClient.getTools();
+    return await nativeMcpClient.listTools();
   },
 });
