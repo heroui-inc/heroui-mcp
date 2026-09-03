@@ -7,7 +7,11 @@
 
 import "../../lib/domparser-polyfill";
 
-import type {LegacyComponentData, LegacyComponentDataset} from "../../../shared/types/data";
+import type {
+  LegacyComponentData,
+  LegacyComponentDataset,
+  VersionInfo,
+} from "../../../shared/types/data";
 import type {ObjectStore} from "../../lib/object-store";
 
 import {createObjectStore} from "../../lib/object-store";
@@ -136,12 +140,9 @@ class LegacyComponentServiceAdapter {
   /**
    * Get version information
    */
-  async getVersionInfo(): Promise<Record<string, {current: string; versions: string[]}>> {
+  async getVersionInfo(): Promise<Record<string, VersionInfo>> {
     try {
-      const data =
-        await this.getFromR2<Record<string, {current: string; versions: string[]}>>(
-          "react/versions.json",
-        );
+      const data = await this.getFromR2<Record<string, VersionInfo>>("react/versions.json");
 
       return data || {};
     } catch (error) {
@@ -202,11 +203,8 @@ class LegacyComponentServiceAdapter {
       const versionInfo = await this.getVersionInfo();
       const libraryInfo = versionInfo[library];
 
-      if (libraryInfo) {
-        libraryInfo.versions.forEach((v) => versions.add(v));
-        if (libraryInfo.current) {
-          versions.add(libraryInfo.current);
-        }
+      if (libraryInfo?.current) {
+        versions.add(libraryInfo.current);
       }
 
       // Always include "latest"
