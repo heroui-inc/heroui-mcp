@@ -35,7 +35,7 @@
   "scripts": {
     "build": "tsup && chmod +x dist/stdio.js",
     "build:api": "wrangler deploy --dry-run --outdir dist-api",
-    "dev:api": "dotenv -- wrangler dev src/api.ts --env development --port 8787",
+    "dev:api": "dotenv -- wrangler dev src/api.ts --env development --port 8787 --inspector-port 9229",
     "dev:stdio": "NODE_ENV=development tsx --watch src/mcp/stdio.ts",
     "dev": "npm run dev:api",
     "test": "vitest run",
