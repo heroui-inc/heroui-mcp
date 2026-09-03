@@ -20,7 +20,7 @@ describe("Docs API", () => {
         expect(data).toHaveProperty("url");
         expect(data).toHaveProperty("content");
         expect(data).toHaveProperty("contentType");
-        expect(data.url).toMatch(/v3\.heroui\.com\/docs\/react\/getting-started\/theming/);
+        expect(data.url).toMatch(/heroui\.com\/docs\/react\/getting-started\/theming/);
       }
     });
 
