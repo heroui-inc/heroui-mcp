@@ -8,42 +8,23 @@
 import "../../lib/domparser-polyfill";
 
 import type {LegacyComponentData, LegacyComponentDataset} from "../../../shared/types/data";
+import type {ObjectStore} from "../../lib/object-store";
 
-import {GetObjectCommand, ListObjectsV2Command, S3Client} from "@aws-sdk/client-s3";
+import {createObjectStore} from "../../lib/object-store";
 
 // Note: ErrorCode, ErrorMessages, MCPError not used in this adapter
-
-interface R2Config {
-  accountId: string;
-  accessKeyId: string;
-  secretAccessKey: string;
-  bucketName: string;
-  endpoint?: string;
-}
 
 /**
  * Legacy Component Service Adapter
  * Provides old service interface methods for legacy routes
  */
 class LegacyComponentServiceAdapter {
-  private s3Client: S3Client;
-  private bucketName: string;
+  private store: ObjectStore;
   private cache: Map<string, {data: unknown; timestamp: number}> = new Map();
   private CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache
 
-  constructor(config: R2Config) {
-    const endpoint = config.endpoint || `https://${config.accountId}.r2.cloudflarestorage.com`;
-
-    this.s3Client = new S3Client({
-      region: "auto",
-      endpoint,
-      credentials: {
-        accessKeyId: config.accessKeyId,
-        secretAccessKey: config.secretAccessKey,
-      },
-    });
-
-    this.bucketName = config.bucketName;
+  constructor(store: ObjectStore) {
+    this.store = store;
   }
 
   /**
@@ -58,18 +39,12 @@ class LegacyComponentServiceAdapter {
     }
 
     try {
-      const command = new GetObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-      });
+      const bodyString = await this.store.get(key);
 
-      const response = await this.s3Client.send(command);
-
-      if (!response.Body) {
+      if (bodyString === null) {
         return null;
       }
 
-      const bodyString = await response.Body.transformToString();
       const data = JSON.parse(bodyString) as T;
 
       this.cache.set(cacheKey, {data, timestamp: Date.now()});
@@ -197,15 +172,9 @@ class LegacyComponentServiceAdapter {
   async listVersions(library: string): Promise<string[]> {
     try {
       // List all objects in the react/components directory to get actual versions
-      const command = new ListObjectsV2Command({
-        Bucket: this.bucketName,
-        Prefix: `react/components/`,
-        Delimiter: "/",
-      });
+      const keys = await this.store.list({prefix: `react/components/`, delimiter: "/"});
 
-      const response = await this.s3Client.send(command);
-
-      if (!response.Contents || response.Contents.length === 0) {
+      if (keys.length === 0) {
         // Fallback to metadata if no version files found
         const versionInfo = await this.getVersionInfo();
         const libraryInfo = versionInfo[library];
@@ -220,9 +189,9 @@ class LegacyComponentServiceAdapter {
       // Extract version numbers from file keys
       const versions = new Set<string>();
 
-      for (const obj of response.Contents) {
-        if (obj.Key && obj.Key.endsWith(".json")) {
-          const match = obj.Key.match(/react\/components\/([^/]+)\.json$/);
+      for (const key of keys) {
+        if (key.endsWith(".json")) {
+          const match = key.match(/react\/components\/([^/]+)\.json$/);
           if (match && match[1] !== "latest") {
             versions.add(match[1]);
           }
@@ -266,24 +235,7 @@ export const getLegacyComponentService = async (
   env: Record<string, any>,
 ): Promise<LegacyComponentServiceAdapter> => {
   if (!legacyComponentService) {
-    const r2AccountId = env.CLOUDFLARE_ACCOUNT_ID || process.env.CLOUDFLARE_ACCOUNT_ID;
-    const r2AccessKeyId = env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID;
-    const r2SecretAccessKey = env.R2_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY;
-    const r2Bucket = env.R2_BUCKET_NAME || process.env.R2_BUCKET_NAME;
-
-    if (!r2AccountId || !r2AccessKeyId || !r2SecretAccessKey) {
-      throw new Error("R2 credentials not configured");
-    }
-
-    const r2Endpoint = `https://${r2AccountId}.r2.cloudflarestorage.com`;
-
-    legacyComponentService = new LegacyComponentServiceAdapter({
-      accountId: r2AccountId,
-      accessKeyId: r2AccessKeyId,
-      secretAccessKey: r2SecretAccessKey,
-      bucketName: r2Bucket,
-      endpoint: r2Endpoint,
-    });
+    legacyComponentService = new LegacyComponentServiceAdapter(createObjectStore(env));
   }
 
   return legacyComponentService;
