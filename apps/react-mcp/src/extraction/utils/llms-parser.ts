@@ -17,6 +17,28 @@ export interface DocUrl {
   category?: string;
 }
 
+const HEROUI_ORIGIN = /^https?:\/\/(?:www\.)?heroui\.com/;
+const LOCALE_SEGMENT = /^\/([a-z]{2})(?=\/)/;
+const DEFAULT_LOCALE = "en";
+
+/**
+ * Turn an llms.txt link into a locale-less docs path.
+ *
+ * The docs site serves every page under a locale prefix (e.g. /en/docs/react/button),
+ * so only the default locale is kept — otherwise each translated page would duplicate
+ * its English counterpart in the extracted dataset.
+ */
+function toDocPath(url: string): string | null {
+  const path = url.replace(HEROUI_ORIGIN, "");
+  const locale = path.match(LOCALE_SEGMENT);
+
+  if (!locale) {
+    return path;
+  }
+
+  return locale[1] === DEFAULT_LOCALE ? path.slice(locale[0].length) : null;
+}
+
 /**
  * Parse llms.txt content and extract component URLs only
  */
@@ -46,18 +68,15 @@ export function parseAllDocsFromLlmsTxt(content: string): DocUrl[] {
       continue;
     }
 
-    // Parse doc links: - [Title](https://www.heroui.com/docs/react/...): Description
+    // Parse doc links: - [Title](https://heroui.com/en/docs/react/...): Description
     const match = trimmed.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s*:\s*(.+))?$/);
     if (match) {
       const [, title, url, description] = match;
 
-      let path = url;
-      if (url.startsWith("https://www.heroui.com")) {
-        path = url.replace("https://www.heroui.com", "");
-      }
+      const path = toDocPath(url);
 
       // Include all React docs
-      if (path.startsWith("/docs/react/")) {
+      if (path?.startsWith("/docs/react/")) {
         docs.push({
           title,
           url: path,
