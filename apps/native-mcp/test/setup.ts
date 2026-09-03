@@ -1,7 +1,10 @@
 import {env} from "cloudflare:test";
 import {beforeAll} from "vitest";
 
+import {installFetchStub} from "./fetch-stub";
 import {R2_FIXTURES} from "./fixtures";
+
+installFetchStub();
 
 beforeAll(async () => {
   await Promise.all(
