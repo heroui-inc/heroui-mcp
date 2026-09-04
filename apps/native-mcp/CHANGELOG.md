@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.1.1...native-mcp-v1.1.2) (2026-09-04)
+
+
+### Bug Fixes
+
+* **changelog:** remove duplicate release entries ([542a05b](https://github.com/heroui-inc/heroui-mcp/commit/542a05b76cd032a78266c61aa11e790d20643026))
+
 ## [1.1.1](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.1.0...native-mcp-v1.1.1) (2026-09-04)
 
 

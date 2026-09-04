@@ -10,6 +10,7 @@ import type {HonoContext} from "../types/context";
 import type {Context} from "hono";
 
 import {StreamableHTTPTransport} from "@hono/mcp";
+import {HTTPException} from "hono/http-exception";
 
 import {createMcpServer} from "../lib/server";
 
@@ -45,8 +46,12 @@ export async function mcpHandler(c: Context<HonoContext>) {
 
     // Handle the request using the transport
     // The transport handles all JSON-RPC protocol details, SSE streaming, etc.
-    return transport.handleRequest(c);
+    return await transport.handleRequest(c);
   } catch (error) {
+    if (error instanceof HTTPException) {
+      return error.getResponse();
+    }
+
     // eslint-disable-next-line no-console
     console.error("Error handling MCP request:", error);
 
