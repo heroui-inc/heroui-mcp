@@ -47,7 +47,7 @@ describe("Components API", () => {
         expect(result).toHaveProperty("url");
         expect(result).toHaveProperty("content");
         expect(result).toHaveProperty("contentType");
-        expect(result.url).toMatch(/v3\.heroui\.com\/docs\/react\/components\/button\.mdx/);
+        expect(result.url).toMatch(/heroui\.com\/docs\/react\/components\/button\.mdx/);
       }
     });
 

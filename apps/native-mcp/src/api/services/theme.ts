@@ -3,34 +3,15 @@
  */
 
 import type {ThemeSystem} from "@shared/types/theme";
+import type {ObjectStore} from "../lib/object-store";
 
-import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
-
-interface ThemeServiceConfig {
-  accountId: string;
-  accessKeyId: string;
-  secretAccessKey: string;
-  bucketName: string;
-  endpoint?: string;
-}
+import {createObjectStore} from "../lib/object-store";
 
 class ThemeService {
-  private client: S3Client;
-  private bucketName: string;
+  private store: ObjectStore;
 
-  constructor(config: ThemeServiceConfig) {
-    const endpoint = config.endpoint || `https://${config.accountId}.r2.cloudflarestorage.com`;
-
-    this.client = new S3Client({
-      region: "auto",
-      endpoint,
-      credentials: {
-        accessKeyId: config.accessKeyId,
-        secretAccessKey: config.secretAccessKey,
-      },
-    });
-
-    this.bucketName = config.bucketName;
+  constructor(store: ObjectStore) {
+    this.store = store;
   }
 
   /**
@@ -38,22 +19,13 @@ class ThemeService {
    */
   async getThemeSystem(): Promise<ThemeSystem | null> {
     try {
-      const key = "native/v1/latest/theme.json";
+      const bodyString = await this.store.get("native/v1/latest/theme.json");
 
-      const response = await this.client.send(
-        new GetObjectCommand({
-          Bucket: this.bucketName,
-          Key: key,
-        }),
-      );
-
-      if (response.Body) {
-        const bodyString = await response.Body.transformToString();
-
-        return JSON.parse(bodyString);
+      if (bodyString === null) {
+        return null;
       }
 
-      return null;
+      return JSON.parse(bodyString);
     } catch (error) {
       console.error("Error fetching theme system:", error);
 
@@ -105,23 +77,17 @@ class ThemeService {
    */
   async getLatestVersion(): Promise<string | null> {
     try {
-      const response = await this.client.send(
-        new GetObjectCommand({
-          Bucket: this.bucketName,
-          Key: "native/v1/latest/ctx.json",
-        }),
-      );
+      const bodyString = await this.store.get("native/v1/latest/ctx.json");
 
-      if (response.Body) {
-        const bodyString = await response.Body.transformToString();
-        const ctxData = JSON.parse(bodyString) as {
-          version?: string;
-        };
-
-        return ctxData?.version || null;
+      if (bodyString === null) {
+        return null;
       }
 
-      return null;
+      const ctxData = JSON.parse(bodyString) as {
+        version?: string;
+      };
+
+      return ctxData?.version || null;
     } catch (error) {
       console.error("Error fetching latest version from ctx.json:", error);
 
@@ -134,24 +100,7 @@ let themeService: ThemeService | null = null;
 
 export const getThemeService = async (env: Record<string, any>): Promise<ThemeService> => {
   if (!themeService) {
-    const r2AccountId = env.CLOUDFLARE_ACCOUNT_ID || process.env.CLOUDFLARE_ACCOUNT_ID;
-    const r2AccessKeyId = env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID;
-    const r2SecretAccessKey = env.R2_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY;
-    const r2Bucket = env.R2_BUCKET_NAME || process.env.R2_BUCKET_NAME || "heroui-mcp";
-
-    if (!r2AccountId || !r2AccessKeyId || !r2SecretAccessKey) {
-      throw new Error("R2 credentials not configured");
-    }
-
-    const r2Endpoint = `https://${r2AccountId}.r2.cloudflarestorage.com`;
-
-    themeService = new ThemeService({
-      accountId: r2AccountId,
-      accessKeyId: r2AccessKeyId,
-      secretAccessKey: r2SecretAccessKey,
-      bucketName: r2Bucket,
-      endpoint: r2Endpoint,
-    });
+    themeService = new ThemeService(createObjectStore(env));
   }
 
   return themeService;
