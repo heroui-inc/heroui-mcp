@@ -1,6 +1,6 @@
 {
   "name": "@heroui/react-mcp",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "module",
   "description": "MCP server for HeroUI component documentation via Model Context Protocol",
   "main": "dist/stdio.js",
@@ -79,6 +79,7 @@
     "bumpp": "10.2.0",
     "changelogithub": "15.0.5",
     "conventional-changelog": "^7.2.1",
+    "conventional-changelog-angular": "^8.3.1",
     "dotenv": "^17.4.2",
     "dotenv-cli": "^10.0.0",
     "eslint": "^9.39.5",

@@ -81,6 +81,7 @@
     "bumpp": "10.2.0",
     "changelogithub": "15.0.5",
     "conventional-changelog": "^7.2.1",
+    "conventional-changelog-angular": "^8.3.1",
     "dotenv-cli": "^10.0.0",
     "eslint": "^9.39.5",
     "prettier": "^3.9.6",
