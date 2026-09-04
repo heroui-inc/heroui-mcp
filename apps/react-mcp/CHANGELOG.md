@@ -1,3 +1,20 @@
+## [1.1.1](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.1.0...react-mcp-v1.1.1) (2026-09-04)
+
+
+### Bug Fixes
+
+* **api:** only warn when MCP client is on an older release ([bd5d759](https://github.com/heroui-inc/heroui-mcp/commit/bd5d75937a871e48c1e6a8b0fd2a8100b2eb8fb8))
+* auth types ([01cd8df](https://github.com/heroui-inc/heroui-mcp/commit/01cd8df500c05b97c052f39ed0941bef7764e502))
+* **deps:** resolve reported security vulnerabilities ([8c6f3a1](https://github.com/heroui-inc/heroui-mcp/commit/8c6f3a1b8d9691935bae801fd348b63f02fac714))
+* **dev:** assign unique wrangler inspector ports ([31eb77f](https://github.com/heroui-inc/heroui-mcp/commit/31eb77ff3bcfb3e7dc36b326970184e8c04ec469))
+* **extraction:** parse locale-prefixed llms.txt URLs ([97246bf](https://github.com/heroui-inc/heroui-mcp/commit/97246bf9c70bd31c96abe84fec53136ac1192382)), closes [heroui-inc/heroui#6533](https://github.com/heroui-inc/heroui/issues/6533)
+* **extraction:** resolve component docs under locale directory ([3f077c9](https://github.com/heroui-inc/heroui-mcp/commit/3f077c9149b352d3b188d6b122324ffebfa0bd07))
+* missing www for llms.txt parsing ([7659ada](https://github.com/heroui-inc/heroui-mcp/commit/7659ada480c80a3412cf72a19df470db1f45cd3b))
+* **react-mcp:** correct version metadata shape in listVersions ([855aa3f](https://github.com/heroui-inc/heroui-mcp/commit/855aa3fa1e22c2546bd62e3e0a330b79004eca7d))
+* **react-mcp:** update github branch reference ([822b512](https://github.com/heroui-inc/heroui-mcp/commit/822b5120def0bc10df4472ac20ace557239811ec))
+* **react-mcp:** update service name ([e8aea16](https://github.com/heroui-inc/heroui-mcp/commit/e8aea16fe647144366b3a030bcdceabca0747314))
+* **react-mcp:** update stale docs host in test assertions ([8158977](https://github.com/heroui-inc/heroui-mcp/commit/8158977f0b2d6f19b1d51a43502fdf6af79fac2e))
+
 # [1.1.0](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.0.2...react-mcp-v1.1.0) (2026-02-12)
 
 
@@ -170,6 +187,5 @@
 * **react-mcp:** extractor import ([5bc3af3](https://github.com/heroui-inc/heroui-mcp/commit/5bc3af3246be5c9a8dae456a018275baedd47b96))
 * **react-mcp:** update dist dir ([b79ee8d](https://github.com/heroui-inc/heroui-mcp/commit/b79ee8d479d117fbf41facfd3623276c4a3d0dcd))
 * vitest config + wrangler test env ([877f9b6](https://github.com/heroui-inc/heroui-mcp/commit/877f9b6023a8c0ea23393e24ea946f8d79be6d69))
-
 
 

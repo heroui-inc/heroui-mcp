@@ -10,8 +10,8 @@ import type {GitHubClient} from "../services/github-client";
  * Handles category folders like (buttons), (forms), etc.
  *
  * Examples:
- * - /docs/react/components/button → apps/docs/content/docs/react/components/button.mdx
- * - /docs/react/components/button → apps/docs/content/docs/react/components/(buttons)/button.mdx
+ * - /docs/react/components/button → apps/docs/content/docs/en/react/components/button.mdx
+ * - /docs/react/components/button → apps/docs/content/docs/en/react/components/(buttons)/button.mdx
  */
 export function urlToGitHubPath(url: string): string {
   // Remove leading slash and base path
@@ -19,7 +19,7 @@ export function urlToGitHubPath(url: string): string {
   const componentName = path.split("/").pop() || path;
 
   // Base path
-  const basePath = "apps/docs/content/docs/react/components";
+  const basePath = "apps/docs/content/docs/en/react/components";
 
   // Try direct path first
   return `${basePath}/${componentName}.mdx`;
@@ -34,7 +34,7 @@ export async function findComponentFilePath(
   url: string,
   componentName: string,
 ): Promise<string | null> {
-  const basePath = "apps/docs/content/docs/react/components";
+  const basePath = "apps/docs/content/docs/en/react/components";
 
   // Try direct path first
   const directPath = `${basePath}/${componentName}.mdx`;

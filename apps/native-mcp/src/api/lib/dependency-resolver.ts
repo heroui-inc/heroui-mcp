@@ -56,38 +56,31 @@ async function fetchGitHubFile(
   const extensions = [".tsx", ".ts", "/index.tsx"];
 
   // Try extensions in parallel for faster resolution
-  // Return as soon as we find a successful fetch
   const fetchPromises = extensions.map(
     async (ext): Promise<{content: string; finalPath: string} | null> => {
       const testPath = filePath.endsWith(ext) ? filePath : filePath + ext;
       const url = `${baseUrl}/${testPath}`;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
       try {
-        // Create a timeout promise
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error("Timeout")), timeoutMs);
-        });
+        const response = await fetch(url, {signal: controller.signal});
 
-        const fetchPromise = fetch(url).then(async (response) => {
-          if (response.ok) {
-            const content = await response.text();
+        if (!response.ok) {
+          return null;
+        }
 
-            return {content, finalPath: testPath};
-          }
-
-          throw new Error("Not found");
-        });
-
-        return await Promise.race([fetchPromise, timeoutPromise]);
+        return {content: await response.text(), finalPath: testPath};
       } catch {
         // Ignore errors (timeout or fetch failure) and continue
         return null;
+      } finally {
+        clearTimeout(timeout);
       }
     },
   );
 
   // Return the first successful result
-  // Use a race that resolves when any promise succeeds
   const results = await Promise.allSettled(fetchPromises);
 
   // Return first successful result
