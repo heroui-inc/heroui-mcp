@@ -14,22 +14,6 @@
 * **native-mcp:** update native repo branch ([1cfdccd](https://github.com/heroui-inc/heroui-mcp/commit/1cfdccd346379b2c19fd59070b2fd1b1f9f6bd07))
 * **native-mcp:** update service name ([a7e63f0](https://github.com/heroui-inc/heroui-mcp/commit/a7e63f083d4b6adaa4a46014b6f9580ebc64ecea))
 
-# [1.1.0](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.1.0...native-mcp-v1.1.0) (2026-09-04)
-
-
-### Bug Fixes
-
-* **api:** only warn when MCP client is on an older release ([bd5d759](https://github.com/heroui-inc/heroui-mcp/commit/bd5d75937a871e48c1e6a8b0fd2a8100b2eb8fb8))
-* auth types ([01cd8df](https://github.com/heroui-inc/heroui-mcp/commit/01cd8df500c05b97c052f39ed0941bef7764e502))
-* **deps:** resolve reported security vulnerabilities ([8c6f3a1](https://github.com/heroui-inc/heroui-mcp/commit/8c6f3a1b8d9691935bae801fd348b63f02fac714))
-* **dev:** assign unique wrangler inspector ports ([31eb77f](https://github.com/heroui-inc/heroui-mcp/commit/31eb77ff3bcfb3e7dc36b326970184e8c04ec469))
-* **extraction:** parse locale-prefixed llms.txt URLs ([97246bf](https://github.com/heroui-inc/heroui-mcp/commit/97246bf9c70bd31c96abe84fec53136ac1192382)), closes [heroui-inc/heroui#6533](https://github.com/heroui-inc/heroui/issues/6533)
-* missing www for llms.txt parsing ([7659ada](https://github.com/heroui-inc/heroui-mcp/commit/7659ada480c80a3412cf72a19df470db1f45cd3b))
-* **native-mcp:** clear dependency resolver fetch timeouts ([c24258d](https://github.com/heroui-inc/heroui-mcp/commit/c24258d0d80c4d7dbce2362395a65e380552a2bd))
-* **native-mcp:** update github branch reference ([575c04b](https://github.com/heroui-inc/heroui-mcp/commit/575c04b3607d0f2ea05b315353049e53ff11d56e))
-* **native-mcp:** update native repo branch ([1cfdccd](https://github.com/heroui-inc/heroui-mcp/commit/1cfdccd346379b2c19fd59070b2fd1b1f9f6bd07))
-* **native-mcp:** update service name ([a7e63f0](https://github.com/heroui-inc/heroui-mcp/commit/a7e63f083d4b6adaa4a46014b6f9580ebc64ecea))
-
 # [1.1.0](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.0.2...native-mcp-v1.1.0) (2026-02-12)
 
 
@@ -185,6 +169,5 @@
 * minor readme changes ([4fa3402](https://github.com/heroui-inc/heroui-mcp/commit/4fa34027770555c96dfe8ce72b2d1c80328c9355))
 * **native-mcp:** add versions endpoint ([162ea5e](https://github.com/heroui-inc/heroui-mcp/commit/162ea5e9f779481ab24b22d373b7acff78efd987))
 * vitest config + wrangler test env ([877f9b6](https://github.com/heroui-inc/heroui-mcp/commit/877f9b6023a8c0ea23393e24ea946f8d79be6d69))
-
 
 
