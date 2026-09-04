@@ -2,6 +2,7 @@ import type {HonoContext} from "../types/context";
 import type {Context, Next} from "hono";
 
 import packageJson from "../../../package.json";
+import {isClientOutdated} from "../utils/version";
 
 export const versionCheckMiddleware = async (
   c: Context<HonoContext>,
@@ -30,13 +31,12 @@ export const versionCheckMiddleware = async (
   }
 
   const body = await c.res.clone().json();
-  const versionMatch = serverVersion === clientVersion || false;
-  const wrappedBody = versionMatch
-    ? body
-    : {
+  const wrappedBody = isClientOutdated(clientVersion, serverVersion)
+    ? {
         ...(body as Record<string, unknown>),
-        _warning: `⚠️ You are using an outdated MCP client. Please restart the MCP and make sure to use @heroui/native-mcp@latest to always get the latest version.\n\nCurrent version: ${clientVersion || "unknown"}\nLatest version: ${serverVersion}`,
-      };
+        _warning: `⚠️ You are using an outdated MCP client. Please restart the MCP and make sure to use @heroui/native-mcp@latest to always get the latest version.\n\nCurrent version: ${clientVersion}\nLatest version: ${serverVersion}`,
+      }
+    : body;
 
   c.res = c.json(wrappedBody, c.res.status as any);
 };
