@@ -26,8 +26,19 @@
   "packageManager": "pnpm@10.17.0",
   "pnpm": {
     "overrides": {
+      "@modelcontextprotocol/client@<2.3.0": "2.3.0",
+      "@modelcontextprotocol/core@<2.3.1": "2.3.1",
+      "@modelcontextprotocol/server@<2.3.0": "2.3.0",
+      "@modelcontextprotocol/server-legacy@<2.3.1": "2.3.1",
       "esbuild": "^0.28.2",
-      "giget": "^2.0.0"
+      "giget": "^2.0.0",
+      "js-yaml@3>argparse": "^2.0.1",
+      "sharp@<0.35.5": "^0.35.5",
+      "undici@>=7 <7.29.1": "^7.29.1"
+    },
+    "patchedDependencies": {
+      "braces@3.0.3": "patches/braces@3.0.3.patch",
+      "js-yaml@3.15.2": "patches/js-yaml@3.15.2.patch"
     }
   },
   "scripts": {

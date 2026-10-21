@@ -2,6 +2,7 @@
   "extends": "@heroui/config/tsconfig/cloudflare-worker.json",
   "compilerOptions": {
     "lib": ["ESNext"],
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types", "node"],
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]
