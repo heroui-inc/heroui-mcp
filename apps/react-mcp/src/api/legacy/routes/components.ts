@@ -4,8 +4,7 @@ import type {HonoContext} from "../../types/context";
 
 import {zValidator} from "@hono/zod-validator";
 import {Hono} from "hono";
-// Preserve the published HTTP validation error format across the Zod 4 upgrade.
-import {z} from "zod/v3";
+import {z} from "zod";
 
 import {HEROUI_REACT_GITHUB_BASE} from "../../../extraction/constants";
 import {REACT_LIBRARY_NAME} from "../../contants";

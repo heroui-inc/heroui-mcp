@@ -8,7 +8,7 @@ import {describe, expect, it} from "vitest";
 
 describe("Components API", () => {
   it.each(["docs", "source", "styles"])(
-    "preserves validation error JSON for /v1/components/%s",
+    "returns Zod 4 validation error JSON for /v1/components/%s",
     async (endpoint) => {
       const res = await SELF.fetch(`http://localhost:8787/v1/components/${endpoint}`, {
         method: "POST",
@@ -17,21 +17,26 @@ describe("Components API", () => {
       });
 
       expect(res.status).toBe(400);
-      expect(await res.json()).toMatchObject({
+      const data = (await res.json()) as {
+        success: boolean;
+        error: {name: string; message: string};
+      };
+
+      expect(data).toEqual({
         success: false,
         error: {
           name: "ZodError",
-          issues: [
-            {
-              code: "invalid_type",
-              expected: "array",
-              received: "string",
-              path: ["components"],
-              message: "Expected array, received string",
-            },
-          ],
+          message: expect.any(String),
         },
       });
+      expect(JSON.parse(data.error.message)).toEqual([
+        {
+          code: "invalid_type",
+          expected: "array",
+          path: ["components"],
+          message: "Invalid input: expected array, received string",
+        },
+      ]);
     },
   );
 
