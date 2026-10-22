@@ -30,6 +30,7 @@ R2_BUCKET_NAME = "heroui-mcp-data-dev"
 [[env.development.r2_buckets]]
 binding = 'R2'
 bucket_name = 'heroui-mcp-data-dev'
+remote = true
 
 [env.development.vars]
 NODE_ENV = "development"

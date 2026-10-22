@@ -61,7 +61,9 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(data.error.issues[0].message).toBe("Required");
+      expect(JSON.parse(data.error.message)[0].message).toBe(
+        "Invalid input: expected array, received undefined",
+      );
     });
 
     it("should validate empty array", async () => {
@@ -76,7 +78,7 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(data.error.issues[0].message).toBe("Components array cannot be empty");
+      expect(JSON.parse(data.error.message)[0].message).toBe("Components array cannot be empty");
     });
 
     it("should validate empty component names", async () => {
@@ -91,7 +93,7 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(data.error.issues[0].message).toBe("Component name cannot be empty");
+      expect(JSON.parse(data.error.message)[0].message).toBe("Component name cannot be empty");
     });
 
     it("should trim whitespace from component names", async () => {
@@ -181,7 +183,7 @@ describe("Legacy Components API", () => {
 
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
-      expect(data.error.issues[0].message).toBe("Components array cannot be empty");
+      expect(JSON.parse(data.error.message)[0].message).toBe("Components array cannot be empty");
     });
   });
 
@@ -228,7 +230,7 @@ describe("Legacy Components API", () => {
 
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
-      expect(data.error.issues[0].message).toBe("Examples array cannot be empty");
+      expect(JSON.parse(data.error.message)[0].message).toBe("Examples array cannot be empty");
     });
   });
 

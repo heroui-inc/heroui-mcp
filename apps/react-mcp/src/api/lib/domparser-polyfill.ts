@@ -8,12 +8,12 @@
 import {DOMParser as XDOMParser} from "@xmldom/xmldom";
 
 // Add DOMParser to global scope if not already available
-if (typeof globalThis.DOMParser === "undefined") {
+if (typeof (globalThis as {DOMParser?: typeof XDOMParser}).DOMParser === "undefined") {
   (globalThis as typeof globalThis & {DOMParser: typeof XDOMParser}).DOMParser = XDOMParser;
 }
 
 // Add Node constants that AWS SDK XML parser expects
-if (typeof globalThis.Node === "undefined") {
+if (typeof (globalThis as {Node?: unknown}).Node === "undefined") {
   (globalThis as any).Node = {
     ELEMENT_NODE: 1,
     ATTRIBUTE_NODE: 2,

@@ -7,6 +7,39 @@ import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
 describe("Components API", () => {
+  it.each(["docs", "source", "styles"])(
+    "returns Zod 4 validation error JSON for /v1/components/%s",
+    async (endpoint) => {
+      const res = await SELF.fetch(`http://localhost:8787/v1/components/${endpoint}`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({components: "Button"}),
+      });
+
+      expect(res.status).toBe(400);
+      const data = (await res.json()) as {
+        success: boolean;
+        error: {name: string; message: string};
+      };
+
+      expect(data).toEqual({
+        success: false,
+        error: {
+          name: "ZodError",
+          message: expect.any(String),
+        },
+      });
+      expect(JSON.parse(data.error.message)).toEqual([
+        {
+          code: "invalid_type",
+          expected: "array",
+          path: ["components"],
+          message: "Invalid input: expected array, received string",
+        },
+      ]);
+    },
+  );
+
   describe("GET /v1/components", () => {
     it("should return list of components", async () => {
       const res = await SELF.fetch("http://localhost:8787/v1/components");
