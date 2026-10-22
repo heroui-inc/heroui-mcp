@@ -1,4 +1,4 @@
-import {resolve} from "path";
+import {join, resolve} from "path";
 
 import {createAmazonBedrock} from "@ai-sdk/amazon-bedrock";
 import {createAnthropic} from "@ai-sdk/anthropic";
@@ -9,7 +9,13 @@ import {MCPClient} from "@mastra/mcp";
 import {Memory} from "@mastra/memory";
 import {config} from "dotenv";
 
-config({path: resolve(__dirname, "../.env")});
+// Mastra bundles this module into .mastra/output; direct imports run from src.
+const projectRoot = resolve(
+  import.meta.dirname,
+  import.meta.dirname.endsWith(join(".mastra", "output")) ? "../.." : "..",
+);
+
+config({path: resolve(projectRoot, ".env")});
 
 // Shared memory storage
 const memory = new Memory({
@@ -59,7 +65,7 @@ const reactMcpClient = new MCPClient({
   servers: {
     "heroui-react": {
       command: "tsx",
-      args: [resolve(__dirname, "../../../../apps/react-mcp/src/mcp/stdio.ts")],
+      args: [resolve(projectRoot, "../../apps/react-mcp/src/mcp/stdio.ts")],
       env: {
         NODE_ENV: "development",
         HEROUI_API_URL: process.env.HEROUI_API_URL ?? "http://localhost:8787",
@@ -73,7 +79,7 @@ const nativeMcpClient = new MCPClient({
   servers: {
     "heroui-native": {
       command: "tsx",
-      args: [resolve(__dirname, "../../../../apps/native-mcp/src/mcp/stdio.ts")],
+      args: [resolve(projectRoot, "../../apps/native-mcp/src/mcp/stdio.ts")],
       env: {
         NODE_ENV: "development",
         HEROUI_NATIVE_API_URL: process.env.HEROUI_NATIVE_API_URL ?? "http://localhost:8788",
