@@ -219,9 +219,6 @@ importers:
       conventional-changelog-angular:
         specifier: 9.4.0
         version: 9.4.0
-      dotenv:
-        specifier: 18.0.8
-        version: 18.0.8
       dotenv-cli:
         specifier: 11.0.0
         version: 11.0.0
