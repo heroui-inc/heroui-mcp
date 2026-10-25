@@ -31,7 +31,21 @@ packages, so the previous argparse override and js-yaml CLI patch are removed.
 
 ## Pinned transitive dependencies
 
-Scoped overrides upgrade the MCP v2 client/server packages, their shared core,
+The scoped `@grpc/grpc-js` override excludes vulnerable 1.14.x versions in favor of 1.14.5
+for [GHSA-m9gg-hp2v-232j](https://github.com/advisories/GHSA-m9gg-hp2v-232j)
+and [GHSA-f596-whhp-79r4](https://github.com/advisories/GHSA-f596-whhp-79r4).
+The refreshed graph no longer installs this optional peer dependency.
+
+Additional scoped overrides select body-parser 2.4.0, Undici 7.30.1 or later
+within v7, and Zod 4.6.7 where transitive parents select affected versions:
+
+- [body-parser compressed-body denial of service](https://github.com/advisories/GHSA-27r3-jxmh-p828)
+- [Undici EventSource memory exhaustion](https://github.com/advisories/GHSA-4qv8-2p9j-2685)
+- [Undici integrity validation bypass](https://github.com/advisories/GHSA-f72v-6w45-q472)
+- [Undici content-encoding denial of service](https://github.com/advisories/GHSA-xjj6-f33q-929c)
+- [Zod collection validation memory exhaustion](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)
+
+Other scoped overrides upgrade the MCP v2 client/server packages, their shared core,
 sharp, and undici where parents pin vulnerable releases. Vite is declared as a
 development dependency in each test workspace to resolve Vitest's auto-installed
 peer to a patched version. Other compatible security updates live in the
