@@ -23,7 +23,7 @@
   "engines": {
     "node": ">=22.22.0"
   },
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@10.34.8",
   "pnpm": {
     "overrides": {
       "@modelcontextprotocol/client@<2.3.0": "2.3.0",
