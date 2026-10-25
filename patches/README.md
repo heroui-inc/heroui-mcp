@@ -25,11 +25,9 @@ becomes available.
 ## sprintf-js removal
 
 [GHSA-hp3w-g68c-fv3c](https://github.com/advisories/GHSA-hp3w-g68c-fv3c)
-also has no patched release. The `js-yaml@3>argparse` override selects argparse
-2.0.1, which retains legacy v1 API support and does not depend on sprintf-js.
-This preserves gray-matter's js-yaml 3 safe-loading API. A companion js-yaml patch
-registers the CLI version flag explicitly because argparse 2's deprecated
-constructor version option otherwise prints an empty string.
+also has no patched release. Mastra 1.79.0 removes the gray-matter dependency
+that pulled in js-yaml 3 and sprintf-js. The lockfile no longer contains these
+packages, so the previous argparse override and js-yaml CLI patch are removed.
 
 ## Pinned transitive dependencies
 
@@ -38,3 +36,11 @@ sharp, and undici where parents pin vulnerable releases. Vite is declared as a
 development dependency in each test workspace to resolve Vitest's auto-installed
 peer to a patched version. Other compatible security updates live in the
 lockfile. Remove overrides when parent dependencies require fixed versions.
+
+## Mastra provider compatibility
+
+Keep `@ai-sdk/amazon-bedrock` at 5.0.121, `@ai-sdk/anthropic` at 4.0.85,
+and `@ai-sdk/openai` at 4.0.99 while using `@mastra/core` 1.79.0. The next
+provider patches add an `interrupted` finish reason that Mastra's bundled
+provider types do not accept, causing the agent model assignments to fail
+typechecking. Upgrade these providers together with a compatible Mastra release.
