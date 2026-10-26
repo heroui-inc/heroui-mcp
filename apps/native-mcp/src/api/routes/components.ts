@@ -1,9 +1,9 @@
 import type {HonoContext} from "../types/context";
 
-import {zValidator} from "@hono/zod-validator";
 import {Hono} from "hono";
 import {z} from "zod";
 
+import {validateJson} from "../lib/validate-json";
 import {getComponentService} from "../services/component";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../types/analytics";
 import {componentNameToKebab} from "../utils/component-name";
@@ -71,7 +71,7 @@ components.get("/", async (c) => {
 });
 
 // Get component documentation (batch)
-components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) => {
+components.post("/docs", validateJson(ComponentsRequestSchema), async (c) => {
   const endpoint = "get-component-docs-batch";
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");

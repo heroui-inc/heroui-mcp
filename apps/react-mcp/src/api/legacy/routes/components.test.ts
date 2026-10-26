@@ -8,6 +8,42 @@ import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
 describe("Legacy Components API", () => {
+  it.each([
+    {path: "/components", field: "components"},
+    {path: "/components/props", field: "components"},
+    {path: "/components/examples", field: "components"},
+    {path: "/components/source", field: "components"},
+    {path: "/components/styles", field: "components"},
+  ])("preserves structured validation errors for $path", async ({path, field}) => {
+    const res = await SELF.fetch(`http://localhost:8787${path}`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({[field]: "Button"}),
+    });
+
+    expect(res.status).toBe(400);
+    const data = (await res.json()) as {
+      success: boolean;
+      error: {name: string; message: string; issues: unknown[]};
+    };
+    expect(data).toEqual({
+      success: false,
+      error: {
+        name: "ZodError",
+        message: expect.any(String),
+        issues: [
+          {
+            code: "invalid_type",
+            expected: "array",
+            path: [field],
+            message: "Invalid input: expected array, received string",
+          },
+        ],
+      },
+    });
+    expect(JSON.parse(data.error.message)).toEqual(data.error.issues);
+  });
+
   describe("GET /components", () => {
     it("should return list of components", async () => {
       const res = await SELF.fetch("http://localhost:8787/components");
@@ -59,9 +95,7 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(JSON.parse(data.error.message)[0].message).toBe(
-        "Invalid input: expected array, received string",
-      );
+      expect(data.error.issues[0].message).toBe("Invalid input: expected array, received string");
     });
 
     it("should validate empty array", async () => {
@@ -76,7 +110,7 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(JSON.parse(data.error.message)[0].message).toBe("Components array cannot be empty");
+      expect(data.error.issues[0].message).toBe("Components array cannot be empty");
     });
 
     it("should validate empty component names", async () => {
@@ -91,7 +125,7 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(JSON.parse(data.error.message)[0].message).toBe("Component name cannot be empty");
+      expect(data.error.issues[0].message).toBe("Component name cannot be empty");
     });
 
     it("should validate non-string component names", async () => {
@@ -182,9 +216,7 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(JSON.parse(data.error.message)[0].message).toBe(
-        "Invalid input: expected array, received string",
-      );
+      expect(data.error.issues[0].message).toBe("Invalid input: expected array, received string");
     });
 
     it("should handle empty array", async () => {
@@ -199,7 +231,7 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(JSON.parse(data.error.message)[0].message).toBe("Components array cannot be empty");
+      expect(data.error.issues[0].message).toBe("Components array cannot be empty");
     });
   });
 
