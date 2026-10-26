@@ -3,8 +3,9 @@
 ## braces 3.0.3
 
 [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
-has no patched npm release as of October 21, 2026. The local pnpm patch follows
-the depth-limit mitigation described in the
+was withdrawn on October 23, 2026 because GitHub determined it was not a
+practically exploitable vulnerability. As of October 26, 2026, the advisory lists
+no patched release. The local pnpm patch remains as a defensive depth limit and follows the mitigation described in the
 [upstream report](https://github.com/micromatch/braces/issues/70):
 
 - Reject strings with more than 100 nested brace or parenthesis groups before
@@ -17,16 +18,19 @@ the depth-limit mitigation described in the
 
 `pnpm install --frozen-lockfile` applies the checked-in patch.
 
-Version-based scanners, including Dependabot and `pnpm audit`, will continue to
-report this advisory because the package version remains 3.0.3. No advisory is
-ignored or dismissed. Replace the patch with an upstream fixed release when one
-becomes available.
+The package version remains 3.0.3, but the advisory's withdrawal means that version
+alone does not establish whether a scanner will report it. Results depend on the
+scanner's advisory data and handling of withdrawn records. The withdrawal does
+not remove the checked-in patch; reassess it if an upstream release provides an
+equivalent depth limit.
 
 ## sprintf-js removal
 
 [GHSA-hp3w-g68c-fv3c](https://github.com/advisories/GHSA-hp3w-g68c-fv3c)
-also has no patched release. Mastra 1.79.0 removes the gray-matter dependency
-that pulled in js-yaml 3 and sprintf-js. The lockfile no longer contains these
+was withdrawn on October 22, 2026 because exception handling is the application's
+responsibility. As of October 26, 2026, the advisory lists no patched release.
+The Mastra dependency graph using `@mastra/core` 1.79.0 no longer includes the
+gray-matter dependency that pulled in js-yaml 3 and sprintf-js. The lockfile no longer contains these
 packages, so the previous argparse override and js-yaml CLI patch are removed.
 
 ## Pinned transitive dependencies
