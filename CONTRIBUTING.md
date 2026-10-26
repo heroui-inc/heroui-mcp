@@ -40,7 +40,7 @@ Configure `apps/react-mcp/.env` and `apps/native-mcp/.env` with your credentials
 CLOUDFLARE_ACCOUNT_ID=your_account_id
 R2_ACCESS_KEY_ID=your_r2_access_key
 R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
-R2_BUCKET_NAME=heroui-mcp-data-dev
+R2_BUCKET_NAME=your_r2_bucket_name
 
 # GitHub Token (optional but recommended to avoid rate limits)
 GITHUB_TOKEN=your_github_personal_access_token
