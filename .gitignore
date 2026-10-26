@@ -49,3 +49,8 @@ temp/
 # Claude
 .claude
 .workflows
+
+# Mastra memory in the monorepo root
+/memory.db
+/memory.db-shm
+/memory.db-wal

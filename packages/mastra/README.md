@@ -19,15 +19,28 @@ Two simple test agents for local MCP server testing:
    pnpm install
    ```
 
-2. **Configure environment:**
+2. **Configure environment** (from monorepo root):
 
    ```bash
-   cd packages/mastra
-   cp .env.example .env
-   # Edit .env and add your API key (choose one provider)
+   cp packages/mastra/.env.example packages/mastra/.env
+   # Edit packages/mastra/.env and add your API key (choose one provider)
    ```
 
-3. **Start Mastra playground**:
+3. **Prepare and start the backing API servers:**
+
+   Follow the [local development setup](../../CONTRIBUTING.md) to configure each app's environment and extract its data. Then run these commands from the monorepo root in separate terminals:
+
+   ```bash
+   pnpm dev:react
+   ```
+
+   ```bash
+   pnpm dev:native
+   ```
+
+   Keep both servers running while testing. If you use existing API servers instead, set `HEROUI_API_URL` and `HEROUI_NATIVE_API_URL` in `packages/mastra/.env` to their URLs.
+
+4. **Start Mastra playground**:
 
    From monorepo root:
    ```bash
@@ -39,7 +52,7 @@ Two simple test agents for local MCP server testing:
    pnpm dev
    ```
 
-4. **Access playground:**
+5. **Access playground:**
    Open http://localhost:4111 in your browser
 
 ## Environment Variables
@@ -55,7 +68,8 @@ Two simple test agents for local MCP server testing:
 - `ANTHROPIC_MODEL` - Override default Claude model (default: `claude-sonnet-4-5-20250929`)
 - `OPENAI_MODEL` - Override default OpenAI model (default: `gpt-4o`)
 - `BEDROCK_MODEL` - Override default Bedrock model (default: `us.anthropic.claude-sonnet-4-5-20250929-v1:0`)
-- `HEROUI_API_URL` - Override MCP server API URL (default: `http://localhost:8787`)
+- `HEROUI_API_URL` - Override the React MCP API URL (default: `http://localhost:8787`)
+- `HEROUI_NATIVE_API_URL` - Override the Native MCP API URL (default: `http://localhost:8788`)
 
 ## How It Works
 
