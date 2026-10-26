@@ -5,7 +5,7 @@ MCP server providing migration instructions for upgrading from HeroUI v2 to v3.
 ## Features
 
 - **Streamable HTTP Transport**: Uses the Streamable HTTP transport as specified in the MCP specification
-- **Framework-Specific Guides**: Provides migration instructions tailored to your framework
+- **Migration Approaches**: Provides full and incremental migration workflows
 - **Step-by-Step Instructions**: Comprehensive migration guide with code examples
 - **Cloudflare Workers**: Deployed on Cloudflare Workers for global availability
 
@@ -32,7 +32,8 @@ Add to your MCP client configuration:
 Get the comprehensive main migration workflow guide for upgrading from HeroUI v2 to v3.
 
 **Parameters:**
-- None
+
+- `migrationType` (optional): `"full"` (default) or `"incremental"`. Use `"incremental"` for a workflow where v2 and v3 coexist during migration.
 
 **Returns:**
 The complete migration guide including:
@@ -68,10 +69,36 @@ Migration guides for each requested component, including:
 - Breaking changes
 - Migration steps
 
-**Example Usage:**
+### `get_styling_migration_guide`
+
+Get the styling migration guide covering CSS variables, theme configuration, style props, and custom styling patterns.
+
+**Parameters:**
+
+- None
+
+**Returns:**
+The official styling migration documentation.
+
+### `get_hooks_migration_guide`
+
+Get the hooks migration guide covering removed component hooks, replacement APIs, and migration examples.
+
+**Parameters:**
+
+- None
+
+**Returns:**
+The official hooks migration documentation.
+
+### Example Usage
+
 ```javascript
-// Get main migration workflow
+// Get the full migration workflow (default)
 get_migration_workflow()
+
+// Get the incremental migration workflow
+get_migration_workflow({ migrationType: "incremental" })
 
 // List all available component guides
 list_component_migration_guides()
@@ -81,9 +108,15 @@ get_component_migration_guides({ components: ["button"] })
 
 // Get migration guides for multiple components
 get_component_migration_guides({ components: ["button", "card", "modal"] })
+
+// Get styling and hooks migration guides
+get_styling_migration_guide()
+get_hooks_migration_guide()
 ```
 
 ## Development
+
+Run these commands from `apps/migration-mcp`:
 
 ```bash
 # Install dependencies

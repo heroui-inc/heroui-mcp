@@ -2,7 +2,7 @@
 
 Access HeroUI component documentation directly in your AI assistant via Model Context Protocol (MCP).
 
-> **Note:** Currently supports **@heroui/react v3** only. For **@heroui/native** (React Native components), use [@heroui/native-mcp](../native-mcp).
+> **Note:** Currently supports **@heroui/react v3** only. For **heroui-native** (React Native components), use [@heroui/native-mcp](../native-mcp).
 
 ## Features
 
@@ -38,10 +38,7 @@ Or add manually to Cursor Settings → Features → MCP Servers:
 claude mcp add heroui-react -- npx -y @heroui/react-mcp@latest
 ```
 
-Or manually add to your Claude Code configuration:
-
-**macOS**: `~/Library/Application Support/Claude/claude_mcp_settings.json`
-**Windows**: `%APPDATA%\Claude\claude_mcp_settings.json`
+Or add the following to `.mcp.json` in your project root for a shared project configuration:
 
 ```json
 {
@@ -53,6 +50,8 @@ Or manually add to your Claude Code configuration:
   }
 }
 ```
+
+For a user-wide configuration, run `claude mcp add --scope user heroui-react -- npx -y @heroui/react-mcp@latest`. Claude Code stores user and local scope configurations in `~/.claude.json`; see the [Claude Code MCP documentation](https://code.claude.com/docs/en/mcp).
 
 ### Codex
 
@@ -90,20 +89,23 @@ Add to Windsurf configuration → MCP Servers:
 }
 ```
 
-### VS Code (with MCP extension)
+### VS Code
 
-Add to your VS Code settings:
+Add to `.vscode/mcp.json` in your workspace:
 
 ```json
 {
-  "mcp.servers": {
+  "servers": {
     "heroui": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "@heroui/react-mcp@latest"]
     }
   }
 }
 ```
+
+For user-wide setup, use **MCP: Add Server** and select your user profile. See the [VS Code MCP configuration reference](https://code.visualstudio.com/docs/agents/reference/mcp-configuration).
 
 ### Claude Desktop
 
@@ -236,7 +238,7 @@ Get HeroUI v3 default theme variables and design tokens (actual variable values)
 
 ### MCP server not found
 
-Ensure you have Node.js 22+ installed. The package will be automatically downloaded when using `npx`.
+Ensure you have Node.js 22.22.0 or later installed. The package will be automatically downloaded when using `npx`.
 
 ### Connection issues
 
