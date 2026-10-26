@@ -29,9 +29,12 @@ Workflow: list_components → get_component_docs.`,
   },
 
   exec(server, {config, name, description, ctx}) {
-    // Create input schema with dynamic component enum
+    // Keep tools usable if the component list could not be fetched at startup.
+    const componentSchema = ctx.componentList.length
+      ? z.enum(ctx.componentList as [string, ...string[]])
+      : z.string().min(1);
     const inputSchema = z.object({
-      components: z.array(z.enum(ctx.componentList as [string, ...string[]])).min(1)
+      components: z.array(componentSchema).min(1)
         .describe(`Array of component names from list_components (case-sensitive).
 Examples: ["Button"], ["Card", "TextField"], ["Button", "Card", "Tabs"].
 DO NOT guess names - always verify with list_components first.`),
