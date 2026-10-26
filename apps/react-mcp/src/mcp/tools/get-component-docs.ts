@@ -37,7 +37,10 @@ Examples: ["Button"], ["Card", "TextField"], ["Button", "Card", "Tabs"].
 DO NOT guess names - always verify with list_components first.`),
     });
 
-    const handler = async ({components}: z.infer<typeof inputSchema>) => {
+    const handler = async (
+      {components}: z.infer<typeof inputSchema>,
+      {signal}: {signal: AbortSignal},
+    ) => {
       try {
         const response = await fetchApi<{
           results: Array<{
@@ -51,6 +54,7 @@ DO NOT guess names - always verify with list_components first.`),
           }>;
           _warning?: string;
         }>("/v1/components/docs", config.apiBaseUrl, {
+          signal,
           method: "POST",
           body: JSON.stringify({components}),
         });

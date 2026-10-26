@@ -48,7 +48,10 @@ DO NOT guess paths - use one of the available paths from the enum.
 NOTE: For component docs, use get_component_docs instead.`),
     });
 
-    const handler = async ({path}: z.infer<typeof inputSchema>) => {
+    const handler = async (
+      {path}: z.infer<typeof inputSchema>,
+      {signal}: {signal: AbortSignal},
+    ) => {
       if (!path) {
         return {
           content: [
@@ -88,6 +91,7 @@ Requested path: ${path}`,
         const data = await fetchApi<DocContentResponse & {_warning?: string}>(
           `/v1/docs/${apiPath}`,
           config.apiBaseUrl,
+          {signal},
         );
 
         const {content, url, contentType, _warning} = data;
