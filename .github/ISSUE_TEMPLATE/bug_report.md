@@ -23,7 +23,7 @@ A clear and concise description of what the bug is.
 Steps to reproduce the behavior:
 
 1. IDE/Editor being used (e.g., Cursor, Claude Code, VS Code)
-2. MCP tool being called (e.g., list_components, get_component_props)
+2. MCP tool being called (e.g., list_components, get_component_docs)
 3. Parameters passed to the tool
 4. Error message or unexpected behavior
 

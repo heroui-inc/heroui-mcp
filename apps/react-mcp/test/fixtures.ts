@@ -5,11 +5,7 @@
  * tests exercise the real routes and services without reaching the network.
  */
 
-import type {
-  ComponentDataset,
-  LegacyComponentDataset,
-  VersionInfo,
-} from "../src/shared/types/data";
+import type {ComponentDataset, LegacyComponentDataset, VersionInfo} from "../src/shared/types/data";
 import type {CSSVariable, ThemeSystem} from "../src/shared/types/theme";
 
 export const FIXTURE_VERSION = "3.0.0-alpha.33";

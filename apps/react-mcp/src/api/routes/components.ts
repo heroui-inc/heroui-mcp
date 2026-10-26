@@ -1,9 +1,9 @@
 import type {HonoContext} from "../types/context";
 
-import {zValidator} from "@hono/zod-validator";
 import {Hono} from "hono";
 import {z} from "zod";
 
+import {validateJson} from "../lib/validate-json";
 import {HEROUI_REACT_GITHUB_BASE} from "../../extraction/constants";
 import {REACT_LIBRARY_NAME} from "../contants";
 import {getComponentService} from "../services/component";
@@ -79,7 +79,7 @@ components.get("/", async (c) => {
 });
 
 // Get component documentation (batch)
-components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) => {
+components.post("/docs", validateJson(ComponentsRequestSchema), async (c) => {
   const endpoint = "get-component-docs-batch";
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
@@ -235,7 +235,7 @@ components.post("/docs", zValidator("json", ComponentsRequestSchema), async (c) 
 });
 
 // Get component source code
-components.post("/source", zValidator("json", ComponentsRequestSchema), async (c) => {
+components.post("/source", validateJson(ComponentsRequestSchema), async (c) => {
   const endpoint = "get-component-source";
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
@@ -414,7 +414,7 @@ components.post("/source", zValidator("json", ComponentsRequestSchema), async (c
 });
 
 // Get component styles
-components.post("/styles", zValidator("json", ComponentsRequestSchema), async (c) => {
+components.post("/styles", validateJson(ComponentsRequestSchema), async (c) => {
   const endpoint = "get-component-styles";
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");

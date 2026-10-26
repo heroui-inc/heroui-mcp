@@ -26,12 +26,13 @@ For theme documentation and guides, use the get_docs tool instead.
 IMPORTANT: HeroUI Native uses Uniwind (Tailwind CSS for React Native) - ensure compatibility.`,
 
   exec(server, {config, name, description}) {
-    const handler = async () => {
+    const handler = async (_args: z.infer<typeof inputSchema>, {signal}: {signal: AbortSignal}) => {
       try {
         // Always fetch default theme with both modes
         const response = await fetchApi<any>(
           "/v1/themes/variables?theme=default",
           config.apiBaseUrl,
+          {signal},
         );
 
         // Format the response as structured text

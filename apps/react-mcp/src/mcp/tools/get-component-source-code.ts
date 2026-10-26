@@ -23,14 +23,20 @@ GitHub links are provided for viewing the source in context.`,
     };
   },
   exec(server, {config, name, description, ctx}) {
-    // Create input schema with dynamic component enum
+    // Keep tools usable if the component list could not be fetched at startup.
+    const componentSchema = ctx.componentList.length
+      ? z.enum(ctx.componentList as [string, ...string[]])
+      : z.string().min(1);
     const inputSchema = z.object({
-      components: z.array(z.enum(ctx.componentList as [string, ...string[]])).min(1)
+      components: z.array(componentSchema).min(1)
         .describe(`Array of component names from list_components.
 This shows internal implementation - use get_component_docs for usage examples.`),
     });
 
-    const handler = async ({components}: z.infer<typeof inputSchema>) => {
+    const handler = async (
+      {components}: z.infer<typeof inputSchema>,
+      {signal}: {signal: AbortSignal},
+    ) => {
       try {
         const response = await fetchApi<{
           version: string;
@@ -43,6 +49,7 @@ This shows internal implementation - use get_component_docs for usage examples.`
           }>;
           _warning?: string;
         }>("/v1/components/source", config.apiBaseUrl, {
+          signal,
           method: "POST",
           body: JSON.stringify({components}),
         });

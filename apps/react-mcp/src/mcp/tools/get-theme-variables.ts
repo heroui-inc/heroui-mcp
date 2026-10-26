@@ -23,11 +23,12 @@ Example variables: --color-accent, --radius-md, --font-size-body, --spacing-4.
 For theme documentation and guides, use the get_docs tool instead.
 IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
   exec(server, {config, name, description}) {
-    const handler = async () => {
+    const handler = async (_args: z.infer<typeof inputSchema>, {signal}: {signal: AbortSignal}) => {
       try {
         const response = await fetchApi<any>(
           "/v1/themes/variables?theme=default",
           config.apiBaseUrl,
+          {signal},
         );
 
         // Format the response as structured text

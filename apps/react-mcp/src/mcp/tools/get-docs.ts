@@ -50,7 +50,10 @@ NOTE: For component docs, use get_component_docs instead.
 NOTE: Paths containing /native/ are for HeroUI Native docs and require @heroui/native-mcp server.`),
     });
 
-    const handler = async ({path}: z.infer<typeof inputSchema>) => {
+    const handler = async (
+      {path}: z.infer<typeof inputSchema>,
+      {signal}: {signal: AbortSignal},
+    ) => {
       if (!path) {
         return {
           content: [
@@ -107,6 +110,7 @@ Requested path: ${path}`,
         const data = await fetchApi<DocContentResponse & {_warning?: string}>(
           `/v1/docs/${apiPath}`,
           config.apiBaseUrl,
+          {signal},
         );
 
         const {content, url, contentType, _warning} = data;

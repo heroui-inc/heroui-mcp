@@ -26,14 +26,20 @@ GitHub links are provided for viewing styles in context.`,
   },
 
   exec(server, {config, name, description, ctx}) {
-    // Create input schema with dynamic component enum
+    // Keep tools usable if the component list could not be fetched at startup.
+    const componentSchema = ctx.componentList.length
+      ? z.enum(ctx.componentList as [string, ...string[]])
+      : z.string().min(1);
     const inputSchema = z.object({
-      components: z.array(z.enum(ctx.componentList as [string, ...string[]])).min(1)
+      components: z.array(componentSchema).min(1)
         .describe(`Array of component names from list_components.
 These are BEM classes from @heroui/styles - not for use with React components.`),
     });
 
-    const handler = async ({components}: z.infer<typeof inputSchema>) => {
+    const handler = async (
+      {components}: z.infer<typeof inputSchema>,
+      {signal}: {signal: AbortSignal},
+    ) => {
       try {
         const response = await fetchApi<{
           version: string;
@@ -46,6 +52,7 @@ These are BEM classes from @heroui/styles - not for use with React components.`)
           }>;
           _warning?: string;
         }>("/v1/components/styles", config.apiBaseUrl, {
+          signal,
           method: "POST",
           body: JSON.stringify({components}),
         });

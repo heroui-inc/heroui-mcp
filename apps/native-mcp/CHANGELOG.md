@@ -84,15 +84,6 @@
 
 
 
-# [1.0.0-alpha.15](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.0.0-alpha.15...native-mcp-v1.0.0-alpha.15) (2025-11-14)
-
-
-### Bug Fixes
-
-* changelogs using wrong tag ([3e4c011](https://github.com/heroui-inc/heroui-mcp/commit/3e4c0116aafd00bfc8301178876601f538074c45))
-
-
-
 # [1.0.0-alpha.15](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.0.0-alpha.14...native-mcp-v1.0.0-alpha.15) (2025-11-13)
 
 
