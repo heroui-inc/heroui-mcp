@@ -1,10 +1,10 @@
 import type {HonoContext} from "../../types/context";
 import type {ComponentProp} from "@shared/types/data";
 
-import {zValidator} from "@hono/zod-validator";
 import {Hono} from "hono";
 import {z} from "zod";
 
+import {validateJson} from "../../lib/validate-json";
 import {HEROUI_NATIVE_GITHUB_BASE} from "../../../extraction/constants";
 import {CACHE_CONTROL} from "../../constants";
 import {AnalyticsErrorEvent, AnalyticsEvent} from "../../types/analytics";
@@ -87,7 +87,7 @@ components.get("/", async (c) => {
 });
 
 // Get component info
-components.post("/", zValidator("json", ComponentsRequestSchema), async (c) => {
+components.post("/", validateJson(ComponentsRequestSchema), async (c) => {
   const endpoint = "get-components";
   const startTime = Date.now();
   const analytics = c.get("analytics");
@@ -156,7 +156,7 @@ components.post("/", zValidator("json", ComponentsRequestSchema), async (c) => {
 });
 
 // Get component props
-components.post("/props", zValidator("json", ComponentsRequestSchema), async (c) => {
+components.post("/props", validateJson(ComponentsRequestSchema), async (c) => {
   const endpoint = "get-component-props";
   const startTime = Date.now();
   const {components: componentNames} = c.req.valid("json");
@@ -296,7 +296,7 @@ components.post("/props", zValidator("json", ComponentsRequestSchema), async (c)
 });
 
 // Get component examples
-components.post("/examples", zValidator("json", ExamplesRequestSchema), async (c) => {
+components.post("/examples", validateJson(ExamplesRequestSchema), async (c) => {
   const endpoint = "get-component-examples";
   const startTime = Date.now();
   const {examples: exampleNames} = c.req.valid("json");

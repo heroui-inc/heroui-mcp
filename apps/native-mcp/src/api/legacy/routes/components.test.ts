@@ -8,6 +8,40 @@ import {SELF} from "cloudflare:test";
 import {describe, expect, it} from "vitest";
 
 describe("Legacy Components API", () => {
+  it.each([
+    {path: "/components", field: "components"},
+    {path: "/components/props", field: "components"},
+    {path: "/components/examples", field: "examples"},
+  ])("preserves structured validation errors for $path", async ({path, field}) => {
+    const res = await SELF.fetch(`http://localhost:8788${path}`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({[field]: "Button"}),
+    });
+
+    expect(res.status).toBe(400);
+    const data = (await res.json()) as {
+      success: boolean;
+      error: {name: string; message: string; issues: unknown[]};
+    };
+    expect(data).toEqual({
+      success: false,
+      error: {
+        name: "ZodError",
+        message: expect.any(String),
+        issues: [
+          {
+            code: "invalid_type",
+            expected: "array",
+            path: [field],
+            message: "Invalid input: expected array, received string",
+          },
+        ],
+      },
+    });
+    expect(JSON.parse(data.error.message)).toEqual(data.error.issues);
+  });
+
   describe("GET /components", () => {
     it("should return list of components and examples", async () => {
       const res = await SELF.fetch("http://localhost:8788/components");
@@ -61,7 +95,7 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(JSON.parse(data.error.message)[0].message).toBe(
+      expect(data.error.issues[0].message).toBe(
         "Invalid input: expected array, received undefined",
       );
     });
@@ -78,7 +112,7 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(JSON.parse(data.error.message)[0].message).toBe("Components array cannot be empty");
+      expect(data.error.issues[0].message).toBe("Components array cannot be empty");
     });
 
     it("should validate empty component names", async () => {
@@ -93,7 +127,7 @@ describe("Legacy Components API", () => {
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
       expect(data).toHaveProperty("error");
-      expect(JSON.parse(data.error.message)[0].message).toBe("Component name cannot be empty");
+      expect(data.error.issues[0].message).toBe("Component name cannot be empty");
     });
 
     it("should trim whitespace from component names", async () => {
@@ -183,7 +217,7 @@ describe("Legacy Components API", () => {
 
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
-      expect(JSON.parse(data.error.message)[0].message).toBe("Components array cannot be empty");
+      expect(data.error.issues[0].message).toBe("Components array cannot be empty");
     });
   });
 
@@ -230,7 +264,7 @@ describe("Legacy Components API", () => {
 
       const data = (await res.json()) as any;
       expect(data).toHaveProperty("success", false);
-      expect(JSON.parse(data.error.message)[0].message).toBe("Examples array cannot be empty");
+      expect(data.error.issues[0].message).toBe("Examples array cannot be empty");
     });
   });
 
