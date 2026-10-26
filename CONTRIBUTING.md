@@ -1,10 +1,10 @@
 # Contributing to HeroUI MCP
 
-Thank you for your interest in contributing to the HeroUI MCP project! This monorepo hosts both `@heroui/react-mcp` and `@heroui/native-mcp` servers. This guide will help you get started with development.
+Thank you for your interest in contributing to the HeroUI MCP project! This monorepo hosts `@heroui/react-mcp`, `@heroui/native-mcp`, and `@heroui/migration-mcp`. This guide covers the React and Native servers; see the [Migration MCP README](apps/migration-mcp/README.md) for its HTTP server setup.
 
 ## 📋 Prerequisites
 
-- Node.js v22+ (see `.nvmrc`)
+- Node.js 22.22.0 or later (use `.nvmrc` for the repository's selected version)
 - pnpm package manager
 
 ## 🚀 Local Development Setup
@@ -17,35 +17,38 @@ cd heroui-mcp
 # Install dependencies
 pnpm install
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your credentials
+# Set up environment variables for each app
+cp apps/react-mcp/.env.example apps/react-mcp/.env
+cp apps/native-mcp/.env.example apps/native-mcp/.env
+# Edit each app's .env with your credentials
 
-# Extract component data to local development R2 bucket
+# Extract component data to the remote development R2 bucket
 pnpm extract:react            # Extract React MCP data
 pnpm extract:native           # Extract Native MCP data
 
-# Start development API server
+# Start each development API server in a separate terminal
 pnpm dev:react                # React MCP (http://localhost:8787)
 pnpm dev:native               # Native MCP (http://localhost:8788)
 ```
 
 ### Environment Variables Setup
 
-Create a `.env` file with your credentials:
+Configure `apps/react-mcp/.env` and `apps/native-mcp/.env` with your credentials. The filtered pnpm commands run in each app directory and load that app's `.env`; a root `.env` is not loaded by these scripts.
 
 ```bash
 # R2 Configuration
 CLOUDFLARE_ACCOUNT_ID=your_account_id
 R2_ACCESS_KEY_ID=your_r2_access_key
 R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
-R2_BUCKET_NAME=your_r2_bucket_name
+R2_BUCKET_NAME=heroui-mcp-data-dev
 
 # GitHub Token (optional but recommended to avoid rate limits)
 GITHUB_TOKEN=your_github_personal_access_token
 ```
 
 **Note**: GitHub token doesn't need special permissions for public repos. Create one at [GitHub Settings](https://github.com/settings/tokens).
+
+The development API bindings use the remote `heroui-mcp-data-dev` bucket. If you use another bucket, update both the app's `.env` and its development R2 binding in `wrangler.toml`.
 
 ## 📦 Building
 
@@ -269,10 +272,10 @@ Environment variables are configured in `wrangler.toml` for API servers.
 
 ### Component Data Extraction
 
-The server extracts component data directly from `heroui.com` and stores it in Cloudflare R2:
+The extraction scripts discover documentation through `heroui.com` manifests and store component metadata in Cloudflare R2:
 
-- **React MCP**: Fetches component documentation from `https://heroui.com/docs/react/components/` using `llms.txt` manifest
-- **Native MCP**: Fetches component documentation from `https://heroui.com/docs/native/components/` using `llms.txt` manifest
+- **React MCP**: Reads `https://heroui.com/react/llms.txt`, resolves component files in `heroui-inc/heroui` on the `v3` branch, and fetches them through the GitHub API.
+- **Native MCP**: Reads `https://heroui.com/native/llms.txt` and fetches component `.mdx` documentation directly from `heroui.com`.
 
 Data is stored as `ctx.json` in R2, containing components list, documentation paths, version, and timestamp.
 
@@ -280,7 +283,7 @@ Data is stored as `ctx.json` in R2, containing components list, documentation pa
 
 #### For Development
 
-Set up environment variables in `.env`, then extract to development bucket:
+Set up environment variables in each app's `.env`, then run from the monorepo root to extract to the development bucket:
 
 ```bash
 pnpm extract:react            # Extract React MCP data
@@ -296,11 +299,12 @@ Data is automatically extracted via GitHub Actions when:
 
 ### Rate Limiting
 
-The extraction scripts fetch documentation directly from `heroui.com`:
+The extraction scripts access both the documentation site and GitHub:
 
-- Documentation is fetched from public URLs (no authentication required)
-- Rate limiting is handled by the documentation server
-- GitHub token is optional and only used for version checking via GitHub API
+- Native component documentation and both manifests use public `heroui.com` URLs.
+- React component extraction uses the GitHub API for file lookup and content retrieval. Its optional `GITHUB_TOKEN` is sent with those requests, not just version checks.
+- GitHub API rate limits therefore affect React component extraction. Supplying a token also increases its configured concurrency and reduces the delay between batches.
+- Theme and version extraction also read files from GitHub's raw-content host.
 
 ## 🛠️ Adding New Features
 
@@ -391,7 +395,7 @@ app.route("/my-route", myRoute);
 
 ### Architecture Notes
 
-Each MCP package follows a unified architecture:
+The React and Native MCP packages follow a unified architecture. The Migration MCP uses the separate Streamable HTTP architecture described in its README.
 
 1. **MCP Server** - STDIO transport for NPM distribution
    - Runs locally in AI assistants
@@ -408,7 +412,7 @@ Each MCP package follows a unified architecture:
    - Single source of truth for component metadata
 
 4. **Data Extraction** - CLI scripts
-   - Fetches component data from heroui.com using `llms.txt` manifest
+   - Discovers component data using `llms.txt` manifests, then fetches React files through the GitHub API and Native documentation from heroui.com
    - Extracts minimal metadata (name, links) from component documentation
    - Uploads consolidated `ctx.json` to R2
 

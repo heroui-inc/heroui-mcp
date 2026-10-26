@@ -22,6 +22,6 @@
 ### Before submitting the PR, please make sure you do the following
 
 - [ ] Read the [Contributing Guidelines](https://github.com/heroui-inc/heroui-mcp/blob/main/CONTRIBUTING.md).
-- [ ] Follow the [Style Guide](https://github.com/heroui-inc/heroui-mcp/blob/main/CONTRIBUTING.md#style-guide).
+- [ ] Follow the [Code Style guidelines](https://github.com/heroui-inc/heroui-mcp/blob/main/CONTRIBUTING.md#-code-style).
 - [ ] Check that there isn't already a PR that solves the problem the same way to avoid creating a duplicate.
 - [ ] Provide a description in this PR that addresses **what** the PR is solving, or reference the issue that it solves (e.g. `fixes #123`).
