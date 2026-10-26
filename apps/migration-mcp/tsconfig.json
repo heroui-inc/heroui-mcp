@@ -12,4 +12,3 @@
   "include": ["src/**/*.ts", "src/**/*.tsx", "package.json"],
   "exclude": ["node_modules", "dist"]
 }
-

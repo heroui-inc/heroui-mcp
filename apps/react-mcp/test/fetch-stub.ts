@@ -42,10 +42,7 @@ const DOC_PAGES: Record<string, string> = {
   "/docs/react/getting-started/installation.mdx": guide("Installation"),
   "/docs/react/getting-started/theming.mdx": guide("Theming"),
   ...Object.fromEntries(
-    DOCUMENTED_COMPONENTS.map((name) => [
-      `/docs/react/components/${name}.mdx`,
-      componentDoc(name),
-    ]),
+    DOCUMENTED_COMPONENTS.map((name) => [`/docs/react/components/${name}.mdx`, componentDoc(name)]),
   ),
 };
 
