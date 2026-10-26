@@ -33,7 +33,10 @@ GitHub links are provided for viewing styles in context.`,
 These are BEM classes from @heroui/styles - not for use with React components.`),
     });
 
-    const handler = async ({components}: z.infer<typeof inputSchema>) => {
+    const handler = async (
+      {components}: z.infer<typeof inputSchema>,
+      {signal}: {signal: AbortSignal},
+    ) => {
       try {
         const response = await fetchApi<{
           version: string;
@@ -46,6 +49,7 @@ These are BEM classes from @heroui/styles - not for use with React components.`)
           }>;
           _warning?: string;
         }>("/v1/components/styles", config.apiBaseUrl, {
+          signal,
           method: "POST",
           body: JSON.stringify({components}),
         });

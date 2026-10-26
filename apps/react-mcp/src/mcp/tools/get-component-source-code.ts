@@ -30,7 +30,10 @@ GitHub links are provided for viewing the source in context.`,
 This shows internal implementation - use get_component_docs for usage examples.`),
     });
 
-    const handler = async ({components}: z.infer<typeof inputSchema>) => {
+    const handler = async (
+      {components}: z.infer<typeof inputSchema>,
+      {signal}: {signal: AbortSignal},
+    ) => {
       try {
         const response = await fetchApi<{
           version: string;
@@ -43,6 +46,7 @@ This shows internal implementation - use get_component_docs for usage examples.`
           }>;
           _warning?: string;
         }>("/v1/components/source", config.apiBaseUrl, {
+          signal,
           method: "POST",
           body: JSON.stringify({components}),
         });

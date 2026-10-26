@@ -54,31 +54,54 @@ export async function fetchApi<T = any>(
     headers["X-API-Key"] = apiKey;
   }
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  const controller = new AbortController();
+  const signal = options?.signal
+    ? AbortSignal.any([options.signal, controller.signal])
+    : controller.signal;
+  signal.throwIfAborted();
 
-  if (!response.ok) {
-    let errorBody: string | null = null;
-    try {
-      errorBody = await response.text();
+  // Keep the deadline active until the entire response body has been consumed.
+  const timeout = setTimeout(() => {
+    controller.abort(
+      new DOMException(`Request to ${endpoint} timed out after 30 seconds`, "TimeoutError"),
+    );
+  }, 30_000);
 
-      if (errorBody && errorBody.length > 300) {
-        errorBody =
-          errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      let errorBody: string | null = null;
+      try {
+        errorBody = await response.text();
+
+        if (errorBody && errorBody.length > 300) {
+          errorBody =
+            errorBody.substring(0, 150) + "..." + errorBody.substring(errorBody.length - 150);
+        }
+      } catch {
+        // Preserve cancellation and timeouts while reading an error response.
+        signal.throwIfAborted();
+        // Ignore other failures reading the body
       }
-    } catch {
-      // Ignore if we can't read the body
+
+      const error = new Error(`${response.status}: ${response.statusText}`) as any;
+      error.status = response.status;
+      error.statusText = response.statusText;
+      error.url = url;
+      error.body = errorBody;
+      throw error;
     }
 
-    const error = new Error(`${response.status}: ${response.statusText}`) as any;
-    error.status = response.status;
-    error.statusText = response.statusText;
-    error.url = url;
-    error.body = errorBody;
+    return await (response.json() as Promise<T>);
+  } catch (error) {
+    signal.throwIfAborted();
     throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return response.json() as Promise<T>;
 }

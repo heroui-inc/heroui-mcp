@@ -11,14 +11,14 @@ Always call this first before using any component to verify it exists.
 Example workflow: list_components → get_component_docs.`,
   exec(server, {config, name, description}) {
     // Register tool
-    server.registerTool(name, {description}, async () => {
+    server.registerTool(name, {description}, async ({signal}) => {
       try {
         // Direct API call
         const data = await fetchApi<{
           components: string[];
           latestVersion: string;
           _warning?: string;
-        }>("/v1/components", config.apiBaseUrl);
+        }>("/v1/components", config.apiBaseUrl, {signal});
         const components = data.components || [];
         const version = data.latestVersion || "latest";
         const warning = data._warning;
