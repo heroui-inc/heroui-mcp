@@ -1,3 +1,19 @@
+## [1.1.3](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.1.2...react-mcp-v1.1.3) (2026-10-26)
+
+* refactor(api)!: use Zod 4 validation throughout ([cb88c8c](https://github.com/heroui-inc/heroui-mcp/commit/cb88c8c16dbd2ac77d791fe9be492e773e308b05))
+
+### Bug Fixes
+
+* **api:** preserve structured validation errors ([8b47af8](https://github.com/heroui-inc/heroui-mcp/commit/8b47af8e163cb8f92979798fe52758fce1db8e51))
+* **deps:** secure and align workspace dependencies ([d07f692](https://github.com/heroui-inc/heroui-mcp/commit/d07f69271c482e1b1f43f3ae1943de4088ed9787))
+* **mcp:** bound API requests and propagate tool cancellation ([3391a61](https://github.com/heroui-inc/heroui-mcp/commit/3391a61250b3d6772fb64a695ba9454366d8703f))
+* **react-mcp:** recover tools after startup API failure ([2f44789](https://github.com/heroui-inc/heroui-mcp/commit/2f4478966b76824ab9db2a94dfd8b3ea14dd87e6))
+* **react-mcp:** resolve dotenv CLI collision ([42ab16d](https://github.com/heroui-inc/heroui-mcp/commit/42ab16d83d49382653376fe6ddf9736cf79f0f20))
+
+### BREAKING CHANGES
+
+* HTTP validation errors expose stringified issues in error.message instead of error.issues. Update route tests for the Zod 4 response format and messages.
+
 ## [1.1.2](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.1.1...react-mcp-v1.1.2) (2026-09-04)
 
 
