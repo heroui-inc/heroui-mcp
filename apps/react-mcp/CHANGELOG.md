@@ -1,3 +1,5 @@
+## [1.1.4](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.1.3...react-mcp-v1.1.4) (2026-11-03)
+
 ## [1.1.3](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.1.2...react-mcp-v1.1.3) (2026-10-26)
 
 * refactor(api)!: use Zod 4 validation throughout ([cb88c8c](https://github.com/heroui-inc/heroui-mcp/commit/cb88c8c16dbd2ac77d791fe9be492e773e308b05))
