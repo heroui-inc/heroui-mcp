@@ -6,7 +6,7 @@
  */
 
 import {McpServer} from "@modelcontextprotocol/server";
-import {StdioServerTransport} from "@modelcontextprotocol/server/stdio";
+import {serveStdio} from "@modelcontextprotocol/server/stdio";
 
 import {API_BASE_URL} from "./constants";
 import {packageInfo} from "./lib/package-info";
@@ -96,14 +96,14 @@ Always follow this order when implementing HeroUI v3 components:
  */
 async function main() {
   try {
-    // Create server
-    const server = await createServer();
-
-    // Create STDIO transport
-    const transport = new StdioServerTransport();
-
-    // Connect server to transport
-    await server.connect(transport);
+    // serveStdio negotiates the protocol era per connection: 2026-07-28
+    // clients and 2025-era clients are both served from the same factory.
+    serveStdio(() => createServer(), {
+      onerror: (error) => {
+        // eslint-disable-next-line no-console
+        console.error("MCP error:", error);
+      },
+    });
 
     // Log to stderr to avoid interfering with STDIO
     // eslint-disable-next-line no-console
