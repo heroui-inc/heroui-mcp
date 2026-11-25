@@ -1,5 +1,5 @@
 import type {Resource, ResourceConfig} from "../types";
-import type {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
+import type {McpServer} from "@modelcontextprotocol/server";
 
 // All available resources
 const resources: Resource[] = [];
