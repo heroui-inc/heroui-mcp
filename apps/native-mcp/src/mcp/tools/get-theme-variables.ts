@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {Tool} from "../types";
+import type {ServerContext} from "@modelcontextprotocol/server";
 
 import {z} from "zod";
 
@@ -26,7 +27,10 @@ For theme documentation and guides, use the get_docs tool instead.
 IMPORTANT: HeroUI Native uses Uniwind (Tailwind CSS for React Native) - ensure compatibility.`,
 
   exec(server, {config, name, description}) {
-    const handler = async (_args: z.infer<typeof inputSchema>, {signal}: {signal: AbortSignal}) => {
+    const handler = async (
+      _args: z.infer<typeof inputSchema>,
+      {mcpReq: {signal}}: ServerContext,
+    ) => {
       try {
         // Always fetch default theme with both modes
         const response = await fetchApi<any>(
@@ -47,7 +51,7 @@ IMPORTANT: HeroUI Native uses Uniwind (Tailwind CSS for React Native) - ensure c
         return {
           content: [
             {
-              type: "text",
+              type: "text" as const,
               text: responseText,
             },
           ],
@@ -56,7 +60,7 @@ IMPORTANT: HeroUI Native uses Uniwind (Tailwind CSS for React Native) - ensure c
         return {
           content: [
             {
-              type: "text",
+              type: "text" as const,
               text: `Error fetching theme variables: ${error instanceof Error ? error.message : String(error)}`,
             },
           ],
@@ -65,7 +69,7 @@ IMPORTANT: HeroUI Native uses Uniwind (Tailwind CSS for React Native) - ensure c
     };
 
     // Register tool
-    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
+    server.registerTool(name, {description, inputSchema}, handler);
   },
 };
 

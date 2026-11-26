@@ -10,6 +10,7 @@ Access HeroUI Native component documentation directly in your AI assistant via M
 - Search and browse React Native components
 - Get props, types, and usage examples
 - Always up-to-date with latest versions
+- Ships the `heroui-native` skill over MCP, so supporting clients get the HeroUI Native playbook with no separate install
 
 ## Configuration
 
@@ -193,6 +194,12 @@ Get HeroUI Native documentation content for guides, principles, and release note
 Get HeroUI Native default theme variables and design tokens (actual variable values). Includes both light and dark mode variables for all categories.
 
 **Note:** For theme documentation and guides, use `get_docs({ path: "/docs/native/getting-started/theming" })` instead.
+
+## Skills
+
+The server publishes the `heroui-native` skill through the [Skills over MCP extension](https://modelcontextprotocol.io/extensions/skills/overview) (`io.modelcontextprotocol/skills`). Clients that support it, such as Claude Code v2.1.331+ and Claude, load the skill only when it is needed. In Claude Code it appears as `<server-name>:heroui-native`, for example `/heroui-native:heroui-native`.
+
+The skill is not bundled in this package. Its source is [`skills/heroui-native`](https://github.com/heroui-inc/heroui/tree/v3/skills/heroui-native) in the HeroUI repository. Every HeroUI Native docs deploy copies it to the API, and the server fetches it from `/v1/skills` at startup and checks for updates hourly, so a merged change reaches users without a new release of this package. Only `SKILL.md`, references and the license are served, not `scripts/`. If the API is unreachable, the server runs without skills. Clients without the extension ignore it and keep using the tools above.
 
 ## Troubleshooting
 

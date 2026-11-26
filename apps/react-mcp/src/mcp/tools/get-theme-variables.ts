@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {Tool} from "../types";
+import type {ServerContext} from "@modelcontextprotocol/server";
 
 import {z} from "zod";
 
@@ -23,7 +24,10 @@ Example variables: --color-accent, --radius-md, --font-size-body, --spacing-4.
 For theme documentation and guides, use the get_docs tool instead.
 IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
   exec(server, {config, name, description}) {
-    const handler = async (_args: z.infer<typeof inputSchema>, {signal}: {signal: AbortSignal}) => {
+    const handler = async (
+      _args: z.infer<typeof inputSchema>,
+      {mcpReq: {signal}}: ServerContext,
+    ) => {
       try {
         const response = await fetchApi<any>(
           "/v1/themes/variables?theme=default",
@@ -43,7 +47,7 @@ IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
         return {
           content: [
             {
-              type: "text",
+              type: "text" as const,
               text: responseText,
             },
           ],
@@ -52,7 +56,7 @@ IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
         return {
           content: [
             {
-              type: "text",
+              type: "text" as const,
               text: `Error fetching theme variables: ${error instanceof Error ? error.message : String(error)}`,
             },
           ],
@@ -61,7 +65,7 @@ IMPORTANT: HeroUI v3 uses Tailwind CSS v4 - ensure compatibility.`,
     };
 
     // Register tool
-    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
+    server.registerTool(name, {description, inputSchema}, handler);
   },
 };
 

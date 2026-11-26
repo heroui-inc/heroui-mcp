@@ -6,6 +6,7 @@
  */
 
 import type {ComponentDataset, LegacyComponentDataset, VersionInfo} from "../src/shared/types/data";
+import type {SkillsDataset} from "../src/shared/types/skills";
 import type {CSSVariable, ThemeSystem} from "../src/shared/types/theme";
 
 export const FIXTURE_VERSION = "3.0.0-alpha.33";
@@ -228,8 +229,30 @@ export const LLMS_TXT = `# Docs
  * R2 object keys mapped to the JSON payload stored at that key. Covers both the
  * v1 layout and the legacy layout that the legacy routes still read from.
  */
+export const FIXTURE_SKILL_MD = `---
+name: heroui-react
+description: "HeroUI v3 React component library. Use when building UIs with HeroUI."
+---
+
+# HeroUI v3 React Development Guide
+
+Call \`list_components\`, then \`get_component_docs\`.
+`;
+
+const skills: SkillsDataset = {
+  version: `v${FIXTURE_VERSION}`,
+  timestamp: 1_700_000_000_000,
+  skills: {
+    "heroui-react": {
+      "SKILL.md": FIXTURE_SKILL_MD,
+      "LICENSE.txt": "Apache License 2.0\n",
+    },
+  },
+};
+
 export const R2_FIXTURES: Record<string, unknown> = {
   "react/v1/latest/ctx.json": ctx,
+  "react/v1/latest/skills.json": skills,
   "react/v1/latest/components.json": components,
   "react/v1/latest/theme.json": themeSystem,
   "react/latest/components.json": legacyComponents,

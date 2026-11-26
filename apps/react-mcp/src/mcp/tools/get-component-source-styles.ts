@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {ComponentContext, Tool} from "../types";
+import type {ServerContext} from "@modelcontextprotocol/server";
 
 import {z} from "zod";
 
@@ -38,7 +39,7 @@ These are BEM classes from @heroui/styles - not for use with React components.`)
 
     const handler = async (
       {components}: z.infer<typeof inputSchema>,
-      {signal}: {signal: AbortSignal},
+      {mcpReq: {signal}}: ServerContext,
     ) => {
       try {
         const response = await fetchApi<{
@@ -98,6 +99,6 @@ These are BEM classes from @heroui/styles - not for use with React components.`)
     };
 
     // Register tool
-    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
+    server.registerTool(name, {description, inputSchema}, handler);
   },
 };

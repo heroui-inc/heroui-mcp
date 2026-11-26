@@ -5,17 +5,21 @@
  * It runs locally and communicates with the HeroUI API server
  */
 
-import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
-import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
+import type {LoadedSkills} from "./skills";
+
+import {McpServer} from "@modelcontextprotocol/server";
+import {serveStdio} from "@modelcontextprotocol/server/stdio";
 
 import {API_BASE_URL} from "./constants";
 import {packageInfo} from "./lib/package-info";
+import {SKILLS_REFRESH_INTERVAL_MS, loadSkills, waitForSkills} from "./skills";
 import {initializeTools} from "./tools";
 
 /**
- * Create and configure the MCP server
+ * Create and configure the MCP server. The skills are awaited only after the
+ * tools are set up, so the wait for them overlaps the tools setup.
  */
-async function createServer(): Promise<McpServer> {
+async function createServer(skills?: Promise<LoadedSkills | undefined>): Promise<McpServer> {
   const server = new McpServer(
     {
       name: packageInfo.name,
@@ -74,6 +78,9 @@ Always follow this order when implementing HeroUI Native components:
     apiBaseUrl: API_BASE_URL,
   });
 
+  // Serve the HeroUI Native skill over MCP (io.modelcontextprotocol/skills)
+  (await skills)?.catalog.attach(server);
+
   return server;
 }
 
@@ -82,14 +89,29 @@ Always follow this order when implementing HeroUI Native components:
  */
 async function main() {
   try {
-    // Create server
-    const server = await createServer();
+    // Load the skills once, in the background, so loading them never holds up
+    // startup; each server instance gets the same catalog, refreshed hourly so
+    // long-running sessions pick up skill updates
+    const skillsLoading = loadSkills(API_BASE_URL);
 
-    // Create STDIO transport
-    const transport = new StdioServerTransport();
+    void skillsLoading.then((skills) => {
+      if (skills) {
+        setInterval(() => void skills.refresh(), SKILLS_REFRESH_INTERVAL_MS).unref();
+      }
+    });
 
-    // Connect server to transport
-    await server.connect(transport);
+    // serveStdio negotiates the protocol era per connection: 2026-07-28
+    // clients (needed for Skills over MCP) and 2025-era clients are both served
+    // from the same factory. It runs the factory on the client's first message;
+    // the skills must be attached before the server connects, so the factory
+    // waits briefly for them (alongside the tools setup) and serves the tools
+    // alone if they are not ready.
+    serveStdio(() => createServer(waitForSkills(skillsLoading)), {
+      onerror: (error) => {
+        // eslint-disable-next-line no-console
+        console.error("MCP error:", error);
+      },
+    });
 
     // Log to stderr to avoid interfering with STDIO
     // eslint-disable-next-line no-console
