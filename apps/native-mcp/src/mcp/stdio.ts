@@ -5,8 +5,8 @@
  * It runs locally and communicates with the HeroUI API server
  */
 
-import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
-import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
+import {McpServer} from "@modelcontextprotocol/server";
+import {StdioServerTransport} from "@modelcontextprotocol/server/stdio";
 
 import {API_BASE_URL} from "./constants";
 import {packageInfo} from "./lib/package-info";

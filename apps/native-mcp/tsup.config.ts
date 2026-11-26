@@ -14,7 +14,7 @@ export default defineConfig({
   minify: false,
   sourcemap: false,
   treeshake: true,
-  external: ["@modelcontextprotocol/sdk"],
+  external: ["@modelcontextprotocol/server"],
   noExternal: ["@heroui/analytics", "@heroui/config"],
   banner: {
     js: "#!/usr/bin/env node",
