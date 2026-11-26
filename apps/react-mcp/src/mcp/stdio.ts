@@ -5,18 +5,21 @@
  * It runs locally and communicates with the HeroUI API server
  */
 
+import type {SkillCatalog} from "@modelcontextprotocol/server/ext/skills";
+
 import {McpServer} from "@modelcontextprotocol/server";
 import {serveStdio} from "@modelcontextprotocol/server/stdio";
 
 import {API_BASE_URL} from "./constants";
 import {packageInfo} from "./lib/package-info";
 import {initializeResources} from "./resources";
+import {SKILLS_REFRESH_INTERVAL_MS, loadSkills} from "./skills";
 import {initializeTools} from "./tools";
 
 /**
  * Create and configure the MCP server
  */
-async function createServer(): Promise<McpServer> {
+async function createServer(skills?: SkillCatalog): Promise<McpServer> {
   const server = new McpServer(
     {
       name: packageInfo.name,
@@ -88,6 +91,9 @@ Always follow this order when implementing HeroUI v3 components:
     apiBaseUrl: API_BASE_URL,
   });
 
+  // Serve the HeroUI skills over MCP (io.modelcontextprotocol/skills)
+  skills?.attach(server);
+
   return server;
 }
 
@@ -96,9 +102,18 @@ Always follow this order when implementing HeroUI v3 components:
  */
 async function main() {
   try {
+    // Load the skills once; each server instance gets the same catalog,
+    // refreshed hourly so long-running sessions pick up skill updates
+    const skills = await loadSkills(API_BASE_URL);
+
+    if (skills) {
+      setInterval(() => void skills.refresh(), SKILLS_REFRESH_INTERVAL_MS).unref();
+    }
+
     // serveStdio negotiates the protocol era per connection: 2026-07-28
-    // clients and 2025-era clients are both served from the same factory.
-    serveStdio(() => createServer(), {
+    // clients (needed for Skills over MCP) and 2025-era clients are both served
+    // from the same factory.
+    serveStdio(() => createServer(skills?.catalog), {
       onerror: (error) => {
         // eslint-disable-next-line no-console
         console.error("MCP error:", error);

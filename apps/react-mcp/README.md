@@ -10,6 +10,7 @@ Access HeroUI component documentation directly in your AI assistant via Model Co
 - Search and browse components
 - Get props, types, and usage examples
 - Always up-to-date with latest versions
+- Ships the `heroui-react` skill over MCP, so supporting clients get the HeroUI playbook with no separate install
 
 ## Configuration
 
@@ -233,6 +234,12 @@ Get HeroUI v3 React documentation content for guides, principles, and release no
 Get HeroUI v3 default theme variables and design tokens (actual variable values). Includes both light and dark mode variables for all categories.
 
 **Note:** For theme documentation and guides, use `get_docs({ path: "/docs/react/getting-started/theming" })` instead.
+
+## Skills
+
+The server publishes the `heroui-react` skill through the [Skills over MCP extension](https://modelcontextprotocol.io/extensions/skills/overview) (`io.modelcontextprotocol/skills`). Clients that support it, such as Claude Code v2.1.331+ and Claude, load the skill only when it is needed. In Claude Code it appears as `<server-name>:heroui-react`, for example `/heroui-react:heroui-react`.
+
+The skill is not bundled in this package. Its source is [`skills/heroui-react`](https://github.com/heroui-inc/heroui/tree/v3/skills/heroui-react) in the HeroUI repository. Every v3 docs deploy copies it to the API, and the server fetches it from `/v1/skills` at startup and checks for updates hourly, so a merged change reaches users without a new release of this package. Only `SKILL.md`, references and the license are served, not `scripts/`. If the API is unreachable, the server runs without skills. Clients without the extension ignore it and keep using the tools above.
 
 ## Troubleshooting
 
