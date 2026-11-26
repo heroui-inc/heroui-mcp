@@ -1,3 +1,17 @@
+# [1.2.0](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.1.4...react-mcp-v1.2.0) (2026-11-26)
+
+### Bug Fixes
+
+* **deps:** resolve dependabot security alerts ([2070305](https://github.com/heroui-inc/heroui-mcp/commit/207030531239877a384256d917a792a28e511a21))
+* **react-mcp:** keep skills consistent on refresh and off the startup path ([1b0187c](https://github.com/heroui-inc/heroui-mcp/commit/1b0187c8a5a1ab66010b8589b96bbb2eb3aad94d))
+
+### Features
+
+* **react-mcp:** extract HeroUI skills into the data pipeline ([af34f20](https://github.com/heroui-inc/heroui-mcp/commit/af34f20031f9662657ddc7335e737849984fbe01))
+* **react-mcp:** negotiate MCP protocol 2026-07-28 over stdio ([1e68bae](https://github.com/heroui-inc/heroui-mcp/commit/1e68bae204c97556714db3266f31f5332997c84c))
+* **react-mcp:** publish the HeroUI skills over MCP ([7c79215](https://github.com/heroui-inc/heroui-mcp/commit/7c7921509a9d6e5a94ed4f3b6524c7e30560fa23))
+* **react-mcp:** serve HeroUI skills from the API at /v1/skills ([15ad59d](https://github.com/heroui-inc/heroui-mcp/commit/15ad59d0d78bffd1d967802905d31e65cc0f40e2))
+
 ## [1.1.4](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.1.3...react-mcp-v1.1.4) (2026-11-03)
 
 ## [1.1.3](https://github.com/heroui-inc/heroui-mcp/compare/react-mcp-v1.1.2...react-mcp-v1.1.3) (2026-10-26)
