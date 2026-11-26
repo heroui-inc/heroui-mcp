@@ -12,6 +12,7 @@ export enum AnalyticsEvent {
   GET_DOCS_CONTENT = "GET_DOCS_CONTENT",
   GET_THEMES = "GET_THEMES",
   GET_THEME_VARIABLES = "GET_THEME_VARIABLES",
+  GET_SKILLS = "GET_SKILLS",
 }
 
 export enum AnalyticsErrorEvent {
@@ -30,6 +31,7 @@ export enum AnalyticsErrorEvent {
   GET_DOCS_CONTENT_ERROR = "GET_DOCS_CONTENT_ERROR",
   GET_THEMES_ERROR = "GET_THEMES_ERROR",
   GET_THEME_VARIABLES_ERROR = "GET_THEME_VARIABLES_ERROR",
+  GET_SKILLS_ERROR = "GET_SKILLS_ERROR",
 }
 
 export interface AnalyticsProperties {

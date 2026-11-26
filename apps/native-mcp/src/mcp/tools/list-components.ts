@@ -11,7 +11,7 @@ Always call this first before using any component to verify it exists.
 Example workflow: list_components → get_component_docs.`,
   exec(server, {config, name, description}) {
     // Register tool
-    server.registerTool(name, {description}, async ({signal}) => {
+    server.registerTool(name, {description}, async ({mcpReq: {signal}}) => {
       try {
         // Direct API call
         const data = await fetchApi<{

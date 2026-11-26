@@ -1,6 +1,5 @@
-import {Client} from "@modelcontextprotocol/sdk/client/index.js";
-import {InMemoryTransport} from "@modelcontextprotocol/sdk/inMemory.js";
-import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
+import {Client} from "@modelcontextprotocol/client";
+import {InMemoryTransport, McpServer} from "@modelcontextprotocol/server";
 import {expect, it, vi} from "vitest";
 
 import {clearSharedContext} from "../lib/shared-context";
@@ -56,7 +55,7 @@ it.each(calls)("aborts the HTTP request when $name is cancelled through MCP", as
         }),
     );
 
-    const result = client.callTool(call, undefined, {signal: controller.signal});
+    const result = client.callTool(call, {signal: controller.signal});
     const rejection = expect(result).rejects.toThrow("Tool cancelled by client");
     const signal = await started;
     expect(signal.aborted).toBe(false);

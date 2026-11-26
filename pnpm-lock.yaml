@@ -104,9 +104,9 @@ importers:
       '@heroui/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@modelcontextprotocol/sdk':
-        specifier: 1.32.2
-        version: 1.32.2(zod@4.6.7)
+      '@modelcontextprotocol/server':
+        specifier: 2.4.0
+        version: 2.4.0
       '@xmldom/xmldom':
         specifier: 0.9.12
         version: 0.9.12
@@ -129,6 +129,9 @@ importers:
       '@hono/zod-validator':
         specifier: 0.9.1
         version: 0.9.1(hono@4.13.17)(zod@4.6.7)
+      '@modelcontextprotocol/client':
+        specifier: 2.4.0
+        version: 2.4.0
       '@types/node':
         specifier: 22.20.5
         version: 22.20.5

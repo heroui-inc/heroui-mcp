@@ -6,6 +6,7 @@
  */
 
 import type {ComponentDataset, VersionInfo} from "../src/shared/types/data";
+import type {SkillsDataset} from "../src/shared/types/skills";
 import type {ThemeSystem} from "../src/shared/types/theme";
 
 export const FIXTURE_VERSION = "1.0.0-alpha.14";
@@ -145,6 +146,27 @@ const ctx = {
   timestamp: Date.parse("2026-01-01T00:00:00.000Z"),
 };
 
+export const FIXTURE_SKILL_MD = `---
+name: heroui-native
+description: "HeroUI Native component library for React Native. Use when building mobile UIs with HeroUI Native."
+---
+
+# HeroUI Native Development Guide
+
+Call \`list_components\`, then \`get_component_docs\`.
+`;
+
+const skills: SkillsDataset = {
+  version: `v${FIXTURE_VERSION}`,
+  timestamp: Date.parse("2026-01-01T00:00:00.000Z"),
+  skills: {
+    "heroui-native": {
+      "SKILL.md": FIXTURE_SKILL_MD,
+      "LICENSE.txt": "Apache License 2.0\n",
+    },
+  },
+};
+
 /**
  * R2 object keys mapped to the JSON payload stored at that key. Covers both the
  * v1 layout and the legacy layout that the legacy routes still read from.
@@ -152,6 +174,7 @@ const ctx = {
 export const R2_FIXTURES: Record<string, unknown> = {
   "native/v1/latest/ctx.json": ctx,
   "native/v1/latest/theme.json": themeSystem,
+  "native/v1/latest/skills.json": skills,
   "native/latest/components.json": components,
   "native/latest/theme.json": themeSystem,
   [`native/components/${FIXTURE_VERSION}.json`]: components,

@@ -5,17 +5,20 @@
  * It runs locally and communicates with the HeroUI API server
  */
 
-import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
-import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
+import type {SkillCatalog} from "@modelcontextprotocol/server/ext/skills";
+
+import {McpServer} from "@modelcontextprotocol/server";
+import {serveStdio} from "@modelcontextprotocol/server/stdio";
 
 import {API_BASE_URL} from "./constants";
 import {packageInfo} from "./lib/package-info";
+import {SKILLS_REFRESH_INTERVAL_MS, loadSkills} from "./skills";
 import {initializeTools} from "./tools";
 
 /**
  * Create and configure the MCP server
  */
-async function createServer(): Promise<McpServer> {
+async function createServer(skills?: SkillCatalog): Promise<McpServer> {
   const server = new McpServer(
     {
       name: packageInfo.name,
@@ -74,6 +77,9 @@ Always follow this order when implementing HeroUI Native components:
     apiBaseUrl: API_BASE_URL,
   });
 
+  // Serve the HeroUI Native skill over MCP (io.modelcontextprotocol/skills)
+  skills?.attach(server);
+
   return server;
 }
 
@@ -82,14 +88,23 @@ Always follow this order when implementing HeroUI Native components:
  */
 async function main() {
   try {
-    // Create server
-    const server = await createServer();
+    // Load the skills once; each server instance gets the same catalog,
+    // refreshed hourly so long-running sessions pick up skill updates
+    const skills = await loadSkills(API_BASE_URL);
 
-    // Create STDIO transport
-    const transport = new StdioServerTransport();
+    if (skills) {
+      setInterval(() => void skills.refresh(), SKILLS_REFRESH_INTERVAL_MS).unref();
+    }
 
-    // Connect server to transport
-    await server.connect(transport);
+    // serveStdio negotiates the protocol era per connection: 2026-07-28
+    // clients (needed for Skills over MCP) and 2025-era clients are both served
+    // from the same factory.
+    serveStdio(() => createServer(skills?.catalog), {
+      onerror: (error) => {
+        // eslint-disable-next-line no-console
+        console.error("MCP error:", error);
+      },
+    });
 
     // Log to stderr to avoid interfering with STDIO
     // eslint-disable-next-line no-console
