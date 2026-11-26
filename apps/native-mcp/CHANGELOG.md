@@ -1,3 +1,16 @@
+# [1.2.0](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.1.4...native-mcp-v1.2.0) (2026-11-26)
+
+### Bug Fixes
+
+* **native-mcp:** keep skills consistent on refresh and off the startup path ([6e64bb7](https://github.com/heroui-inc/heroui-mcp/commit/6e64bb70729581c4a3b1010dee69eda8426c3eec))
+
+### Features
+
+* **native-mcp:** extract HeroUI skills into the data pipeline ([ec4d3de](https://github.com/heroui-inc/heroui-mcp/commit/ec4d3dec36b614c2693a134147f329d5ddad5dca))
+* **native-mcp:** negotiate MCP protocol 2026-07-28 over stdio ([e2fbca4](https://github.com/heroui-inc/heroui-mcp/commit/e2fbca43214a8ebaa6fe5425164ad50f42d8ae2e))
+* **native-mcp:** publish the HeroUI skills over MCP ([ac5b186](https://github.com/heroui-inc/heroui-mcp/commit/ac5b186ce41f60814918e86a3398d8d5c6e089fc))
+* **native-mcp:** serve HeroUI skills from the API at /v1/skills ([6d00524](https://github.com/heroui-inc/heroui-mcp/commit/6d00524edbabb2e3a83b5acd53892f30de66c470))
+
 ## [1.1.4](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.1.3...native-mcp-v1.1.4) (2026-11-03)
 
 ## [1.1.3](https://github.com/heroui-inc/heroui-mcp/compare/native-mcp-v1.1.2...native-mcp-v1.1.3) (2026-10-26)
