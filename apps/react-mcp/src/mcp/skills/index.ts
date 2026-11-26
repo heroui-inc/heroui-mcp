@@ -13,9 +13,11 @@
  */
 
 import type {SkillsDataset} from "../../shared/types/skills";
-import type {SkillCatalog} from "@modelcontextprotocol/server/ext/skills";
+import type {SkillCatalog, SkillFiles} from "@modelcontextprotocol/server/ext/skills";
 
-import {memorySkillFiles, SkillsExtension} from "@modelcontextprotocol/server/ext/skills";
+import {AsyncLocalStorage} from "node:async_hooks";
+
+import {SkillsExtension, memorySkillFiles} from "@modelcontextprotocol/server/ext/skills";
 
 import {fetchApi} from "../lib/fetch";
 
@@ -42,9 +44,38 @@ async function fetchSkillFiles(apiBaseUrl?: string): Promise<Record<string, stri
   return toSkillFiles(await fetchApi<SkillsDataset>("/v1/skills", apiBaseUrl));
 }
 
-function replaceContents(target: Record<string, string>, source: Record<string, string>): void {
-  for (const key of Object.keys(target)) delete target[key];
-  Object.assign(target, source);
+/**
+ * Skill files whose contents can be replaced without serving a file that does
+ * not match the catalog's manifest.
+ *
+ * The catalog checks every file it serves against the size and digest in the
+ * snapshot it last built, and reads the contents live. Swapping the contents
+ * before `reload()` has built the new snapshot would make reads during the
+ * reload fail that check. So reads made inside `replace` (the reload's own walk)
+ * see the incoming files, every other read sees the files the current snapshot
+ * was built from, and the incoming files take over once the reload commits.
+ */
+function replaceableSkillFiles(initial: Record<string, string>) {
+  let serving = memorySkillFiles(initial);
+  const incoming = new AsyncLocalStorage<SkillFiles>();
+  const current = () => incoming.getStore() ?? serving;
+
+  const files: SkillFiles = {
+    list: (dir) => current().list(dir),
+    read: (path) => current().read(path),
+  };
+
+  /** Runs `reload` against `next`, and serves `next` only if it succeeds. */
+  const replace = async (next: Record<string, string>, reload: () => Promise<unknown>) => {
+    const nextFiles = memorySkillFiles(next);
+
+    await incoming.run(nextFiles, reload);
+    // The catalog swapped its snapshot just before `reload` resolved, with no
+    // I/O in between, so no read can see the new snapshot with the old files.
+    serving = nextFiles;
+  };
+
+  return {files, replace};
 }
 
 export interface LoadedSkills {
@@ -64,9 +95,8 @@ export interface LoadedSkills {
  */
 export async function loadSkills(apiBaseUrl?: string): Promise<LoadedSkills | undefined> {
   try {
-    // The catalog re-reads this record on every reload, so a refresh updates it in place.
-    const record = await fetchSkillFiles(apiBaseUrl);
-    const catalog = await SkillsExtension.load(memorySkillFiles(record), {
+    const files = replaceableSkillFiles(await fetchSkillFiles(apiBaseUrl));
+    const catalog = await SkillsExtension.load(files.files, {
       cacheHint: SKILLS_CACHE_HINT,
       onWarning: ({path, message}) => {
         // eslint-disable-next-line no-console
@@ -76,18 +106,8 @@ export async function loadSkills(apiBaseUrl?: string): Promise<LoadedSkills | un
 
     const refresh = async () => {
       try {
-        const next = await fetchSkillFiles(apiBaseUrl);
-        const previous = {...record};
-
-        replaceContents(record, next);
-
-        try {
-          await catalog.reload();
-        } catch (error) {
-          // The catalog keeps serving the old skills; keep the record in step with it.
-          replaceContents(record, previous);
-          throw error;
-        }
+        // On failure the catalog and the files both keep the current skills.
+        await files.replace(await fetchSkillFiles(apiBaseUrl), () => catalog.reload());
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error("Failed to refresh skills; keeping the current ones:", error);
@@ -100,5 +120,33 @@ export async function loadSkills(apiBaseUrl?: string): Promise<LoadedSkills | un
     console.error("Failed to load skills; serving tools without skills:", error);
 
     return undefined;
+  }
+}
+
+/** How long a new connection waits for the skills before it is served without them. */
+export const SKILLS_STARTUP_WAIT_MS = 5_000;
+
+/**
+ * Waits up to `ms` for `loading`, so a slow or unreachable API cannot hold up
+ * the MCP handshake. If the skills are not ready by then, it resolves
+ * `undefined` and the connection is served with the tools only.
+ */
+export async function waitForSkills(
+  loading: Promise<LoadedSkills | undefined>,
+  ms: number = SKILLS_STARTUP_WAIT_MS,
+): Promise<LoadedSkills | undefined> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timedOut = new Promise<undefined>((resolve) => {
+    timer = setTimeout(() => {
+      // eslint-disable-next-line no-console
+      console.error(`Skills not loaded within ${ms}ms; serving tools without skills`);
+      resolve(undefined);
+    }, ms);
+  });
+
+  try {
+    return await Promise.race([loading, timedOut]);
+  } finally {
+    clearTimeout(timer);
   }
 }
