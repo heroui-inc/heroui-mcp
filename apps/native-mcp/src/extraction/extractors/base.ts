@@ -82,7 +82,7 @@ export abstract class BaseExtractor {
   /**
    * Get the storage type for R2 uploads
    */
-  abstract getStorageType(): "components" | "theme";
+  abstract getStorageType(): "components" | "theme" | "skills";
 
   async run(): Promise<void> {
     const startTime = Date.now();
@@ -112,6 +112,9 @@ export abstract class BaseExtractor {
       } else if (storageType === "theme") {
         console.log(`📦 Extracted theme system`);
         // Upload theme.json (still needed for theme system data)
+        await this.r2.uploadLatestVersion(storageType, data);
+      } else if (storageType === "skills") {
+        console.log(`📦 Extracted ${Object.keys(data.skills ?? {}).length} skills`);
         await this.r2.uploadLatestVersion(storageType, data);
       }
 
