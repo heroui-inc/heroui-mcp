@@ -14,6 +14,7 @@ import {components} from "./routes/components";
 import {ctx} from "./routes/ctx";
 import {docs} from "./routes/docs";
 import {health} from "./routes/health";
+import {skills} from "./routes/skills";
 import {themes} from "./routes/themes";
 import type {HonoContext} from "./types/context";
 import {analyticsMiddleware} from "./middleware/analytics";
@@ -52,6 +53,7 @@ app.route("/v1/components", components);
 app.route("/v1/themes", themes);
 app.route("/v1/docs", docs);
 app.route("/v1/ctx", ctx);
+app.route("/v1/skills", skills);
 
 // 404 handler
 app.notFound((c) => {

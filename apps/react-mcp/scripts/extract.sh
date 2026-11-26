@@ -19,12 +19,13 @@ if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
     echo ""
     echo "Arguments:"
     echo "  environment: development | staging | production (default: development)"
-    echo "  target: components | theme | both (default: both)"
+    echo "  target: components | theme | skills | both (default: both; both also extracts skills)"
     echo ""
     echo "Examples:"
     echo "  $0 development components             # Extract components to development bucket"
     echo "  $0 development theme                  # Extract theme to development bucket"
-    echo "  $0 development both                   # Extract both to development bucket"
+    echo "  $0 development skills                 # Extract skills to development bucket"
+    echo "  $0 development both                   # Extract components, theme and skills to development bucket"
     echo ""
     echo "Required environment variables:"
     echo "  CLOUDFLARE_ACCOUNT_ID"
@@ -42,14 +43,14 @@ if [[ ! "$NODE_ENV" =~ ^(development|staging|production)$ ]]; then
     echo -e "${RED}Error: Invalid environment '$NODE_ENV'${NC}"
     echo "Usage: $0 [environment] [target]"
     echo "  environment: development | staging | production"
-    echo "  target: components | theme | both"
+    echo "  target: components | theme | skills | both"
     exit 1
 fi
 
 # Validate target
-if [[ ! "$TARGET" =~ ^(components|both|all|theme)$ ]]; then
+if [[ ! "$TARGET" =~ ^(components|both|all|theme|skills)$ ]]; then
     echo -e "${RED}Error: Invalid target '$TARGET'${NC}"
-    echo "Valid targets: components | theme | both"
+    echo "Valid targets: components | theme | skills | both"
     exit 1
 fi
 
@@ -114,18 +115,24 @@ case "$TARGET" in
         pnpm exec tsx scripts/extract-components.ts
         ;;
     both|all)
-        echo -e "${GREEN}Extracting both HeroUI components and theme...${NC}"
+        # The docs-deployed pipeline runs "both", so it also refreshes the skills.
+        echo -e "${GREEN}Extracting HeroUI components, theme and skills...${NC}"
         pnpm exec tsx scripts/extract-components.ts
         if [ $? -eq 0 ]; then
             pnpm exec tsx scripts/extract-theme.ts
+            pnpm exec tsx scripts/extract-skills.ts
         else
-            echo -e "${RED}Component extraction failed, skipping theme extraction${NC}"
+            echo -e "${RED}Component extraction failed, skipping theme and skills extraction${NC}"
             exit 1
         fi
         ;;
     theme)
         echo -e "${GREEN}Extracting HeroUI theme system...${NC}"
         pnpm exec tsx scripts/extract-theme.ts
+        ;;
+    skills)
+        echo -e "${GREEN}Extracting HeroUI skills...${NC}"
+        pnpm exec tsx scripts/extract-skills.ts
         ;;
 esac
 

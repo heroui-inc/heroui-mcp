@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {DocsContext, Tool} from "../types";
+import type {ServerContext} from "@modelcontextprotocol/server";
 
 import {z} from "zod";
 
@@ -52,7 +53,7 @@ NOTE: Paths containing /native/ are for HeroUI Native docs and require @heroui/n
 
     const handler = async (
       {path}: z.infer<typeof inputSchema>,
-      {signal}: {signal: AbortSignal},
+      {mcpReq: {signal}}: ServerContext,
     ) => {
       if (!path) {
         return {
@@ -168,6 +169,6 @@ Requested path: ${path}`,
       }
     };
 
-    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
+    server.registerTool(name, {description, inputSchema}, handler);
   },
 };

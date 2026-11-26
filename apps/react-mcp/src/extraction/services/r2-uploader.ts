@@ -35,7 +35,7 @@ export class R2Uploader {
    * Upload latest version data
    * Stores in: react/v1/latest/{type}.json
    */
-  async uploadLatestVersion(type: "components" | "theme", data: unknown): Promise<void> {
+  async uploadLatestVersion(type: "components" | "theme" | "skills", data: unknown): Promise<void> {
     const key = `react/v1/latest/${type}.json`;
     const body = JSON.stringify(data, null, 2);
 

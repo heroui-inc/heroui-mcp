@@ -14,7 +14,7 @@ v3 uses compound patterns (e.g., Card.Header, Card.Content) - different from v2'
 Example workflow: list_components → get_component_docs → get_component_source_code (optional).`,
   exec(server, {config, name, description}) {
     // Register tool
-    server.registerTool(name, {description}, async ({signal}) => {
+    server.registerTool(name, {description}, async ({mcpReq: {signal}}) => {
       try {
         // Direct API call
         const data = await fetchApi<{

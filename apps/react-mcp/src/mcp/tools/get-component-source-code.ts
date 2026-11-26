@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {ComponentContext, Tool} from "../types";
+import type {ServerContext} from "@modelcontextprotocol/server";
 
 import {z} from "zod";
 
@@ -35,7 +36,7 @@ This shows internal implementation - use get_component_docs for usage examples.`
 
     const handler = async (
       {components}: z.infer<typeof inputSchema>,
-      {signal}: {signal: AbortSignal},
+      {mcpReq: {signal}}: ServerContext,
     ) => {
       try {
         const response = await fetchApi<{
@@ -95,6 +96,6 @@ This shows internal implementation - use get_component_docs for usage examples.`
     };
 
     // Register tool
-    server.registerTool(name, {description, inputSchema: inputSchema.shape}, handler as any);
+    server.registerTool(name, {description, inputSchema}, handler);
   },
 };
